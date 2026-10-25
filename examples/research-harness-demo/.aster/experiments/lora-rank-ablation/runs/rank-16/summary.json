@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "run": "lora-rank-ablation/rank-16",
+  "generatedAt": "2026-10-24T11:40:13.736Z",
+  "state": "succeeded",
+  "exitCode": 0,
+  "durationMs": 3151,
+  "primary": {
+    "metric": "acc",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 0.8288,
+      "step": 600
+    },
+    "best": {
+      "value": 0.8288,
+      "step": 600
+    }
+  },
+  "baseline": null,
+  "findings": {
+    "fail": 0,
+    "warn": 1,
+    "info": 3
+  },
+  "media": {
+    "image": 5,
+    "video": 0,
+    "audio": 0
+  },
+  "outputs": {
+    "samples": 5
+  },
+  "notes": []
+}

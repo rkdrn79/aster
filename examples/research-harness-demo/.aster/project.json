@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 2,
+  "manuscript": {
+    "source": "paper/main.tex",
+    "pdf": "paper/main.pdf"
+  },
+  "references": {
+    "bibliography": "paper/library.bib",
+    "papers": ".aster/library/papers"
+  }
+}

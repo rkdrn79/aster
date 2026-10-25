@@ -1,0 +1,361 @@
+import React, { useState, useCallback } from 'react'
+import { cn } from '@/lib/utils'
+import {
+  AgentStateDot,
+  agentStateLabel,
+  agentStateProgressLabel,
+  type AgentDotState
+} from '@/components/AgentStateDot'
+import { AgentTypeIcon } from '@/lib/agent-type-icon'
+import { formatAgentTypeLabel } from '@/lib/agent-status'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { DashboardAgentRowMessage } from './DashboardAgentRowMessage'
+import { DashboardAgentRowTrailingControls } from './DashboardAgentRowTrailingControls'
+import { DashboardAgentRowToolStep } from './DashboardAgentRowToolStep'
+import { programStatusAttentionLine } from '../../../../shared/program-status/presentation'
+import { agentRowToolInput, showsAgentToolPreview } from '@/lib/agent-row-tool-preview'
+import { resolveRowProgramStatus } from '@/lib/program-status/agent-row-presentation'
+import { agentRowStoppingLabel } from '@/lib/agent-row-stopping-label'
+import { agentNoUpdateLabel, formatCompactDuration } from '../../../../shared/agent-row-decay-state'
+import { agentRowDisplayDotState, agentRowDotState as asDotState } from '@/lib/agent-row-dot-state'
+import {
+  agentMainAgentVerdict,
+  agentVerdictDisplayMark
+} from '../../../../shared/agent-main-agent-verdict'
+import { agentVerdictStatusLine } from '@/lib/agent-verdict-status-line'
+import type { DashboardAgentRow as DashboardAgentRowData } from './useDashboardData'
+import { getAgentRowPrimaryText } from '../../../../shared/agent-row-primary-text'
+import { useAgentRowConversationName } from './use-agent-row-conversation-name'
+import { lastEnteredDoneAt } from './agent-finished-timestamp'
+import {
+  agentChildRowMessageLine,
+  agentChildRowNoUpdateLabel
+} from '@/components/agent-child-row-text'
+
+function formatTimeAgo(ts: number, now: number): string {
+  const delta = now - ts
+  if (delta < 60_000) {
+    return 'just now'
+  }
+  return `${formatCompactDuration(delta)} ago`
+}
+
+// A child row's silence is the model's, on the clock its compact row and the strip read.
+function rowNoUpdateLabel(agent: DashboardAgentRowData, now: number): string {
+  return agent.childRow
+    ? agentChildRowNoUpdateLabel(agent.childRow, now)
+    : agentNoUpdateLabel(agent.entry, now)
+}
+
+function stateDotTooltipLabel(
+  agent: DashboardAgentRowData,
+  dotState: AgentDotState,
+  now: number
+): string {
+  if (dotState === 'interrupted') {
+    return agentVerdictStatusLine(agent.entry) ?? agentStateLabel(dotState)
+  }
+  // Why: report the observation, not a verdict on the agent — the elapsed gap is what
+  // lets the user apply context Orca has no way to know (a long build, a slow download).
+  return dotState === 'unverifiable' ? rowNoUpdateLabel(agent, now) : agentStateLabel(dotState)
+}
+
+type Props = {
+  agent: DashboardAgentRowData
+  onDismiss: (paneKey: string) => void
+  /** Navigate to this agent's tab; paneKey lets the caller mark-visit the exact clicked row. */
+  onActivate: (tabId: string, paneKey: string) => void
+  /** Why: injected from a parent so one shared tick re-renders every row's "Xm ago" (see hooks/use-now.ts), not a per-row interval. */
+  now: number
+  /** Why: bold prompt rides on the card's unvisited signal (shared with the workspace name), not per-agent state. */
+  isUnvisited?: boolean
+  /** Why: inline variant passes 'sm' so the dot isn't mistaken for the adjacent ~12px agent icon. */
+  stateDotSize?: 'sm' | 'md'
+  /** Why: inline-in-card variant drops the redundant chevron and identity glyph in its tighter layout. */
+  hideIdentityIcon?: boolean
+  hideExpand?: boolean
+  /** Reuse the row's hover tint to show the focused terminal pane's agent. */
+  isFocusedPane?: boolean
+  // Why: inline-card orchestration rows can fold their child agents.
+  childAgentCount?: number
+  childAgentsExpanded?: boolean
+  onToggleChildAgents?: () => void
+  // Why: chevron indentation replaces fixed-offset lineage connector art.
+  hideLineageConnectors?: boolean
+  // Why: send-popover target mode makes row clicks send/no-op instead of navigating.
+  sendTargetStatus?: 'eligible' | 'disabled' | 'sending'
+  sendTargetDisabledReason?: string
+  onSendTargetClick?: (paneKey: string) => void
+}
+
+const DashboardAgentRow = React.memo(function DashboardAgentRow({
+  agent,
+  onDismiss,
+  onActivate,
+  now,
+  isUnvisited = false,
+  stateDotSize = 'md',
+  hideIdentityIcon = false,
+  hideExpand = false,
+  isFocusedPane = false,
+  childAgentCount,
+  childAgentsExpanded = false,
+  onToggleChildAgents,
+  hideLineageConnectors = false,
+  sendTargetStatus,
+  sendTargetDisabledReason,
+  onSendTargetClick
+}: Props) {
+  const hasChildDisclosure =
+    typeof childAgentCount === 'number' &&
+    childAgentCount > 0 &&
+    typeof onToggleChildAgents === 'function'
+  const [expanded, setExpanded] = useState(false)
+  const handleToggleExpanded = useCallback(() => {
+    setExpanded((prev) => !prev)
+  }, [])
+  // Why: stop propagation so the surrounding card's click handler can't override our tab activation.
+  const handleActivate = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      // Why: subagent rows have no pane of their own, so focus the spawning parent's pane.
+      onActivate(agent.tab.id, agent.activationPaneKey ?? agent.paneKey)
+    },
+    [onActivate, agent.tab.id, agent.activationPaneKey, agent.paneKey]
+  )
+  const handleSendTargetClickCapture = useCallback(
+    (e: React.MouseEvent) => {
+      if (!sendTargetStatus) {
+        return
+      }
+      const target = e.target
+      if (
+        target instanceof Element &&
+        target.closest('button, a, input, textarea, select, [role="button"]')
+      ) {
+        return
+      }
+      e.preventDefault()
+      e.stopPropagation()
+      if (sendTargetStatus === 'eligible') {
+        onSendTargetClick?.(agent.paneKey)
+      }
+    },
+    [agent.paneKey, onSendTargetClick, sendTargetStatus]
+  )
+  const startedAt = agent.startedAt > 0 ? agent.startedAt : null
+  const doneAt = lastEnteredDoneAt(agent)
+  const conversationName = useAgentRowConversationName(agent)
+  const prompt = conversationName ?? getAgentRowPrimaryText(agent.entry)
+  // Why: prompt is '' when unknown, so fall back to the state label to keep the row labeled.
+  const displayLabel =
+    prompt ||
+    agentStateLabel(
+      agent.childRow?.displayState ?? asDotState(agent.state, agent.entry.workingMode)
+    )
+  const model = agent.entry.model?.trim() ?? ''
+  const isMonitoring = agent.state === 'working' && agent.entry.workingMode === 'monitoring'
+  const isWorking = agent.state === 'working' && !isMonitoring
+  // Why: 'working' names the running tool and 'waiting' names what an approval is blocked on;
+  // anywhere else a leftover tool line reads as still-running. See showsAgentToolPreview.
+  // Monitoring is excluded too: the lead turn is over, so its last tool line is stale.
+  const stoppingLabel = agentRowStoppingLabel(agent.entry, agent.state)
+  const showsTool = showsAgentToolPreview(agent.state) && !isMonitoring && stoppingLabel === null
+  const { presentation, dotStateOverride } = resolveRowProgramStatus(agent)
+  const toolName = showsTool ? (agent.entry.toolName?.trim() ?? '') : ''
+  // Why the fallback: a hook-owned row without a tool line still shows what the program says it does.
+  const toolInput = showsTool
+    ? agentRowToolInput(agent.entry, agent.state) || presentation.message || ''
+    : ''
+  // Why: a child row's message line is the model's, so a child that ended without an outcome says so.
+  const lastAssistantMessage = agent.childRow
+    ? agentChildRowMessageLine(agent.childRow)
+    : (agent.entry.lastAssistantMessage?.trim() ?? '')
+  const isInterrupted = agentVerdictDisplayMark(agent.entry) === 'interrupted'
+  const lineage = agent.lineage
+  const isLineageChild = lineage?.depth === 1
+  const lineageChildCount = lineage?.childCount ?? 0
+  const participatesInLineage = isLineageChild || lineageChildCount > 0
+  const identityTitle =
+    lineageChildCount > 0
+      ? `${formatAgentTypeLabel(agent.agentType)} - dispatched ${lineageChildCount} ${
+          lineageChildCount === 1 ? 'agent' : 'agents'
+        }`
+      : [formatAgentTypeLabel(agent.agentType), model].filter(Boolean).join(' · ')
+  // Why: a stop or a failure is a terminal outcome, so surface it in the leading state dot; a
+  // failure does so even while subagents still run.
+  const dotState: AgentDotState = dotStateOverride ?? agentRowDisplayDotState(agent)
+  const dotTooltipLabel = agentStateProgressLabel(
+    dotState,
+    presentation.progress,
+    stateDotTooltipLabel(agent, dotState, now)
+  )
+  // Why: the elapsed gap is the whole content of an `unverifiable` row, so it rides the
+  // row's own timestamp slot rather than hiding in a hover tooltip.
+  const noUpdateLabel = dotState === 'unverifiable' ? rowNoUpdateLabel(agent, now) : null
+
+  // Why: always show the chevron so the row's right edge doesn't flicker as content grows/shrinks.
+
+  const startedTimeAgo = startedAt !== null ? formatTimeAgo(startedAt, now) : null
+  const doneTimeAgo = doneAt !== null ? formatTimeAgo(doneAt, now) : null
+  const relativeTimestamp = noUpdateLabel ?? doneTimeAgo ?? startedTimeAgo
+  const tsParts: string[] = noUpdateLabel ? [noUpdateLabel] : []
+  if (startedTimeAgo !== null) {
+    tsParts.push(`started ${startedTimeAgo}`)
+  }
+  if (doneTimeAgo !== null) {
+    tsParts.push(`done ${doneTimeAgo}`)
+  }
+
+  const titleParts = sendTargetDisabledReason ? [sendTargetDisabledReason, ...tsParts] : tsParts
+
+  return (
+    // Why: no role="button" — nested interactive children (buttons, tooltip triggers) would violate ARIA nesting rules.
+    <div
+      onClickCapture={handleSendTargetClickCapture}
+      onClick={handleActivate}
+      className={cn(
+        // Why: named group scopes the X-reveal to this row, not every row in the card.
+        'agent-disclosure-row group/agent-row relative -ml-2 flex flex-col py-1',
+        isLineageChild ? 'pl-5 pr-2' : 'px-2',
+        // Why: hover wash stays softer than the enclosing card's highlight.
+        'cursor-pointer rounded-sm worktree-agent-row-hover',
+        hasChildDisclosure && 'worktree-agent-lineage-parent-row',
+        isLineageChild && 'worktree-agent-lineage-child-row',
+        sendTargetStatus === 'sending' && 'cursor-progress opacity-75',
+        sendTargetStatus === 'disabled' && 'cursor-default opacity-60'
+      )}
+      data-focused-agent-pane={isFocusedPane ? 'true' : undefined}
+      data-agent-send-target={sendTargetStatus}
+      title={titleParts.length > 0 ? titleParts.join(' • ') : undefined}
+      role={participatesInLineage ? 'treeitem' : undefined}
+      aria-level={participatesInLineage ? (lineage?.depth ?? 0) + 1 : undefined}
+    >
+      {lineageChildCount > 0 && !hideLineageConnectors ? (
+        <span
+          aria-hidden
+          data-agent-lineage-parent-connector
+          className="pointer-events-none absolute bottom-[-0.75rem] left-[13px] top-[1.05rem] border-l-[1.5px] border-muted-foreground/45 dark:border-muted-foreground/35"
+        />
+      ) : null}
+      {isLineageChild && !hideLineageConnectors ? (
+        <span
+          aria-hidden
+          data-agent-lineage-connector={lineage?.isLastSibling === false ? 'branch' : 'last'}
+          className="pointer-events-none absolute bottom-[-1px] left-[13px] top-[-1px] w-3"
+        >
+          <span
+            className={cn(
+              'absolute left-0 border-l-[1.5px] border-muted-foreground/45 dark:border-muted-foreground/35',
+              lineage?.isFirstSibling ? 'top-[-0.9rem]' : 'top-[-1px]',
+              lineage?.isLastSibling
+                ? lineage?.isFirstSibling
+                  ? 'h-[1.6rem]'
+                  : 'h-[calc(0.7rem+1px)]'
+                : 'bottom-[-1px]'
+            )}
+          />
+          <span className="absolute left-0 top-[0.7rem] w-1.5 border-t-[1.5px] border-muted-foreground/45 dark:border-muted-foreground/35" />
+        </span>
+      ) : null}
+      <div className="flex items-center gap-1.5">
+        {/* Why: state dot sits in the leading gutter so the eye can scan one column for row state. */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span
+              className="inline-flex shrink-0 items-center justify-center"
+              aria-label={dotTooltipLabel}
+            >
+              <AgentStateDot
+                state={dotState}
+                size={stateDotSize}
+                title={null}
+                progress={presentation.progress}
+              />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top" sideOffset={4}>
+            {dotTooltipLabel}
+          </TooltipContent>
+        </Tooltip>
+        {/* Why: subagent rows skip the icon — agentType holds a child's name, which AgentTypeIcon would draw as a misleading letter; nesting conveys identity. */}
+        {!hideIdentityIcon && agent.rowSource !== 'subagent' && (
+          <span className="inline-flex shrink-0" title={identityTitle}>
+            <AgentTypeIcon agentType={agent.agentType} size={14} />
+          </span>
+        )}
+        {/* Why: interpolate-size:allow-keywords is the only way to animate height to/from auto without measuring in JS; falls back to an instant swap where unsupported. */}
+        <span
+          className={cn(
+            'block min-w-0 flex-1 overflow-hidden text-[11px] leading-snug',
+            'transition-[height] duration-200 ease-out [interpolate-size:allow-keywords]',
+            expanded ? 'h-auto whitespace-pre-wrap break-words' : 'h-[1lh] truncate',
+            isUnvisited ? 'font-semibold text-foreground' : 'font-normal text-muted-foreground',
+            // Why: the selected-row fill washes out muted text — keep it readable.
+            isFocusedPane && !isUnvisited && 'text-foreground/90'
+          )}
+          title={displayLabel}
+        >
+          {displayLabel}
+        </span>
+        {model && (
+          <span
+            className="max-w-24 shrink-0 truncate font-mono text-[10px] text-muted-foreground/70"
+            title={model}
+          >
+            {model}
+          </span>
+        )}
+        {/* Why: "+N" badge shows the hidden child count when collapsed; redundant once children are expanded below. */}
+        {hasChildDisclosure && !childAgentsExpanded && (
+          <span
+            className="shrink-0 text-[10px] font-normal leading-none text-muted-foreground/70 tabular-nums"
+            aria-hidden
+          >
+            +{childAgentCount}
+          </span>
+        )}
+        <DashboardAgentRowTrailingControls
+          paneKey={agent.paneKey}
+          relativeTimestamp={relativeTimestamp}
+          childAgentCount={childAgentCount}
+          childAgentsExpanded={childAgentsExpanded}
+          onToggleChildAgents={onToggleChildAgents}
+          expanded={expanded}
+          hideExpand={hideExpand}
+          hideDismiss={agent.rowSource === 'subagent'}
+          sendTargetStatus={sendTargetStatus}
+          onDismiss={onDismiss}
+          onToggleExpanded={handleToggleExpanded}
+          onSendTargetClick={onSendTargetClick}
+        />
+      </div>
+      <DashboardAgentRowToolStep
+        expanded={expanded}
+        showsTool={showsTool}
+        reservesHeight={isWorking}
+        toolName={toolName}
+        toolInput={toolInput}
+        statusLabel={
+          stoppingLabel ??
+          (presentation.attention ? programStatusAttentionLine(presentation.attention) : null) ??
+          // A blocked row (auth) shows no tool line, so the program's block stands in for it.
+          (!showsTool && agent.entry.programStatus?.state === 'blocked'
+            ? programStatusAttentionLine({
+                ...(agent.entry.programStatus.kind ? { kind: agent.entry.programStatus.kind } : {}),
+                ...(presentation.message ? { message: presentation.message } : {})
+              })
+            : null)
+        }
+      />
+      <DashboardAgentRowMessage
+        expanded={expanded}
+        isInterrupted={isInterrupted}
+        stoppedByUser={agentMainAgentVerdict(agent.entry) === 'cancellation'}
+        lastAssistantMessage={lastAssistantMessage}
+      />
+    </div>
+  )
+})
+
+export default DashboardAgentRow

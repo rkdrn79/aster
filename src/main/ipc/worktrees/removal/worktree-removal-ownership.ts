@@ -1,0 +1,109 @@
+import type { OrcaRuntimeService } from '../../../runtime/orca-runtime'
+import { getLocalPtyProvider } from '../../pty/provider/registry'
+import { clearProviderPtyState } from '../../pty/provider/state-cleanup'
+import { killAllProcessesForWorktree } from '../../../runtime/worktree-teardown'
+import type { Store } from '../../../persistence/loading-store/store'
+import { getRepoExecutionHostId } from '../../../../shared/execution-host'
+import type { ExecutionHostId } from '../../../../shared/execution-host'
+import type { Repo } from '../../../../shared/repo-types'
+import { hasWorktreeRemovalRepoOwnerOnOtherHost } from '../../../worktree-removal-repo-owner'
+import { getRepoIdFromWorktreeId } from '../../../../shared/worktree/id'
+import { agentHookServer } from '../../../agent-hooks/server'
+import { removeWorktreeMetaRow } from '../../../persistence/host-qualified-worktree-meta'
+import { pruneWorktreePRRefreshAliases } from '../../../github/pr-refresh-coordinator'
+import {
+  dropRemovedWorktreeProcessState,
+  pruneRemovedWorktreeSnapshots
+} from '../../../worktree-removal-process-cleanup'
+
+export async function stopPtysForDestructiveWorktreeRemoval(
+  runtime: OrcaRuntimeService,
+  worktreeId: string,
+  options: { connectionId?: string; allowUnverifiedStop?: boolean } = {}
+): Promise<void> {
+  const { connectionId, allowUnverifiedStop } = options
+  // Why: this process holds no SSH PTY provider, so an SSH workspace's terminals cannot be stopped here.
+  if (connectionId) {
+    throw new Error(`PTY provider unavailable for worktree deletion: ${worktreeId}`)
+  }
+  const teardownResult = await killAllProcessesForWorktree(worktreeId, {
+    runtime,
+    // Why: `repoId::path` ids repeat across hosts, so an unfenced sweep stops a same-id
+    // workspace's terminals on another connection — and the selector lookup this replaces
+    // throws `selector_ambiguous` the moment two hosts own the id.
+    resolvedWorktreeId: worktreeId,
+    localProvider: getLocalPtyProvider(),
+    onPtyStopped: clearProviderPtyState,
+    requirePhysicalStop: true,
+    // Why (#11960): set only by an explicit Force Delete, never by the ordinary
+    // confirmation — otherwise the gate would be off on the primary delete path.
+    ...(allowUnverifiedStop ? { allowUnverifiedStop: true } : {})
+  })
+  // Structured sessions are counted here too: closing a user's chat is now an ordinary outcome
+  // of this verb, and a removal that closed one but no PTY would otherwise log nothing at all.
+  const structuredStopped = teardownResult.structuredStopped ?? 0
+  const total =
+    teardownResult.runtimeStopped +
+    teardownResult.providerStopped +
+    teardownResult.registryStopped +
+    structuredStopped
+  if (total > 0) {
+    console.info(
+      `[worktree-teardown] ${worktreeId} killed runtime=${teardownResult.runtimeStopped} provider=${teardownResult.providerStopped} registry=${teardownResult.registryStopped} structured=${structuredStopped}`
+    )
+  }
+}
+
+// Why: the worktree's own persisted host outranks the repo fallback; teardown and metadata purge must resolve the same owner
+// or the purge lands on the local partition while the SSH/runtime one keeps the workspace's tabs forever.
+export function resolveWorktreeRemovalOwnerHostId(
+  store: Store,
+  worktreeId: string,
+  repo: Repo | undefined,
+  fallbackHostId?: ExecutionHostId
+): ExecutionHostId | undefined {
+  return (
+    fallbackHostId ??
+    (repo ? getRepoExecutionHostId(repo) : store.getWorktreeMeta(worktreeId)?.hostId)
+  )
+}
+
+export function removeWorktreeMetadataAndTransientState(
+  {
+    store,
+    runtime,
+    entryPoint = 'worktree-removal'
+  }: {
+    store: Store
+    runtime: Pick<OrcaRuntimeService, 'releaseRemovedWorktreeHostSessions'>
+    entryPoint?: 'worktree-removal' | 'folder-removal'
+  },
+  worktreeId: string,
+  hostId?: ExecutionHostId,
+  snapshotPruneBatchId?: string
+): void {
+  const persistedHostId = store.getWorktreeMeta(worktreeId)?.hostId
+  const repoId = getRepoIdFromWorktreeId(worktreeId)
+  const preservesSameIdOwner = Boolean(
+    hostId &&
+    ((persistedHostId && persistedHostId !== hostId) ||
+      hasWorktreeRemovalRepoOwnerOnOtherHost(store, repoId, hostId))
+  )
+  // Why: worktree IDs are path-derived and reusable; drop process-local caches before the same ID can map to a new workspace.
+  removeWorktreeMetaRow(store, worktreeId, hostId)
+  // Why outside the same-id gate: retirement is per host and per pane, so a surviving owner keeps its own.
+  agentHookServer.dropStatusEntriesForRemovedWorktree(worktreeId, hostId ?? persistedHostId)
+  if (!preservesSameIdOwner) {
+    dropRemovedWorktreeProcessState(worktreeId)
+    // Why here, not in the shared drop: the PR-refresh queue is desktop-only and imports Electron.
+    pruneWorktreePRRefreshAliases(worktreeId)
+    // Why: the desktop also hosts browser pages for paired clients; the runtime path closes them too.
+    runtime.releaseRemovedWorktreeHostSessions(worktreeId, entryPoint)
+  }
+  pruneRemovedWorktreeSnapshots(
+    store.getProfileStorageDirectory(),
+    worktreeId,
+    hostId,
+    snapshotPruneBatchId
+  )
+}

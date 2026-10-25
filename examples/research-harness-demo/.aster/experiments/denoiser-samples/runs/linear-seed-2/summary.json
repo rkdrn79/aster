@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "run": "denoiser-samples/linear-seed-2",
+  "generatedAt": "2026-10-24T11:40:13.861Z",
+  "state": "succeeded",
+  "exitCode": 0,
+  "durationMs": 2254,
+  "primary": {
+    "metric": "psnr",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 27.0867,
+      "step": 300
+    },
+    "best": {
+      "value": 27.0867,
+      "step": 300
+    }
+  },
+  "baseline": {
+    "run": "denoiser-samples/linear-seed-1",
+    "last": {
+      "value": 27.4922,
+      "step": 300
+    },
+    "best": {
+      "value": 27.4922,
+      "step": 300
+    },
+    "delta": {
+      "last": -0.4055,
+      "best": -0.4055
+    }
+  },
+  "findings": {
+    "fail": 0,
+    "warn": 0,
+    "info": 1
+  },
+  "media": {
+    "image": 7,
+    "video": 1,
+    "audio": 0
+  },
+  "outputs": {
+    "samples": 4
+  },
+  "notes": [
+    {
+      "at": "2026-10-24T11:40:12.772Z",
+      "text": "val PSNR 27.09 vs seed 1 27.49: the seeds differ by 0.41 dB, more than cosine's +0.27 dB (finding-2).",
+      "by": "agent",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    }
+  ]
+}

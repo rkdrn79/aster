@@ -1,0 +1,193 @@
+import React, { useCallback, useMemo } from 'react'
+import GitHubItemDialog from '@/components/GitHubItemDialog'
+import { launchWorkItemDirect } from '@/lib/launch-work-item-direct'
+import { useAppStore } from '@/store'
+import { projectViewCacheKeyTarget } from '@/store/github/cache-identity'
+import { translate } from '@/i18n/i18n'
+import ProjectViewList from './ProjectViewList'
+import ProjectBoard from './ProjectBoard'
+import ProjectRoadmap from './ProjectRoadmap'
+import ProjectItemSlugDialog from './ProjectItemSlugDialog'
+import { ProjectMissingRepoDialog } from './ProjectMissingRepoDialog'
+import { ProjectViewToolbar } from './ProjectViewToolbar'
+import {
+  ProjectTableSkeleton,
+  ProjectViewErrorState,
+  ProjectViewTabStrip
+} from './ProjectViewStates'
+import { useProjectRowActions } from './useProjectRowActions'
+import { useProjectViewTable } from './useProjectViewTable'
+import type {
+  GitHubProjectFieldMutationValue,
+  GitHubProjectRow
+} from '../../../../shared/github/project-types'
+import type { ExecutionHostId } from '../../../../shared/execution-host'
+import { taskSourceRuntimeTarget } from '@/lib/task-source-runtime-target'
+
+type Props = {
+  selectedRepoIds: ReadonlySet<string>
+  /** Row-less source host (shared with Linear and Jira): the board, picker and unmatched rows read from it. */
+  sourceHostId: ExecutionHostId
+}
+
+export default function ProjectViewWrapper({
+  selectedRepoIds,
+  sourceHostId
+}: Props): React.JSX.Element {
+  const sourceTarget = useMemo(
+    () => taskSourceRuntimeTarget({ hostId: sourceHostId }),
+    [sourceHostId]
+  )
+  const tableState = useProjectViewTable(selectedRepoIds, sourceTarget)
+  const rowActions = useProjectRowActions({
+    table: tableState.table,
+    currentCacheKey: tableState.currentCacheKey,
+    selectedRepoIds
+  })
+  const addRepo = useAppStore((state) => state.addRepo)
+  const slugOrigin = rowActions.missingDialogs.slugDialog?.origin ?? null
+  const slugCacheKey = slugOrigin?.cacheKey ?? null
+  // Why: an open dialog keeps writing to the host its row was loaded from, even if the board's source moves.
+  const slugSourceTarget = useMemo(
+    () => (slugCacheKey ? projectViewCacheKeyTarget(slugCacheKey) : null),
+    [slugCacheKey]
+  )
+
+  return (
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <ProjectViewToolbar tableState={tableState} />
+      {tableState.activeProject ? (
+        <ProjectViewTabStrip
+          views={tableState.views}
+          activeViewId={tableState.viewId ?? null}
+          onPick={(viewId) => void tableState.switchView(viewId)}
+        />
+      ) : null}
+      <ProjectViewBody tableState={tableState} rowActions={rowActions} />
+      <ProjectItemSlugDialog
+        projectOrigin={slugOrigin}
+        sourceTarget={slugSourceTarget ?? tableState.sourceTarget}
+        onClose={() => rowActions.setSlugDialog(null)}
+      />
+      <ProjectMissingRepoDialog
+        missingRepo={rowActions.missingDialogs.repoNotInOrca}
+        onClose={() => rowActions.setRepoNotInOrca(null)}
+        onAddRepo={addRepo}
+      />
+    </div>
+  )
+}
+
+function ProjectViewBody({
+  tableState,
+  rowActions
+}: {
+  tableState: ReturnType<typeof useProjectViewTable>
+  rowActions: ReturnType<typeof useProjectRowActions>
+}): React.JSX.Element | null {
+  const { activeProject, error, loading, table, visibleTable } = tableState
+  // Keep the board's document drop subscription stable across wrapper renders.
+  const { editField } = rowActions
+  const onEditField = useCallback(
+    (row: GitHubProjectRow, fieldId: string, value: GitHubProjectFieldMutationValue | null) =>
+      void editField(row, fieldId, value),
+    [editField]
+  )
+  if (!activeProject) {
+    return (
+      <div className="flex flex-1 items-center justify-center p-8 text-sm text-muted-foreground">
+        {translate(
+          'auto.components.github.project.ProjectViewWrapper.512fc171d6',
+          'Choose a project to get started.'
+        )}
+      </div>
+    )
+  }
+  if (loading && !table) {
+    return <ProjectTableSkeleton />
+  }
+  if (error) {
+    return (
+      <ProjectViewErrorState
+        error={error.error}
+        totalCount={error.totalCount}
+        host={activeProject.host}
+        onOpenInGitHub={() => {
+          if (table) {
+            void window.api.shell.openUrl(
+              `${table.project.url}/views/${table.selectedView.number ?? ''}`
+            )
+          }
+        }}
+      />
+    )
+  }
+  if (visibleTable && rowActions.resolvedDialogRepoItem) {
+    const dialogItem = rowActions.resolvedDialogRepoItem
+    return (
+      <GitHubItemDialog
+        workItem={dialogItem.workItem}
+        repoPath={dialogItem.repoPath}
+        repoId={dialogItem.repoId}
+        sourceContext={rowActions.dialogSourceContext}
+        projectOrigin={dialogItem.origin}
+        backLabel={translate(
+          'auto.components.github.project.ProjectViewWrapper.1aa7c952b9',
+          'Project view'
+        )}
+        onUse={(item) => {
+          rowActions.setDialogRepoItem(null)
+          // Why: issue #4756 keeps project-view actions on the direct "start work now" path, not the TaskPage background-create flow.
+          void launchWorkItemDirect({
+            item,
+            repoId: dialogItem.workItem.repoId,
+            launchSource: 'task_page',
+            telemetrySource: 'sidebar',
+            openModalFallback: () => {
+              if (item.url) {
+                void window.api.shell.openUrl(item.url)
+              }
+            }
+          })
+        }}
+        onClose={() => rowActions.setDialogRepoItem(null)}
+      />
+    )
+  }
+  if (!visibleTable) {
+    return null
+  }
+  const list = (
+    <ProjectViewList
+      table={visibleTable}
+      onOpenDialog={rowActions.openDialog}
+      onEditField={onEditField}
+      onEditAssignees={(row, add, remove) => void rowActions.editAssignees(row, add, remove)}
+      onEditLabels={(row, add, remove) => void rowActions.editLabels(row, add, remove)}
+      onEditIssueType={(row, issueType) => void rowActions.editIssueType(row, issueType)}
+      onOpenInBrowser={(row) => {
+        if (row.content.url) {
+          void window.api.shell.openUrl(row.content.url)
+        }
+      }}
+      onStartWork={rowActions.startWork}
+      sourceTarget={tableState.sourceTarget}
+    />
+  )
+  if (visibleTable.selectedView.layout === 'ROADMAP_LAYOUT') {
+    return (
+      <ProjectRoadmap table={visibleTable} onOpenDialog={rowActions.openDialog} fallback={list} />
+    )
+  }
+  if (visibleTable.selectedView.layout === 'BOARD_LAYOUT') {
+    return (
+      <ProjectBoard
+        table={visibleTable}
+        onOpenDialog={rowActions.openDialog}
+        onEditField={onEditField}
+        fallback={list}
+      />
+    )
+  }
+  return list
+}

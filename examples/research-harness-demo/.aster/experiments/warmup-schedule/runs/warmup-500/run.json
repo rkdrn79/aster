@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "externalRunId": "warmup-500",
+  "name": "warmup 500",
+  "command": "node scripts/train_demo.mjs --lr 3e-4 --rank 16 --seed 7 --warmup 500 --steps 200000",
+  "execution": {
+    "state": "running",
+    "reportedBy": "manifest",
+    "observedAt": "2026-10-24T09:05:38.611Z",
+    "exitCode": null,
+    "source": "aster-harness"
+  },
+  "code": {
+    "commit": "276ba5a0e9e2774857d1c93be26225e7a04d5f1a",
+    "dirty": false,
+    "capturedAt": "2026-10-24T09:05:38.567Z",
+    "capturePhase": "at_launch",
+    "capturedBy": "aster-harness",
+    "patch": null,
+    "patchSha256": null
+  },
+  "launch": {
+    "startedAt": "2026-10-24T09:05:38.567Z",
+    "finishedAt": null,
+    "durationMs": null,
+    "host": "demo-host",
+    "platform": "darwin",
+    "pid": 6184,
+    "harnessPid": 6171,
+    "signal": null,
+    "argv": [
+      "node",
+      "scripts/train_demo.mjs",
+      "--lr",
+      "3e-4",
+      "--rank",
+      "16",
+      "--seed",
+      "7",
+      "--warmup",
+      "500",
+      "--steps",
+      "200000"
+    ],
+    "cwd": "/private/tmp/aster-demo-seed/research-harness-demo",
+    "by": "aster-harness"
+  },
+  "agent": {
+    "provider": "claude-code",
+    "sessionId": null,
+    "terminalHandle": null,
+    "paneKey": null,
+    "providerSessionId": "demo-claude-session-7f3a"
+  },
+  "metrics": {
+    "path": "metrics.jsonl",
+    "definitions": {
+      "acc": {
+        "direction": "maximize"
+      },
+      "loss": {
+        "direction": "minimize"
+      }
+    }
+  },
+  "artifacts": {
+    "log": "train.log",
+    "output": "artifacts"
+  },
+  "harness": {
+    "createdAt": "2026-10-24T09:05:38.607Z",
+    "status": "launched"
+  }
+}

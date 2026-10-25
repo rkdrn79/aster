@@ -1,0 +1,6 @@
+# Demo fixtures intentionally commit small logs, papers, and output samples.
+# Keep only device state and generated build files out of version control here.
+local/
+cache/
+latex-build/
+*.lock

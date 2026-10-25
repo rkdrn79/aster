@@ -1,0 +1,5 @@
+{"sampleId":"s1","output":"\"The battery lasts two days but the screen scratches easily.\" → mixed (gold: mixed)","imagePath":".aster/experiments/lora-rank-ablation/runs/rank-4/artifacts/samples/s1-attention.png"}
+{"sampleId":"s2","output":"\"Absolutely love it, would buy again.\" → positive (gold: positive)","imagePath":".aster/experiments/lora-rank-ablation/runs/rank-4/artifacts/samples/s2-attention.png"}
+{"sampleId":"s3","output":"\"Stopped charging after a week. Support never replied.\" → neutral (gold: negative)"}
+{"sampleId":"s4","output":"\"It works, I guess. Nothing special.\" → neutral (gold: neutral)"}
+{"sampleId":"s5","output":"\"Not bad at all for the price, though setup was confusing.\" → positive (gold: mixed)"}

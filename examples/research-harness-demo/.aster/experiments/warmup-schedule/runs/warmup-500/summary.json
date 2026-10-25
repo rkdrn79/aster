@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "run": "warmup-schedule/warmup-500",
+  "generatedAt": "2026-10-24T11:40:13.795Z",
+  "state": "running",
+  "exitCode": null,
+  "durationMs": null,
+  "primary": {
+    "metric": "acc",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 0.8308,
+      "step": 600
+    },
+    "best": {
+      "value": 0.8308,
+      "step": 600
+    }
+  },
+  "baseline": {
+    "run": "learning-rate-sweep/lr-3e-4",
+    "last": {
+      "value": 0.8315,
+      "step": 600
+    },
+    "best": {
+      "value": 0.8315,
+      "step": 600
+    },
+    "delta": {
+      "last": -0.0007,
+      "best": -0.0007
+    }
+  },
+  "findings": {
+    "fail": 0,
+    "warn": 1,
+    "info": 2
+  },
+  "media": {
+    "image": 0,
+    "video": 0,
+    "audio": 0
+  },
+  "outputs": null,
+  "notes": [
+    {
+      "at": "2026-10-24T11:40:02.718Z",
+      "text": "Launcher died near step 600 of a 200000-step schedule; val acc 0.8308 at step 600 is mid-run, not a result. Record the real end with run finish, or rerun.",
+      "by": "agent",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "run": "denoiser-samples/cosine-seed-1",
+  "generatedAt": "2026-10-24T11:40:13.858Z",
+  "state": "succeeded",
+  "exitCode": 0,
+  "durationMs": 2484,
+  "primary": {
+    "metric": "psnr",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 27.7617,
+      "step": 300
+    },
+    "best": {
+      "value": 27.7617,
+      "step": 300
+    }
+  },
+  "baseline": {
+    "run": "denoiser-samples/linear-seed-1",
+    "last": {
+      "value": 27.4922,
+      "step": 300
+    },
+    "best": {
+      "value": 27.4922,
+      "step": 300
+    },
+    "delta": {
+      "last": 0.2695,
+      "best": 0.2695
+    }
+  },
+  "findings": {
+    "fail": 0,
+    "warn": 1,
+    "info": 1
+  },
+  "media": {
+    "image": 7,
+    "video": 1,
+    "audio": 0
+  },
+  "outputs": {
+    "samples": 4
+  },
+  "notes": [
+    {
+      "at": "2026-10-24T11:40:10.065Z",
+      "text": "val PSNR 27.76 vs baseline 27.49 (+0.27 dB), 1 seed; s3 shows a checkerboard (finding-1).",
+      "by": "agent",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    }
+  ]
+}

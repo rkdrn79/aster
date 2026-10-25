@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+\title{Low-Rank Adapters for Small Sentiment Classifiers: A Synthetic Demo}
+\author{Aster Research Demo}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This manuscript belongs to the Aster harness demo. Every run in it was produced by a
+seeded simulator, not by training a model, so the numbers exercise the workflow
+rather than support a scientific claim.
+\end{abstract}
+
+\section{Question}
+How much validation accuracy does a LoRA adapter \cite{hu2022lora} gain from a higher
+rank when a small encoder \cite{sanh2019distilbert} is fine-tuned on a five-class
+sentiment task \cite{socher2013sst}, and which learning rate keeps training stable?
+
+\section{Method}
+All runs use AdamW \cite{loshchilov2019adamw}, batch size 32 and 600 optimizer steps.
+Each run was launched with the research harness, which records the code at launch,
+the exact command and every metric event.
+
+\section{Results}
+Table~\ref{tab:rank} reports validation accuracy after 600 steps.
+With rank~16 the adapter reaches 82.9\% validation accuracy.
+Rank~64 raises it to 86.4\% on the same split.
+Moving from rank~16 to rank~64 therefore adds about 2.9 points.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    Rank & Trainable parameters & Val.\ accuracy \\
+    \midrule
+    4  & 0.3M & 80.0\% \\
+    16 & 1.2M & 82.9\% \\
+    64 & 4.7M & 86.4\% \\
+    \bottomrule
+  \end{tabular}
+  \caption{LoRA rank ablation (learning rate $3\times10^{-4}$, seed 2).}
+  \label{tab:rank}
+\end{table}
+
+In the learning-rate sweep, $3\times10^{-4}$ reaches 83.2\% validation accuracy, while
+$10^{-3}$ diverges at step 300.
+At $10^{-4}$ the validation loss is still 1.047 after 600 steps.
+
+\section{Limitations}
+A single seed per configuration cannot separate the rank effect from run-to-run noise.
+
+\bibliographystyle{plain}
+\bibliography{library}
+
+\end{document}

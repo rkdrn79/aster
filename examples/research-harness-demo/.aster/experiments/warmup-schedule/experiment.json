@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "slug": "warmup-schedule",
+  "name": "Warmup schedule",
+  "createdAt": "2026-10-24T09:05:19.920Z",
+  "brief": {
+    "question": "Does a 500-step warmup help the rank-16 adapter at lr 3e-4?",
+    "hypothesis": null,
+    "status": "running",
+    "primaryMetric": {
+      "name": "acc",
+      "split": "val",
+      "direction": "maximize"
+    },
+    "evaluation": null,
+    "baseline": "learning-rate-sweep/lr-3e-4",
+    "minSeeds": null,
+    "rubric": null,
+    "agentPolicy": {
+      "triage": "suggest",
+      "proposals": "approval"
+    },
+    "conclusion": null,
+    "updatedAt": "2026-10-24T11:39:57.583Z",
+    "updatedBy": "user"
+  }
+}

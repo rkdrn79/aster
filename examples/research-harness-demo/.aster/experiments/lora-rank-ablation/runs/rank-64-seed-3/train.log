@@ -1,0 +1,43 @@
+demo-train lr=0.0003 rank=64 seed=3 steps=600 warmup=0
+step 50 train_loss=1.8083 val_loss=1.8569 val_acc=0.4478
+ASTER_METRIC {"step":50,"split":"train","metrics":{"loss":1.8083}}
+ASTER_METRIC {"step":50,"split":"val","metrics":{"loss":1.8569,"acc":0.4478}}
+step 100 train_loss=1.4456 val_loss=1.4807 val_acc=0.5548
+ASTER_METRIC {"step":100,"split":"train","metrics":{"loss":1.4456}}
+ASTER_METRIC {"step":100,"split":"val","metrics":{"loss":1.4807,"acc":0.5548}}
+step 150 train_loss=1.1625 val_loss=1.2000 val_acc=0.6322
+ASTER_METRIC {"step":150,"split":"train","metrics":{"loss":1.1625}}
+ASTER_METRIC {"step":150,"split":"val","metrics":{"loss":1.2,"acc":0.6322}}
+step 200 train_loss=0.9584 val_loss=1.0028 val_acc=0.6918
+ASTER_METRIC {"step":200,"split":"train","metrics":{"loss":0.9584}}
+ASTER_METRIC {"step":200,"split":"val","metrics":{"loss":1.0028,"acc":0.6918}}
+step 250 train_loss=0.7932 val_loss=0.8372 val_acc=0.7359
+ASTER_METRIC {"step":250,"split":"train","metrics":{"loss":0.7932}}
+ASTER_METRIC {"step":250,"split":"val","metrics":{"loss":0.8372,"acc":0.7359}}
+step 300 train_loss=0.6756 val_loss=0.7203 val_acc=0.7738
+ASTER_METRIC {"step":300,"split":"train","metrics":{"loss":0.6756}}
+ASTER_METRIC {"step":300,"split":"val","metrics":{"loss":0.7203,"acc":0.7738}}
+step 350 train_loss=0.5725 val_loss=0.6072 val_acc=0.7977
+ASTER_METRIC {"step":350,"split":"train","metrics":{"loss":0.5725}}
+ASTER_METRIC {"step":350,"split":"val","metrics":{"loss":0.6072,"acc":0.7977}}
+step 400 train_loss=0.5129 val_loss=0.5554 val_acc=0.8194
+ASTER_METRIC {"step":400,"split":"train","metrics":{"loss":0.5129}}
+ASTER_METRIC {"step":400,"split":"val","metrics":{"loss":0.5554,"acc":0.8194}}
+step 450 train_loss=0.4527 val_loss=0.4890 val_acc=0.8341
+ASTER_METRIC {"step":450,"split":"train","metrics":{"loss":0.4527}}
+ASTER_METRIC {"step":450,"split":"val","metrics":{"loss":0.489,"acc":0.8341}}
+step 500 train_loss=0.4090 val_loss=0.4536 val_acc=0.8446
+ASTER_METRIC {"step":500,"split":"train","metrics":{"loss":0.409}}
+ASTER_METRIC {"step":500,"split":"val","metrics":{"loss":0.4536,"acc":0.8446}}
+step 550 train_loss=0.3850 val_loss=0.4206 val_acc=0.8534
+ASTER_METRIC {"step":550,"split":"train","metrics":{"loss":0.385}}
+ASTER_METRIC {"step":550,"split":"val","metrics":{"loss":0.4206,"acc":0.8534}}
+step 600 train_loss=0.3546 val_loss=0.3922 val_acc=0.8589
+ASTER_METRIC {"step":600,"split":"train","metrics":{"loss":0.3546}}
+ASTER_METRIC {"step":600,"split":"val","metrics":{"loss":0.3922,"acc":0.8589}}
+ASTER_MEDIA {"path":".aster/experiments/lora-rank-ablation/runs/rank-64-seed-3/artifacts/samples/s1-attention.png","step":600,"label":"attention","sampleId":"s1"}
+ASTER_MEDIA {"path":".aster/experiments/lora-rank-ablation/runs/rank-64-seed-3/artifacts/samples/s2-attention.png","step":600,"label":"attention","sampleId":"s2"}
+ASTER_MEDIA {"path":".aster/experiments/lora-rank-ablation/runs/rank-64-seed-3/artifacts/samples/s3-attention.png","step":600,"label":"attention","sampleId":"s3"}
+ASTER_MEDIA {"path":".aster/experiments/lora-rank-ablation/runs/rank-64-seed-3/artifacts/samples/s4-attention.png","step":600,"label":"attention","sampleId":"s4"}
+ASTER_MEDIA {"path":".aster/experiments/lora-rank-ablation/runs/rank-64-seed-3/artifacts/samples/s5-attention.png","step":600,"label":"attention","sampleId":"s5"}
+done

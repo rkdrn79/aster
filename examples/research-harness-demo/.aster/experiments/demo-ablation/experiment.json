@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "slug": "demo-ablation",
+  "name": "Demo ablation",
+  "createdAt": "2026-10-23T13:11:59.395Z",
+  "brief": {
+    "question": "What does Aster show for a Run with no recorded execution?",
+    "hypothesis": null,
+    "status": "planned",
+    "primaryMetric": {
+      "name": "demo_score",
+      "split": "validation",
+      "direction": "maximize"
+    },
+    "evaluation": null,
+    "baseline": null,
+    "minSeeds": null,
+    "rubric": null,
+    "agentPolicy": {
+      "triage": "suggest",
+      "proposals": "approval"
+    },
+    "conclusion": null,
+    "updatedAt": "2026-10-24T11:39:57.631Z",
+    "updatedBy": "user"
+  }
+}

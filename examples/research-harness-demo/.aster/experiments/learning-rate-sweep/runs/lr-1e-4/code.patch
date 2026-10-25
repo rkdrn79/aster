@@ -1,0 +1,15 @@
+# Aster launch code capture (git apply ignores these comment lines)
+# commit: 276ba5a0e9e2774857d1c93be26225e7a04d5f1a
+# captured-at: 2026-10-24T09:05:25.215Z
+# excluded: research/ record tree
+# untracked files: 0
+diff --git a/scripts/train_demo.mjs b/scripts/train_demo.mjs
+index 0f1f5a0..703307a 100644
+--- a/scripts/train_demo.mjs
++++ b/scripts/train_demo.mjs
+@@ -139,3 +139,5 @@ function crc32(buffer) {
+   }
+   return ~crc
+ }
++
++// try: lower learning rate keeps the same schedule

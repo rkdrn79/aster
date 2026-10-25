@@ -1,0 +1,10 @@
+{"schemaVersion":1,"runId":"lr-1e-3","step":50,"split":"train","timestamp":"2026-10-24T09:05:20.234Z","metrics":{"loss":1.8237}}
+{"schemaVersion":1,"runId":"lr-1e-3","step":50,"split":"val","timestamp":"2026-10-24T09:05:20.234Z","metrics":{"loss":1.8605,"acc":0.4428}}
+{"schemaVersion":1,"runId":"lr-1e-3","step":100,"split":"train","timestamp":"2026-10-24T09:05:20.487Z","metrics":{"loss":1.4657}}
+{"schemaVersion":1,"runId":"lr-1e-3","step":100,"split":"val","timestamp":"2026-10-24T09:05:20.487Z","metrics":{"loss":1.4982,"acc":0.5418}}
+{"schemaVersion":1,"runId":"lr-1e-3","step":150,"split":"train","timestamp":"2026-10-24T09:05:20.739Z","metrics":{"loss":1.1911}}
+{"schemaVersion":1,"runId":"lr-1e-3","step":150,"split":"val","timestamp":"2026-10-24T09:05:20.740Z","metrics":{"loss":1.2365,"acc":0.6154}}
+{"schemaVersion":1,"runId":"lr-1e-3","step":200,"split":"train","timestamp":"2026-10-24T09:05:20.991Z","metrics":{"loss":0.985}}
+{"schemaVersion":1,"runId":"lr-1e-3","step":200,"split":"val","timestamp":"2026-10-24T09:05:20.991Z","metrics":{"loss":1.0288,"acc":0.6711}}
+{"schemaVersion":1,"runId":"lr-1e-3","step":250,"split":"train","timestamp":"2026-10-24T09:05:21.243Z","metrics":{"loss":1.5078}}
+{"schemaVersion":1,"runId":"lr-1e-3","step":250,"split":"val","timestamp":"2026-10-24T09:05:21.243Z","metrics":{"loss":1.5438,"acc":0.715}}

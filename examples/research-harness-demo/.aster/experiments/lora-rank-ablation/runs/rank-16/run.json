@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "externalRunId": "rank-16",
+  "name": "rank 16",
+  "command": "node scripts/train_demo.mjs --lr 3e-4 --rank 16 --seed 2",
+  "execution": {
+    "state": "succeeded",
+    "reportedBy": "manifest",
+    "observedAt": "2026-10-24T09:05:35.069Z",
+    "exitCode": 0,
+    "source": "aster-harness",
+    "evidence": "process-exit"
+  },
+  "code": {
+    "commit": "276ba5a0e9e2774857d1c93be26225e7a04d5f1a",
+    "dirty": false,
+    "capturedAt": "2026-10-24T09:05:31.918Z",
+    "capturePhase": "at_launch",
+    "capturedBy": "aster-harness",
+    "patch": null,
+    "patchSha256": null
+  },
+  "launch": {
+    "startedAt": "2026-10-24T09:05:31.918Z",
+    "finishedAt": "2026-10-24T09:05:35.069Z",
+    "durationMs": 3151,
+    "host": "demo-host",
+    "platform": "darwin",
+    "pid": 6100,
+    "harnessPid": 6087,
+    "signal": null,
+    "argv": ["node", "scripts/train_demo.mjs", "--lr", "3e-4", "--rank", "16", "--seed", "2"],
+    "cwd": "/private/tmp/aster-demo-seed/research-harness-demo",
+    "by": "aster-harness"
+  },
+  "agent": {
+    "provider": "claude-code",
+    "sessionId": null,
+    "terminalHandle": null,
+    "paneKey": null,
+    "providerSessionId": "demo-claude-session-7f3a"
+  },
+  "metrics": {
+    "path": "metrics.jsonl",
+    "definitions": {
+      "acc": {
+        "direction": "maximize"
+      },
+      "loss": {
+        "direction": "minimize"
+      }
+    }
+  },
+  "evaluation": {
+    "datasetId": "sst5-mini",
+    "datasetRevision": "v1",
+    "split": "val",
+    "evaluatorRevision": "eval-2"
+  },
+  "artifacts": {
+    "log": "train.log",
+    "config": "config.json",
+    "output": "artifacts",
+    "files": [
+      {
+        "name": "sample outputs",
+        "mode": "reference",
+        "path": "/private/tmp/aster-demo-seed/research-harness-demo/.aster/experiments/lora-rank-ablation/runs/rank-16/artifacts/outputs.jsonl",
+        "source": "/private/tmp/aster-demo-seed/research-harness-demo/.aster/experiments/lora-rank-ablation/runs/rank-16/artifacts/outputs.jsonl",
+        "bytes": 750,
+        "sha256": "1d472e471aa03528533556df9c3c161ce93c85a88d35ae1cde49d26ac75073b2",
+        "attachedAt": "2026-10-24T09:05:38.430Z"
+      }
+    ]
+  },
+  "harness": {
+    "createdAt": "2026-10-24T09:05:31.966Z",
+    "status": "observed"
+  }
+}

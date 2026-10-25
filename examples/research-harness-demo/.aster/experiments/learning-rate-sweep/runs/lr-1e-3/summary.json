@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "run": "learning-rate-sweep/lr-1e-3",
+  "generatedAt": "2026-10-24T11:40:13.671Z",
+  "state": "failed",
+  "exitCode": 1,
+  "durationMs": 1366,
+  "primary": {
+    "metric": "acc",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 0.715,
+      "step": 250
+    },
+    "best": {
+      "value": 0.715,
+      "step": 250
+    }
+  },
+  "baseline": {
+    "run": "learning-rate-sweep/lr-3e-4",
+    "last": {
+      "value": 0.8315,
+      "step": 600
+    },
+    "best": {
+      "value": 0.8315,
+      "step": 600
+    },
+    "delta": {
+      "last": -0.1165,
+      "best": -0.1165
+    }
+  },
+  "findings": {
+    "fail": 1,
+    "warn": 0,
+    "info": 0
+  },
+  "media": {
+    "image": 0,
+    "video": 0,
+    "audio": 0
+  },
+  "outputs": null,
+  "notes": [
+    {
+      "at": "2026-10-24T11:39:57.877Z",
+      "text": "Diverged: train loss 0.985 → 1.5078 between steps 200 and 250, NaN at 300 (exit 1). Ruled out 1e-3.",
+      "by": "agent",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    }
+  ]
+}

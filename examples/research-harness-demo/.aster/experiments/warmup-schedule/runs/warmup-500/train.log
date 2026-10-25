@@ -1,0 +1,37 @@
+demo-train lr=0.0003 rank=16 seed=7 steps=200000 warmup=500
+step 50 train_loss=1.8574 val_loss=1.8897 val_acc=0.4321
+ASTER_METRIC {"step":50,"split":"train","metrics":{"loss":1.8574}}
+ASTER_METRIC {"step":50,"split":"val","metrics":{"loss":1.8897,"acc":0.4321}}
+step 100 train_loss=1.5121 val_loss=1.5523 val_acc=0.5268
+ASTER_METRIC {"step":100,"split":"train","metrics":{"loss":1.5121}}
+ASTER_METRIC {"step":100,"split":"val","metrics":{"loss":1.5523,"acc":0.5268}}
+step 150 train_loss=1.2526 val_loss=1.2944 val_acc=0.6020
+ASTER_METRIC {"step":150,"split":"train","metrics":{"loss":1.2526}}
+ASTER_METRIC {"step":150,"split":"val","metrics":{"loss":1.2944,"acc":0.602}}
+step 200 train_loss=1.0377 val_loss=1.0833 val_acc=0.6602
+ASTER_METRIC {"step":200,"split":"train","metrics":{"loss":1.0377}}
+ASTER_METRIC {"step":200,"split":"val","metrics":{"loss":1.0833,"acc":0.6602}}
+step 250 train_loss=0.8750 val_loss=0.9150 val_acc=0.7028
+ASTER_METRIC {"step":250,"split":"train","metrics":{"loss":0.875}}
+ASTER_METRIC {"step":250,"split":"val","metrics":{"loss":0.915,"acc":0.7028}}
+step 300 train_loss=0.7603 val_loss=0.7935 val_acc=0.7384
+ASTER_METRIC {"step":300,"split":"train","metrics":{"loss":0.7603}}
+ASTER_METRIC {"step":300,"split":"val","metrics":{"loss":0.7935,"acc":0.7384}}
+step 350 train_loss=0.6619 val_loss=0.6954 val_acc=0.7629
+ASTER_METRIC {"step":350,"split":"train","metrics":{"loss":0.6619}}
+ASTER_METRIC {"step":350,"split":"val","metrics":{"loss":0.6954,"acc":0.7629}}
+step 400 train_loss=0.5945 val_loss=0.6439 val_acc=0.7838
+ASTER_METRIC {"step":400,"split":"train","metrics":{"loss":0.5945}}
+ASTER_METRIC {"step":400,"split":"val","metrics":{"loss":0.6439,"acc":0.7838}}
+step 450 train_loss=0.5297 val_loss=0.5788 val_acc=0.8000
+ASTER_METRIC {"step":450,"split":"train","metrics":{"loss":0.5297}}
+ASTER_METRIC {"step":450,"split":"val","metrics":{"loss":0.5788,"acc":0.8}}
+step 500 train_loss=0.4848 val_loss=0.5258 val_acc=0.8143
+ASTER_METRIC {"step":500,"split":"train","metrics":{"loss":0.4848}}
+ASTER_METRIC {"step":500,"split":"val","metrics":{"loss":0.5258,"acc":0.8143}}
+step 550 train_loss=0.4483 val_loss=0.4817 val_acc=0.8251
+ASTER_METRIC {"step":550,"split":"train","metrics":{"loss":0.4483}}
+ASTER_METRIC {"step":550,"split":"val","metrics":{"loss":0.4817,"acc":0.8251}}
+step 600 train_loss=0.4241 val_loss=0.4588 val_acc=0.8308
+ASTER_METRIC {"step":600,"split":"train","metrics":{"loss":0.4241}}
+ASTER_METRIC {"step":600,"split":"val","metrics":{"loss":0.4588,"acc":0.8308}}

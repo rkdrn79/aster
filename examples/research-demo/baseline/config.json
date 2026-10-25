@@ -1,0 +1,6 @@
+{
+  "model": "synthetic-demo-model",
+  "lora_rank": 8,
+  "learning_rate": 0.0002,
+  "seed": 42
+}

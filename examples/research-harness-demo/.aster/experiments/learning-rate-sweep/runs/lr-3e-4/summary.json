@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "run": "learning-rate-sweep/lr-3e-4",
+  "generatedAt": "2026-10-24T11:40:13.673Z",
+  "state": "succeeded",
+  "exitCode": 0,
+  "durationMs": 3142,
+  "primary": {
+    "metric": "acc",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 0.8315,
+      "step": 600
+    },
+    "best": {
+      "value": 0.8315,
+      "step": 600
+    }
+  },
+  "baseline": null,
+  "findings": {
+    "fail": 0,
+    "warn": 0,
+    "info": 1
+  },
+  "media": {
+    "image": 5,
+    "video": 0,
+    "audio": 0
+  },
+  "outputs": {
+    "samples": 5
+  },
+  "notes": [
+    {
+      "at": "2026-10-24T11:39:57.940Z",
+      "text": "Fastest stable rate: val acc 0.8315 at step 600; 1e-4 reaches only 0.665. Kept 3e-4 for the rank ablation.",
+      "by": "agent",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    }
+  ]
+}

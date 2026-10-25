@@ -1,0 +1,270 @@
+import type {
+  ClaudeAccountsApi,
+  CodexAccountsApi,
+  CodexConfigSyncApi,
+  CursorAccountsApi,
+  GrokAccountsApi,
+  MinimaxCredentialsApi,
+  ZcodePlanCredentialsApi
+} from './api/agent-account-api'
+import type { HooksApi } from './api/agent-hook-api'
+import type { SkillsApi } from './api/agent-skill-api'
+import type { AgentAwakeApi, AgentStatusApi } from './api/agent-status-api'
+import type {
+  ClaudeUsageApi,
+  CodexUsageApi,
+  MuseUsageApi,
+  OpenCodeUsageApi,
+  RateLimitsApi
+} from './api/agent-usage-api'
+import type { AiVaultApi } from './api/ai-vault-api'
+import type { AppApi, E2EApi, PlatformApi } from './api/app-api'
+import type { AutomationsApi } from './api/automation-api'
+import type { BrowserApi } from './api/browser-api'
+import type { CliApi } from './api/cli-install-api'
+import type { CrashReportsApi, FeedbackApi } from './api/crash-report-api'
+import type { DashboardApi, TerminalPreviewApi } from './api/dashboard-api'
+import type { DocPreviewApi } from './api/doc-preview-api'
+import type { EmulatorApi } from './api/emulator-api'
+import type { EphemeralVmApi } from './api/ephemeral-vm-api'
+import type { ExportApi, FilesystemApi } from './api/filesystem-api'
+import type { GitInspectionApi } from './api/git-inspection-api'
+import type { GitOperationApi } from './api/git-operation-api'
+import type { GithubAccountApi } from './api/github-account-api'
+import type { GithubPullRequestApi } from './api/github-pull-request-api'
+import type { GithubWorkItemApi } from './api/github-work-item-api'
+import type { GitLabApi } from './api/gitlab-api'
+import type { BitbucketApi, HostedReviewApi } from './api/hosted-review-api'
+import type { JiraApi } from './api/jira-api'
+import type { LinearApi } from './api/linear-api'
+import type { MobileApi } from './api/mobile-api'
+import type { NativeChatApi } from './api/native-chat-api'
+import type { OnboardingApi, StarNagApi } from './api/onboarding-api'
+import type { OrcaProfileApi } from './api/orca-profile-api'
+import type {
+  ComputerUsePermissionsApi,
+  DeveloperPermissionsApi,
+  MacosTccPromptsApi,
+  NotificationsApi
+} from './api/os-permission-api'
+import type { PetApi } from './api/pet-api'
+import type { PluginsApi } from './api/plugin-host-api'
+import type { PreflightApi } from './api/preflight-api'
+import type { PtyApi } from './api/pty-api'
+import type { ProjectGroupsApi, ProjectsApi, RepositoryApi } from './api/repository-api'
+import type { RuntimeApi } from './api/runtime-api'
+import type { WslMoveApi } from './api/wsl-move-bridge'
+import type { KeybindingsApi, SettingsApi } from './api/settings-api'
+import type { ShellApi } from './api/shell-api'
+import type { SpeechApi } from './api/speech-api'
+import type { SshApi } from './api/ssh-api'
+import type { PlainSshTerminalApi } from './api/plain-ssh-terminal-bridge'
+import type { LegacyRelayBridgeApi } from './api/legacy-relay-bridge-api'
+import type { DiagnosticsApi, MemoryApi, StatsApi, TelemetryApi } from './api/telemetry-api'
+import type { UiCommandEventApi } from './api/ui-command-event-api'
+import type { UiWindowApi } from './api/ui-window-api'
+import type { UpdaterApi } from './api/updater-api'
+import type { WorkspaceCleanupApi, WorkspaceSpaceApi } from './api/workspace-cleanup-api'
+import type { LocalhostWorktreeLabelsApi, WorkspacePortsApi } from './api/workspace-port-api'
+import type { WorkspaceSessionApi } from './api/workspace-session-api'
+import type { FolderWorkspacesApi, SparsePresetsApi, WorktreeApi } from './api/worktree-api'
+import type { ResearchRecordsApi } from './api/research-records-bridge'
+import type { ResearchComputeApi } from './api/research-compute-bridge'
+import type { ResearchLatexApi } from './api/research-latex-bridge'
+import type { ResearchSynctexApi } from './api/research-synctex-bridge'
+import type { ResearchProjectLayoutApi } from './api/research-project-layout-bridge'
+import type { ResearchHarnessApi } from './api/research-harness-bridge'
+import type { ResearchBriefApi } from './api/research-brief-bridge'
+import type { ResearchFindingsApi } from './api/research-findings-bridge'
+import type { ResearchProposalsApi } from './api/research-proposals-bridge'
+import type { ResearchRatingsApi } from './api/research-ratings-bridge'
+import type { ResearchOrganizeApi } from './api/research-organize-bridge'
+import type { ResearchMediaApi } from './api/research-media-bridge'
+import type { ResearchAnalysisApi } from './api/research-analysis-bridge'
+import type { ResearchWatchesApi } from './api/research-watches-bridge'
+import type { ConferenceDeadlinesApi } from './api/conference-deadlines-bridge'
+import type { ResearchLibraryApi } from './api/research-library-bridge'
+import type { ResearchSlackApi } from './api/research-slack-bridge'
+
+// Flattens contracts that share one PreloadApi key: an intersection is not type-identical to the flat shape.
+type Merged<T> = { [K in keyof T]: T[K] }
+
+export type PreloadApi = {
+  app: AppApi
+  orcaProfiles: OrcaProfileApi
+  platform: PlatformApi
+  e2e: E2EApi
+  repos: RepositoryApi
+  projects: ProjectsApi
+  projectGroups: ProjectGroupsApi
+  folderWorkspaces: FolderWorkspacesApi
+  sparsePresets: SparsePresetsApi
+  worktrees: WorktreeApi
+  workspaceCleanup: WorkspaceCleanupApi
+  workspaceSpace: WorkspaceSpaceApi
+  workspacePorts: WorkspacePortsApi
+  pty: PtyApi
+  feedback: FeedbackApi
+  crashReports: CrashReportsApi
+  export: ExportApi
+  gh: Merged<GithubPullRequestApi & GithubWorkItemApi & GithubAccountApi>
+  hostedReview: HostedReviewApi
+  gl: GitLabApi
+  bitbucket: BitbucketApi
+  linear: LinearApi
+  jira: JiraApi
+  starNag: StarNagApi
+  telemetryTrack: TelemetryApi['telemetryTrack']
+  telemetrySetOptIn: TelemetryApi['telemetrySetOptIn']
+  diagnostics: DiagnosticsApi
+  telemetryGetConsentState: TelemetryApi['telemetryGetConsentState']
+  telemetryAcknowledgeBanner: TelemetryApi['telemetryAcknowledgeBanner']
+  settings: SettingsApi
+  agentAwake: AgentAwakeApi
+  localhostWorktreeLabels: LocalhostWorktreeLabelsApi
+  keybindings: KeybindingsApi
+  codexAccounts: CodexAccountsApi
+  claudeAccounts: ClaudeAccountsApi
+  cli: CliApi
+  codexConfigSync: CodexConfigSyncApi
+  preflight: PreflightApi
+  notifications: NotificationsApi
+  onboarding: OnboardingApi
+  dashboard: DashboardApi
+  terminalPreview: TerminalPreviewApi
+  macosTccPrompts: MacosTccPromptsApi
+  developerPermissions: DeveloperPermissionsApi
+  computerUsePermissions: ComputerUsePermissionsApi
+  shell: ShellApi
+  skills: SkillsApi
+  pet: PetApi
+  browser: BrowserApi
+  emulator: EmulatorApi
+  hooks: HooksApi
+  ephemeralVm: EphemeralVmApi
+  cache: WorkspaceSessionApi['cache']
+  session: WorkspaceSessionApi['session']
+  updater: UpdaterApi
+  notebook: FilesystemApi['notebook']
+  docPreview: DocPreviewApi['docPreview']
+  stats: StatsApi
+  memory: MemoryApi
+  claudeUsage: ClaudeUsageApi
+  codexUsage: CodexUsageApi
+  openCodeUsage: OpenCodeUsageApi
+  museUsage: MuseUsageApi
+  aiVault: AiVaultApi
+  nativeChat: NativeChatApi
+  fs: FilesystemApi['fs']
+  git: Merged<GitInspectionApi & GitOperationApi>
+  ui: Merged<UiCommandEventApi & UiWindowApi>
+  runtime: RuntimeApi['runtime']
+  runtimeEnvironments: RuntimeApi['runtimeEnvironments']
+  rateLimits: RateLimitsApi
+  opencodeGoCredentials: {
+    getStatus: () => Promise<{ apiKeyConfigured: boolean }>
+    saveApiKey: (key: string) => Promise<{ apiKeyConfigured: boolean }>
+    clearApiKey: () => Promise<{ apiKeyConfigured: boolean }>
+  }
+  minimaxCredentials: MinimaxCredentialsApi
+  zcodePlanCredentials: ZcodePlanCredentialsApi
+  grokAccounts: GrokAccountsApi
+  cursorAccounts: CursorAccountsApi
+  ssh: SshApi
+  /** Desktop only: an unmanaged ssh login to a host whose move is blocked. */
+  plainSsh?: PlainSshTerminalApi
+  /** COMPAT(legacy-relay-bridge): desktop-only, revisit 2027-01-15. */
+  legacyRelayBridge?: LegacyRelayBridgeApi
+  automations: AutomationsApi
+  wsl: RuntimeApi['wsl']
+  wslMove: WslMoveApi
+  pwsh: RuntimeApi['pwsh']
+  gitBash: RuntimeApi['gitBash']
+  plugins: PluginsApi
+  agentStatus: AgentStatusApi
+  mobile: MobileApi
+  researchRecords: ResearchRecordsApi
+  researchCompute: ResearchComputeApi
+  researchLatex: ResearchLatexApi
+  researchSynctex: ResearchSynctexApi
+  researchProjectLayout: ResearchProjectLayoutApi
+  researchHarness: ResearchHarnessApi
+  researchBrief: ResearchBriefApi
+  researchFindings: ResearchFindingsApi
+  researchProposals: ResearchProposalsApi
+  researchRatings: ResearchRatingsApi
+  researchOrganize: ResearchOrganizeApi
+  researchMedia: ResearchMediaApi
+  researchAnalysis: ResearchAnalysisApi
+  researchWatches: ResearchWatchesApi
+  conferenceDeadlines: ConferenceDeadlinesApi
+  researchLibrary: ResearchLibraryApi
+  researchSlack: ResearchSlackApi
+  speech: SpeechApi
+}
+
+export type {
+  ClaudeUsageApi,
+  CodexUsageApi,
+  MuseUsageApi,
+  OpenCodeUsageApi
+} from './api/agent-usage-api'
+export type { AiVaultApi } from './api/ai-vault-api'
+export type { AutomationsApi, ExternalAutomationManagerResult } from './api/automation-api'
+export type { AppApi } from './api/app-api'
+export type { BrowserApi, DetectedBrowserInfo, DetectedBrowserProfileInfo } from './api/browser-api'
+export type { EmulatorApi } from './api/emulator-api'
+export type { ExportApi } from './api/filesystem-api'
+export type {
+  NativeChatApi,
+  NativeChatAppendedMessages,
+  NativeChatAppendedPayload,
+  NativeChatReadSessionResult,
+  NativeChatSubscribeArgs,
+  NativeChatSubscriptionFrame
+} from './api/native-chat-api'
+export type {
+  PluginHostInstallResult,
+  PluginHostInstallSource,
+  PluginHostListEntry,
+  PluginHostLogLine,
+  PluginHostPanel,
+  PluginHostStatus,
+  PluginMarketplaceHostInstallPreview,
+  PluginMarketplaceHostListing,
+  PluginMarketplaceHostSourceState
+} from './api/plugin-host-api'
+export type {
+  PreflightApi,
+  PreflightRuntimeContext,
+  PreflightStatus,
+  RefreshAgentsResult
+} from './api/preflight-api'
+export type {
+  PtyManagementApi,
+  PtyManagementDaemonCwdClass,
+  PtyManagementFolderAccessMismatch,
+  PtyManagementMacTccAttributionHealth,
+  PtyManagementSession,
+  PtyManagementSeveredDaemon,
+  PtyManagementSeveredDaemonRestartResult
+} from './api/pty-management-api'
+export type {
+  ShellOpenExternalEditorRequest,
+  ShellOpenExternalEditorResult,
+  ShellOpenLocalPathResult
+} from './api/shell-api'
+export type {
+  DiagnosticsBundlePayload,
+  DiagnosticsStatusPayload,
+  DiagnosticsUploadPayload,
+  MemoryApi,
+  StatsApi
+} from './api/telemetry-api'
+
+declare global {
+  // oxlint-disable-next-line typescript-eslint/consistent-type-definitions -- declaration merging requires interface
+  interface Window {
+    api: PreloadApi
+  }
+}

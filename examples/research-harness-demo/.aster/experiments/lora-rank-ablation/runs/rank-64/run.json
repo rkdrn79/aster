@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "externalRunId": "rank-64",
+  "name": "rank 64",
+  "command": "node scripts/train_demo.mjs --lr 3e-4 --rank 64 --seed 2",
+  "execution": {
+    "state": "succeeded",
+    "reportedBy": "manifest",
+    "observedAt": "2026-10-24T09:05:38.329Z",
+    "exitCode": 0,
+    "source": "aster-harness",
+    "evidence": "process-exit"
+  },
+  "code": {
+    "commit": "276ba5a0e9e2774857d1c93be26225e7a04d5f1a",
+    "dirty": false,
+    "capturedAt": "2026-10-24T09:05:35.174Z",
+    "capturePhase": "at_launch",
+    "capturedBy": "aster-harness",
+    "patch": null,
+    "patchSha256": null
+  },
+  "launch": {
+    "startedAt": "2026-10-24T09:05:35.174Z",
+    "finishedAt": "2026-10-24T09:05:38.329Z",
+    "durationMs": 3155,
+    "host": "demo-host",
+    "platform": "darwin",
+    "pid": 6137,
+    "harnessPid": 6124,
+    "signal": null,
+    "argv": ["node", "scripts/train_demo.mjs", "--lr", "3e-4", "--rank", "64", "--seed", "2"],
+    "cwd": "/private/tmp/aster-demo-seed/research-harness-demo",
+    "by": "aster-harness"
+  },
+  "agent": {
+    "provider": "codex",
+    "sessionId": null,
+    "terminalHandle": null,
+    "paneKey": null,
+    "providerSessionId": "demo-codex-thread-2b91"
+  },
+  "metrics": {
+    "path": "metrics.jsonl",
+    "definitions": {
+      "acc": {
+        "direction": "maximize"
+      },
+      "loss": {
+        "direction": "minimize"
+      }
+    }
+  },
+  "evaluation": {
+    "datasetId": "sst5-mini",
+    "datasetRevision": "v1",
+    "split": "val",
+    "evaluatorRevision": "eval-2"
+  },
+  "artifacts": {
+    "log": "train.log",
+    "config": "config.json",
+    "output": "artifacts"
+  },
+  "harness": {
+    "createdAt": "2026-10-24T09:05:35.229Z",
+    "status": "observed"
+  },
+  "job": {
+    "scheduler": "slurm",
+    "jobId": "48213",
+    "host": "gpu-cluster",
+    "submittedAt": "2026-10-24T09:05:35.174Z",
+    "state": "completed",
+    "observedAt": "2026-10-24T09:05:38.329Z",
+    "reason": null,
+    "exitCode": 0
+  }
+}

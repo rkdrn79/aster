@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "manuscript": {
+    "source": "research/manuscript/main.tex",
+    "pdf": "research/manuscript/main.pdf"
+  },
+  "references": {
+    "bibliography": "research/references/library.bib",
+    "papers": "research/references/papers"
+  },
+  "experiments": []
+}

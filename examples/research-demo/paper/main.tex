@@ -1,0 +1,53 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+
+\title{A Synthetic Example of Run Comparison}
+\author{Aster Research Demo}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document is demonstration content. Its run names and measurements are synthetic;
+they are not claims about a trained model. It shows how a manuscript can remain beside
+run evidence while an author edits and reviews individual passages.
+\end{abstract}
+
+\section{Research question}
+How should a researcher compare two runs when the observed metric and the evidence
+behind it can differ? A useful workspace keeps the source manuscript, run records,
+and agent conversation linked without treating an agent response as an experimental result.
+
+\section{Method}
+We illustrate a baseline and a rank-16 configuration. For a metric sequence
+$m_1,\ldots,m_n$, the displayed last observation is
+\begin{equation}
+  m_{\mathrm{last}} = m_n.
+\end{equation}
+This quantity is not automatically a final evaluation score. A comparison is only
+meaningful when dataset revision, evaluation split, units, and aggregation match.
+
+\section{Illustrative results}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lcc}
+    \toprule
+    Run & Configuration & Evidence status \\
+    \midrule
+    Baseline & reference & demo only \\
+    Rank-16 & ablation & demo only \\
+    \bottomrule
+  \end{tabular}
+  \caption{Synthetic runs used to demonstrate the writing workflow.}
+\end{table}
+
+\section{Limitations}
+No statistical claim follows from a single example run. Code provenance and
+evaluation metadata must be checked before reporting a difference as a result.
+An author can select this paragraph, ask an agent for a clearer formulation,
+review the proposed text, and then decide whether to edit the manuscript.
+
+\end{document}

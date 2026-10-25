@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "slug": "lora-rank-ablation",
+  "name": "LoRA rank ablation",
+  "createdAt": "2026-10-24T09:05:19.845Z",
+  "brief": {
+    "question": "Does a larger LoRA rank raise SST-5-mini val accuracy at 600 steps?",
+    "hypothesis": "Rank 64 beats rank 16 by at least 2 points",
+    "status": "analyzing",
+    "primaryMetric": {
+      "name": "acc",
+      "split": "val",
+      "direction": "maximize"
+    },
+    "evaluation": {
+      "datasetId": "sst5-mini",
+      "datasetRevision": "v1",
+      "split": "val",
+      "evaluatorRevision": "eval-2"
+    },
+    "baseline": "lora-rank-ablation/rank-16",
+    "minSeeds": 2,
+    "rubric": ".aster/experiments/lora-rank-ablation/rubric.md",
+    "agentPolicy": {
+      "triage": "suggest",
+      "proposals": "approval"
+    },
+    "conclusion": null,
+    "updatedAt": "2026-10-24T11:39:57.536Z",
+    "updatedBy": "user"
+  }
+}

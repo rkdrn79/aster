@@ -1,0 +1,3 @@
+{"schemaVersion":1,"runId":"cosine-manual","step":100,"split":"val","timestamp":"2026-10-24T09:05:41.908Z","metrics":{"acc":0.6867,"loss":0.9889}}
+{"schemaVersion":1,"runId":"cosine-manual","step":200,"split":"val","timestamp":"2026-10-24T09:05:42.085Z","metrics":{"acc":0.7533,"loss":0.8778}}
+{"schemaVersion":1,"runId":"cosine-manual","step":300,"split":"val","timestamp":"2026-10-24T09:05:42.258Z","metrics":{"acc":0.82,"loss":0.7667}}

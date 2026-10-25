@@ -1,0 +1,25 @@
+demo-denoise schedule=cosine lr=0.002 seed=1 steps=300
+ASTER_METRIC {"step":25,"split":"train","metrics":{"loss":0.0712}}
+ASTER_METRIC {"step":50,"split":"train","metrics":{"loss":0.0553}}
+ASTER_METRIC {"step":50,"split":"val","metrics":{"psnr":19.8287,"loss":0.0607}}
+step 50 train_loss=0.0553 val_psnr=19.83
+ASTER_METRIC {"step":75,"split":"train","metrics":{"loss":0.0431}}
+ASTER_METRIC {"step":100,"split":"train","metrics":{"loss":0.0326}}
+ASTER_METRIC {"step":100,"split":"val","metrics":{"psnr":23.846,"loss":0.0362}}
+step 100 train_loss=0.0326 val_psnr=23.85
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/cosine-lr-2e-3/artifacts/samples/step_100.png","step":100,"label":"samples"}
+ASTER_METRIC {"step":125,"split":"train","metrics":{"loss":0.0266}}
+ASTER_METRIC {"step":150,"split":"train","metrics":{"loss":0.0235}}
+ASTER_METRIC {"step":150,"split":"val","metrics":{"psnr":25.8956,"loss":0.0264}}
+step 150 train_loss=0.0235 val_psnr=25.90
+ASTER_METRIC {"step":175,"split":"train","metrics":{"loss":0.019}}
+ASTER_METRIC {"step":200,"split":"train","metrics":{"loss":0.0681}}
+ASTER_METRIC {"step":200,"split":"val","metrics":{"psnr":26.9608,"loss":0.0745}}
+step 200 train_loss=0.0681 val_psnr=26.96
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/cosine-lr-2e-3/artifacts/samples/step_200.png","step":200,"label":"samples"}
+ASTER_METRIC {"step":225,"split":"train","metrics":{"loss":0.1174}}
+ASTER_METRIC {"step":250,"split":"train","metrics":{"loss":NaN}}
+step 250: loss is NaN; lr 0.002 overshoots after the noise level drops
+Traceback (most recent call last):
+  File "denoise.py", line 141, in train_step
+FloatingPointError: non-finite loss

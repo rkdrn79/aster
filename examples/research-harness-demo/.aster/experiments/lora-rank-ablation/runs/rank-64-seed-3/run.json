@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "externalRunId": "rank-64-seed-3",
+  "name": "rank 64 seed 3",
+  "command": "node scripts/train_demo.mjs --lr 3e-4 --rank 64 --seed 3",
+  "execution": {
+    "state": "succeeded",
+    "reportedBy": "manifest",
+    "observedAt": "2026-10-24T11:40:01.479Z",
+    "exitCode": 0,
+    "source": "aster-harness",
+    "evidence": "process-exit"
+  },
+  "code": {
+    "commit": "704717fcb006906fd0d39559b0ab307e2bfb7f8c",
+    "dirty": false,
+    "capturedAt": "2026-10-24T11:39:58.274Z",
+    "capturePhase": "at_launch",
+    "capturedBy": "aster-harness",
+    "patch": null,
+    "patchSha256": null
+  },
+  "launch": {
+    "startedAt": "2026-10-24T11:39:58.274Z",
+    "finishedAt": "2026-10-24T11:40:01.479Z",
+    "durationMs": 3205,
+    "host": "demo-host",
+    "platform": "darwin",
+    "pid": 43630,
+    "harnessPid": 43614,
+    "signal": null,
+    "argv": ["node", "scripts/train_demo.mjs", "--lr", "3e-4", "--rank", "64", "--seed", "3"],
+    "cwd": "/private/tmp/aster-demo-seed/research-harness-demo",
+    "by": "aster-harness"
+  },
+  "agent": {
+    "provider": "claude-code",
+    "sessionId": null,
+    "terminalHandle": null,
+    "paneKey": null,
+    "providerSessionId": "demo-claude-session-7f3a"
+  },
+  "metrics": {
+    "path": "metrics.jsonl",
+    "definitions": {
+      "acc": {
+        "direction": "maximize"
+      },
+      "loss": {
+        "direction": "minimize"
+      }
+    }
+  },
+  "evaluation": {
+    "datasetId": "sst5-mini",
+    "datasetRevision": "v1",
+    "split": "val",
+    "evaluatorRevision": "eval-2"
+  },
+  "artifacts": {
+    "log": "train.log",
+    "config": "config.json",
+    "output": "artifacts"
+  },
+  "harness": {
+    "createdAt": "2026-10-24T11:39:58.317Z",
+    "status": "observed"
+  }
+}

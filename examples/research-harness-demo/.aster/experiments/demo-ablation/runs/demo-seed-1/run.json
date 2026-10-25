@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "externalRunId": "demo-seed-1",
+  "name": "Demo seed 1",
+  "code": {
+    "capturePhase": "unknown",
+    "commit": null,
+    "capturedAt": null
+  },
+  "metrics": {
+    "path": "metrics.jsonl"
+  },
+  "artifacts": {
+    "log": "train.log",
+    "output": "artifacts"
+  },
+  "harness": {
+    "createdAt": "2026-10-23T13:11:59.961Z",
+    "status": "unreported"
+  }
+}

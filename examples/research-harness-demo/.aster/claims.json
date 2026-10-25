@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "claims": [
+    {
+      "id": "rank16-acc",
+      "text": "Rank 16 reaches 82.9% validation accuracy",
+      "manuscript": {
+        "file": "paper/main.tex",
+        "line": 31,
+        "anchor": "With rank~16 the adapter reaches"
+      },
+      "evidence": [
+        {
+          "run": "lora-rank-ablation/rank-16",
+          "metric": "acc",
+          "split": "val",
+          "select": "last",
+          "step": null,
+          "value": 0.8288,
+          "tolerance": null,
+          "format": "percent:1",
+          "role": "stated",
+          "observedStep": 600,
+          "metricsSha256": "7b01dfda83a7b7c0a5a1206541d24b0bc4fc8121223ea41956c5976c9637400d",
+          "recordedAt": "2026-10-24T09:06:43.204Z"
+        }
+      ],
+      "createdBy": "agent",
+      "createdAt": "2026-10-24T09:06:43.206Z",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    },
+    {
+      "id": "rank64-acc",
+      "text": "Rank 64 raises validation accuracy to 85.8%",
+      "manuscript": {
+        "file": "paper/main.tex",
+        "line": 32,
+        "anchor": "Rank~64 raises it to"
+      },
+      "evidence": [
+        {
+          "run": "lora-rank-ablation/rank-64",
+          "metric": "acc",
+          "split": "val",
+          "select": "last",
+          "step": null,
+          "value": 0.8577,
+          "tolerance": null,
+          "format": "percent:1",
+          "role": "stated",
+          "observedStep": 600,
+          "metricsSha256": "12aca6760e0fa78307fb4c33666322daa95fc472158b5213dfcaf38754a3d708",
+          "recordedAt": "2026-10-24T09:06:43.285Z"
+        }
+      ],
+      "createdBy": "agent",
+      "createdAt": "2026-10-24T09:06:43.286Z",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    },
+    {
+      "id": "lr3e4-acc",
+      "text": "lr 3e-4 reaches 83.2% validation accuracy",
+      "manuscript": {
+        "file": "paper/main.tex",
+        "line": 50,
+        "anchor": "reaches 83.2"
+      },
+      "evidence": [
+        {
+          "run": "learning-rate-sweep/lr-3e-4",
+          "metric": "acc",
+          "split": "val",
+          "select": "last",
+          "step": null,
+          "value": 0.8315,
+          "tolerance": null,
+          "format": "percent:1",
+          "role": "stated",
+          "observedStep": 600,
+          "metricsSha256": "55740f6135e4339af9d1bd22b37f08a2a8b687fca9892c3d244e62d4af025e6a",
+          "recordedAt": "2026-10-24T09:06:43.364Z"
+        }
+      ],
+      "createdBy": "user",
+      "createdAt": "2026-10-24T09:06:43.366Z",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    },
+    {
+      "id": "lr1e4-loss",
+      "text": "lr 1e-4 validation loss is still 1.047 after 600 steps",
+      "manuscript": {
+        "file": "paper/main.tex",
+        "line": 52,
+        "anchor": "the validation loss is still"
+      },
+      "evidence": [
+        {
+          "run": "learning-rate-sweep/lr-1e-4",
+          "metric": "loss",
+          "split": "val",
+          "select": "last",
+          "step": null,
+          "value": 1.0472,
+          "tolerance": null,
+          "format": "fixed:3",
+          "role": "stated",
+          "observedStep": 600,
+          "metricsSha256": "1e3d79f9e8a8a76250c2dc65260a255cd50e4062e7007f984c794aa7f1fb16fa",
+          "recordedAt": "2026-10-24T09:06:43.444Z"
+        }
+      ],
+      "createdBy": "agent",
+      "createdAt": "2026-10-24T09:06:43.445Z",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    }
+  ]
+}

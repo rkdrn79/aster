@@ -1,0 +1,90 @@
+// Aster's install identity is separate from the upstream app. Releases remain
+// unconfigured until Aster owns a signed, authenticated update channel.
+const base = require('./electron-builder.config.cjs')
+const brand = require('../src/shared/product-brand.json')
+const { resolveAsterUpdateFeed } = require('./scripts/aster-update-feed.cjs')
+const updateFeed = resolveAsterUpdateFeed() ?? brand.links.updateFeed
+
+const researchHarnessResource = { from: 'src/research-harness', to: 'research-harness' }
+// MIT requires the upstream copyright and permission notice to travel with every copy.
+const noticesResource = { from: brand.licenseNoticeFile, to: brand.licenseNoticeFile }
+// Skill packages install from the app itself; the upstream repository has no Aster commits.
+const skillPackagesResource = { from: 'skills', to: 'skills' }
+const asterResources = [researchHarnessResource, noticesResource, skillPackagesResource]
+// The feature tour only mounts in the upstream product, and its media records upstream's UI.
+const upstreamOnlyResources = new Set(['resources/onboarding/feature-wall'])
+const baseResources = (resources) =>
+  resources.filter((resource) => !upstreamOnlyResources.has(resource.from))
+const copyright = `Copyright © ${brand.copyrightYear} ${brand.copyrightHolder}`
+
+module.exports = {
+  ...base,
+  appId: brand.appId,
+  productName: brand.name,
+  copyright,
+  protocols: [{ name: brand.name, schemes: [brand.urlScheme] }],
+  // Why extraMetadata: the workspace package keeps its name for pnpm filters; only shipped metadata changes.
+  extraMetadata: {
+    ...base.extraMetadata,
+    productName: brand.name,
+    description: brand.description,
+    author: brand.copyrightHolder,
+    homepage: brand.links.homepage
+  },
+  files: [
+    ...base.files,
+    // Native iOS DerivedData and other local build outputs are not desktop runtime inputs.
+    '!build{,/**/*}',
+    // Repo-only drafts, captures and tool configs have no runtime consumer.
+    '!plugins{,/**/*}',
+    // Icon sources only generate resources/build and resources/tray.
+    '!resources/icon-source{,/**/*}',
+    '!test-results{,/**/*}',
+    '!{.anti-slop-plugin,.github,.husky,.cache}{,/**/*}',
+    '!{.gitattributes,.gitignore,.oxfmtrc.json,.oxlintrc.json,components.json,opencode.json,orca.yaml,pnpm-workspace.yaml,vite.web.config.ts,THIRD_PARTY_NOTICES.md}'
+  ],
+  publish: updateFeed ? { provider: 'generic', url: updateFeed } : null,
+  win: {
+    ...base.win,
+    extraResources: [...baseResources(base.win.extraResources), ...asterResources],
+    executableName: brand.name,
+    icon: `resources/build/${brand.id}.ico`,
+    signtoolOptions: undefined
+  },
+  nsis: {
+    ...base.nsis,
+    artifactName: `${brand.id}-windows-setup.\${ext}`,
+    // The upstream hook installs the upstream CLI/agent files and registers its URL handler.
+    include: undefined
+  },
+  mac: {
+    ...base.mac,
+    extraResources: [...baseResources(base.mac.extraResources), ...asterResources],
+    icon: `resources/build/${brand.id}.icns`
+  },
+  dmg: { ...base.dmg, artifactName: `${brand.id}-macos-\${arch}.\${ext}` },
+  linux: {
+    ...base.linux,
+    extraResources: [...baseResources(base.linux.extraResources), ...asterResources],
+    executableName: brand.id,
+    icon: `resources/build/${brand.id}.icns`,
+    desktop: { entry: { StartupWMClass: brand.id } },
+    maintainer: brand.copyrightHolder
+  },
+  appImage: { ...base.appImage, artifactName: `${brand.id}-linux.\${ext}` },
+  deb: {
+    ...base.deb,
+    packageName: `${brand.id}-ade`,
+    artifactName: `${brand.id}-ade_\${version}_\${arch}.\${ext}`,
+    // Upstream package hooks install `orca-ide` system-wide.
+    afterInstall: undefined,
+    afterRemove: undefined
+  },
+  rpm: {
+    ...base.rpm,
+    packageName: `${brand.id}-ade`,
+    artifactName: `${brand.id}-ade-\${version}.\${arch}.\${ext}`,
+    afterInstall: undefined,
+    afterRemove: undefined
+  }
+}

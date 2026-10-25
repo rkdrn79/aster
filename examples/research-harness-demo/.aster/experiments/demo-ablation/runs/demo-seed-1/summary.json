@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "run": "demo-ablation/demo-seed-1",
+  "generatedAt": "2026-10-24T11:40:13.600Z",
+  "state": "unknown",
+  "exitCode": null,
+  "durationMs": null,
+  "primary": {
+    "metric": "demo_score",
+    "split": "validation",
+    "direction": "maximize",
+    "last": {
+      "value": 0.5,
+      "step": 1
+    },
+    "best": {
+      "value": 0.5,
+      "step": 1
+    }
+  },
+  "baseline": null,
+  "findings": {
+    "fail": 0,
+    "warn": 0,
+    "info": 3
+  },
+  "media": {
+    "image": 0,
+    "video": 0,
+    "audio": 0
+  },
+  "outputs": null,
+  "notes": []
+}

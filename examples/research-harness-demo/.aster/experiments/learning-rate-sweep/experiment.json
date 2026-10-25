@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "slug": "learning-rate-sweep",
+  "name": "Learning-rate sweep",
+  "createdAt": "2026-10-24T09:05:19.771Z",
+  "brief": {
+    "question": "Which learning rate is the fastest stable choice for the rank-16 adapter?",
+    "hypothesis": null,
+    "status": "concluded",
+    "primaryMetric": {
+      "name": "acc",
+      "split": "val",
+      "direction": "maximize"
+    },
+    "evaluation": null,
+    "baseline": "learning-rate-sweep/lr-3e-4",
+    "minSeeds": null,
+    "rubric": null,
+    "agentPolicy": {
+      "triage": "suggest",
+      "proposals": "approval"
+    },
+    "conclusion": "3e-4. 1e-3 diverged at step 300, and 1e-4 is still climbing at 600 steps (val acc 0.665 vs 0.8315).",
+    "updatedAt": "2026-10-24T11:39:58.004Z",
+    "updatedBy": "user"
+  }
+}

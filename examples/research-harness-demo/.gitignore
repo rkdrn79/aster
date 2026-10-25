@@ -1,0 +1,3 @@
+# The repository ignores *.log; the demo keeps each Run's tee'd train.log so failed-run
+# log tails and log evidence work in a fresh clone.
+!train.log

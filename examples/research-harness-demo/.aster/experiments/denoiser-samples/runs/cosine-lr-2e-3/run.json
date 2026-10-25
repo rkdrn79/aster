@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "externalRunId": "cosine-lr-2e-3",
+  "name": "cosine lr 2e-3",
+  "command": "node scripts/render_demo.mjs --schedule cosine --seed 1 --lr 2e-3",
+  "execution": {
+    "state": "failed",
+    "reportedBy": "manifest",
+    "observedAt": "2026-10-24T11:40:09.927Z",
+    "exitCode": 1,
+    "source": "aster-harness",
+    "evidence": "process-exit"
+  },
+  "code": {
+    "commit": "704717fcb006906fd0d39559b0ab307e2bfb7f8c",
+    "dirty": false,
+    "capturedAt": "2026-10-24T11:40:08.437Z",
+    "capturePhase": "at_launch",
+    "capturedBy": "aster-harness",
+    "patch": null,
+    "patchSha256": null
+  },
+  "launch": {
+    "startedAt": "2026-10-24T11:40:08.437Z",
+    "finishedAt": "2026-10-24T11:40:09.927Z",
+    "durationMs": 1490,
+    "host": "demo-host",
+    "platform": "darwin",
+    "pid": 43891,
+    "harnessPid": 43874,
+    "signal": null,
+    "argv": [
+      "node",
+      "scripts/render_demo.mjs",
+      "--schedule",
+      "cosine",
+      "--seed",
+      "1",
+      "--lr",
+      "2e-3"
+    ],
+    "cwd": "/private/tmp/aster-demo-seed/research-harness-demo",
+    "by": "aster-harness"
+  },
+  "agent": {
+    "provider": "codex",
+    "sessionId": null,
+    "terminalHandle": null,
+    "paneKey": null,
+    "providerSessionId": "demo-codex-thread-2b91"
+  },
+  "metrics": {
+    "path": "metrics.jsonl",
+    "definitions": {
+      "psnr": {
+        "direction": "maximize",
+        "unit": "dB"
+      },
+      "loss": {
+        "direction": "minimize"
+      }
+    }
+  },
+  "evaluation": {
+    "datasetId": "synth-shapes",
+    "datasetRevision": "v1",
+    "split": "val",
+    "evaluatorRevision": "psnr-1"
+  },
+  "artifacts": {
+    "log": "train.log",
+    "config": "config.json",
+    "output": "artifacts"
+  },
+  "harness": {
+    "createdAt": "2026-10-24T11:40:08.488Z",
+    "status": "observed"
+  }
+}

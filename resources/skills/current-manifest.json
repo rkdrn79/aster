@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 3,
+  "skills": [
+    {
+      "name": "aster-cli",
+      "sourcePath": "skills/aster-cli",
+      "packageDigest": "20f6ac38f29230a045c949b4cae8dcce51efe7cd591ddc34f353ba56786a9fdd",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 2261,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "00db5f44f2aff3b18b6ab9d910c93d93e35a70134a37e1809f40f8ad78128465",
+          "textNormalizedSha256": "00db5f44f2aff3b18b6ab9d910c93d93e35a70134a37e1809f40f8ad78128465",
+          "identitySha256": "00db5f44f2aff3b18b6ab9d910c93d93e35a70134a37e1809f40f8ad78128465"
+        }
+      ]
+    },
+    {
+      "name": "aster-computer-use",
+      "sourcePath": "skills/aster-computer-use",
+      "packageDigest": "788c60a485391145355d57f45ff962df51e5921b47a152a2a77e23450581d51d",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 2103,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "4cd13e4efd1b7221c48e6870b79800287cdf6fe26526dc5384c633c09a6d134c",
+          "textNormalizedSha256": "4cd13e4efd1b7221c48e6870b79800287cdf6fe26526dc5384c633c09a6d134c",
+          "identitySha256": "4cd13e4efd1b7221c48e6870b79800287cdf6fe26526dc5384c633c09a6d134c"
+        }
+      ]
+    },
+    {
+      "name": "aster-emulator",
+      "sourcePath": "skills/aster-emulator",
+      "packageDigest": "1b1bbcf7d4d52f03dd114c84a6af6551703a4e5c6a309a86b0bc9f68b90426fc",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 2221,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "7a5507d1657ca8a5a75832d09bfc51d08179b00875b56cfc9a34c54d171bd9f5",
+          "textNormalizedSha256": "7a5507d1657ca8a5a75832d09bfc51d08179b00875b56cfc9a34c54d171bd9f5",
+          "identitySha256": "7a5507d1657ca8a5a75832d09bfc51d08179b00875b56cfc9a34c54d171bd9f5"
+        }
+      ]
+    },
+    {
+      "name": "aster-emulator-android",
+      "sourcePath": "skills/aster-emulator-android",
+      "packageDigest": "d90e80756707665c1cf602191f62a13b25c355a23df66b87a69b3f5786b65df0",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 2116,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "b6fc794e65cf195f8ac31d86ada431651ceee64356cf7f6c0548fe038f78a307",
+          "textNormalizedSha256": "b6fc794e65cf195f8ac31d86ada431651ceee64356cf7f6c0548fe038f78a307",
+          "identitySha256": "b6fc794e65cf195f8ac31d86ada431651ceee64356cf7f6c0548fe038f78a307"
+        }
+      ]
+    },
+    {
+      "name": "aster-gpu",
+      "sourcePath": "skills/aster-gpu",
+      "packageDigest": "bfeb5734011415ad64f32267149fb561621661880f28e7abd434400effab5ba0",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 2407,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "f84e7a7a9f376d6f25968ceb8ba283014a3a7794a6f924df7e2fa25885d75169",
+          "textNormalizedSha256": "f84e7a7a9f376d6f25968ceb8ba283014a3a7794a6f924df7e2fa25885d75169",
+          "identitySha256": "f84e7a7a9f376d6f25968ceb8ba283014a3a7794a6f924df7e2fa25885d75169"
+        }
+      ]
+    },
+    {
+      "name": "aster-jira",
+      "sourcePath": "skills/aster-jira",
+      "packageDigest": "efb2a28c824149eb67ec5e928c1b308ade96e2d6ddca9a9f7c543f5b411c7c0f",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 1961,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "556c770c7332d7510c98bd529e0c66e7d9e58bc7de19be8e2dad3b4fd075ba6e",
+          "textNormalizedSha256": "556c770c7332d7510c98bd529e0c66e7d9e58bc7de19be8e2dad3b4fd075ba6e",
+          "identitySha256": "556c770c7332d7510c98bd529e0c66e7d9e58bc7de19be8e2dad3b4fd075ba6e"
+        }
+      ]
+    },
+    {
+      "name": "aster-jira-tickets",
+      "sourcePath": "skills/aster-jira-tickets",
+      "packageDigest": "12970294aeda53ec0e44f93ec8e3fd38ff69c5343e19fa98e7ce29f1a1e84077",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 2019,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "3c25df3945b6f573f02b6751ac1a368b9feaa2d8ce34776bbcd5a4c607d79514",
+          "textNormalizedSha256": "3c25df3945b6f573f02b6751ac1a368b9feaa2d8ce34776bbcd5a4c607d79514",
+          "identitySha256": "3c25df3945b6f573f02b6751ac1a368b9feaa2d8ce34776bbcd5a4c607d79514"
+        }
+      ]
+    },
+    {
+      "name": "aster-linear",
+      "sourcePath": "skills/aster-linear",
+      "packageDigest": "385684bec9363a6a6227ab4cd19e4650b2e56043772c96a42bbcc6c0783f0c54",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 1969,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "e78be0afc890844b47a7e402dcc37a6e1afcfc356d85e2d7b474c0d15d68bbb8",
+          "textNormalizedSha256": "e78be0afc890844b47a7e402dcc37a6e1afcfc356d85e2d7b474c0d15d68bbb8",
+          "identitySha256": "e78be0afc890844b47a7e402dcc37a6e1afcfc356d85e2d7b474c0d15d68bbb8"
+        }
+      ]
+    },
+    {
+      "name": "aster-linear-tickets",
+      "sourcePath": "skills/aster-linear-tickets",
+      "packageDigest": "43e01ab25802d3d4b95f00ab4fe6f74341328e3ca1f612e47c698fa311618627",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 2129,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "30c913ab9cfef664b78bafaf9e1e84306be8dc01ebb0ad7b3928fba363644ca8",
+          "textNormalizedSha256": "30c913ab9cfef664b78bafaf9e1e84306be8dc01ebb0ad7b3928fba363644ca8",
+          "identitySha256": "30c913ab9cfef664b78bafaf9e1e84306be8dc01ebb0ad7b3928fba363644ca8"
+        }
+      ]
+    },
+    {
+      "name": "aster-orchestration",
+      "sourcePath": "skills/aster-orchestration",
+      "packageDigest": "e418f99c0a777f28c595b1eedb22a69e9974993b1077a6d526613218f24926c4",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 3835,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "3e3495cdc1cdb70ada3d19db5ad97047875065356df208992df3958eace95476",
+          "textNormalizedSha256": "3e3495cdc1cdb70ada3d19db5ad97047875065356df208992df3958eace95476",
+          "identitySha256": "3e3495cdc1cdb70ada3d19db5ad97047875065356df208992df3958eace95476"
+        }
+      ]
+    },
+    {
+      "name": "aster-per-workspace-env",
+      "sourcePath": "skills/aster-per-workspace-env",
+      "packageDigest": "67a5f7a5b51fad11199a21def3e37114c991f4221102b3b0680dedc701b8abf0",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 2140,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "7a7db9ba41aee7452b8aa3292f575325e736fb2dfa5a7c7ba8b5f2aeeefaf49b",
+          "textNormalizedSha256": "7a7db9ba41aee7452b8aa3292f575325e736fb2dfa5a7c7ba8b5f2aeeefaf49b",
+          "identitySha256": "7a7db9ba41aee7452b8aa3292f575325e736fb2dfa5a7c7ba8b5f2aeeefaf49b"
+        }
+      ]
+    },
+    {
+      "name": "aster-research-adopt",
+      "sourcePath": "skills/aster-research-adopt",
+      "packageDigest": "9808dacd63bff000ff7098e0c05b2f6e9512d18f71dc22957712d277a17ed682",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 12859,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "6f7f9435962c5b273a1a18a19b0ebc637b220dbd18955605f1b48109ce050711",
+          "textNormalizedSha256": "6f7f9435962c5b273a1a18a19b0ebc637b220dbd18955605f1b48109ce050711",
+          "identitySha256": "6f7f9435962c5b273a1a18a19b0ebc637b220dbd18955605f1b48109ce050711"
+        }
+      ]
+    },
+    {
+      "name": "aster-research-loop",
+      "sourcePath": "skills/aster-research-loop",
+      "packageDigest": "fc76aa3749ce842fa5394de993d15102524119aed7e01a67037c649b1b9a97ec",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 8082,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "c8bb3fe4ac5a4dc8045a96af6abe8df1f3d7c7f759a9e0e34c73c90d8cb35b2a",
+          "textNormalizedSha256": "c8bb3fe4ac5a4dc8045a96af6abe8df1f3d7c7f759a9e0e34c73c90d8cb35b2a",
+          "identitySha256": "c8bb3fe4ac5a4dc8045a96af6abe8df1f3d7c7f759a9e0e34c73c90d8cb35b2a"
+        }
+      ]
+    },
+    {
+      "name": "aster-research-start",
+      "sourcePath": "skills/aster-research-start",
+      "packageDigest": "d9f3a7c79180b4042b440f9339c6c50418ffad6fdab8ac3854163d66fc3bc1cf",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 3073,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "d1b7e6f9565cef490237a8362c064bdedc7d6b6553e0ba9ca01675aedac4c170",
+          "textNormalizedSha256": "d1b7e6f9565cef490237a8362c064bdedc7d6b6553e0ba9ca01675aedac4c170",
+          "identitySha256": "d1b7e6f9565cef490237a8362c064bdedc7d6b6553e0ba9ca01675aedac4c170"
+        }
+      ]
+    },
+    {
+      "name": "aster-research-track",
+      "sourcePath": "skills/aster-research-track",
+      "packageDigest": "0cc5e0f03e16d4c11ec1645d11ce7f1a3d666a6d5f08abf880abe17b411b7cd0",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 14304,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "2e60de7538a0d13ce2317dd993da9717b4c814e2ec74ec1dfe0095558594bd10",
+          "textNormalizedSha256": "2e60de7538a0d13ce2317dd993da9717b4c814e2ec74ec1dfe0095558594bd10",
+          "identitySha256": "2e60de7538a0d13ce2317dd993da9717b4c814e2ec74ec1dfe0095558594bd10"
+        }
+      ]
+    },
+    {
+      "name": "aster-research-verify",
+      "sourcePath": "skills/aster-research-verify",
+      "packageDigest": "b5ded1282d9ae7a9606b622e6cd8e2b2b2c11e04ec589003d3a1bad98634acc4",
+      "files": [
+        {
+          "path": "SKILL.md",
+          "size": 3125,
+          "executable": false,
+          "classification": "text",
+          "exactSha256": "93e788db8e132ac1aa63663c577eb8165b76fcaba8b22923246924658ba8c0ae",
+          "textNormalizedSha256": "93e788db8e132ac1aa63663c577eb8165b76fcaba8b22923246924658ba8c0ae",
+          "identitySha256": "93e788db8e132ac1aa63663c577eb8165b76fcaba8b22923246924658ba8c0ae"
+        }
+      ]
+    }
+  ]
+}

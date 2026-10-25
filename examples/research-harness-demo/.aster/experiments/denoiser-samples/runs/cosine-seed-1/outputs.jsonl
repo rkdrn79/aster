@@ -1,0 +1,4 @@
+{"sampleId":"s1","prompt":"rings (noisy input, PSNR 12 dB)","output":"PSNR 27.66 dB after 300 steps (cosine schedule)","media":[{"kind":"image","path":"artifacts/denoised/s1.png","label":"denoised"}]}
+{"sampleId":"s2","prompt":"checker (noisy input, PSNR 12 dB)","output":"PSNR 27.73 dB after 300 steps (cosine schedule)","media":[{"kind":"image","path":"artifacts/denoised/s2.png","label":"denoised"}]}
+{"sampleId":"s3","prompt":"sunset (noisy input, PSNR 12 dB)","output":"PSNR 25.66 dB after 300 steps (cosine schedule)","media":[{"kind":"image","path":"artifacts/denoised/s3.png","label":"denoised"}]}
+{"sampleId":"s4","prompt":"stripes (noisy input, PSNR 12 dB)","output":"PSNR 27.65 dB after 300 steps (cosine schedule)","media":[{"kind":"image","path":"artifacts/denoised/s4.png","label":"denoised"}]}

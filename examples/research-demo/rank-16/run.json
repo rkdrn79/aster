@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "externalRunId": "aster-demo-rank-16",
+  "name": "Demo · rank 16",
+  "execution": {
+    "state": "succeeded",
+    "reportedBy": "manifest",
+    "observedAt": "2026-10-23T09:10:00Z"
+  },
+  "code": { "commit": null, "capturePhase": "unknown" },
+  "metrics": {
+    "path": "metrics.jsonl",
+    "definitions": {
+      "loss": { "unit": "scalar", "direction": "minimize", "aggregation": "last" },
+      "accuracy": { "unit": "fraction", "direction": "maximize", "aggregation": "last" }
+    }
+  },
+  "evaluation": {
+    "datasetId": "synthetic-demo-validation",
+    "datasetRevision": "v1",
+    "split": "validation",
+    "evaluatorRevision": "synthetic-demo-eval-v1"
+  }
+}

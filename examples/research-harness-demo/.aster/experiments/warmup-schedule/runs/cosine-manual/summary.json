@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "run": "warmup-schedule/cosine-manual",
+  "generatedAt": "2026-10-24T11:40:13.797Z",
+  "state": "unknown",
+  "exitCode": null,
+  "durationMs": null,
+  "primary": {
+    "metric": "acc",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 0.82,
+      "step": 300
+    },
+    "best": {
+      "value": 0.82,
+      "step": 300
+    }
+  },
+  "baseline": {
+    "run": "learning-rate-sweep/lr-3e-4",
+    "last": {
+      "value": 0.8315,
+      "step": 600
+    },
+    "best": {
+      "value": 0.8315,
+      "step": 600
+    },
+    "delta": {
+      "last": -0.0115,
+      "best": -0.0115
+    }
+  },
+  "findings": {
+    "fail": 0,
+    "warn": 1,
+    "info": 4
+  },
+  "media": {
+    "image": 0,
+    "video": 0,
+    "audio": 0
+  },
+  "outputs": null,
+  "notes": [
+    {
+      "at": "2026-10-24T11:40:02.792Z",
+      "text": "Copied from a colleague’s notebook: three val points, no command or config.",
+      "by": "user"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{"schemaVersion":1,"runId":"aster-demo-baseline","step":100,"split":"train","metrics":{"loss":1.82}}
+{"schemaVersion":1,"runId":"aster-demo-baseline","step":100,"split":"validation","metrics":{"accuracy":0.61}}
+{"schemaVersion":1,"runId":"aster-demo-baseline","step":200,"split":"train","metrics":{"loss":1.56}}
+{"schemaVersion":1,"runId":"aster-demo-baseline","step":200,"split":"validation","metrics":{"accuracy":0.67}}
+{"schemaVersion":1,"runId":"aster-demo-baseline","step":300,"split":"train","metrics":{"loss":1.39}}
+{"schemaVersion":1,"runId":"aster-demo-baseline","step":300,"split":"validation","metrics":{"accuracy":0.70}}
+{"schemaVersion":1,"runId":"aster-demo-baseline","step":400,"split":"train","metrics":{"loss":1.31}}
+{"schemaVersion":1,"runId":"aster-demo-baseline","step":400,"split":"validation","metrics":{"accuracy":0.72}}

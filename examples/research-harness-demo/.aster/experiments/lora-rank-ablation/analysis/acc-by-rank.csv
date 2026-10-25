@@ -1,0 +1,5 @@
+run,best_val_acc,last_val_acc
+rank-4,0.7998,0.7998
+rank-16,0.8288,0.8288
+rank-64,0.8577,0.8577
+rank-64-seed-3,0.8589,0.8589

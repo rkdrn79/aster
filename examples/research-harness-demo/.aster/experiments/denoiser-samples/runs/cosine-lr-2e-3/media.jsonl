@@ -1,0 +1,2 @@
+{"schemaVersion":1,"at":"2026-10-24T11:40:09.003Z","kind":"image","path":".aster/experiments/denoiser-samples/runs/cosine-lr-2e-3/artifacts/samples/step_100.png","step":100,"label":"samples","sampleId":null,"bytes":23459,"source":"exec"}
+{"schemaVersion":1,"at":"2026-10-24T11:40:09.621Z","kind":"image","path":".aster/experiments/denoiser-samples/runs/cosine-lr-2e-3/artifacts/samples/step_200.png","step":200,"label":"samples","sampleId":null,"bytes":20677,"source":"exec"}

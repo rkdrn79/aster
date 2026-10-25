@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "run": "learning-rate-sweep/lr-1e-4",
+  "generatedAt": "2026-10-24T11:40:13.675Z",
+  "state": "succeeded",
+  "exitCode": 0,
+  "durationMs": 3184,
+  "primary": {
+    "metric": "acc",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 0.665,
+      "step": 600
+    },
+    "best": {
+      "value": 0.665,
+      "step": 600
+    }
+  },
+  "baseline": {
+    "run": "learning-rate-sweep/lr-3e-4",
+    "last": {
+      "value": 0.8315,
+      "step": 600
+    },
+    "best": {
+      "value": 0.8315,
+      "step": 600
+    },
+    "delta": {
+      "last": -0.1665,
+      "best": -0.1665
+    }
+  },
+  "findings": {
+    "fail": 0,
+    "warn": 1,
+    "info": 1
+  },
+  "media": {
+    "image": 5,
+    "video": 0,
+    "audio": 0
+  },
+  "outputs": {
+    "samples": 5
+  },
+  "notes": []
+}

@@ -1,0 +1,4 @@
+run,schedule,seed,best_val_psnr,last_val_psnr,delta_vs_baseline
+linear-seed-1,linear,1,27.49,27.49,0.00
+linear-seed-2,linear,2,27.09,27.09,-0.41
+cosine-seed-1,cosine,1,27.76,27.76,0.27

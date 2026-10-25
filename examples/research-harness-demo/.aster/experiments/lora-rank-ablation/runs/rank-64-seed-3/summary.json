@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "run": "lora-rank-ablation/rank-64-seed-3",
+  "generatedAt": "2026-10-24T11:40:13.739Z",
+  "state": "succeeded",
+  "exitCode": 0,
+  "durationMs": 3205,
+  "primary": {
+    "metric": "acc",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 0.8589,
+      "step": 600
+    },
+    "best": {
+      "value": 0.8589,
+      "step": 600
+    }
+  },
+  "baseline": {
+    "run": "lora-rank-ablation/rank-16",
+    "last": {
+      "value": 0.8288,
+      "step": 600
+    },
+    "best": {
+      "value": 0.8288,
+      "step": 600
+    },
+    "delta": {
+      "last": 0.0301,
+      "best": 0.0301
+    }
+  },
+  "findings": {
+    "fail": 0,
+    "warn": 0,
+    "info": 1
+  },
+  "media": {
+    "image": 5,
+    "video": 0,
+    "audio": 0
+  },
+  "outputs": {
+    "samples": 5
+  },
+  "notes": [
+    {
+      "at": "2026-10-24T11:40:01.673Z",
+      "text": "val acc 0.8589 vs rank-16 0.8288 (+3.0 pt); seed 2 gave 0.8577, so the gain holds on 2 seeds.",
+      "by": "agent",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    }
+  ]
+}

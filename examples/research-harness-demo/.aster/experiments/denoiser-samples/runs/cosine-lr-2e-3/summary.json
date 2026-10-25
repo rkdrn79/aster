@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "run": "denoiser-samples/cosine-lr-2e-3",
+  "generatedAt": "2026-10-24T11:40:13.859Z",
+  "state": "failed",
+  "exitCode": 1,
+  "durationMs": 1490,
+  "primary": {
+    "metric": "psnr",
+    "split": "val",
+    "direction": "maximize",
+    "last": {
+      "value": 26.9608,
+      "step": 200
+    },
+    "best": {
+      "value": 26.9608,
+      "step": 200
+    }
+  },
+  "baseline": {
+    "run": "denoiser-samples/linear-seed-1",
+    "last": {
+      "value": 27.4922,
+      "step": 300
+    },
+    "best": {
+      "value": 27.4922,
+      "step": 300
+    },
+    "delta": {
+      "last": -0.5314,
+      "best": -0.5314
+    }
+  },
+  "findings": {
+    "fail": 1,
+    "warn": 1,
+    "info": 0
+  },
+  "media": {
+    "image": 2,
+    "video": 0,
+    "audio": 0
+  },
+  "outputs": null,
+  "notes": [
+    {
+      "at": "2026-10-24T11:40:10.121Z",
+      "text": "Diverged: train loss 0.019 at step 175 → 0.1174 at 225, NaN at 250 (exit 1). Same schedule as cosine-seed-1 with twice the lr.",
+      "by": "agent",
+      "agent": {
+        "provider": "claude-code",
+        "sessionId": null,
+        "terminalHandle": null,
+        "paneKey": null,
+        "providerSessionId": "demo-claude-session-7f3a"
+      }
+    }
+  ]
+}

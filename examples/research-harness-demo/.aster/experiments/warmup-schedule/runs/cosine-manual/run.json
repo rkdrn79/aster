@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "externalRunId": "cosine-manual",
+  "name": "cosine (logged by hand)",
+  "command": "python train.py --schedule cosine --warmup 200",
+  "code": {
+    "capturePhase": "unknown",
+    "commit": null,
+    "capturedAt": null
+  },
+  "metrics": {
+    "path": "metrics.jsonl",
+    "definitions": {
+      "acc": {
+        "direction": "maximize"
+      },
+      "loss": {
+        "direction": "minimize"
+      }
+    }
+  },
+  "artifacts": {
+    "log": "train.log",
+    "output": "artifacts"
+  },
+  "harness": {
+    "createdAt": "2026-10-24T09:05:41.716Z",
+    "status": "unreported"
+  }
+}

@@ -1,0 +1,34 @@
+demo-denoise schedule=linear lr=0.001 seed=1 steps=300
+ASTER_METRIC {"step":25,"split":"train","metrics":{"loss":0.0749}}
+ASTER_METRIC {"step":50,"split":"train","metrics":{"loss":0.0596}}
+ASTER_METRIC {"step":50,"split":"val","metrics":{"psnr":18.8542,"loss":0.0653}}
+step 50 train_loss=0.0596 val_psnr=18.85
+ASTER_METRIC {"step":75,"split":"train","metrics":{"loss":0.0481}}
+ASTER_METRIC {"step":100,"split":"train","metrics":{"loss":0.0391}}
+ASTER_METRIC {"step":100,"split":"val","metrics":{"psnr":22.7657,"loss":0.0432}}
+step 100 train_loss=0.0391 val_psnr=22.77
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/linear-seed-1/artifacts/samples/step_100.png","step":100,"label":"samples"}
+ASTER_METRIC {"step":125,"split":"train","metrics":{"loss":0.0324}}
+ASTER_METRIC {"step":150,"split":"train","metrics":{"loss":0.0271}}
+ASTER_METRIC {"step":150,"split":"val","metrics":{"psnr":25.0254,"loss":0.0302}}
+step 150 train_loss=0.0271 val_psnr=25.03
+ASTER_METRIC {"step":175,"split":"train","metrics":{"loss":0.0231}}
+ASTER_METRIC {"step":200,"split":"train","metrics":{"loss":0.0204}}
+ASTER_METRIC {"step":200,"split":"val","metrics":{"psnr":26.3204,"loss":0.023}}
+step 200 train_loss=0.0204 val_psnr=26.32
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/linear-seed-1/artifacts/samples/step_200.png","step":200,"label":"samples"}
+ASTER_METRIC {"step":225,"split":"train","metrics":{"loss":0.0171}}
+ASTER_METRIC {"step":250,"split":"train","metrics":{"loss":0.0166}}
+ASTER_METRIC {"step":250,"split":"val","metrics":{"psnr":27.0482,"loss":0.0189}}
+step 250 train_loss=0.0166 val_psnr=27.05
+ASTER_METRIC {"step":275,"split":"train","metrics":{"loss":0.0148}}
+ASTER_METRIC {"step":300,"split":"train","metrics":{"loss":0.0149}}
+ASTER_METRIC {"step":300,"split":"val","metrics":{"psnr":27.4922,"loss":0.0171}}
+step 300 train_loss=0.0149 val_psnr=27.49
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/linear-seed-1/artifacts/samples/step_300.png","step":300,"label":"samples"}
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/linear-seed-1/artifacts/denoised/s1.png","step":300,"label":"denoised","sampleId":"s1"}
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/linear-seed-1/artifacts/denoised/s2.png","step":300,"label":"denoised","sampleId":"s2"}
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/linear-seed-1/artifacts/denoised/s3.png","step":300,"label":"denoised","sampleId":"s3"}
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/linear-seed-1/artifacts/denoised/s4.png","step":300,"label":"denoised","sampleId":"s4"}
+ASTER_MEDIA {"path":".aster/experiments/denoiser-samples/runs/linear-seed-1/artifacts/rollout.mp4","step":300,"label":"rollout"}
+done

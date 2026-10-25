@@ -1,0 +1,5 @@
+DEMO DATA ONLY — no training process was run.
+step 100: validation accuracy 0.62
+step 200: validation accuracy 0.68
+step 300: validation accuracy 0.73
+step 400: validation accuracy 0.76

@@ -1,0 +1,42 @@
+import { z } from 'zod'
+import { requiredString } from '../../../../../shared/rpc-contract/rpc-param-primitives'
+import { TerminalViewport } from '../../../../../shared/rpc-contract/terminal-unary-params'
+import { TerminalHandle } from '../../../../../shared/rpc-contract/terminal-stream-params'
+
+export const TerminalMultiplexSubscribeFrame = TerminalHandle.extend({
+  streamId: z.number().int().min(1),
+  client: z
+    .object({
+      id: requiredString('Missing client ID'),
+      type: z.enum(['mobile', 'desktop']).default('desktop')
+    })
+    .optional(),
+  viewport: TerminalViewport.optional(),
+  capabilities: z
+    .object({
+      ackOutput: z.literal(1).optional(),
+      ackOutputSourceRanges: z.literal(1).optional(),
+      desktopViewportClaims: z.literal(1).optional(),
+      outputPause: z.literal(1).optional(),
+      outputPauseDropNotice: z.literal(1).optional(),
+      writeUnavailable: z.literal(1).optional(),
+      // Why separate from writeUnavailable: older clients read that frame as rejected input and
+      // quarantine the next line, so only clients that know it can also mean "host lost" get it.
+      endpointLossNotice: z.literal(1).optional(),
+      inputAck: z.literal(1).optional()
+    })
+    .optional(),
+  // Why: names the client's input sequence space; it survives stream replacement so replays dedupe.
+  inputSessionId: z.string().min(1).max(128).optional()
+})
+
+export const TerminalMultiplexLegacyAckFrame = z
+  .object({
+    bytes: z.number().int().nonnegative()
+  })
+  .strict()
+
+export const TerminalMultiplexSnapshotRequestFrame = z.object({
+  requestId: z.number().int().positive().optional(),
+  scrollbackRows: z.number().finite().optional()
+})

@@ -1,0 +1,20 @@
+demo-train lr=0.001 rank=16 seed=1 steps=600 warmup=0
+step 50 train_loss=1.8237 val_loss=1.8605 val_acc=0.4428
+ASTER_METRIC {"step":50,"split":"train","metrics":{"loss":1.8237}}
+ASTER_METRIC {"step":50,"split":"val","metrics":{"loss":1.8605,"acc":0.4428}}
+step 100 train_loss=1.4657 val_loss=1.4982 val_acc=0.5418
+ASTER_METRIC {"step":100,"split":"train","metrics":{"loss":1.4657}}
+ASTER_METRIC {"step":100,"split":"val","metrics":{"loss":1.4982,"acc":0.5418}}
+step 150 train_loss=1.1911 val_loss=1.2365 val_acc=0.6154
+ASTER_METRIC {"step":150,"split":"train","metrics":{"loss":1.1911}}
+ASTER_METRIC {"step":150,"split":"val","metrics":{"loss":1.2365,"acc":0.6154}}
+step 200 train_loss=0.9850 val_loss=1.0288 val_acc=0.6711
+ASTER_METRIC {"step":200,"split":"train","metrics":{"loss":0.985}}
+ASTER_METRIC {"step":200,"split":"val","metrics":{"loss":1.0288,"acc":0.6711}}
+step 250 train_loss=1.5078 val_loss=1.5438 val_acc=0.7150
+ASTER_METRIC {"step":250,"split":"train","metrics":{"loss":1.5078}}
+ASTER_METRIC {"step":250,"split":"val","metrics":{"loss":1.5438,"acc":0.715}}
+step 300: loss is NaN after the learning rate overshot; stopping
+Traceback (most recent call last):
+  File "train.py", line 212, in train_step
+FloatingPointError: non-finite loss

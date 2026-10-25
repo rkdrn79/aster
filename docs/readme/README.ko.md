@@ -164,7 +164,11 @@ missing evidence로 표시합니다. Run이 뒷받침하지 않는 결과 수치
 
 <sub>Library 스크린샷의 논문은 Lin et al.의 <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a>이며 <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>으로 배포됩니다.</sub>
 
-### 자원과 일정 (Compute)
+### 기타 (Others)
+
+프로젝트 전반의 GPU와 마감일, 코딩 작업 공간, 에이전트가 쓰는 CLI입니다.
+
+#### Compute와 마감일
 
 여러 프로젝트에 걸친 SSH 호스트, GPU, SLURM 큐를 보고, 호스트·프로젝트별 GPU 예산을 정합니다. 예산을
 넘는 작업은 hold 상태로 제출됐다가 우선순위대로 풀립니다. ccfddl과 Hugging Face AI deadlines의 학회
@@ -174,7 +178,7 @@ missing evidence로 표시합니다. Run이 뒷받침하지 않는 결과 수치
   <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/home-dark.jpg" /><img src="../assets/readme/home.jpg" alt="프로젝트, 마감일, Compute가 있는 Aster 홈" width="960" /></picture>
 </p>
 
-### 작업 공간 (Workbench)
+#### Workbench와 Code 레이아웃
 
 프로젝트의 채팅, 터미널, 에디터, 파일, Git. 페이지를 옮겨도 에이전트나 터미널은 멈추지 않습니다.
 **Research | Code** 전환으로 순수 코딩 작업용 worktree 중심 레이아웃으로 바꿀 수 있습니다.
@@ -182,6 +186,11 @@ missing evidence로 표시합니다. Run이 뒷받침하지 않는 결과 수치
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/code-layout-dark.jpg" /><img src="../assets/readme/code-layout.jpg" alt="worktree, 터미널, 에디터가 있는 Code 레이아웃" width="960" /></picture>
 </p>
+
+#### 리서치 하네스
+
+실험마다 쓰는 작은 CLI입니다. 에이전트는 이것으로 Run을 띄우고 claim을 기록하고, 앱도 같은 코드를
+불러오므로 에이전트와 화면이 기록을 똑같이 해석합니다. 명령은 [리서치 하네스](#리서치-하네스)에 있습니다.
 
 **Slack:** 허용한 채널에서 프로젝트의 Aster 봇을 멘션하면 그 프로젝트의 코디네이터 에이전트가 요청을 받아
 스레드에 답합니다. 승인은 Aster 안에서만 합니다. 설정 방법은 [`SLACK.md`](SLACK.md)에 있습니다.

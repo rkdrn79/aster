@@ -166,7 +166,11 @@ divider to give the PDF or the agent more room.
 
 <sub>The Library screenshot shows <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a> by Lin et al., licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</sub>
 
-### Compute
+### Others
+
+The GPUs and deadlines around your projects, the coding workspace, and the CLI your agents use.
+
+#### Compute and Deadlines
 
 SSH hosts, GPUs, and SLURM queues across projects, with a GPU budget per host and project: jobs over
 budget are submitted held and released in priority order. Conference deadlines from ccfddl and the
@@ -176,7 +180,7 @@ Hugging Face AI deadlines catalogs, in your time zone.
   <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/home-dark.jpg" /><img src="docs/assets/readme/home.jpg" alt="Aster home with projects, deadlines, and compute" width="960" /></picture>
 </p>
 
-### Workbench
+#### Workbench and Code layout
 
 Chats, terminals, the editor, files, and Git for the project. Switching pages never stops an agent
 or terminal. The **Research | Code** switch flips the sidebar to a worktree-first layout for pure
@@ -185,6 +189,12 @@ coding work.
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/code-layout-dark.jpg" /><img src="docs/assets/readme/code-layout.jpg" alt="Code layout with worktrees, a terminal, and the editor" width="960" /></picture>
 </p>
+
+#### Research harness
+
+One small CLI for every experiment: agents call it to launch Runs and record claims, and the app
+imports the same code, so the agent and the UI agree on what a record means. See
+[Research harness](#research-harness) for commands.
 
 **Slack:** mention a project's Aster bot in an allowed channel and a coordinator agent in that project
 picks up the request and answers in the thread; approvals stay in Aster. Setup is in

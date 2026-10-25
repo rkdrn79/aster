@@ -36,14 +36,8 @@ Experiment와 Run, 그 결과를 보고하는 논문, 논문이 인용하는 문
 
 - **대화에서 시작:** Claude Code나 Codex 채팅으로 바로 시작합니다. Experiment는 나중에 결과를 묶는
   단위이며, 에이전트와 대화하기 전에 채워야 하는 양식이 아닙니다.
-- **출처가 남는 Run:** 실행할 때마다 명령, 커밋, 커밋되지 않은 변경, 호스트, 에이전트 세션, 로그,
-  지표를 기록합니다. 에이전트가 턴을 끝냈다고 Run이 성공으로 표시되지 않습니다.
-- **Run이 뒷받침하는 수치:** 원고의 결과 수치를 Run·지표·split에 연결합니다. 값이 바뀌었거나,
-  오래됐거나, 근거가 없는 수치를 표시합니다.
-- **승인은 사용자, 실행은 에이전트:** 에이전트는 다음 Run을 이유와 정확한 명령과 함께 제안하고,
-  승인은 사용자만 할 수 있습니다. 승인된 그 명령이 그대로 실행됩니다.
-- **에이전트가 폴링하지 않음:** Run이 끝나거나, 실패하거나, NaN을 기록하거나, 멈추거나, 임계값을
-  넘으면 watch가 에이전트를 깨웁니다. 로컬, SSH, SLURM 모두 같습니다.
+- **주장이 아니라 근거:** Run은 실제로 실행된 것을 기록하고, 논문의 수치는 그 근거가 된 Run을
+  가리키며, 다음에 무엇을 실행할지는 사용자만 승인합니다.
 - **내 컴퓨터, 내 파일:** Aster 계정이나 호스팅 서비스가 없습니다. 에이전트와 연구 기록은 내
   컴퓨터와 연결한 호스트의 프로젝트 폴더 안에 일반 파일로 남습니다.
 
@@ -97,56 +91,34 @@ my-project/
 
 ## 기능
 
-### Experiment 노트북
+### 실험 (Experiments)
+
+Experiment마다 노트북, Run, 옆에 붙은 에이전트가 있습니다. 에이전트는 제안하고, 무엇을 실행할지는
+사용자가 정합니다.
+
+#### Experiment 노트북
 
 Experiment를 열면 노트북이 나옵니다. 계획(질문, 지표, baseline, seed), **Needs you**(결정을 기다리는
 실패한 Run, 제안, finding), 설정별 평균 ± 편차로 정리된 결과, 분석, 사용자가 쓰는 결론. 옆에 붙은
-**Experiment 에이전트**가 설계, 분석, 실패 원인 설명, 다음 Run 제안을 맡습니다.
+**Experiment 에이전트**에게 설계, 분석, 실패 원인 설명, 다음 Run 제안을 맡깁니다.
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-experiment-analyze-dark.gif" /><img src="../assets/readme/clip-experiment-analyze.gif" alt="Experiment 에이전트에서 Analyze를 누르면 브리프와 비교한 분석이 오고, Needs you에서 제안된 Run을 승인하는 장면" width="960" /></picture>
 </p>
 
-### Runs
+#### Runs와 Compare
 
 Run마다 실시간 지표 곡선, 로그, config, 코드 patch, 미디어를 봅니다. 기존 JSONL·CSV 결과를 붙이거나,
-SLURM 작업을 연결하거나, 에이전트가 등록한 Run을 Aster가 알아서 가져옵니다.
+SLURM 작업을 연결하거나, 에이전트가 등록한 Run을 Aster가 알아서 가져옵니다. Run 2–6개를 고르면
+**Compare**가 나란히 보여줍니다. 열마다 같은 정밀도로 baseline과의 차이, 단위나 평가 조건 불일치,
+config 차이, 샘플 ID로 맞춘 출력(텍스트·이미지)을 보고, 샘플을 블라인드 A/B로 평가해 에이전트 judge와
+얼마나 일치하는지 확인합니다.
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-notebook-runs-compare-dark.gif" /><img src="../assets/readme/clip-notebook-runs-compare.gif" alt="노트북에서 Runs와 Compare로 이동하며 검증 곡선과 세 Run의 툴팁을 보는 장면" width="960" /></picture>
 </p>
 
-### Compare
-
-Run 2–6개를 나란히 봅니다. baseline, 열마다 같은 정밀도의 마지막·최고 값, 단위나 평가 조건 불일치,
-config 차이, 샘플 ID로 맞춘 모델 출력(텍스트·이미지). 샘플을 블라인드 A/B로 평가하고 에이전트 judge와
-얼마나 일치하는지 봅니다.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/compare-dark.jpg" /><img src="../assets/readme/compare.jpg" alt="지표, config 차이, 샘플을 나란히 보여주는 Compare 화면" width="960" /></picture>
-</p>
-
-### Writing
-
-논문은 그 논문이 보고하는 Run 바로 옆에 있습니다. TeX 소스, Tectonic으로 컴파일한 PDF, Writing
-에이전트를 나란히 두고 SyncTeX로 양방향 이동합니다. TeX나 PDF에서 문단을 선택해 **Revise**를 고르면
-에이전트가 그 문단만 고치고, **Compile PDF**로 결과를 확인합니다.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-writing-revise-dark.gif" /><img src="../assets/readme/clip-writing-revise.gif" alt="TeX 소스에서 초록을 선택해 결과부터 쓰도록 Writing 에이전트에게 요청하고, 에이전트가 그 줄을 고친 뒤 Compile PDF로 새 초록을 확인하는 장면" width="960" /></picture>
-</p>
-
-### Claims
-
-결과를 논문에 쓰면 에이전트가 그 수치를 Run의 지표와 split에 묶는 claim을 기록합니다. Claims 서랍은
-수치마다 verified, stale, mismatch, missing evidence를 표시하고, Run이 뒷받침하지 않는 결과 수치를
-찾아내며, **Update text**로 어긋난 수치를 한 번에 고칩니다.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-writing-claims-dark.gif" /><img src="../assets/readme/clip-writing-claims.gif" alt="Claims 서랍을 열고 어긋난 수치에서 Update text를 눌러 verified로 바뀌고 PDF가 다시 컴파일되는 장면" width="960" /></picture>
-</p>
-
-### 연구 루프
+#### 연구 루프
 
 에이전트에게 목표, 지표, Run 수와 시간 예산을 줍니다. 에이전트는 가설, Run, 결과, 결정을 루프
 기록에 남기고, 하네스로만 실행하며, 예산을 넘기거나 평가 방식을 바꾸기 전에 멈춰서 사용자에게
@@ -156,7 +128,31 @@ config 차이, 샘플 ID로 맞춘 모델 출력(텍스트·이미지). 샘플�
   <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/start-loop-dark.jpg" /><img src="../assets/readme/start-loop.jpg" alt="목표, 지표, 예산을 입력하는 연구 루프 시작 대화상자" width="960" /></picture>
 </p>
 
-### Library
+### 논문 (Writing)
+
+논문은 그 논문이 보고하는 Run 바로 옆에 있고, 모든 수치는 출처가 된 Run에 묶여 있습니다.
+
+#### Writing 에이전트로 수정하기
+
+TeX 소스, Tectonic으로 컴파일한 PDF, Writing 에이전트를 나란히 두고 SyncTeX로 양방향 이동합니다.
+TeX나 PDF에서 문단을 선택해 **Revise**를 고르면 에이전트가 그 문단만 고치고, **Compile PDF**로 결과를
+확인합니다.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-writing-revise-dark.gif" /><img src="../assets/readme/clip-writing-revise.gif" alt="TeX 소스에서 초록을 선택해 결과부터 쓰도록 Writing 에이전트에게 요청하고, 에이전트가 그 줄을 고친 뒤 Compile PDF로 새 초록을 확인하는 장면" width="960" /></picture>
+</p>
+
+#### Claims
+
+**Claims** 서랍은 논문의 모든 수치를 그 수치가 가리키는 Run과 대조해 verified, stale, mismatch,
+missing evidence로 표시합니다. Run이 뒷받침하지 않는 결과 수치를 찾아내고, **Update text**로 어긋난
+수치를 한 번에 고칩니다.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-writing-claims-dark.gif" /><img src="../assets/readme/clip-writing-claims.gif" alt="Claims 서랍을 열고 어긋난 수치에서 Update text를 눌러 verified로 바뀌고 PDF가 다시 컴파일되는 장면" width="960" /></picture>
+</p>
+
+### 문헌 (Library)
 
 프로젝트의 논문과 PDF를 하이라이트·메모와 함께 관리하고, arXiv·DOI로 가져오고, 인용을 복사합니다.
 읽기 에이전트가 논문을 요약하거나 내 원고·코드와 연결합니다. 가운데 구분선을 끌어 PDF와 에이전트
@@ -166,7 +162,9 @@ config 차이, 샘플 ID로 맞춘 모델 출력(텍스트·이미지). 샘플�
   <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-library-explain-dark.gif" /><img src="../assets/readme/clip-library-explain.gif" alt="PDF에서 문단을 선택해 Explain을 누르면 읽기 에이전트가 설명하는 장면" width="960" /></picture>
 </p>
 
-### Compute와 마감일
+<sub>Library 스크린샷의 논문은 Lin et al.의 <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a>이며 <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>으로 배포됩니다.</sub>
+
+### 자원과 일정 (Compute)
 
 여러 프로젝트에 걸친 SSH 호스트, GPU, SLURM 큐를 보고, 호스트·프로젝트별 GPU 예산을 정합니다. 예산을
 넘는 작업은 hold 상태로 제출됐다가 우선순위대로 풀립니다. ccfddl과 Hugging Face AI deadlines의 학회
@@ -176,7 +174,7 @@ config 차이, 샘플 ID로 맞춘 모델 출력(텍스트·이미지). 샘플�
   <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/home-dark.jpg" /><img src="../assets/readme/home.jpg" alt="프로젝트, 마감일, Compute가 있는 Aster 홈" width="960" /></picture>
 </p>
 
-### Workbench와 Code 레이아웃
+### 작업 공간 (Workbench)
 
 프로젝트의 채팅, 터미널, 에디터, 파일, Git. 페이지를 옮겨도 에이전트나 터미널은 멈추지 않습니다.
 **Research | Code** 전환으로 순수 코딩 작업용 worktree 중심 레이아웃으로 바꿀 수 있습니다.
@@ -184,8 +182,6 @@ config 차이, 샘플 ID로 맞춘 모델 출력(텍스트·이미지). 샘플�
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/code-layout-dark.jpg" /><img src="../assets/readme/code-layout.jpg" alt="worktree, 터미널, 에디터가 있는 Code 레이아웃" width="960" /></picture>
 </p>
-
-<sub>Library 스크린샷의 논문은 Lin et al.의 <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a>이며 <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>으로 배포됩니다.</sub>
 
 **Slack:** 허용한 채널에서 프로젝트의 Aster 봇을 멘션하면 그 프로젝트의 코디네이터 에이전트가 요청을 받아
 스레드에 답합니다. 승인은 Aster 안에서만 합니다. 설정 방법은 [`SLACK.md`](SLACK.md)에 있습니다.
@@ -268,16 +264,8 @@ print("ASTER_MEDIA " + json.dumps({"path": "samples/step_1000.png", "step": 1000
 보고합니다. 모든 명령은 `--json`을 받으며, `node $HARNESS --help`에 `preflight`, `check`, `quality`,
 `rate`, `proposal`, `loop`까지 전체 목록이 있습니다.
 
-기록이 쓰인 그대로의 의미를 갖도록 하네스는 몇 가지 규칙을 지킵니다.
-
-- `run exec`는 받은 명령만 실행합니다. 하네스가 스스로 학습을 시작하거나 결과의 성공을 판단하지
-  않으며, 종료 코드가 판단합니다.
-- claim의 값은 `metrics.jsonl`에서 읽습니다. Run과 다른 `--value`는 거부됩니다.
-- 에이전트의 finding에는 근거가 필요하고, 하네스가 각 근거를 Run의 파일과 대조합니다.
-- 승인, 거절, 수락, 기각은 사용자만 합니다. 에이전트는 제안할 수 있고, 다시 돌린 Run을 적은 메모와
-  함께 자기 finding을 해결 처리할 수 있습니다.
-- `verify`의 `checks_clear`는 자동 점검에서 열린 문제가 없다는 뜻일 뿐 과학적 증명이 아니며,
-  문서에도 그렇게 적혀 있습니다.
+기록을 믿을 수 있게 하는 규칙(`run exec`가 무엇을 기록하는지, claim과 finding을 어떻게 검사하는지,
+누가 승인하는지)은 [`src/research-harness/README.md`](../../src/research-harness/README.md)에 있습니다.
 
 ## Aster CLI
 

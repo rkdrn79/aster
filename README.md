@@ -37,14 +37,8 @@ number they report.
 
 - **Conversation first:** Start from a Claude Code or Codex chat. An Experiment groups the results
   afterwards; it is not a form to fill in before you can talk to an agent.
-- **Runs with provenance:** Every launch records its command, commit, uncommitted diff, host, agent
-  session, log, and metrics. An agent ending its turn never marks a Run as succeeded.
-- **Numbers backed by Runs:** Each result number in the manuscript can point to a Run, metric, and
-  split. Aster flags numbers that changed, went stale, or have nothing behind them.
-- **You approve, agents execute:** Agents propose the next Run with a reason and the exact command;
-  only you approve it, and the approved command is what runs.
-- **Agents stop polling:** Watches wake an agent when a Run ends, fails, logs NaN, stalls, or crosses
-  a threshold, on your machine or over SSH and SLURM.
+- **Evidence, not assertions:** Each Run records what actually ran, each number in the paper points
+  to the Run behind it, and only you approve what runs next.
 - **Your machines, your files:** No Aster account or hosted service. Agents and research records stay
   on your computer and the hosts you connect, in plain files inside the project.
 
@@ -98,57 +92,35 @@ See [`docs/RESEARCH_PROJECT_LAYOUT.md`](docs/RESEARCH_PROJECT_LAYOUT.md) for the
 
 ## Features
 
-### Experiment notebook
+### Experiments
+
+Every Experiment has a notebook, its Runs, and an agent beside it. Agents propose; you decide what
+runs.
+
+#### Experiment notebook
 
 Each Experiment opens on a notebook: plan (question, metric, baseline, seeds), **Needs you** (failed
 Runs, proposals, findings that wait on a decision), results with mean ± spread per configuration,
-analyses, and your conclusion. The **Experiment agent** is docked beside it and can design, analyze,
-explain a failure, or propose the next Run.
+analyses, and your conclusion. The **Experiment agent** is docked beside it: ask it to design,
+analyze, explain a failure, or propose the next Run.
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-experiment-analyze-dark.gif" /><img src="docs/assets/readme/clip-experiment-analyze.gif" alt="Clicking Analyze in the Experiment agent: the reply weighs the result against the brief, then the proposed Run is approved under Needs you" width="960" /></picture>
 </p>
 
-### Runs
+#### Runs and Compare
 
-Live metric curves, the log, config, code patch, and media per Run. Attach existing JSONL or CSV
-results, link a SLURM job, or let agents register Runs that Aster picks up on its own.
+Live metric curves, the log, config, code patch, and media for every Run. Attach existing JSONL or
+CSV results, link a SLURM job, or let agents register Runs that Aster picks up on its own. Tick 2–6
+Runs and **Compare** lines them up: differences from the baseline at one precision per column,
+mismatched units or evaluation conditions, config differences, and outputs (text or image) matched by
+sample ID. Rate samples blind, A/B, and see how your ratings agree with the agent judge.
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-notebook-runs-compare-dark.gif" /><img src="docs/assets/readme/clip-notebook-runs-compare.gif" alt="Moving from the notebook to Runs and Compare, with validation curves and a tooltip across three Runs" width="960" /></picture>
 </p>
 
-### Compare
-
-Line up 2–6 Runs: baseline, last and best values at one precision per column, mismatched units or
-evaluation conditions, config differences, and model outputs (text or image) matched by sample ID.
-Rate samples blind, A/B, and see how your ratings agree with the agent judge.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/compare-dark.jpg" /><img src="docs/assets/readme/compare.jpg" alt="Compare page with metrics, config differences, and samples side by side" width="960" /></picture>
-</p>
-
-### Writing
-
-The paper sits beside the Runs it reports: TeX source, the PDF compiled with Tectonic, and a Writing
-agent side by side, with SyncTeX in both directions. Select a passage in the TeX or the PDF and
-choose **Revise**; the agent edits only that passage, and **Compile PDF** shows the result.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-revise-dark.gif" /><img src="docs/assets/readme/clip-writing-revise.gif" alt="Selecting the abstract in the TeX source, asking the Writing agent to lead with the result, the agent editing those lines, and Compile PDF showing the new abstract" width="960" /></picture>
-</p>
-
-### Claims
-
-When a result goes into the paper, the agent records a claim that ties the number to a Run's metric
-and split. The Claims drawer marks every number as verified, stale, mismatched, or missing evidence,
-lists result-like numbers no Run backs, and **Update text** fixes a mismatched number in one click.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-claims-dark.gif" /><img src="docs/assets/readme/clip-writing-claims.gif" alt="Opening the Claims drawer, clicking Update text on a mismatched number, the claim turning verified, and the recompiled PDF" width="960" /></picture>
-</p>
-
-### Research loop
+#### Research loop
 
 Give an agent an objective, a metric, and a budget of Runs and hours. It writes each hypothesis,
 Run, result, and decision to the loop ledger, launches only through the harness, and stops for you
@@ -156,6 +128,30 @@ before going over budget or changing the evaluation.
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/start-loop-dark.jpg" /><img src="docs/assets/readme/start-loop.jpg" alt="Start research loop dialog with objective, metric, and budget" width="960" /></picture>
+</p>
+
+### Writing
+
+The paper sits beside the Runs it reports, and every number stays tied to the Run it came from.
+
+#### Revise with the Writing agent
+
+TeX source, the PDF compiled with Tectonic, and a Writing agent side by side, with SyncTeX in both
+directions. Select a passage in the TeX or the PDF and choose **Revise**; the agent edits only that
+passage, and **Compile PDF** shows the result.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-revise-dark.gif" /><img src="docs/assets/readme/clip-writing-revise.gif" alt="Selecting the abstract in the TeX source, asking the Writing agent to lead with the result, the agent editing those lines, and Compile PDF showing the new abstract" width="960" /></picture>
+</p>
+
+#### Claims
+
+The **Claims** drawer checks every number in the paper against the Run it cites and marks it
+verified, stale, mismatched, or missing evidence. It lists result-like numbers no Run backs, and
+**Update text** fixes a mismatched number in one click.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-claims-dark.gif" /><img src="docs/assets/readme/clip-writing-claims.gif" alt="Opening the Claims drawer, clicking Update text on a mismatched number, the claim turning verified, and the recompiled PDF" width="960" /></picture>
 </p>
 
 ### Library
@@ -168,7 +164,9 @@ divider to give the PDF or the agent more room.
   <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-library-explain-dark.gif" /><img src="docs/assets/readme/clip-library-explain.gif" alt="Selecting a passage in a PDF, choosing Explain, and the Reading agent answering" width="960" /></picture>
 </p>
 
-### Compute and Deadlines
+<sub>The Library screenshot shows <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a> by Lin et al., licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</sub>
+
+### Compute
 
 SSH hosts, GPUs, and SLURM queues across projects, with a GPU budget per host and project: jobs over
 budget are submitted held and released in priority order. Conference deadlines from ccfddl and the
@@ -178,7 +176,7 @@ Hugging Face AI deadlines catalogs, in your time zone.
   <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/home-dark.jpg" /><img src="docs/assets/readme/home.jpg" alt="Aster home with projects, deadlines, and compute" width="960" /></picture>
 </p>
 
-### Workbench and Code layout
+### Workbench
 
 Chats, terminals, the editor, files, and Git for the project. Switching pages never stops an agent
 or terminal. The **Research | Code** switch flips the sidebar to a worktree-first layout for pure
@@ -187,8 +185,6 @@ coding work.
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/code-layout-dark.jpg" /><img src="docs/assets/readme/code-layout.jpg" alt="Code layout with worktrees, a terminal, and the editor" width="960" /></picture>
 </p>
-
-<sub>The Library screenshot shows <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a> by Lin et al., licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</sub>
 
 **Slack:** mention a project's Aster bot in an allowed channel and a coordinator agent in that project
 picks up the request and answers in the thread; approvals stay in Aster. Setup is in
@@ -274,16 +270,8 @@ For a job that cannot be wrapped, register it with `new-run` and report it with 
 `run attach-artifact`, and `run finish`. Every command accepts `--json`; `node $HARNESS --help` lists
 them all, including `preflight`, `check`, `quality`, `rate`, `proposal`, and `loop`.
 
-The harness follows a few rules so a record means what it says:
-
-- `run exec` runs only the command it is given. Nothing in the harness starts training or decides
-  that a result succeeded; the exit code does.
-- A claim's value is read from `metrics.jsonl`. A `--value` that disagrees with the Run is refused.
-- An agent finding needs evidence, and the harness checks each item against the Run's files.
-- Only you approve, reject, accept, or dismiss. Agents may propose and may resolve their own findings
-  with a note naming the re-run.
-- `verify` reports `checks_clear` when the automated checks find no open issue. That is not
-  scientific proof, and the docs say so.
+The rules that keep a record honest (what `run exec` records, how claims and findings are checked,
+who approves) are in [`src/research-harness/README.md`](src/research-harness/README.md).
 
 ## Aster CLI
 

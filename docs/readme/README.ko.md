@@ -47,28 +47,6 @@ Experiment와 Run, 그 결과를 보고하는 논문, 논문이 인용하는 문
 - **내 컴퓨터, 내 파일:** Aster 계정이나 호스팅 서비스가 없습니다. 에이전트와 연구 기록은 내
   컴퓨터와 연결한 호스트의 프로젝트 폴더 안에 일반 파일로 남습니다.
 
-## 결과와 함께 쓰기
-
-논문은 그 논문이 보고하는 Run 바로 옆에 있습니다. 문단을 선택해 Writing 에이전트에게 수정을 맡기고
-다시 컴파일합니다. 기록한 수치는 모두 출처가 된 Run, 지표, split에 묶여 있고, 값이 어긋나면 Aster가
-알려줍니다.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-writing-revise-dark.gif" /><img src="../assets/readme/clip-writing-revise.gif" alt="TeX 소스에서 초록을 선택해 결과부터 쓰도록 Writing 에이전트에게 요청하고, 에이전트가 그 줄을 고친 뒤 Compile PDF로 새 초록을 확인하는 장면" width="960" /></picture>
-</p>
-
-- **선택, 수정, 재컴파일:** TeX 소스나 PDF에서 텍스트를 선택하고 **Revise**를 고릅니다. Writing
-  에이전트는 그 문단만 고치고, **Compile PDF**가 Tectonic으로 다시 빌드합니다.
-- **Run이 뒷받침하는 수치:** 결과를 논문에 쓰면 에이전트가 그 수치를 Run의 지표와 split에 묶는 claim을
-  기록합니다. Run과 다른 값은 하네스가 거부합니다.
-- **한 번에 고치기:** **Claims** 서랍이 수치마다 verified, stale, mismatch, missing evidence를
-  표시합니다. 논문에 적힌 값이 Run과 달라지면 **Update text**가 현재 값을 TeX에 쓰고 다시 기록합니다.
-- **양방향 SyncTeX:** PDF를 더블클릭하면 소스 줄로 가고, 에디터의 커서 줄을 PDF에서 보여줍니다.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-writing-claims-dark.gif" /><img src="../assets/readme/clip-writing-claims.gif" alt="Claims 서랍을 열고 어긋난 수치에서 Update text를 눌러 verified로 바뀌고 PDF가 다시 컴파일되는 장면" width="960" /></picture>
-</p>
-
 ## 작동 방식
 
 ```mermaid
@@ -119,32 +97,24 @@ my-project/
 
 ## 기능
 
-<table>
-<tr>
-<td width="40%" valign="top">
-
 ### Experiment 노트북
 
 Experiment를 열면 노트북이 나옵니다. 계획(질문, 지표, baseline, seed), **Needs you**(결정을 기다리는
 실패한 Run, 제안, finding), 설정별 평균 ± 편차로 정리된 결과, 분석, 사용자가 쓰는 결론. 옆에 붙은
 **Experiment 에이전트**가 설계, 분석, 실패 원인 설명, 다음 Run 제안을 맡습니다.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-experiment-analyze-dark.gif" /><img src="../assets/readme/clip-experiment-analyze.gif" alt="Experiment 에이전트에서 Analyze를 누르면 브리프와 비교한 분석이 오고, Needs you에서 제안된 Run을 승인하는 장면" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-experiment-analyze-dark.gif" /><img src="../assets/readme/clip-experiment-analyze.gif" alt="Experiment 에이전트에서 Analyze를 누르면 브리프와 비교한 분석이 오고, Needs you에서 제안된 Run을 승인하는 장면" width="960" /></picture>
+</p>
 
 ### Runs
 
 Run마다 실시간 지표 곡선, 로그, config, 코드 patch, 미디어를 봅니다. 기존 JSONL·CSV 결과를 붙이거나,
 SLURM 작업을 연결하거나, 에이전트가 등록한 Run을 Aster가 알아서 가져옵니다.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-notebook-runs-compare-dark.gif" /><img src="../assets/readme/clip-notebook-runs-compare.gif" alt="노트북에서 Runs와 Compare로 이동하며 검증 곡선과 세 Run의 툴팁을 보는 장면" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-notebook-runs-compare-dark.gif" /><img src="../assets/readme/clip-notebook-runs-compare.gif" alt="노트북에서 Runs와 Compare로 이동하며 검증 곡선과 세 Run의 툴팁을 보는 장면" width="960" /></picture>
+</p>
 
 ### Compare
 
@@ -152,23 +122,29 @@ Run 2–6개를 나란히 봅니다. baseline, 열마다 같은 정밀도의 마
 config 차이, 샘플 ID로 맞춘 모델 출력(텍스트·이미지). 샘플을 블라인드 A/B로 평가하고 에이전트 judge와
 얼마나 일치하는지 봅니다.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/compare-dark.jpg" /><img src="../assets/readme/compare.jpg" alt="지표, config 차이, 샘플을 나란히 보여주는 Compare 화면" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/compare-dark.jpg" /><img src="../assets/readme/compare.jpg" alt="지표, config 차이, 샘플을 나란히 보여주는 Compare 화면" width="960" /></picture>
+</p>
 
-### Writing과 Claims
+### Writing
 
-TeX 소스, Tectonic으로 컴파일한 PDF, Writing 에이전트를 나란히 두고 SyncTeX로 양방향 이동합니다.
-Claims 서랍은 기록된 수치를 verified, stale, mismatch, missing evidence로 표시하고, Run이 뒷받침하지
-않는 결과 수치를 찾아내며, 어긋난 수치를 한 번에 고칩니다.
+논문은 그 논문이 보고하는 Run 바로 옆에 있습니다. TeX 소스, Tectonic으로 컴파일한 PDF, Writing
+에이전트를 나란히 두고 SyncTeX로 양방향 이동합니다. TeX나 PDF에서 문단을 선택해 **Revise**를 고르면
+에이전트가 그 문단만 고치고, **Compile PDF**로 결과를 확인합니다.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/writing-claims-dark.jpg" /><img src="../assets/readme/writing-claims.jpg" alt="TeX 소스, PDF, Claims 서랍이 있는 Writing 화면" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-writing-revise-dark.gif" /><img src="../assets/readme/clip-writing-revise.gif" alt="TeX 소스에서 초록을 선택해 결과부터 쓰도록 Writing 에이전트에게 요청하고, 에이전트가 그 줄을 고친 뒤 Compile PDF로 새 초록을 확인하는 장면" width="960" /></picture>
+</p>
+
+### Claims
+
+결과를 논문에 쓰면 에이전트가 그 수치를 Run의 지표와 split에 묶는 claim을 기록합니다. Claims 서랍은
+수치마다 verified, stale, mismatch, missing evidence를 표시하고, Run이 뒷받침하지 않는 결과 수치를
+찾아내며, **Update text**로 어긋난 수치를 한 번에 고칩니다.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-writing-claims-dark.gif" /><img src="../assets/readme/clip-writing-claims.gif" alt="Claims 서랍을 열고 어긋난 수치에서 Update text를 눌러 verified로 바뀌고 PDF가 다시 컴파일되는 장면" width="960" /></picture>
+</p>
 
 ### 연구 루프
 
@@ -176,11 +152,9 @@ Claims 서랍은 기록된 수치를 verified, stale, mismatch, missing evidence
 기록에 남기고, 하네스로만 실행하며, 예산을 넘기거나 평가 방식을 바꾸기 전에 멈춰서 사용자에게
 묻습니다.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/start-loop-dark.jpg" /><img src="../assets/readme/start-loop.jpg" alt="목표, 지표, 예산을 입력하는 연구 루프 시작 대화상자" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/start-loop-dark.jpg" /><img src="../assets/readme/start-loop.jpg" alt="목표, 지표, 예산을 입력하는 연구 루프 시작 대화상자" width="960" /></picture>
+</p>
 
 ### Library
 
@@ -188,11 +162,9 @@ Claims 서랍은 기록된 수치를 verified, stale, mismatch, missing evidence
 읽기 에이전트가 논문을 요약하거나 내 원고·코드와 연결합니다. 가운데 구분선을 끌어 PDF와 에이전트
 창 크기를 조절합니다.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-library-explain-dark.gif" /><img src="../assets/readme/clip-library-explain.gif" alt="PDF에서 문단을 선택해 Explain을 누르면 읽기 에이전트가 설명하는 장면" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/clip-library-explain-dark.gif" /><img src="../assets/readme/clip-library-explain.gif" alt="PDF에서 문단을 선택해 Explain을 누르면 읽기 에이전트가 설명하는 장면" width="960" /></picture>
+</p>
 
 ### Compute와 마감일
 
@@ -200,21 +172,18 @@ Claims 서랍은 기록된 수치를 verified, stale, mismatch, missing evidence
 넘는 작업은 hold 상태로 제출됐다가 우선순위대로 풀립니다. ccfddl과 Hugging Face AI deadlines의 학회
 마감일을 내 시간대로 보여줍니다.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/home-dark.jpg" /><img src="../assets/readme/home.jpg" alt="프로젝트, 마감일, Compute가 있는 Aster 홈" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/home-dark.jpg" /><img src="../assets/readme/home.jpg" alt="프로젝트, 마감일, Compute가 있는 Aster 홈" width="960" /></picture>
+</p>
 
 ### Workbench와 Code 레이아웃
 
 프로젝트의 채팅, 터미널, 에디터, 파일, Git. 페이지를 옮겨도 에이전트나 터미널은 멈추지 않습니다.
 **Research | Code** 전환으로 순수 코딩 작업용 worktree 중심 레이아웃으로 바꿀 수 있습니다.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/code-layout-dark.jpg" /><img src="../assets/readme/code-layout.jpg" alt="worktree, 터미널, 에디터가 있는 Code 레이아웃" /></picture></td>
-</tr>
-</table>
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/code-layout-dark.jpg" /><img src="../assets/readme/code-layout.jpg" alt="worktree, 터미널, 에디터가 있는 Code 레이아웃" width="960" /></picture>
+</p>
 
 <sub>Library 스크린샷의 논문은 Lin et al.의 <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a>이며 <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>으로 배포됩니다.</sub>
 

@@ -48,30 +48,6 @@ number they report.
 - **Your machines, your files:** No Aster account or hosted service. Agents and research records stay
   on your computer and the hosts you connect, in plain files inside the project.
 
-## Write with your results
-
-The paper sits beside the Runs it reports. Select a passage, ask the Writing agent to revise it, and
-recompile. Every number you record stays tied to the Run, metric, and split it came from, and Aster
-tells you when one stops matching.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-revise-dark.gif" /><img src="docs/assets/readme/clip-writing-revise.gif" alt="Selecting the abstract in the TeX source, asking the Writing agent to lead with the result, the agent editing those lines, and Compile PDF showing the new abstract" width="960" /></picture>
-</p>
-
-- **Select, revise, recompile:** Select text in the TeX source or the PDF and choose **Revise**. The
-  Writing agent edits only that passage, and **Compile PDF** rebuilds it with Tectonic.
-- **Numbers backed by Runs:** When a result goes into the paper, the agent records a claim that ties
-  it to a Run's metric and split. The harness refuses a value that disagrees with the Run.
-- **One-click fixes:** The **Claims** drawer marks each number verified, stale, mismatched, or missing
-  evidence. When the paper no longer states its Run's value, **Update text** writes the current value
-  into the TeX and records it again.
-- **SyncTeX both ways:** Double-click the PDF to jump to the source line, or show the editor's cursor
-  line in the PDF.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-claims-dark.gif" /><img src="docs/assets/readme/clip-writing-claims.gif" alt="Opening the Claims drawer, clicking Update text on a mismatched number, the claim turning verified, and the recompiled PDF" width="960" /></picture>
-</p>
-
 ## How it works
 
 ```mermaid
@@ -122,10 +98,6 @@ See [`docs/RESEARCH_PROJECT_LAYOUT.md`](docs/RESEARCH_PROJECT_LAYOUT.md) for the
 
 ## Features
 
-<table>
-<tr>
-<td width="40%" valign="top">
-
 ### Experiment notebook
 
 Each Experiment opens on a notebook: plan (question, metric, baseline, seeds), **Needs you** (failed
@@ -133,22 +105,18 @@ Runs, proposals, findings that wait on a decision), results with mean ± spread 
 analyses, and your conclusion. The **Experiment agent** is docked beside it and can design, analyze,
 explain a failure, or propose the next Run.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-experiment-analyze-dark.gif" /><img src="docs/assets/readme/clip-experiment-analyze.gif" alt="Clicking Analyze in the Experiment agent: the reply weighs the result against the brief, then the proposed Run is approved under Needs you" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-experiment-analyze-dark.gif" /><img src="docs/assets/readme/clip-experiment-analyze.gif" alt="Clicking Analyze in the Experiment agent: the reply weighs the result against the brief, then the proposed Run is approved under Needs you" width="960" /></picture>
+</p>
 
 ### Runs
 
 Live metric curves, the log, config, code patch, and media per Run. Attach existing JSONL or CSV
 results, link a SLURM job, or let agents register Runs that Aster picks up on its own.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-notebook-runs-compare-dark.gif" /><img src="docs/assets/readme/clip-notebook-runs-compare.gif" alt="Moving from the notebook to Runs and Compare, with validation curves and a tooltip across three Runs" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-notebook-runs-compare-dark.gif" /><img src="docs/assets/readme/clip-notebook-runs-compare.gif" alt="Moving from the notebook to Runs and Compare, with validation curves and a tooltip across three Runs" width="960" /></picture>
+</p>
 
 ### Compare
 
@@ -156,23 +124,29 @@ Line up 2–6 Runs: baseline, last and best values at one precision per column, 
 evaluation conditions, config differences, and model outputs (text or image) matched by sample ID.
 Rate samples blind, A/B, and see how your ratings agree with the agent judge.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/compare-dark.jpg" /><img src="docs/assets/readme/compare.jpg" alt="Compare page with metrics, config differences, and samples side by side" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/compare-dark.jpg" /><img src="docs/assets/readme/compare.jpg" alt="Compare page with metrics, config differences, and samples side by side" width="960" /></picture>
+</p>
 
-### Writing and Claims
+### Writing
 
-TeX source, the PDF compiled with Tectonic, and a writing agent side by side, with SyncTeX in both
-directions. The Claims drawer marks every recorded number as verified, stale, mismatched, or missing
-evidence, lists result-like numbers no Run backs, and fixes a mismatched number in one click.
+The paper sits beside the Runs it reports: TeX source, the PDF compiled with Tectonic, and a Writing
+agent side by side, with SyncTeX in both directions. Select a passage in the TeX or the PDF and
+choose **Revise**; the agent edits only that passage, and **Compile PDF** shows the result.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/writing-claims-dark.jpg" /><img src="docs/assets/readme/writing-claims.jpg" alt="Writing page with TeX source, PDF, and the Claims drawer" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-revise-dark.gif" /><img src="docs/assets/readme/clip-writing-revise.gif" alt="Selecting the abstract in the TeX source, asking the Writing agent to lead with the result, the agent editing those lines, and Compile PDF showing the new abstract" width="960" /></picture>
+</p>
+
+### Claims
+
+When a result goes into the paper, the agent records a claim that ties the number to a Run's metric
+and split. The Claims drawer marks every number as verified, stale, mismatched, or missing evidence,
+lists result-like numbers no Run backs, and **Update text** fixes a mismatched number in one click.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-claims-dark.gif" /><img src="docs/assets/readme/clip-writing-claims.gif" alt="Opening the Claims drawer, clicking Update text on a mismatched number, the claim turning verified, and the recompiled PDF" width="960" /></picture>
+</p>
 
 ### Research loop
 
@@ -180,11 +154,9 @@ Give an agent an objective, a metric, and a budget of Runs and hours. It writes 
 Run, result, and decision to the loop ledger, launches only through the harness, and stops for you
 before going over budget or changing the evaluation.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/start-loop-dark.jpg" /><img src="docs/assets/readme/start-loop.jpg" alt="Start research loop dialog with objective, metric, and budget" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/start-loop-dark.jpg" /><img src="docs/assets/readme/start-loop.jpg" alt="Start research loop dialog with objective, metric, and budget" width="960" /></picture>
+</p>
 
 ### Library
 
@@ -192,11 +164,9 @@ The project's papers and PDFs with highlights and notes, arXiv and DOI import, c
 and a reading agent that summarizes a paper or relates it to your manuscript and code. Drag the
 divider to give the PDF or the agent more room.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-library-explain-dark.gif" /><img src="docs/assets/readme/clip-library-explain.gif" alt="Selecting a passage in a PDF, choosing Explain, and the Reading agent answering" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-library-explain-dark.gif" /><img src="docs/assets/readme/clip-library-explain.gif" alt="Selecting a passage in a PDF, choosing Explain, and the Reading agent answering" width="960" /></picture>
+</p>
 
 ### Compute and Deadlines
 
@@ -204,11 +174,9 @@ SSH hosts, GPUs, and SLURM queues across projects, with a GPU budget per host an
 budget are submitted held and released in priority order. Conference deadlines from ccfddl and the
 Hugging Face AI deadlines catalogs, in your time zone.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/home-dark.jpg" /><img src="docs/assets/readme/home.jpg" alt="Aster home with projects, deadlines, and compute" /></picture></td>
-</tr>
-<tr>
-<td width="40%" valign="top">
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/home-dark.jpg" /><img src="docs/assets/readme/home.jpg" alt="Aster home with projects, deadlines, and compute" width="960" /></picture>
+</p>
 
 ### Workbench and Code layout
 
@@ -216,10 +184,9 @@ Chats, terminals, the editor, files, and Git for the project. Switching pages ne
 or terminal. The **Research | Code** switch flips the sidebar to a worktree-first layout for pure
 coding work.
 
-</td>
-<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/code-layout-dark.jpg" /><img src="docs/assets/readme/code-layout.jpg" alt="Code layout with worktrees, a terminal, and the editor" /></picture></td>
-</tr>
-</table>
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/code-layout-dark.jpg" /><img src="docs/assets/readme/code-layout.jpg" alt="Code layout with worktrees, a terminal, and the editor" width="960" /></picture>
+</p>
 
 <sub>The Library screenshot shows <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a> by Lin et al., licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</sub>
 

@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/rkdrn79/aster/releases/latest"><img src="https://img.shields.io/badge/download-macOS%20Apple%20Silicon-111?style=flat&logo=apple" alt="Download for macOS (Apple Silicon)" /></a>
-  <img src="https://img.shields.io/badge/status-MVP%20draft-555?style=flat" alt="Status: MVP draft" />
+  <a href="https://github.com/rkdrn79/aster/releases/latest"><img src="https://img.shields.io/github/v/release/rkdrn79/aster?style=flat&color=555&label=release" alt="Latest release" /></a>
   <img src="https://img.shields.io/badge/license-MIT-555?style=flat" alt="License: MIT" />
 </p>
 
@@ -19,12 +19,13 @@
 
 <h3 align="center">
   <a href="https://github.com/rkdrn79/aster/releases/latest">Download for macOS</a> ·
+  <a href="https://rkdrn79.github.io/aster-site/">Website</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#try-the-demo-project">Try the demo</a>
 </h3>
 
 <p align="center">
-  <img src="docs/assets/readme/hero.png" alt="Aster with a research project open: the Experiment notebook in the middle and the Experiment agent docked on the right" width="960" />
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/hero-dark.jpg" /><img src="docs/assets/readme/hero.jpg" alt="Aster with a research project open: the Experiment notebook in the middle and the Experiment agent docked on the right" width="960" /></picture>
 </p>
 
 Aster is a desktop app for research done with coding agents. A coding ADE treats the repository as
@@ -46,6 +47,30 @@ number they report.
   a threshold, on your machine or over SSH and SLURM.
 - **Your machines, your files:** No Aster account or hosted service. Agents and research records stay
   on your computer and the hosts you connect, in plain files inside the project.
+
+## Write with your results
+
+The paper sits beside the Runs it reports. Select a passage, ask the Writing agent to revise it, and
+recompile. Every number you record stays tied to the Run, metric, and split it came from, and Aster
+tells you when one stops matching.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-revise-dark.gif" /><img src="docs/assets/readme/clip-writing-revise.gif" alt="Selecting the abstract in the TeX source, asking the Writing agent to lead with the result, the agent editing those lines, and Compile PDF showing the new abstract" width="960" /></picture>
+</p>
+
+- **Select, revise, recompile:** Select text in the TeX source or the PDF and choose **Revise**. The
+  Writing agent edits only that passage, and **Compile PDF** rebuilds it with Tectonic.
+- **Numbers backed by Runs:** When a result goes into the paper, the agent records a claim that ties
+  it to a Run's metric and split. The harness refuses a value that disagrees with the Run.
+- **One-click fixes:** The **Claims** drawer marks each number verified, stale, mismatched, or missing
+  evidence. When the paper no longer states its Run's value, **Update text** writes the current value
+  into the TeX and records it again.
+- **SyncTeX both ways:** Double-click the PDF to jump to the source line, or show the editor's cursor
+  line in the PDF.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-writing-claims-dark.gif" /><img src="docs/assets/readme/clip-writing-claims.gif" alt="Opening the Claims drawer, clicking Update text on a mismatched number, the claim turning verified, and the recompiled PDF" width="960" /></picture>
+</p>
 
 ## How it works
 
@@ -109,7 +134,7 @@ analyses, and your conclusion. The **Experiment agent** is docked beside it and 
 explain a failure, or propose the next Run.
 
 </td>
-<td width="60%"><img src="docs/assets/readme/experiment-notebook.png" alt="Experiment notebook with plan, Needs you, results, and analyses, and the Experiment agent on the right" /></td>
+<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-experiment-analyze-dark.gif" /><img src="docs/assets/readme/clip-experiment-analyze.gif" alt="Clicking Analyze in the Experiment agent: the reply weighs the result against the brief, then the proposed Run is approved under Needs you" /></picture></td>
 </tr>
 <tr>
 <td width="40%" valign="top">
@@ -120,7 +145,7 @@ Live metric curves, the log, config, code patch, and media per Run. Attach exist
 results, link a SLURM job, or let agents register Runs that Aster picks up on its own.
 
 </td>
-<td width="60%"><img src="docs/assets/readme/runs-chart.png" alt="Runs page with three learning-rate Runs and the validation curves" /></td>
+<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-notebook-runs-compare-dark.gif" /><img src="docs/assets/readme/clip-notebook-runs-compare.gif" alt="Moving from the notebook to Runs and Compare, with validation curves and a tooltip across three Runs" /></picture></td>
 </tr>
 <tr>
 <td width="40%" valign="top">
@@ -132,7 +157,7 @@ evaluation conditions, config differences, and model outputs (text or image) mat
 Rate samples blind, A/B, and see how your ratings agree with the agent judge.
 
 </td>
-<td width="60%"><img src="docs/assets/readme/compare.png" alt="Compare page with metrics, config differences, and samples side by side" /></td>
+<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/compare-dark.jpg" /><img src="docs/assets/readme/compare.jpg" alt="Compare page with metrics, config differences, and samples side by side" /></picture></td>
 </tr>
 <tr>
 <td width="40%" valign="top">
@@ -141,10 +166,10 @@ Rate samples blind, A/B, and see how your ratings agree with the agent judge.
 
 TeX source, the PDF compiled with Tectonic, and a writing agent side by side, with SyncTeX in both
 directions. The Claims drawer marks every recorded number as verified, stale, mismatched, or missing
-evidence, lists result-like numbers no Run backs, and fixes a stale number in one click.
+evidence, lists result-like numbers no Run backs, and fixes a mismatched number in one click.
 
 </td>
-<td width="60%"><img src="docs/assets/readme/writing-claims.png" alt="Writing page with TeX source, PDF, and the Claims drawer" /></td>
+<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/writing-claims-dark.jpg" /><img src="docs/assets/readme/writing-claims.jpg" alt="Writing page with TeX source, PDF, and the Claims drawer" /></picture></td>
 </tr>
 <tr>
 <td width="40%" valign="top">
@@ -156,7 +181,7 @@ Run, result, and decision to the loop ledger, launches only through the harness,
 before going over budget or changing the evaluation.
 
 </td>
-<td width="60%"><img src="docs/assets/readme/start-loop.png" alt="Start research loop dialog with objective, metric, and budget" /></td>
+<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/start-loop-dark.jpg" /><img src="docs/assets/readme/start-loop.jpg" alt="Start research loop dialog with objective, metric, and budget" /></picture></td>
 </tr>
 <tr>
 <td width="40%" valign="top">
@@ -168,7 +193,7 @@ and a reading agent that summarizes a paper or relates it to your manuscript and
 divider to give the PDF or the agent more room.
 
 </td>
-<td width="60%"><img src="docs/assets/readme/library.png" alt="Library with a PDF on the left and the reading agent on the right" /></td>
+<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/clip-library-explain-dark.gif" /><img src="docs/assets/readme/clip-library-explain.gif" alt="Selecting a passage in a PDF, choosing Explain, and the Reading agent answering" /></picture></td>
 </tr>
 <tr>
 <td width="40%" valign="top">
@@ -180,7 +205,7 @@ budget are submitted held and released in priority order. Conference deadlines f
 Hugging Face AI deadlines catalogs, in your time zone.
 
 </td>
-<td width="60%"><img src="docs/assets/readme/home.png" alt="Aster home with projects, deadlines, and compute" /></td>
+<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/home-dark.jpg" /><img src="docs/assets/readme/home.jpg" alt="Aster home with projects, deadlines, and compute" /></picture></td>
 </tr>
 <tr>
 <td width="40%" valign="top">
@@ -192,7 +217,7 @@ or terminal. The **Research | Code** switch flips the sidebar to a worktree-firs
 coding work.
 
 </td>
-<td width="60%"><img src="docs/assets/readme/code-layout.png" alt="Code layout with worktrees, a terminal, and the editor" /></td>
+<td width="60%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/code-layout-dark.jpg" /><img src="docs/assets/readme/code-layout.jpg" alt="Code layout with worktrees, a terminal, and the editor" /></picture></td>
 </tr>
 </table>
 
@@ -326,8 +351,8 @@ Aster bundles agent skills that teach Claude Code and Codex the workflow above.
 
 ## Status
 
-This is a first MVP draft. The research flows above run on macOS and are covered by unit tests and
-headless Electron tests, but several pieces are not finished:
+Aster 0.1.0 is the first public release. The research flows above run on macOS and are covered by
+unit tests and headless Electron tests. Known gaps:
 
 - macOS on Apple Silicon only. Builds are signed ad hoc, not notarized, and have no update feed.
 - Aster is desktop-only. For agent conversations on a phone, use the Paseo app, which runs against

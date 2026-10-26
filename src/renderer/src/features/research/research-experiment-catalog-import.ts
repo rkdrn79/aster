@@ -1,6 +1,7 @@
 import { useAppStore } from '@/store'
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { selectResearchExperiment } from '../../../../shared/research/research-selection'
+import { catalogExperimentKey } from '../../../../shared/research/research-experiment-delete'
 import { useResearchRecords } from './research-records-store'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
 import { readProjectCatalog, type ProjectCatalog } from './research-project-catalog'
@@ -61,6 +62,9 @@ export async function importCatalogExperimentRecord(
     return {
       ...current,
       experiments: [...current.experiments, experiment],
+      removedCatalogExperimentKeys: current.removedCatalogExperimentKeys.filter(
+        (key) => key !== catalogExperimentKey(hostId, workspaceId, entry.slug)
+      ),
       selectedExperimentByWorkspace: {
         ...current.selectedExperimentByWorkspace,
         [selectionKey]: experiment.id
@@ -123,13 +127,17 @@ export async function syncCatalogExperimentRecords(
   const snapshot = useResearchRecords.getState().document
   if (
     !snapshot ||
-    catalog.experiments.every((entry) =>
-      snapshot.experiments.some(
-        (experiment) =>
-          experiment.hostId === hostId &&
-          experiment.workspaceId === workspaceId &&
-          experiment.catalogSlug === entry.slug
-      )
+    catalog.experiments.every(
+      (entry) =>
+        snapshot.removedCatalogExperimentKeys.includes(
+          catalogExperimentKey(hostId, workspaceId, entry.slug)
+        ) ||
+        snapshot.experiments.some(
+          (experiment) =>
+            experiment.hostId === hostId &&
+            experiment.workspaceId === workspaceId &&
+            experiment.catalogSlug === entry.slug
+        )
     )
   ) {
     return
@@ -151,7 +159,12 @@ export async function syncCatalogExperimentRecords(
         .map((experiment) => experiment.catalogSlug)
     )
     const missing = catalog.experiments.filter((entry) => {
-      if (existingSlugs.has(entry.slug)) {
+      if (
+        existingSlugs.has(entry.slug) ||
+        current.removedCatalogExperimentKeys.includes(
+          catalogExperimentKey(hostId, workspaceId, entry.slug)
+        )
+      ) {
         return false
       }
       existingSlugs.add(entry.slug)

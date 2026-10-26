@@ -149,6 +149,7 @@ export const researchDocumentSchema = z
     experiments: z.array(experimentSchema).max(1000),
     runs: z.array(runSchema).max(10_000),
     detachedCatalogRunSourceKeys: z.array(z.string().min(1)).max(10_000).default([]),
+    removedCatalogExperimentKeys: z.array(z.string().min(1)).max(10_000).default([]),
     papers: z.array(paperSchema).max(10_000).default([]),
     delegations: z.array(researchDelegationSchema).max(500).default([]),
     conversationExperimentIds: z
@@ -294,6 +295,7 @@ export function emptyResearchDocument(): ResearchDocument {
     experiments: [],
     runs: [],
     detachedCatalogRunSourceKeys: [],
+    removedCatalogExperimentKeys: [],
     papers: [],
     delegations: [],
     conversationExperimentIds: {},

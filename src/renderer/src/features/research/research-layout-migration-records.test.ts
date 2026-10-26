@@ -53,6 +53,7 @@ function document(): ResearchDocument {
     experiments: [base, { ...base, id: '00000000-0000-4000-8000-000000000003', hostId: 'ssh-gpu' }],
     runs: [run, { ...run, id: '00000000-0000-4000-8000-000000000004', hostId: 'ssh-gpu' }],
     detachedCatalogRunSourceKeys: [JSON.stringify(['local', 'w', `${runDir}/metrics.jsonl`])],
+    removedCatalogExperimentKeys: [],
     papers: [],
     delegations: [],
     conversationExperimentIds: {},

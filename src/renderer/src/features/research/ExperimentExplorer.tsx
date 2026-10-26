@@ -30,6 +30,7 @@ import type {
 import { selectResearchExperimentRecord } from './research-experiment-select'
 import { useResearchExperimentSidebarStatus } from './use-research-experiment-sidebar-status'
 import { groupExperimentConversations } from './research-experiment-conversations'
+import { useDeleteResearchExperiment } from './research-experiment-delete'
 
 const NO_TABS: Tab[] = []
 const NO_RUNS: ResearchRunRecord[] = []
@@ -44,6 +45,7 @@ export function ExperimentExplorer({
   onExpand: () => void
 }): React.JSX.Element {
   const context = useAppStore(useShallow(selectResearchWorkspaceContext))
+  const deleteExperiment = useDeleteResearchExperiment()
   const tabs = useAppStore((state) =>
     context.workspaceId ? (state.unifiedTabsByWorktree[context.workspaceId] ?? NO_TABS) : NO_TABS
   )
@@ -379,6 +381,7 @@ export function ExperimentExplorer({
           void select(id).then(() => openResearchExperimentPage(id, page))
         }}
         onArchive={(experiment) => void archive(experiment)}
+        onDelete={(experiment) => void deleteExperiment(experiment)}
         onLinkConversation={(source, experimentId) => void linkConversation(source, experimentId)}
         conversationsByExperiment={conversationsByExperiment}
         onOpenConversation={openConversation}

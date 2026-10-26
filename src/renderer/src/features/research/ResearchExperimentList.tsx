@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Archive, MessageSquareText, Pencil } from 'lucide-react'
+import { Archive, MessageSquareText, Pencil, Trash2 } from 'lucide-react'
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
 import type { Tab } from '../../../../shared/tab-types'
 import { Button } from '@/components/ui/button'
@@ -34,6 +34,7 @@ type Props = {
   /** Selects the Experiment and opens its notebook. */
   onSelect: (id: string) => void
   onArchive: (experiment: ExperimentRecord) => void
+  onDelete: (experiment: ExperimentRecord) => void
   onLinkConversation: (source: ResearchConversationDrag, experimentId: string) => void
   conversationsByExperiment: Map<string, Tab[]>
   onOpenConversation: (tab: Tab) => void
@@ -79,6 +80,7 @@ export function ResearchExperimentList({
   onRenameCancel,
   onSelect,
   onArchive,
+  onDelete,
   onLinkConversation,
   conversationsByExperiment,
   onOpenConversation
@@ -222,6 +224,16 @@ export function ResearchExperimentList({
                       onClick={() => onArchive(experiment)}
                     >
                       <Archive aria-hidden />
+                    </Button>
+                    <Button
+                      size="icon-xs"
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive"
+                      aria-label={`Delete ${experiment.name}`}
+                      title="Delete Experiment"
+                      onClick={() => onDelete(experiment)}
+                    >
+                      <Trash2 aria-hidden />
                     </Button>
                   </span>
                 </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { FlaskConical } from 'lucide-react'
+import { FlaskConical, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useAppStore } from '@/store'
@@ -10,6 +10,7 @@ import { ResearchEmptyState, ResearchPageBody, ResearchPageHeader } from './Rese
 import { useResearchActiveProject } from './research-home-projects'
 import { openResearchExperimentPage } from './research-experiment-page'
 import { useResearchRecords } from './research-records-store'
+import { useDeleteResearchExperiment } from './research-experiment-delete'
 
 export function ResearchExperimentsPage(): React.JSX.Element {
   const { project } = useResearchActiveProject()
@@ -17,6 +18,7 @@ export function ResearchExperimentsPage(): React.JSX.Element {
   const loading = useResearchRecords((state) => state.loading)
   const error = useResearchRecords((state) => state.error)
   const [query, setQuery] = useState('')
+  const deleteExperiment = useDeleteResearchExperiment()
 
   useEffect(() => {
     void useResearchRecords.getState().load()
@@ -127,6 +129,16 @@ export function ResearchExperimentsPage(): React.JSX.Element {
                 </div>
                 <Button size="sm" variant="outline" onClick={() => void openExperiment(experiment)}>
                   Open
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-destructive hover:text-destructive"
+                  aria-label={`Delete ${experiment.name}`}
+                  onClick={() => void deleteExperiment(experiment)}
+                >
+                  <Trash2 aria-hidden />
+                  Delete
                 </Button>
               </div>
             </article>

@@ -11,6 +11,7 @@ import {
 } from './research-slack-connection'
 import {
   getRemoteResearchSlackProject,
+  getRemoteResearchSlackProjectTasks,
   removeRemoteResearchSlackProject,
   saveRemoteResearchSlackProject
 } from './research-slack-remote'
@@ -40,6 +41,9 @@ export function registerResearchSlackIpcHandlers(): void {
     .strict()
   ipcMain.handle('researchSlack:getRemoteProject', (_event, input: unknown) =>
     getRemoteResearchSlackProject(remoteKey.parse(input))
+  )
+  ipcMain.handle('researchSlack:getRemoteProjectTasks', (_event, input: unknown) =>
+    getRemoteResearchSlackProjectTasks(remoteKey.parse(input))
   )
   ipcMain.handle('researchSlack:saveRemoteProject', (_event, input: unknown) => {
     const parsed = z

@@ -4,6 +4,9 @@ import { paperReadingStatusSchema, type PaperReadingStatus } from './research-li
 import type { RESEARCH_PROJECT_API_VERSION, ResearchProjectFile } from './research-project-api'
 
 export const ResearchProjectLibraryReadParams = WorktreeSelector.extend({})
+export const ResearchProjectDownloadArxivPdfParams = WorktreeSelector.extend({
+  reference: z.string().trim().min(1).max(4096)
+})
 
 const nullableText = z.string().nullable().catch(null)
 

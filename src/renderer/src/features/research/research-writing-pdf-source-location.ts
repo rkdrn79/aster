@@ -14,14 +14,15 @@ function canFindSource(selection: PdfTextSelection): boolean {
 export function useWritingPdfSourceLocation(
   experimentId: string,
   pdfPath: string,
-  selection: PdfTextSelection
+  selection: PdfTextSelection,
+  enabled = true
 ): PdfRevisionLocation | 'finding' | null {
   const [location, setLocation] = useState<PdfRevisionLocation | 'finding' | null>(() =>
-    canFindSource(selection) ? 'finding' : null
+    enabled && canFindSource(selection) ? 'finding' : null
   )
   useEffect(() => {
     const rects = selection.pdfRects
-    if (!rects || !canFindSource(selection)) {
+    if (!enabled || !rects || !canFindSource(selection)) {
       setLocation(null)
       return
     }
@@ -46,6 +47,6 @@ export function useWritingPdfSourceLocation(
     return () => {
       live = false
     }
-  }, [experimentId, pdfPath, selection])
+  }, [enabled, experimentId, pdfPath, selection])
   return location
 }

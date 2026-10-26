@@ -20,6 +20,13 @@ const SKILL_AGENTS = new Set<TuiAgent>(['claude', 'codex'])
 
 const ADOPT_DELEGATION_TASK = 'Organize project folders'
 
+export type ResearchAdoptTarget = {
+  workspaceId: string
+  hostId: ExecutionHostId | undefined
+  workspaceName: string
+  projectName: string
+}
+
 /** Unattended: the user is not watching this chat, so the skill works on its own branch. */
 const ADOPT_PROMPT =
   'Use the aster-research-adopt skill on this host. If it is not installed, read its full guide ' +
@@ -55,22 +62,25 @@ export async function resolveResearchAdoptAgent(hostId: ExecutionHostId): Promis
     !isTuiAgent(preferred) ||
     normalizeDisabledTuiAgents(settings.disabledTuiAgents).includes(preferred)
   ) {
-    throw new Error('Set an available default agent on the project host before organizing.')
+    throw new Error('Set an available default agent on the project host before starting a task.')
   }
   if (!SKILL_AGENTS.has(preferred)) {
     throw new Error(
-      `The project host's default agent (${preferred}) does not support the research adopt guide. Choose Claude Code or Codex there.`
+      `The project host's default agent (${preferred}) cannot run this background task. Choose Claude Code or Codex there.`
     )
   }
   return preferred
 }
 
 /** Starts the adopt agent in a chat that does not take focus; Background agent tasks shows its status. */
-export async function startResearchAdoptInBackground(): Promise<void> {
+export async function startResearchAdoptInBackground(target?: ResearchAdoptTarget): Promise<void> {
   const state = useAppStore.getState()
-  const context = selectResearchWorkspaceContext(state)
+  const context = target
+    ? { ...target, hostId: target.hostId ?? null }
+    : selectResearchWorkspaceContext(state)
   const { workspaceId, hostId } = context
   if (!workspaceId || !hostId) {
+    toast.error('The project workspace or host is unavailable.')
     return
   }
   let agent: TuiAgent
@@ -80,9 +90,11 @@ export async function startResearchAdoptInBackground(): Promise<void> {
     toast.error(cause instanceof Error ? cause.message : 'Could not read the project host agent.')
     return
   }
-  const current = selectResearchWorkspaceContext(useAppStore.getState())
-  if (current.workspaceId !== workspaceId || current.hostId !== hostId) {
-    return
+  if (!target) {
+    const current = selectResearchWorkspaceContext(useAppStore.getState())
+    if (current.workspaceId !== workspaceId || current.hostId !== hostId) {
+      return
+    }
   }
   const result = launchAgentInNewTab({
     requestId: newAgentLaunchRequestId(),

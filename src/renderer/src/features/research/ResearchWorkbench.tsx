@@ -22,6 +22,7 @@ import { researchActiveAgentTaskCount } from './research-live-agent-tasks'
 import { useResearchDelegationDismissals } from './research-delegation-dismissals'
 import { useResearchDelegationRows } from './use-research-delegation-rows'
 import type { ResearchDelegationRecord } from '../../../../shared/research/research-records'
+import { useResearchSlackBackgroundTasks } from './research-slack-background-tasks'
 
 const NO_DELEGATIONS: ResearchDelegationRecord[] = []
 
@@ -33,7 +34,13 @@ function useActiveBackgroundTaskCount(): number {
   const childTasks = researchActiveAgentTaskCount(statuses, now, dismissals)
   const delegations = useResearchRecords((state) => state.document?.delegations ?? NO_DELEGATIONS)
   const rows = useResearchDelegationRows(delegations)
-  return childTasks + rows.filter((row) => row.active).length
+  const slackEntries = useResearchSlackBackgroundTasks((state) => state.entries)
+  const slackRows = useResearchDelegationRows(slackEntries.map((entry) => entry.delegation))
+  return (
+    childTasks +
+    rows.filter((row) => row.active).length +
+    slackRows.filter((row) => row.active).length
+  )
 }
 
 export function ResearchWorkbench(): React.JSX.Element {

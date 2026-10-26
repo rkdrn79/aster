@@ -40,7 +40,7 @@ export function ResearchWritingPdfPane({
   sourceLookup = null
 }: {
   experiment: ExperimentRecord
-  /** A project without Experiments: no SyncTeX or Writing chat, compiled by path. */
+  /** A project without Experiments: no SyncTeX, compiled by path. */
   projectOnly?: boolean
   rootFile: ManuscriptFile
   sourceCandidate?: ManuscriptFile | null
@@ -86,7 +86,8 @@ export function ResearchWritingPdfPane({
     }
   })
   const compiling = build.compiling
-  const synctexAvailable = !projectOnly && Boolean(window.api.researchSynctex)
+  const synctexAvailable =
+    !projectOnly && experiment.hostId === 'local' && Boolean(window.api.researchSynctex)
   const pdfFile = useMemo(() => {
     if (!manuscript) {
       return null
@@ -331,7 +332,7 @@ export function ResearchWritingPdfPane({
             </p>
           </div>
         )}
-        {pdfSelection && !revisionSelection && pdfFile && !projectOnly ? (
+        {pdfSelection && !revisionSelection && pdfFile ? (
           <Button
             type="button"
             size="sm"
@@ -351,6 +352,7 @@ export function ResearchWritingPdfPane({
         {revisionSelection && pdfFile ? (
           <ResearchWritingPdfReviseComposer
             experiment={experiment}
+            projectOnly={projectOnly}
             source={{
               workspaceId: experiment.workspaceId,
               workspacePath: experiment.workspacePath,

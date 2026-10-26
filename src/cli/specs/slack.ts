@@ -72,6 +72,12 @@ export const SLACK_COMMAND_SPECS: CommandSpec[] = [
     allowedFlags: [...GLOBAL_FLAGS, 'project-key']
   },
   {
+    path: ['slack', 'project', 'tasks'],
+    summary: 'List this project’s Slack coordinator sessions for Background tasks',
+    usage: `${CLI_NAME} slack project tasks --project-key <key>`,
+    allowedFlags: [...GLOBAL_FLAGS, 'project-key']
+  },
+  {
     path: ['slack', 'project', 'rm'],
     aliases: [['slack', 'project', 'remove']],
     destructive: true,

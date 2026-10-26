@@ -7,13 +7,14 @@ import type {
 export function researchBackgroundTaskForTab(
   records: ResearchDocument | null,
   tab: Tab,
-  hostId: string | null
+  hostId: string | null,
+  additionalTasks: readonly ResearchDelegationRecord[] = []
 ): ResearchDelegationRecord | null {
-  if (!records || !hostId) {
+  if (!hostId) {
     return null
   }
   return (
-    records.delegations.find(
+    [...(records?.delegations ?? []), ...additionalTasks].find(
       (task) =>
         task.targetWorkspaceId === tab.worktreeId &&
         task.targetHostId === hostId &&
@@ -26,8 +27,9 @@ export function researchBackgroundTaskForTab(
 export function researchBackgroundTabIsHidden(
   records: ResearchDocument | null,
   tab: Tab,
-  hostId: string | null
+  hostId: string | null,
+  additionalTasks: readonly ResearchDelegationRecord[] = []
 ): boolean {
-  const task = researchBackgroundTaskForTab(records, tab, hostId)
+  const task = researchBackgroundTaskForTab(records, tab, hostId, additionalTasks)
   return task !== null && task.workbenchVisible !== true
 }

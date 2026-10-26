@@ -4,6 +4,7 @@ import { selectResearchExperiment } from '../../../../shared/research/research-s
 import { useResearchRecords } from './research-records-store'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
 import { readProjectCatalog, type ProjectCatalog } from './research-project-catalog'
+import { readCatalogManuscript } from './research-writing-project'
 
 export async function importCatalogExperimentRecord(
   context: ReturnType<typeof selectResearchWorkspaceContext>,
@@ -78,6 +79,28 @@ export async function createCatalogExperiment(
   const { workspaceId, workspacePath, hostId } = context
   if (!workspaceId || !workspacePath || hostId !== 'local') {
     throw new Error('Experiments in the project folder need a local workspace.')
+  }
+  let hasCatalog = true
+  try {
+    await readProjectCatalog({ workspaceId, workspacePath, hostId })
+  } catch {
+    hasCatalog = false
+  }
+  if (!hasCatalog) {
+    const manuscript = await readCatalogManuscript({
+      hostId,
+      workspaceId,
+      workspacePath,
+      projectId: context.projectId,
+      name: context.projectName ?? context.workspaceName ?? 'Project'
+    })
+    if (manuscript) {
+      await window.api.researchProjectLayout.initialize({
+        workspacePath,
+        manuscript: manuscript.sourcePath,
+        createPaper: false
+      })
+    }
   }
   const result = await window.api.researchProjectLayout.createExperiment({ workspacePath, name })
   const catalog = await readProjectCatalog({ workspaceId, workspacePath, hostId })

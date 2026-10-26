@@ -69,6 +69,7 @@ function ResearchLibraryWorkspace({ scope }: { scope: LibraryScope }): React.JSX
   const [language, setLanguage] = useReadingLanguage()
   const [actionError, setActionError] = useState<string | null>(null)
   const [importingBibliography, setImportingBibliography] = useState(false)
+  const [bibliographyProgress, setBibliographyProgress] = useState<string | null>(null)
   const canImportFiles = scope.hostId === 'local' && Boolean(window.api.researchLibrary?.importPdf)
 
   const papers = useMemo(
@@ -149,15 +150,40 @@ function ResearchLibraryWorkspace({ scope }: { scope: LibraryScope }): React.JSX
     setActionError(null)
     setImportingBibliography(true)
     try {
-      const result = await importProjectBibliography(scope)
-      toast.success(`${result.added} papers imported from ${result.path}`)
-      if (result.malformed || result.truncated) {
-        toast.warning('Some bibliography entries could not be imported.')
+      const result = await importProjectBibliography(scope, ({ completed, total }) => {
+        setBibliographyProgress(total ? `PDFs ${completed}/${total}` : null)
+      })
+      toast.success(
+        `${result.added} papers imported · ${result.downloaded} PDFs saved from ${result.path}`
+      )
+      if (
+        result.failed ||
+        result.notAttempted ||
+        result.noDownloadSource ||
+        result.malformed ||
+        result.truncated
+      ) {
+        toast.warning('Some Library papers still have no PDF.', {
+          description: [
+            result.failed ? `${result.failed} downloads failed` : null,
+            result.notAttempted ? `${result.notAttempted} left for the next import` : null,
+            result.noDownloadSource
+              ? `${result.noDownloadSource} citations have no arXiv PDF reference`
+              : null,
+            result.firstFailure,
+            result.malformed || result.truncated
+              ? 'Some BibTeX entries could not be imported'
+              : null
+          ]
+            .filter(Boolean)
+            .join(' · ')
+        })
       }
     } catch (cause) {
       setActionError(extractIpcErrorMessage(cause, 'The bibliography was not imported.'))
     } finally {
       setImportingBibliography(false)
+      setBibliographyProgress(null)
     }
   }
 
@@ -224,7 +250,7 @@ function ResearchLibraryWorkspace({ scope }: { scope: LibraryScope }): React.JSX
                 onClick={() => void importBibliography()}
               >
                 <BookOpen aria-hidden />
-                {importingBibliography ? 'Importing…' : 'Import BibTeX'}
+                {bibliographyProgress ?? (importingBibliography ? 'Importing…' : 'Import BibTeX')}
               </Button>
               {canImportFiles ? (
                 <Button size="sm" variant="outline" onClick={() => void importPdf()}>

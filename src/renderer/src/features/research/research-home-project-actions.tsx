@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { FolderOpen, Palette, Pencil, SquareTerminal, Trash2, MessageSquare } from 'lucide-react'
+import {
+  FolderOpen,
+  FolderTree,
+  Palette,
+  Pencil,
+  SquareTerminal,
+  Trash2,
+  MessageSquare
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -35,6 +43,8 @@ import { catalogOwnsHost } from '@/store/slices/project-group-owner-routing'
 import type { WorktreePurgeTarget } from '@/store/slices/worktree-helpers'
 import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 import { enterResearchWorkspace } from './research-navigation'
+import { translate } from '@/i18n/i18n'
+import { startResearchAdoptInBackground } from './research-adopt-conversation'
 
 // Index-aligned with REPO_COLORS, which names them only in comments.
 const COLOR_NAMES = ['Gray', 'Red', 'Orange', 'Yellow', 'Green', 'Teal', 'Purple', 'Pink']
@@ -253,6 +263,19 @@ export function ResearchProjectMenuItems({
       <DropdownMenuItem onSelect={() => openTerminalHere(project)}>
         <SquareTerminal aria-hidden />
         Open terminal here
+      </DropdownMenuItem>
+      <DropdownMenuItem
+        onSelect={() =>
+          void startResearchAdoptInBackground({
+            workspaceId: primary.id,
+            hostId: primary.executionHostId,
+            workspaceName: primary.name,
+            projectName: project.name
+          })
+        }
+      >
+        <FolderTree aria-hidden />
+        {translate('research.navigation.adopt', 'Organize with agent in background')}
       </DropdownMenuItem>
       <DropdownMenuItem onSelect={onSlack}>
         <MessageSquare aria-hidden />

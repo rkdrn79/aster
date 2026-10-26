@@ -59,7 +59,7 @@ export function buildWritingPdfRevisionPrompt(
   const fence = '`'.repeat(fenceLength)
   const body = [
     'Revise the LaTeX source behind this selected text in a compiled PDF.',
-    `Experiment workspace: ${JSON.stringify(source.workspacePath)}`,
+    `Workspace: ${JSON.stringify(source.workspacePath)}`,
     `Compiled PDF: ${JSON.stringify(source.pdfFile.relativePath)} (page ${selection.pageNumber})`,
     `Main TeX file (starting hint only): ${JSON.stringify(source.mainTeXFile.relativePath)}`,
     ...(source.currentTeXFile &&

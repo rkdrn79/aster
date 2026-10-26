@@ -46,7 +46,10 @@ import {
   ResearchProjectRunReadParams
 } from '../research/research-project-api'
 import { ResearchProjectClaimsAuditParams } from '../research/research-project-claims-api'
-import { ResearchProjectLibraryReadParams } from '../research/research-project-library-api'
+import {
+  ResearchProjectDownloadArxivPdfParams,
+  ResearchProjectLibraryReadParams
+} from '../research/research-project-library-api'
 import { researchRunLogTailParamsSchema } from '../research/research-records'
 import {
   AccountsUnsubscribeParams,
@@ -1302,6 +1305,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'researchGpu.status': ResearchGpuStatusParams,
   'researchGpu.submit': ResearchGpuSubmitParams,
   'researchProject.claimsAudit': ResearchProjectClaimsAuditParams,
+  'researchProject.downloadArxivPdf': ResearchProjectDownloadArxivPdfParams,
   'researchProject.latexCompile': ResearchProjectLatexCompileParams,
   'researchProject.libraryRead': ResearchProjectLibraryReadParams,
   'researchProject.read': ResearchProjectReadParams,

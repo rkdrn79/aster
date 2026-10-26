@@ -6,7 +6,8 @@ import type { ResearchHomeProject } from './research-home-projects'
 
 const mocks = vi.hoisted(() => ({
   repos: new Array<Repo>(),
-  openModal: vi.fn()
+  openModal: vi.fn(),
+  startResearchAdoptInBackground: vi.fn()
 }))
 
 vi.mock('@/store', () => ({
@@ -32,6 +33,9 @@ vi.mock('@/components/ui/dropdown-menu', () => ({
 }))
 
 vi.mock('./research-navigation', () => ({ enterResearchWorkspace: vi.fn() }))
+vi.mock('./research-adopt-conversation', () => ({
+  startResearchAdoptInBackground: mocks.startResearchAdoptInBackground
+}))
 
 import { ResearchProjectMenuItems } from './research-home-project-actions'
 
@@ -75,6 +79,7 @@ afterEach(() => {
   cleanup()
   mocks.repos = []
   mocks.openModal.mockReset()
+  mocks.startResearchAdoptInBackground.mockReset()
 })
 
 it('shows folder-project removal even though no Git repo row exists', () => {
@@ -109,5 +114,24 @@ it('targets the owning host when identical repo ids exist locally and remotely',
     repoId: 'shared',
     displayName: 'StreamingVideo',
     hostId: 'runtime:vip'
+  })
+})
+
+it('keeps project organization available from the project actions menu', () => {
+  render(
+    <ResearchProjectMenuItems
+      project={project('group-1', 'runtime:vip')}
+      onRename={vi.fn()}
+      onSlack={vi.fn()}
+      onRemoveFolderProject={vi.fn()}
+    />
+  )
+
+  fireEvent.click(screen.getByRole('button', { name: /Organize with agent in background/ }))
+  expect(mocks.startResearchAdoptInBackground).toHaveBeenCalledWith({
+    workspaceId: 'folder:workspace-1',
+    hostId: 'runtime:vip',
+    workspaceName: 'main',
+    projectName: 'StreamingVideo'
   })
 })

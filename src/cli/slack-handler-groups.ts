@@ -13,7 +13,12 @@ export const SLACK_HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'slack-project-service',
-    keys: ['slack project setup', 'slack project status', 'slack project rm'],
+    keys: [
+      'slack project setup',
+      'slack project status',
+      'slack project tasks',
+      'slack project rm'
+    ],
     load: async () =>
       (await import('./handlers/slack-project-service.js')).SLACK_PROJECT_SERVICE_HANDLERS
   }

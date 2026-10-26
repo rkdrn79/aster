@@ -1,7 +1,10 @@
 import { useEffect, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import type { Tab, TabGroup } from '../../../../shared/tab-types'
-import type { ResearchDocument } from '../../../../shared/research/research-records'
+import type {
+  ResearchDelegationRecord,
+  ResearchDocument
+} from '../../../../shared/research/research-records'
 import type { ResearchLibraryDocument } from '../../../../shared/research/research-library'
 import { useAppStore } from '@/store'
 import type { AppState } from '@/store/types'
@@ -11,6 +14,7 @@ import { useResearchRecords } from './research-records-store'
 import { useResearchLibrary } from './research-library-store'
 import { researchConversationHome } from './research-conversation-home'
 import { researchBackgroundTabIsHidden } from './research-background-tab'
+import { useResearchSlackBackgroundTasks } from './research-slack-background-tasks'
 import {
   researchWritingEditorTabIds,
   useResearchWritingEditors
@@ -23,14 +27,15 @@ export function researchHiddenTabIds(
   tabs: readonly Tab[],
   records: ResearchDocument | null,
   library: ResearchLibraryDocument | null,
-  ownerOf: (tab: Tab) => string | null
+  ownerOf: (tab: Tab) => string | null,
+  additionalTasks: readonly ResearchDelegationRecord[] = []
 ): string[] {
   return tabs.flatMap((tab) => {
     if (tab.contentType !== 'agent-session' && tab.contentType !== 'terminal') {
       return []
     }
     const owner = ownerOf(tab)
-    if (researchBackgroundTabIsHidden(records, tab, owner)) {
+    if (researchBackgroundTabIsHidden(records, tab, owner, additionalTasks)) {
       return [tab.id]
     }
     return tab.contentType === 'agent-session' &&
@@ -46,7 +51,8 @@ function hiddenTabIdsForState(
   worktreeId: string,
   records: ResearchDocument | null,
   library: ResearchLibraryDocument | null,
-  writingEditors: readonly string[]
+  writingEditors: readonly string[],
+  slackTasks: readonly ResearchDelegationRecord[]
 ): string[] {
   // Why: the Code layout has no Library or Writing pane, so its tab strip keeps every chat.
   if (state.settings?.researchUiEnabled !== true) {
@@ -54,10 +60,15 @@ function hiddenTabIdsForState(
   }
   const tabs = state.unifiedTabsByWorktree[worktreeId] ?? NO_TABS
   return [
-    ...researchHiddenTabIds(tabs, records, library, (tab) =>
-      tab.contentType === 'agent-session'
-        ? structuredAgentSessionOwnerForTab(state, tab)
-        : (tab.executionHostId ?? getResolvedExecutionHostIdForWorktree(state, tab.worktreeId))
+    ...researchHiddenTabIds(
+      tabs,
+      records,
+      library,
+      (tab) =>
+        tab.contentType === 'agent-session'
+          ? structuredAgentSessionOwnerForTab(state, tab)
+          : (tab.executionHostId ?? getResolvedExecutionHostIdForWorktree(state, tab.worktreeId)),
+      slackTasks
     ),
     ...researchWritingEditorTabIds(tabs, writingEditors)
   ]
@@ -73,7 +84,8 @@ export function selectResearchHiddenTabIds(
       worktreeId,
       useResearchRecords.getState().document,
       useResearchLibrary.getState().document,
-      useResearchWritingEditors.getState().keys
+      useResearchWritingEditors.getState().keys,
+      useResearchSlackBackgroundTasks.getState().entries.map((entry) => entry.delegation)
     )
   )
 }
@@ -82,9 +94,13 @@ export function useResearchHiddenTabIds(worktreeId: string): ReadonlySet<string>
   const records = useResearchRecords((state) => state.document)
   const library = useResearchLibrary((state) => state.document)
   const writingEditors = useResearchWritingEditors((state) => state.keys)
+  const slackEntries = useResearchSlackBackgroundTasks((state) => state.entries)
+  const slackTasks = slackEntries.map((entry) => entry.delegation)
   const enabled = useAppStore((state) => state.settings?.researchUiEnabled === true)
   const ids = useAppStore(
-    useShallow((state) => hiddenTabIdsForState(state, worktreeId, records, library, writingEditors))
+    useShallow((state) =>
+      hiddenTabIdsForState(state, worktreeId, records, library, writingEditors, slackTasks)
+    )
   )
   useEffect(() => {
     if (enabled) {

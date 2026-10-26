@@ -2,47 +2,98 @@ import { useEffect, useMemo, useState } from 'react'
 import { FilePenLine } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
+import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store'
 import { useResearchRecords } from './research-records-store'
+import { researchErrorText } from './research-error-text'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
 import { ResearchEmptyState, ResearchPageBody, ResearchPageHeader } from './ResearchPageLayout'
 import {
   projectWritingRecord,
-  readCatalogManuscript,
   readProjectPdfPath,
+  readWritingManuscript,
   writingOwnerExperiment,
   type WritingProjectScope
 } from './research-writing-project'
 import { ResearchWritingWorkspace } from './ResearchWritingWorkspace'
 
-/** A project with no Experiment yet: its manuscript is whatever the project catalog names. */
-function ResearchWritingProjectOnly({ scope }: { scope: WritingProjectScope }): React.JSX.Element {
-  const [manuscript, setManuscript] = useState<ExperimentRecord['manuscript'] | null>(null)
+/** The project manuscript remains the same when its first Experiment appears. */
+function ResearchWritingProject({
+  scope,
+  owner
+}: {
+  scope: WritingProjectScope
+  owner: ExperimentRecord | null
+}): React.JSX.Element {
+  const ownerSourceKey = `${owner?.manuscript?.sourcePath ?? ''}:${owner?.manuscript?.pdfPath ?? ''}`
+  const [resolved, setResolved] = useState<{
+    ownerSourceKey: string
+    manuscript: ExperimentRecord['manuscript']
+    error: string | null
+  } | null>(null)
   const [readKey, setReadKey] = useState(0)
   useEffect(() => {
     let live = true
-    void readCatalogManuscript(scope).then((value) => live && setManuscript(value))
+    void readWritingManuscript(scope, owner?.manuscript).then(
+      (value) => live && setResolved({ ownerSourceKey, manuscript: value, error: null }),
+      (cause: unknown) =>
+        live &&
+        setResolved({ ownerSourceKey, manuscript: undefined, error: researchErrorText(cause) })
+    )
     return () => {
       live = false
     }
-  }, [scope, readKey])
+  }, [scope, owner?.id, owner?.manuscript, ownerSourceKey, readKey])
+  const current = resolved?.ownerSourceKey === ownerSourceKey ? resolved : null
+  const projectManuscript = current ? current.manuscript : owner?.manuscript
   const record = useMemo(() => {
-    if (manuscript === null) {
-      return null
-    }
-    const stand = projectWritingRecord(scope, manuscript)
-    const built = manuscript ? readProjectPdfPath(stand.id, manuscript.sourcePath) : null
-    return built && manuscript ? { ...stand, manuscript: { ...manuscript, pdfPath: built } } : stand
-  }, [scope, manuscript])
-  if (!record) {
-    return <section className="flex-1 bg-background" aria-label="Research writing" />
+    const manuscript = projectManuscript ?? owner?.manuscript
+    const projectRecord = projectWritingRecord(scope, manuscript)
+    const built = manuscript ? readProjectPdfPath(projectRecord.id, manuscript.sourcePath) : null
+    const resolvedManuscript = built && manuscript ? { ...manuscript, pdfPath: built } : manuscript
+    return owner
+      ? { ...owner, manuscript: resolvedManuscript }
+      : { ...projectRecord, manuscript: resolvedManuscript }
+  }, [scope, owner, projectManuscript])
+  if (current?.error || (!current && !owner?.manuscript)) {
+    return (
+      <section
+        className="flex min-h-0 flex-1 flex-col bg-background text-foreground"
+        aria-label="Research writing"
+      >
+        <ResearchPageHeader title="Writing" />
+        <ResearchPageBody>
+          {current?.error ? (
+            <ResearchEmptyState
+              icon={FilePenLine}
+              title="Writing files unavailable"
+              action={
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setReadKey((value) => value + 1)}
+                >
+                  Retry
+                </Button>
+              }
+            >
+              {current.error}
+            </ResearchEmptyState>
+          ) : (
+            <p role="status" className="text-sm text-muted-foreground">
+              Opening Writing…
+            </p>
+          )}
+        </ResearchPageBody>
+      </section>
+    )
   }
   return (
     <ResearchWritingWorkspace
-      key={record.manuscript?.sourcePath ?? 'none'}
+      key={`${scope.hostId}:${scope.workspaceId}:${record.manuscript?.sourcePath ?? 'none'}`}
       record={record}
       scope={scope}
-      projectOnly
+      projectOnly={!owner}
       onManuscriptChanged={() => setReadKey((value) => value + 1)}
     />
   )
@@ -84,14 +135,5 @@ export function ResearchWritingPage(): React.JSX.Element {
     )
   }
   const scopeKey = `${scope.hostId}:${scope.workspaceId}`
-  return owner ? (
-    <ResearchWritingWorkspace
-      key={`${scopeKey}:${owner.id}`}
-      record={owner}
-      scope={scope}
-      projectOnly={false}
-    />
-  ) : (
-    <ResearchWritingProjectOnly key={scopeKey} scope={scope} />
-  )
+  return <ResearchWritingProject key={scopeKey} scope={scope} owner={owner} />
 }

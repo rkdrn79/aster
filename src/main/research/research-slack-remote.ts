@@ -2,7 +2,8 @@ import { z } from 'zod'
 import { parseRoutableExecutionHostId } from '../../shared/execution-host'
 import type {
   SlackProjectRoute,
-  SlackRemoteProjectStatus
+  SlackRemoteProjectStatus,
+  SlackProjectBackgroundTasks
 } from '../../shared/slack-project-connection'
 import { resolveEnvironment } from '../../shared/runtime-environment-store'
 import { getCanonicalUserDataPath } from '../persistence/loading-store/user-data-path'
@@ -41,21 +42,40 @@ const remoteStatusSchema = z
   })
   .strict()
 
+const remoteTasksSchema = z
+  .object({
+    projectKey: z.string(),
+    workspacePath: z.string().nullable(),
+    agent: z.enum(['codex', 'claude']).nullable(),
+    sessions: z.array(
+      z.object({
+        channelId: z.string().regex(/^[CG][A-Z0-9]+$/),
+        threadTs: z.string().regex(/^\d+\.\d+$/),
+        sessionId: z.string().min(1)
+      })
+    )
+  })
+  .strict()
+
 function sshProjectHost(executionHostId: string): { targetId: string; runtimeId: string } {
   const host = parseRoutableExecutionHostId(executionHostId)
-  if (host?.kind !== 'ssh') {
-    throw new Error('This project is not on an SSH host')
+  if (host?.kind !== 'ssh' && host?.kind !== 'runtime') {
+    throw new Error('This project is not on a remote host')
   }
-  const target = listRegisteredSshTargets().find((item) => item.id === host.targetId)
+  const target = listRegisteredSshTargets().find((item) =>
+    host.kind === 'ssh'
+      ? item.id === host.targetId
+      : item.orcadFence?.environmentId === host.environmentId
+  )
   const environmentId = target?.orcadFence?.environmentId
-  if (!environmentId) {
-    throw new Error('Connect this SSH host in Aster before setting up Slack')
+  if (!target || !environmentId) {
+    throw new Error('Connect this project server through SSH in Aster before setting up Slack')
   }
   const environment = resolveEnvironment(getCanonicalUserDataPath(), environmentId)
   if (!environment.runtimeId) {
     throw new Error('Aster on the SSH host is not verified. Reconnect the host.')
   }
-  return { targetId: host.targetId, runtimeId: environment.runtimeId }
+  return { targetId: target.id, runtimeId: environment.runtimeId }
 }
 
 async function command(
@@ -87,6 +107,20 @@ export async function getRemoteResearchSlackProject(input: {
   ])
 }
 
+export async function getRemoteResearchSlackProjectTasks(input: {
+  executionHostId: string
+  projectKey: string
+}): Promise<SlackProjectBackgroundTasks> {
+  const host = sshProjectHost(input.executionHostId)
+  return remoteTasksSchema.parse(
+    await runResearchSshCli({
+      ...host,
+      args: ['slack', 'project', 'tasks', '--project-key', input.projectKey],
+      timeoutMs: 30_000
+    })
+  )
+}
+
 export async function saveRemoteResearchSlackProject(input: {
   route: unknown
   appToken: string
@@ -94,9 +128,10 @@ export async function saveRemoteResearchSlackProject(input: {
 }): Promise<SlackRemoteProjectStatus> {
   const route = await verifiedResearchSlackRoute(input.route)
   const host = parseRoutableExecutionHostId(route.executionHostId)
-  if (host?.kind !== 'ssh' || !route.runtimeId) {
+  if ((host?.kind !== 'ssh' && host?.kind !== 'runtime') || !route.runtimeId) {
     throw new Error('Connect the project SSH host before setting up Slack')
   }
+  sshProjectHost(host.id)
   if (Boolean(input.appToken) !== Boolean(input.botToken)) {
     throw new Error('Enter both Slack tokens or leave both empty to keep the server bot')
   }

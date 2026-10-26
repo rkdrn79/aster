@@ -17,15 +17,13 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import {
-  isLocalExecutionHost,
-  parseRoutableExecutionHostId
-} from '../../../../shared/execution-host'
+import { parseRoutableExecutionHostId } from '../../../../shared/execution-host'
 import type {
   SlackConnectionStatus,
   SlackRemoteProjectStatus
 } from '../../../../shared/slack-project-connection'
 import type { ResearchHomeProject } from './research-home-projects'
+import { parseSlackChannelIds } from './research-slack-channel-input'
 import { ResearchSlackBackgroundOption } from './ResearchSlackBackgroundOption'
 
 function ids(value: string): string[] {
@@ -33,6 +31,11 @@ function ids(value: string): string[] {
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean)
+}
+
+function isProjectServerHost(executionHostId: string | undefined): boolean {
+  const kind = parseRoutableExecutionHostId(executionHostId ?? 'local')?.kind
+  return kind === 'ssh' || kind === 'runtime'
 }
 
 export function ResearchSlackProjectDialog({
@@ -62,9 +65,9 @@ export function ResearchSlackProjectDialog({
     }
     let active = true
     setError(null)
-    const ssh = parseRoutableExecutionHostId(primary.executionHostId ?? 'local')?.kind === 'ssh'
+    const server = isProjectServerHost(primary.executionHostId)
     const refresh = (hydrate: boolean): void => {
-      if (ssh) {
+      if (server) {
         void window.api.researchSlack
           .getRemoteProject({ executionHostId: primary.executionHostId!, projectKey: project.key })
           .then((next) => {
@@ -109,8 +112,9 @@ export function ResearchSlackProjectDialog({
     setBusy(true)
     setError(null)
     try {
-      const ssh = parseRoutableExecutionHostId(primary.executionHostId ?? 'local')?.kind === 'ssh'
-      if (ssh) {
+      const channelIds = parseSlackChannelIds(channels)
+      const server = isProjectServerHost(primary.executionHostId)
+      if (server) {
         if ((!appToken || !botToken) && !remoteStatus?.configured) {
           throw new Error('Enter both Slack tokens to configure this project server')
         }
@@ -121,7 +125,7 @@ export function ResearchSlackProjectDialog({
             workspacePath: primary.path,
             executionHostId: primary.executionHostId,
             workspaceId: primary.id,
-            channelIds: ids(channels),
+            channelIds,
             allowedUsers: ids(users),
             agent
           },
@@ -150,7 +154,7 @@ export function ResearchSlackProjectDialog({
         workspacePath: primary.path,
         executionHostId: primary.executionHostId ?? 'local',
         workspaceId: primary.id,
-        channelIds: ids(channels),
+        channelIds,
         allowedUsers: ids(users),
         agent
       })
@@ -167,7 +171,7 @@ export function ResearchSlackProjectDialog({
     setBusy(true)
     setError(null)
     try {
-      if (parseRoutableExecutionHostId(primary.executionHostId ?? 'local')?.kind === 'ssh') {
+      if (isProjectServerHost(primary.executionHostId)) {
         setRemoteStatus(
           await window.api.researchSlack.removeRemoteProject({
             executionHostId: primary.executionHostId!,
@@ -186,9 +190,8 @@ export function ResearchSlackProjectDialog({
     }
   }
 
-  const local = isLocalExecutionHost(primary.executionHostId)
-  const ssh = parseRoutableExecutionHostId(primary.executionHostId ?? 'local')?.kind === 'ssh'
-  const bound = ssh
+  const server = isProjectServerHost(primary.executionHostId)
+  const bound = server
     ? Boolean(remoteStatus?.route)
     : status?.routes.some((route) => route.projectKey === project.key)
   return (
@@ -202,20 +205,14 @@ export function ResearchSlackProjectDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          {ssh ? (
+          {server ? (
             <p className="text-sm text-muted-foreground">
-              This Slack connection runs on the project SSH server. Once connected, it can answer
-              while this computer is off. Server status: {remoteStatus?.connection ?? 'checking'}.
+              This Slack connection runs on the project server. Once connected, it can answer while
+              this computer is off. Server status: {remoteStatus?.connection ?? 'checking'}.
               {remoteStatus?.error ? ` ${remoteStatus.error}` : ''}
             </p>
-          ) : !local ? (
-            <p className="text-sm text-muted-foreground">
-              Messages for this project are delivered to its paired remote runtime. An SSH-hosted
-              project needs Aster open because the app owns that tunnel. Background delivery is
-              available only for a remote runtime with an independent reachable endpoint.
-            </p>
           ) : null}
-          {!ssh ? (
+          {!server ? (
             <ResearchSlackBackgroundOption
               status={status}
               bound={Boolean(status?.routes.length)}
@@ -225,7 +222,7 @@ export function ResearchSlackProjectDialog({
           ) : null}
           <p className="text-xs text-muted-foreground">
             Tokens come from your Slack app.{' '}
-            {ssh
+            {server
               ? 'They are stored in the SSH server user profile, not in the project.'
               : 'They are encrypted in this Aster profile and are not saved in the project.'}{' '}
             The bot needs the app_mentions:read, chat:write, channels:history and groups:history
@@ -241,9 +238,9 @@ export function ResearchSlackProjectDialog({
               value={appToken}
               onChange={(event) => setAppToken(event.target.value)}
               placeholder={
-                ssh && remoteStatus?.configured
+                server && remoteStatus?.configured
                   ? 'Leave blank to keep server token'
-                  : status?.configured && !ssh
+                  : status?.configured && !server
                     ? 'Leave blank to keep saved token'
                     : 'xapp-…'
               }
@@ -258,22 +255,25 @@ export function ResearchSlackProjectDialog({
               value={botToken}
               onChange={(event) => setBotToken(event.target.value)}
               placeholder={
-                ssh && remoteStatus?.configured
+                server && remoteStatus?.configured
                   ? 'Leave blank to keep server token'
-                  : status?.configured && !ssh
+                  : status?.configured && !server
                     ? 'Leave blank to keep saved token'
                     : 'xoxb-…'
               }
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor={`${id}-channels`}>Allowed channel IDs</Label>
+            <Label htmlFor={`${id}-channels`}>Allowed channels</Label>
             <Input
               id={`${id}-channels`}
               value={channels}
               onChange={(event) => setChannels(event.target.value)}
-              placeholder="C123ABC, G456DEF"
+              placeholder="C123ABC or paste a Slack channel link"
             />
+            <p className="text-xs text-muted-foreground">
+              Enter channel IDs separated by commas, or paste links from the Slack Copy link action.
+            </p>
           </div>
           <div className="space-y-1">
             <Label htmlFor={`${id}-users`}>Allowed Slack users</Label>

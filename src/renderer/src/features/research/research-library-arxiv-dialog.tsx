@@ -18,6 +18,7 @@ import {
   findPaperByArxivId,
   paperFromArxiv
 } from './research-library-paper-records'
+import { canDownloadLibraryPdf, downloadLibraryArxivPdf } from './research-library-pdf-download'
 
 const AUTHORS_SHOWN = 6
 
@@ -38,7 +39,7 @@ export function ResearchLibraryArxivDialog({
   const [error, setError] = useState<string | null>(null)
   const papers = useResearchLibrary((state) => state.document?.papers)
   const existing = metadata ? findPaperByArxivId(papers ?? [], scope, metadata.arxivId) : undefined
-  const canDownload = scope.hostId === 'local'
+  const canDownload = canDownloadLibraryPdf(scope)
 
   function close(): void {
     onOpenChange(false)
@@ -74,12 +75,7 @@ export function ResearchLibraryArxivDialog({
     let pdfError: string | null = null
     if (canDownload) {
       try {
-        pdfPath = (
-          await window.api.researchLibrary.downloadArxivPdf({
-            workspacePath: scope.workspacePath,
-            reference: metadata.arxivId
-          })
-        ).relativePath
+        pdfPath = (await downloadLibraryArxivPdf(scope, metadata.arxivId)).relativePath
       } catch (cause) {
         pdfError = extractIpcErrorMessage(cause, 'The PDF download failed.')
       }

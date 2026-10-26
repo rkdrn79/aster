@@ -33,6 +33,7 @@ import { collectProjectAgentGroups } from './research-project-agent-groups'
 import { canCreateResearchWorktree, openResearchNewWorktree } from './research-new-worktree'
 import { researchConversationHome } from './research-conversation-home'
 import { researchBackgroundTabIsHidden } from './research-background-tab'
+import { useResearchSlackBackgroundTasks } from './research-slack-background-tasks'
 
 /** Project conversations remain reachable while a different worktree is active. */
 export function ResearchWorkspaceChats(): React.JSX.Element {
@@ -44,6 +45,8 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
   const [chatSettingError, setChatSettingError] = useState(false)
   const [linkError, setLinkError] = useState<string | null>(null)
   const document = useResearchRecords((state) => state.document)
+  const slackEntries = useResearchSlackBackgroundTasks((state) => state.entries)
+  const slackTasks = slackEntries.map((entry) => entry.delegation)
   const libraryDocument = useResearchLibrary((state) => state.document)
   const chatEnabled = useAppStore((state) => state.settings?.experimentalNativeChat === true)
   const workspaceId = useAppStore((state) => state.activeWorktreeId)
@@ -97,7 +100,7 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
     ...group,
     tabs: group.tabs.filter(
       (tab) =>
-        !researchBackgroundTabIsHidden(document, tab, group.hostId) &&
+        !researchBackgroundTabIsHidden(document, tab, group.hostId, slackTasks) &&
         (tab.contentType !== 'agent-session' ||
           researchConversationHome(
             document,
@@ -156,6 +159,21 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
     void useResearchRecords.getState().load()
     void useResearchLibrary.getState().load()
   }, [])
+
+  useEffect(() => {
+    if (!project) {
+      return
+    }
+    const refresh = (): void => {
+      void useResearchSlackBackgroundTasks
+        .getState()
+        .refresh(project)
+        .catch(() => {})
+    }
+    refresh()
+    const timer = setInterval(refresh, 5_000)
+    return () => clearInterval(timer)
+  }, [project])
 
   useEffect(() => {
     if (chatEnabled) {

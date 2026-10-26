@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { resolveDesktopAuthorizedPath } from '../ipc/local-file-access-resolution'
 import { callRuntimeEnvironment } from '../ipc/runtime-environments/runtime-environment-transport-routing'
-import { getRepoExecutionHostId, parseRoutableExecutionHostId } from '../../shared/execution-host'
+import { parseRoutableExecutionHostId } from '../../shared/execution-host'
 import { resolveEnvironment } from '../../shared/runtime-environment-store'
 import { getPreferredPairingOffer } from '../../shared/runtime-environments'
 import { slackHostKeyFingerprint } from '../../shared/slack-project-route-host'
@@ -51,18 +51,6 @@ export async function verifiedResearchSlackRoute(input: unknown): Promise<SlackP
   if (!workspaceId || !parsedWorkspace || parsedWorkspace.worktreePath !== route.workspacePath) {
     throw new Error('The selected workspace does not match its remote path')
   }
-  const repo = mainProcessState.store
-    .getRepos()
-    .find(
-      (entry) => entry.id === parsedWorkspace.repoId && getRepoExecutionHostId(entry) === host.id
-    )
-  if (
-    !repo ||
-    (route.workspacePath !== repo.path &&
-      !mainProcessState.store.getWorktreeMetaForHost(workspaceId, host.id))
-  ) {
-    throw new Error('This workspace is not registered on the selected host')
-  }
   const environmentId =
     host.kind === 'runtime'
       ? host.environmentId
@@ -87,12 +75,13 @@ export async function verifiedResearchSlackRoute(input: unknown): Promise<SlackP
     { expectedEnvironmentRuntimeId: environment.runtimeId }
   )
   const shown = z
-    .object({ worktree: z.object({ id: z.string(), path: z.string() }) })
+    .object({ worktree: z.object({ id: z.string(), path: z.string(), repoId: z.string() }) })
     .safeParse(response.ok ? response.result : null)
   if (
     !shown.success ||
     shown.data.worktree.id !== workspaceId ||
-    shown.data.worktree.path !== route.workspacePath
+    shown.data.worktree.path !== route.workspacePath ||
+    shown.data.worktree.repoId !== parsedWorkspace.repoId
   ) {
     throw new Error('This workspace is not registered on the selected remote host')
   }

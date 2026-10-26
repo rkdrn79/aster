@@ -1,11 +1,14 @@
-import { readFileSync, rmSync } from 'node:fs'
+import { readFileSync, readdirSync, rmSync } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
 import { z } from 'zod'
 import { upsertSlackProjectRoute } from '../../shared/slack-project-route-binding'
+import { slackProjectRouteId } from '../../shared/slack-project-route-binding'
+import type { SlackProjectBackgroundTasks } from '../../shared/slack-project-connection'
 import { writeSecureFile } from '../../shared/secure-file'
 import type { CommandHandler } from '../dispatch'
 import { getRequiredStringFlag } from '../flags'
 import { readSlackBridgeLease, slackBridgeLeasePath } from '../slack-bridge-lease'
+import { readState } from '../slack-bridge-state'
 import {
   installSlackBridgeService,
   readSlackBridgeServiceStatus,
@@ -106,6 +109,64 @@ async function status(projectKey: string): Promise<Record<string, unknown>> {
   }
 }
 
+export function readSlackProjectTasks(
+  userDataPath: string,
+  projectKey: string
+): SlackProjectBackgroundTasks {
+  const route = readRoutes(routeFile(userDataPath)).find((entry) => entry.projectKey === projectKey)
+  if (!route) {
+    return { projectKey, workspacePath: null, agent: null, sessions: [] }
+  }
+  const dir = join(userDataPath, 'slack')
+  let files: string[]
+  try {
+    files = readdirSync(dir).filter((name) => /^bridge-[a-f0-9]{20}\.json$/.test(name))
+  } catch (error) {
+    if (error instanceof Error && Reflect.get(error, 'code') === 'ENOENT') {
+      files = []
+    } else {
+      throw error
+    }
+  }
+  const prefix = `${slackProjectRouteId(route)}:`
+  const sessions = new Map<string, { channelId: string; threadTs: string; sessionId: string }>()
+  for (const file of files) {
+    let threads: Record<string, string>
+    try {
+      threads = readState(join(dir, file)).threads
+    } catch {
+      continue
+    }
+    for (const [key, sessionId] of Object.entries(threads)) {
+      if (!key.startsWith(prefix)) {
+        continue
+      }
+      const [teamId = '', channelId = '', threadTs = ''] = key.slice(prefix.length).split(':')
+      if (
+        !/^T[A-Z0-9]+$/.test(teamId) ||
+        !route.channelIds.includes(channelId) ||
+        !/^\d+\.\d+$/.test(threadTs) ||
+        !sessionId
+      ) {
+        continue
+      }
+      sessions.set(`${channelId}:${threadTs}`, {
+        channelId,
+        threadTs,
+        sessionId
+      })
+    }
+  }
+  return {
+    projectKey,
+    workspacePath: route.workspacePath,
+    agent: route.agent,
+    sessions: [...sessions.values()]
+      .sort((left, right) => Number(right.threadTs) - Number(left.threadTs))
+      .slice(0, 100)
+  }
+}
+
 async function assertRuntime(
   client: Parameters<CommandHandler>[0]['client'],
   expected: string
@@ -186,6 +247,15 @@ export const SLACK_PROJECT_SERVICE_HANDLERS: Record<string, CommandHandler> = {
   'slack project status': async ({ flags }) => {
     const projectKey = getRequiredStringFlag(flags, 'project-key')
     console.log(JSON.stringify({ ok: true, result: await status(projectKey) }))
+  },
+  'slack project tasks': async ({ flags }) => {
+    const projectKey = getRequiredStringFlag(flags, 'project-key')
+    console.log(
+      JSON.stringify({
+        ok: true,
+        result: readSlackProjectTasks(slackServiceDeps().userDataPath, projectKey)
+      })
+    )
   },
   'slack project rm': async ({ flags }) => {
     const projectKey = getRequiredStringFlag(flags, 'project-key')

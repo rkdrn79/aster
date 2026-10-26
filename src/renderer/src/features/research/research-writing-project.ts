@@ -95,7 +95,27 @@ async function saveRecordsManuscript(
 async function hasProjectCatalog(scope: WritingProjectScope): Promise<boolean> {
   return readProjectCatalog(scope).then(
     () => true,
-    () => false
+    (cause: unknown) => {
+      if (isMissingCatalog(cause)) {
+        return false
+      }
+      throw cause
+    }
+  )
+}
+
+function isMissingFile(cause: unknown): boolean {
+  const message = String(cause)
+  return /ENOENT|no such file|file not found|does not exist/i.test(message)
+}
+
+function isMissingCatalog(cause: unknown): boolean {
+  const message = String(cause)
+  return (
+    isMissingFile(cause) ||
+    /This project has no \.aster\/project\.json yet\.|No research project catalog is available on this host\./.test(
+      message
+    )
   )
 }
 
@@ -144,36 +164,85 @@ export async function createProjectManuscript(scope: WritingProjectScope): Promi
   return relative
 }
 
-/** The catalog's manuscript of a local project, or undefined when the project has no catalog. */
+/** A valid linked TeX stays authoritative when a remote catalog lags behind it. */
+export async function readWritingManuscript(
+  scope: WritingProjectScope,
+  linked: ExperimentRecord['manuscript']
+): Promise<ExperimentRecord['manuscript']> {
+  if (!linked) {
+    return readCatalogManuscript(scope)
+  }
+  try {
+    await statManuscriptSource(scope, resolveManuscriptFile(scope, linked.sourcePath, '.tex'))
+    return linked
+  } catch (cause) {
+    if (!isMissingFile(cause)) {
+      throw cause
+    }
+  }
+  return (await readCatalogManuscript(scope)) ?? linked
+}
+
+/** The catalog's manuscript of a project, or the previously selected existing file. */
 export async function readCatalogManuscript(
   scope: WritingProjectScope
 ): Promise<ExperimentRecord['manuscript']> {
+  const selected = readProjectManuscriptPath(scope)
   try {
     const catalog = await readProjectCatalog(scope)
-    return { sourcePath: catalog.manuscript.source, pdfPath: catalog.manuscript.pdf }
-  } catch {
-    const selected = readProjectManuscriptPath(scope)
-    const sourcePath = selected ?? 'paper/main.tex'
-    try {
-      await statManuscriptSource(scope, resolveManuscriptFile(scope, sourcePath, '.tex'))
-    } catch {
-      return undefined
-    }
-    const pdfPathBesideSource = sourcePath.replace(/\.tex$/i, '.pdf')
-    const pdfCandidates =
-      sourcePath === 'paper/main.tex'
-        ? [pdfPathBesideSource, 'paper/build/main.pdf']
-        : [pdfPathBesideSource]
-    for (const pdfPath of pdfCandidates) {
+    const manuscript = { sourcePath: catalog.manuscript.source, pdfPath: catalog.manuscript.pdf }
+    if (selected && selected !== manuscript.sourcePath) {
       try {
-        await statManuscriptSource(scope, resolveManuscriptFile(scope, pdfPath, '.pdf'))
-        return { sourcePath, pdfPath }
-      } catch {
-        // A source file is useful even when no PDF has been built yet.
+        await statManuscriptSource(
+          scope,
+          resolveManuscriptFile(scope, manuscript.sourcePath, '.tex')
+        )
+      } catch (cause) {
+        if (isMissingFile(cause)) {
+          const previous = await readExistingManuscript(scope, selected)
+          if (previous) {
+            return previous
+          }
+        }
       }
     }
-    return { sourcePath, pdfPath: null }
+    return manuscript
+  } catch (cause) {
+    if (!isMissingCatalog(cause)) {
+      throw cause
+    }
+    return readExistingManuscript(scope, selected ?? 'paper/main.tex')
   }
+}
+
+async function readExistingManuscript(
+  scope: WritingProjectScope,
+  sourcePath: string
+): Promise<ExperimentRecord['manuscript']> {
+  try {
+    await statManuscriptSource(scope, resolveManuscriptFile(scope, sourcePath, '.tex'))
+  } catch (cause) {
+    if (isMissingFile(cause)) {
+      return undefined
+    }
+    throw cause
+  }
+  const pdfPathBesideSource = sourcePath.replace(/\.tex$/i, '.pdf')
+  const pdfCandidates =
+    sourcePath === 'paper/main.tex'
+      ? [pdfPathBesideSource, 'paper/build/main.pdf']
+      : [pdfPathBesideSource]
+  for (const pdfPath of pdfCandidates) {
+    try {
+      await statManuscriptSource(scope, resolveManuscriptFile(scope, pdfPath, '.pdf'))
+      return { sourcePath, pdfPath }
+    } catch (cause) {
+      if (!isMissingFile(cause)) {
+        throw cause
+      }
+    }
+  }
+  return { sourcePath, pdfPath: null }
 }
 
 const PROJECT_PDF_PREFIX = 'aster.research-writing-project-pdf.v1:'

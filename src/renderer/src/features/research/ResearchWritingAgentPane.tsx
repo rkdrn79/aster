@@ -22,8 +22,8 @@ export function ResearchWritingAgentPane({
           <h2 className="text-xs font-semibold">Writing agent</h2>
         </div>
         <p className="m-auto max-w-64 p-6 text-center text-xs text-muted-foreground">
-          Writing chats are kept with an Experiment of this project. Create one in the sidebar to
-          start a writing chat.
+          Select text in the PDF and choose Revise to start a background revision on this project.
+          Create an Experiment to keep a persistent Writing chat here.
         </p>
       </div>
     )

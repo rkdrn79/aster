@@ -153,6 +153,7 @@ export function ResearchWritingWorkspace({
     showPane,
     selectTexFile: setSelectedTexPath
   })
+  const synctexAvailable = !projectOnly && record.hostId === 'local'
 
   function togglePane(index: 0 | 1 | 2): void {
     const next = toggleWritingPaneVisibility(visiblePanes, index)
@@ -346,7 +347,7 @@ export function ResearchWritingWorkspace({
                     rootFile={rootFile}
                     editorBinding={editorBinding}
                     onSelectFile={setSelectedTexPath}
-                    onShowInPdf={projectOnly ? undefined : synctex.showInPdf}
+                    onShowInPdf={synctexAvailable ? synctex.showInPdf : undefined}
                     visible={wideLayout ? visiblePanes[1] : activePane === 'source'}
                   />
                 }
@@ -357,9 +358,9 @@ export function ResearchWritingWorkspace({
                       projectOnly={projectOnly}
                       rootFile={rootFile}
                       sourceCandidate={sourceFile}
-                      onSourceJump={synctex.jumpToSource}
+                      onSourceJump={synctexAvailable ? synctex.jumpToSource : undefined}
                       onOpenSource={synctex.jumpToSource}
-                      sourceLookup={synctex.pdfLookup}
+                      sourceLookup={synctexAvailable ? synctex.pdfLookup : null}
                       visible={wideLayout ? visiblePanes[2] : activePane === 'reader'}
                     />
                   ) : null

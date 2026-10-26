@@ -46,3 +46,10 @@ export type SlackRemoteProjectStatus = {
   service: 'live' | 'exited' | 'unverifiable'
   runtimeInstalled: boolean
 }
+
+export type SlackProjectBackgroundTasks = {
+  projectKey: string
+  workspacePath: string | null
+  agent: 'codex' | 'claude' | null
+  sessions: { channelId: string; threadTs: string; sessionId: string }[]
+}

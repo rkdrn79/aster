@@ -2,7 +2,8 @@ import { ipcRenderer } from 'electron'
 import type {
   SlackConnectionStatus,
   SlackProjectRoute,
-  SlackRemoteProjectStatus
+  SlackRemoteProjectStatus,
+  SlackProjectBackgroundTasks
 } from '../../shared/slack-project-connection'
 
 export type ResearchSlackApi = {
@@ -17,6 +18,10 @@ export type ResearchSlackApi = {
     executionHostId: string
     projectKey: string
   }) => Promise<SlackRemoteProjectStatus>
+  getRemoteProjectTasks: (input: {
+    executionHostId: string
+    projectKey: string
+  }) => Promise<SlackProjectBackgroundTasks>
   saveRemoteProject: (input: {
     route: SlackProjectRoute
     appToken: string
@@ -36,6 +41,8 @@ export const researchSlackApi: ResearchSlackApi = {
   saveProject: (route) => ipcRenderer.invoke('researchSlack:saveProject', route),
   removeProject: (projectKey) => ipcRenderer.invoke('researchSlack:removeProject', projectKey),
   getRemoteProject: (input) => ipcRenderer.invoke('researchSlack:getRemoteProject', input),
+  getRemoteProjectTasks: (input) =>
+    ipcRenderer.invoke('researchSlack:getRemoteProjectTasks', input),
   saveRemoteProject: (input) => ipcRenderer.invoke('researchSlack:saveRemoteProject', input),
   removeRemoteProject: (input) => ipcRenderer.invoke('researchSlack:removeRemoteProject', input)
 }

@@ -124,6 +124,33 @@ describe('Research Workbench hidden tabs', () => {
     expect(researchHiddenTabIds(tabs, promoted, null, owner)).toEqual([])
   })
 
+  it('hides a server Slack coordinator without saving it in local research records', () => {
+    const coordinator = {
+      id: '44444444-4444-4444-8444-444444444444',
+      sourceWorkspaceId: 'workspace-a',
+      sourceHostId: 'local',
+      sourceExperimentId: null,
+      targetWorkspaceId: 'workspace-a',
+      targetHostId: 'local',
+      targetLabel: 'My paper',
+      agent: 'codex',
+      task: 'Slack · C123',
+      tabId: null,
+      sessionId: 'slack-session',
+      state: 'ready' as const,
+      createdAt: '2026-10-24T00:00:00Z',
+      updatedAt: '2026-10-24T00:00:00Z'
+    }
+    const tabs = [tab('slack-session'), tab('manual')]
+    const owner = (entry: Tab): string | null => entry.executionHostId ?? null
+    expect(researchHiddenTabIds(tabs, null, null, owner, [coordinator])).toEqual([
+      'agent-session:slack-session'
+    ])
+    expect(
+      researchHiddenTabIds(tabs, null, null, owner, [{ ...coordinator, workbenchVisible: true }])
+    ).toEqual([])
+  })
+
   it('falls back from a hidden active tab to the most recent visible one', () => {
     const hidden = new Set(['chat'])
     const group = {

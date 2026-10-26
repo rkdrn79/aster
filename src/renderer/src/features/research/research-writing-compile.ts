@@ -102,6 +102,9 @@ export function useWritingCompile({
           flushTimer.current ??= window.setTimeout(flush, LOG_FLUSH_MS)
         })
     try {
+      const storedExperiment = useResearchRecords
+        .getState()
+        .document?.experiments.find((entry) => entry.id === record.id)
       const result = remoteTarget
         ? await callRuntimeRpc<ResearchLatexCompileResult>(
             remoteTarget,
@@ -110,7 +113,7 @@ export function useWritingCompile({
             { timeoutMs: 16 * 60_000 }
           )
         : await api.compile(
-            projectOnly
+            projectOnly || (storedExperiment && !storedExperiment.manuscript)
               ? {
                   workspacePath: record.workspacePath,
                   sourcePath: rootFile.relativePath,
@@ -137,8 +140,9 @@ export function useWritingCompile({
       if (projectOnly) {
         saveProjectPdfPath(record.id, rootFile.relativePath, file.relativePath)
       } else {
-        await savePdfPath(record, file.relativePath).catch((cause: unknown) =>
-          setError(`PDF built, but its location was not saved. ${String(cause)}`)
+        await savePdfPath(record, rootFile.relativePath, file.relativePath).catch(
+          (cause: unknown) =>
+            setError(`PDF built, but its location was not saved. ${String(cause)}`)
         )
       }
     } catch (cause) {
@@ -171,17 +175,21 @@ export function useWritingCompile({
   }
 }
 
-async function savePdfPath(record: ExperimentRecord, pdfPath: string): Promise<void> {
+async function savePdfPath(
+  record: ExperimentRecord,
+  sourcePath: string,
+  pdfPath: string
+): Promise<void> {
   await useResearchRecords.getState().update((current) => ({
     ...current,
     experiments: current.experiments.map((entry) =>
+      !entry.archived &&
       entry.workspaceId === record.workspaceId &&
       entry.hostId === record.hostId &&
-      entry.manuscript?.sourcePath === record.manuscript?.sourcePath &&
-      entry.manuscript
+      (!entry.manuscript || entry.manuscript.sourcePath === sourcePath)
         ? {
             ...entry,
-            manuscript: { ...entry.manuscript, pdfPath },
+            manuscript: { sourcePath, pdfPath },
             updatedAt: new Date().toISOString()
           }
         : entry

@@ -6,10 +6,14 @@ import {
   ResearchProjectRunReadParams
 } from '../../../../shared/research/research-project-api'
 import { ResearchProjectClaimsAuditParams } from '../../../../shared/research/research-project-claims-api'
-import { ResearchProjectLibraryReadParams } from '../../../../shared/research/research-project-library-api'
+import {
+  ResearchProjectDownloadArxivPdfParams,
+  ResearchProjectLibraryReadParams
+} from '../../../../shared/research/research-project-library-api'
 import { readResearchProjectClaimsAudit } from '../../../research/research-project-claims-read'
 import { resolveResearchProjectRoot } from '../../../research/research-project-files'
 import { readResearchProjectLibrary } from '../../../research/research-project-library-read'
+import { downloadArxivPdfToWorkspace } from '../../../research/research-library-pdf-download'
 import { compileResearchProjectLatex } from '../../../research/research-project-latex-compile'
 import { readResearchProject } from '../../../research/research-project-overview'
 import {
@@ -57,6 +61,15 @@ export const RESEARCH_PROJECT_METHODS = [
     params: ResearchProjectLibraryReadParams,
     handler: async (params, { runtime }) =>
       readResearchProjectLibrary(await resolveResearchProjectRoot(runtime, params.worktree))
+  }),
+  defineMethod({
+    name: 'researchProject.downloadArxivPdf',
+    permission: 'workspace',
+    params: ResearchProjectDownloadArxivPdfParams,
+    handler: async (params, { runtime }) => {
+      const root = await resolveResearchProjectRoot(runtime, params.worktree)
+      return downloadArxivPdfToWorkspace(root.path, params.reference)
+    }
   }),
   defineMethod({
     name: 'researchProject.latexCompile',

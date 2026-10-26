@@ -13,6 +13,7 @@ import { useAppStore } from '@/store'
 import { useNow } from '@/hooks/use-now'
 import { getResolvedExecutionHostIdForWorktree } from '@/lib/resolved-worktree-execution-host'
 import type { Tab } from '../../../../shared/tab-types'
+import type { ResearchDelegationRecord } from '../../../../shared/research/research-records'
 import { ResearchDelegationList } from './ResearchDelegationList'
 import { enterResearchWorkspace, openResearchView } from './research-navigation'
 import { useResearchRecords } from './research-records-store'
@@ -24,18 +25,29 @@ import { libraryScopeKey } from '../../../../shared/research/research-library'
 import { requestLibraryAgentFocus } from './research-library-agent-focus'
 import { requestWritingAgentFocus } from './research-writing-agent-focus'
 import { researchLiveAgentTasks, researchLiveTaskDismissalKey } from './research-live-agent-tasks'
+import { useResearchSlackBackgroundTasks } from './research-slack-background-tasks'
+import { useResearchDelegationRows } from './use-research-delegation-rows'
+import { useResearchActiveProject } from './research-home-projects'
 import {
   dismissResearchDelegations,
   useResearchDelegationDismissals
 } from './research-delegation-dismissals'
 
-async function openParentTask(tab: Tab, workspaceId: string): Promise<void> {
+async function openParentTask(
+  tab: Tab,
+  workspaceId: string,
+  slackTasks: readonly ResearchDelegationRecord[]
+): Promise<void> {
   const state = useAppStore.getState()
   const hostId = tab.executionHostId ?? getResolvedExecutionHostIdForWorktree(state, workspaceId)
   const records = useResearchRecords.getState().document
-  const background = researchBackgroundTaskForTab(records, tab, hostId)
+  const background = researchBackgroundTaskForTab(records, tab, hostId, slackTasks)
   if (background && background.workbenchVisible !== true) {
-    await updateResearchDelegation(background.id, { workbenchVisible: true })
+    if (slackTasks.some((task) => task.id === background.id)) {
+      useResearchSlackBackgroundTasks.getState().setWorkbenchVisible(background.id, true)
+    } else {
+      await updateResearchDelegation(background.id, { workbenchVisible: true })
+    }
   }
   enterResearchWorkspace({ id: workspaceId, executionHostId: tab.executionHostId })
   const home =
@@ -78,14 +90,24 @@ export function ResearchBackgroundTasksDialog({
   const now = useNow(60_000, open)
   const dismissals = useResearchDelegationDismissals()
   const tasks = researchLiveAgentTasks(statuses, tabsByWorkspace, now, dismissals)
+  const slackEntries = useResearchSlackBackgroundTasks((state) => state.entries)
+  const slackTasks = slackEntries.map((entry) => entry.delegation)
+  const slackRows = useResearchDelegationRows(slackTasks)
+  const { project } = useResearchActiveProject()
   const recordsError = useResearchRecords((state) => state.error)
 
   useEffect(() => {
     if (open) {
       void useResearchRecords.getState().load()
       void useResearchLibrary.getState().load()
+      if (project) {
+        void useResearchSlackBackgroundTasks
+          .getState()
+          .refresh(project)
+          .catch(() => {})
+      }
     }
-  }, [open])
+  }, [open, project])
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
@@ -93,8 +115,8 @@ export function ResearchBackgroundTasksDialog({
         <DialogHeader>
           <DialogTitle>Background tasks</DialogTitle>
           <DialogDescription>
-            Work running now in open and delegated agents across projects. Finished work leaves this
-            list; status is shown only when the agent or host reports it.
+            Agent work across projects. Finished delegated work leaves the live list; Slack
+            coordinator sessions remain here so you can inspect their threads.
           </DialogDescription>
         </DialogHeader>
         <section className="space-y-2" aria-label="Live agent work">
@@ -132,7 +154,7 @@ export function ResearchBackgroundTasksDialog({
                           return
                         }
                         onClose()
-                        void openParentTask(tab, workspaceId).catch((cause) =>
+                        void openParentTask(tab, workspaceId, slackTasks).catch((cause) =>
                           toast.error(`Parent conversation could not be opened: ${String(cause)}`)
                         )
                       }}
@@ -161,6 +183,48 @@ export function ResearchBackgroundTasksDialog({
             <p className="text-xs text-muted-foreground">No child tasks running in open agents.</p>
           )}
         </section>
+        {slackRows.length ? (
+          <section className="space-y-2" aria-label="Slack coordinator tasks">
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <Bot className="size-4" aria-hidden />
+              Slack coordinators · {slackRows.length}
+            </div>
+            <div className="space-y-1.5">
+              {slackRows.map((row) => (
+                <div
+                  key={row.delegation.id}
+                  className="flex items-center gap-2 rounded-md border border-border px-3 py-2 text-xs"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{row.delegation.task}</p>
+                    <p className="text-muted-foreground">
+                      {row.activity.label} · {row.delegation.targetLabel}
+                    </p>
+                  </div>
+                  {row.tab ? (
+                    <Button
+                      size="icon-xs"
+                      variant="ghost"
+                      aria-label={`Open ${row.delegation.task} in Workbench`}
+                      onClick={() => {
+                        onClose()
+                        void openParentTask(
+                          row.tab!,
+                          row.delegation.targetWorkspaceId,
+                          slackTasks
+                        ).catch((cause) =>
+                          toast.error(`Slack coordinator could not be opened: ${String(cause)}`)
+                        )
+                      }}
+                    >
+                      <ArrowUpRight aria-hidden />
+                    </Button>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
         {recordsError ? (
           <p role="alert" className="text-xs text-destructive">
             {recordsError}

@@ -59,6 +59,12 @@ All changes must consider folder workspaces as well as git worktrees. Don't assu
 
 # Git / GitHub
 
+## Aster release rule
+
+Do not run an app build or package build unless the user explicitly asks for a build or release. A code change alone does not authorize packaging.
+
+For every requested release package, build and verify macOS and Windows from the same version tag and commit. Attach both platforms' packages to one GitHub Release, update the version and both download links in `rkdrn79/aster-site`, and verify that the public site points to the published assets. Keep the release draft until both platforms are attached. Do not report the release as complete while any platform, GitHub asset, or website update is missing. Scan source and packaged files for personal paths, credentials, and project data before publication.
+
 If changing code around `git`, `gh`, source-control, or review behavior read [`docs/reference/git-workflow.md`](./docs/reference/git-workflow.md).
 
 For a failed GitHub Actions run, inspect the failed jobs and retry with `gh run rerun <run-id> --failed`. Preserve successful jobs; use a full rerun only when the failure requires revalidating them. A code fix needs a new push and fresh checks, not a retry of the old SHA.

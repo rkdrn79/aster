@@ -152,4 +152,4 @@ jobs:
               exit 1
             fi
           done
-          gh release edit "$RELEASE_TAG" --draft=false --latest
+          # Keep the release draft until the matching Windows packages and website are ready.

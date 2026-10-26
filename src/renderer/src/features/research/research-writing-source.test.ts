@@ -123,7 +123,7 @@ describe('manuscript file boundary', () => {
       bytes[index] = index % 251
     }
     bytes.set(new TextEncoder().encode('%PDF-1.4'))
-    fileRead.stat.mockResolvedValue({ size: bytes.length, mtime: 42, isDirectory: false })
+    fileRead.stat.mockResolvedValue({ size: bytes.length, mtime: 43, isDirectory: false })
     let inFlight = 0
     let maxInFlight = 0
     fileRead.range.mockImplementation(async (_args: unknown, offset: number, length: number) => {
@@ -142,5 +142,33 @@ describe('manuscript file boundary', () => {
     expect(maxInFlight).toBe(2)
     expect(fileRead.range).toHaveBeenCalledTimes(3)
     expect(Uint8Array.from(atob(pdf.base64), (character) => character.charCodeAt(0))).toEqual(bytes)
+  })
+
+  it('reuses an unchanged PDF and fetches it again after a change or explicit refresh', async () => {
+    const file = resolveManuscriptFile(experiment, 'paper/cache-test.pdf', '.pdf')
+    const firstBytes = new TextEncoder().encode('%PDF-first')
+    const changedBytes = new TextEncoder().encode('%PDF-changed')
+    let bytes = firstBytes
+    let mtime = 100
+    fileRead.stat.mockImplementation(async () => ({
+      size: bytes.length,
+      mtime,
+      ctime: mtime,
+      isDirectory: false
+    }))
+    fileRead.range.mockImplementation(async () => bytes)
+
+    const first = await readManuscriptPdf(experiment, file)
+    expect(await readManuscriptPdf(experiment, file)).toBe(first)
+    expect(fileRead.range).toHaveBeenCalledTimes(1)
+
+    bytes = changedBytes
+    mtime += 1
+    const changed = await readManuscriptPdf(experiment, file)
+    expect(changed).not.toBe(first)
+    expect(fileRead.range).toHaveBeenCalledTimes(2)
+
+    expect(await readManuscriptPdf(experiment, file, undefined, true)).not.toBe(changed)
+    expect(fileRead.range).toHaveBeenCalledTimes(3)
   })
 })

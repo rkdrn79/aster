@@ -160,7 +160,12 @@ export function ResearchWritingPdfPane({
     }
     setPdfLoading(true)
     setPdfError(null)
-    void readManuscriptPdf({ hostId, workspaceId, workspacePath }, pdfFile).then(
+    void readManuscriptPdf(
+      { hostId, workspaceId, workspacePath },
+      pdfFile,
+      undefined,
+      pdfRefreshKey > 0
+    ).then(
       (result) => {
         if (generation !== pdfReadGeneration.current) {
           return

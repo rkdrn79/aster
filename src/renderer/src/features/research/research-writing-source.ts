@@ -12,6 +12,13 @@ const MAX_TEX_BYTES = 2 * 1024 * 1024
 const MAX_PDF_BYTES = 24 * 1024 * 1024
 // Why: the remote control queue has room for two capped range replies, but not three.
 const READ_CONCURRENCY = 2
+let cachedPdf: {
+  key: string
+  size: number
+  mtime: number
+  ctime?: number
+  pdf: ManuscriptPdf
+} | null = null
 
 export type ManuscriptFile = {
   absolutePath: string
@@ -94,10 +101,11 @@ function manuscriptReadTarget(experiment: ResearchWorkspaceFileOwner, file: Manu
 async function readManuscriptBytes(
   experiment: ResearchWorkspaceFileOwner,
   file: ManuscriptFile,
-  maxBytes: number
-): Promise<{ bytes: Uint8Array<ArrayBuffer>; size: number; mtime: number }> {
+  maxBytes: number,
+  initialStat?: Awaited<ReturnType<typeof statRuntimeReadTarget>>
+): Promise<{ bytes: Uint8Array<ArrayBuffer>; size: number; mtime: number; ctime?: number }> {
   const args = manuscriptReadTarget(experiment, file)
-  const before = await statRuntimeReadTarget(args)
+  const before = initialStat ?? (await statRuntimeReadTarget(args))
   if (before.isDirectory) {
     throw new Error('Choose a file, not a directory.')
   }
@@ -120,10 +128,10 @@ async function readManuscriptBytes(
     bytes.set(chunk, offset)
   })
   const after = await statRuntimeReadTarget(args)
-  if (after.size !== before.size || after.mtime !== before.mtime) {
+  if (after.size !== before.size || after.mtime !== before.mtime || after.ctime !== before.ctime) {
     throw new Error('File changed during reading. Refresh to retry.')
   }
-  return { bytes, size: after.size, mtime: after.mtime }
+  return { bytes, size: after.size, mtime: after.mtime, ctime: after.ctime }
 }
 
 export async function readManuscriptSource(
@@ -146,6 +154,9 @@ export async function statManuscriptSource(
   if (snapshot.isDirectory) {
     throw new Error('Choose a file, not a directory.')
   }
+  if (snapshot.isDirectory) {
+    throw new Error('Choose a file, not a directory.')
+  }
   return { size: snapshot.size, mtime: snapshot.mtime, ctime: snapshot.ctime }
 }
 
@@ -161,14 +172,34 @@ function bytesToBase64(bytes: Uint8Array): string {
 export async function readManuscriptPdf(
   experiment: ResearchWorkspaceFileOwner,
   file: ManuscriptFile,
-  maxBytes = MAX_PDF_BYTES
+  maxBytes = MAX_PDF_BYTES,
+  refresh = false
 ): Promise<ManuscriptPdf> {
-  const result = await readManuscriptBytes(experiment, file, maxBytes)
+  const snapshot = await statRuntimeReadTarget(manuscriptReadTarget(experiment, file))
+  const key = JSON.stringify([
+    experiment.hostId,
+    experiment.workspaceId,
+    experiment.workspacePath,
+    file.absolutePath
+  ])
+  if (
+    !refresh &&
+    cachedPdf?.key === key &&
+    cachedPdf.size === snapshot.size &&
+    cachedPdf.mtime === snapshot.mtime &&
+    cachedPdf.ctime === snapshot.ctime &&
+    snapshot.size <= maxBytes
+  ) {
+    return cachedPdf.pdf
+  }
+  const result = await readManuscriptBytes(experiment, file, maxBytes, snapshot)
   if (
     result.bytes.length < 5 ||
     new TextDecoder().decode(result.bytes.subarray(0, 5)) !== '%PDF-'
   ) {
     throw new Error('The selected file is not a PDF.')
   }
-  return { base64: bytesToBase64(result.bytes), size: result.size, mtime: result.mtime }
+  const pdf = { base64: bytesToBase64(result.bytes), size: result.size, mtime: result.mtime }
+  cachedPdf = { key, size: result.size, mtime: result.mtime, ctime: result.ctime, pdf }
+  return pdf
 }

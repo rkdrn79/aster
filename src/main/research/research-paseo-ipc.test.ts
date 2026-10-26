@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   handlers: new Map<string, (...args: unknown[]) => Promise<unknown>>(),
   runtimeCall: vi.fn(),
   list: vi.fn(),
+  listHost: vi.fn(),
   start: vi.fn()
 }))
 
@@ -24,14 +25,19 @@ vi.mock('../ipc/runtime-environments/runtime-environment-transport-routing', () 
   callRuntimeEnvironment: (...args: unknown[]) => mocks.runtimeCall(...args)
 }))
 vi.mock('../ssh/targets/ssh-target-registry', () => ({
-  listRegisteredSshTargets: () => [{ id: 'ssh-vip', orcadFence: { environmentId: 'vip' } }]
+  listRegisteredSshTargets: () => [
+    { id: 'ssh-research', orcadFence: { environmentId: 'research' } }
+  ]
 }))
 vi.mock('./research-paseo-companion', () => ({
   listPaseoProjectAgents: (...args: unknown[]) => mocks.list(...args),
+  listPaseoHostAgents: (...args: unknown[]) => mocks.listHost(...args),
   getPaseoPhonePairingUrl: vi.fn(),
   setUpPaseoProjectDaemon: vi.fn(),
   readPaseoProjectAgentLog: vi.fn(),
-  sendPaseoProjectAgentMessage: vi.fn()
+  readPaseoHostAgentLog: vi.fn(),
+  sendPaseoProjectAgentMessage: vi.fn(),
+  sendPaseoHostAgentMessage: vi.fn()
 }))
 vi.mock('./research-paseo-agent-create', () => ({
   listPaseoProjectProviders: vi.fn(),
@@ -40,13 +46,14 @@ vi.mock('./research-paseo-agent-create', () => ({
 
 import { registerResearchPaseoIpcHandlers } from './research-paseo-ipc'
 
-const path = '/data/projects/research/StreamingVideo'
-const scope = { hostId: 'runtime:vip', workspaceId: `repo::${path}`, workspacePath: path }
+const path = '/srv/projects/research/PaperProject'
+const scope = { hostId: 'runtime:research', workspaceId: `repo::${path}`, workspacePath: path }
 
 beforeEach(() => {
   mocks.handlers.clear()
   mocks.runtimeCall.mockReset()
   mocks.list.mockReset()
+  mocks.listHost.mockReset()
   mocks.start.mockReset()
   registerResearchPaseoIpcHandlers()
 })
@@ -59,7 +66,7 @@ describe('Paseo IPC workspace authorization', () => {
     })
     mocks.list.mockResolvedValue([])
     await expect(mocks.handlers.get('researchPaseo:list')?.(null, scope)).resolves.toEqual([])
-    expect(mocks.runtimeCall).toHaveBeenCalledWith('/profile', 'vip', 'worktree.show', {
+    expect(mocks.runtimeCall).toHaveBeenCalledWith('/profile', 'research', 'worktree.show', {
       worktree: `id:${scope.workspaceId}`
     })
   })
@@ -73,6 +80,27 @@ describe('Paseo IPC workspace authorization', () => {
       'not registered'
     )
     expect(mocks.list).not.toHaveBeenCalled()
+  })
+
+  it('authorizes the selected host before listing all its Paseo agents', async () => {
+    mocks.runtimeCall.mockResolvedValueOnce({
+      ok: true,
+      result: { worktree: { id: scope.workspaceId, repoId: 'repo', path } }
+    })
+    mocks.listHost.mockResolvedValueOnce([{ id: 'agent1234', cwd: '/another/project' }])
+    await expect(mocks.handlers.get('researchPaseo:listHost')?.(null, scope)).resolves.toEqual([
+      { id: 'agent1234', cwd: '/another/project' }
+    ])
+    expect(mocks.listHost).toHaveBeenCalledWith(scope)
+
+    mocks.runtimeCall.mockResolvedValueOnce({
+      ok: true,
+      result: { worktree: { id: scope.workspaceId, repoId: 'repo', path: '/different' } }
+    })
+    await expect(mocks.handlers.get('researchPaseo:listHost')?.(null, scope)).rejects.toThrow(
+      'not registered'
+    )
+    expect(mocks.listHost).toHaveBeenCalledTimes(1)
   })
 
   it('authorizes the workspace before starting a phone conversation', async () => {

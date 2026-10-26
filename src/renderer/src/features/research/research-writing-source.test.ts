@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
+import { MAX_FILE_RANGE_READ_BYTES } from '../../../../shared/file-range-read'
 import {
   isWritingTeXFile,
   readManuscriptPdf,
@@ -114,5 +115,32 @@ describe('manuscript file boundary', () => {
       0,
       bytes.length
     )
+  })
+
+  it('reads a multi-chunk PDF with at most two in-flight ranges', async () => {
+    const bytes = new Uint8Array(MAX_FILE_RANGE_READ_BYTES * 2 + 17)
+    for (let index = 0; index < bytes.length; index += 1) {
+      bytes[index] = index % 251
+    }
+    bytes.set(new TextEncoder().encode('%PDF-1.4'))
+    fileRead.stat.mockResolvedValue({ size: bytes.length, mtime: 42, isDirectory: false })
+    let inFlight = 0
+    let maxInFlight = 0
+    fileRead.range.mockImplementation(async (_args: unknown, offset: number, length: number) => {
+      inFlight += 1
+      maxInFlight = Math.max(maxInFlight, inFlight)
+      await new Promise<void>((resolve) => setTimeout(resolve, 1))
+      inFlight -= 1
+      return bytes.slice(offset, offset + length)
+    })
+
+    const pdf = await readManuscriptPdf(
+      experiment,
+      resolveManuscriptFile(experiment, 'paper/main.pdf', '.pdf')
+    )
+
+    expect(maxInFlight).toBe(2)
+    expect(fileRead.range).toHaveBeenCalledTimes(3)
+    expect(Uint8Array.from(atob(pdf.base64), (character) => character.charCodeAt(0))).toEqual(bytes)
   })
 })

@@ -53,6 +53,9 @@ export function ResearchWritingPdfPane({
   sourceLookup?: WritingPdfSourceLookup | null
 }): React.JSX.Element {
   const manuscript = experiment.manuscript
+  const { hostId, workspaceId, workspacePath } = experiment
+  const manuscriptSourcePath = manuscript?.sourcePath
+  const manuscriptPdfPath = manuscript?.pdfPath
   const [pdfLoading, setPdfLoading] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [pdfError, setPdfError] = useState<string | null>(null)
@@ -89,22 +92,22 @@ export function ResearchWritingPdfPane({
   const synctexAvailable =
     !projectOnly && experiment.hostId === 'local' && Boolean(window.api.researchSynctex)
   const pdfFile = useMemo(() => {
-    if (!manuscript) {
+    if (!manuscriptSourcePath) {
       return null
     }
     try {
       const path =
-        compiledPdfPath ?? manuscript.pdfPath ?? manuscript.sourcePath.replace(/\.tex$/i, '.pdf')
-      return resolveManuscriptFile(experiment, path, '.pdf')
+        compiledPdfPath ?? manuscriptPdfPath ?? manuscriptSourcePath.replace(/\.tex$/i, '.pdf')
+      return resolveManuscriptFile({ workspacePath }, path, '.pdf')
     } catch {
       return null
     }
-  }, [experiment, manuscript, compiledPdfPath])
+  }, [workspacePath, manuscriptSourcePath, manuscriptPdfPath, compiledPdfPath])
 
   useEffect(() => {
     setCompiledPdfPath(null)
     setLastBuiltAt(null)
-  }, [manuscript?.sourcePath])
+  }, [manuscriptSourcePath])
 
   useEffect(() => {
     setPdfSelection(null)
@@ -157,7 +160,7 @@ export function ResearchWritingPdfPane({
     }
     setPdfLoading(true)
     setPdfError(null)
-    void readManuscriptPdf(experiment, pdfFile).then(
+    void readManuscriptPdf({ hostId, workspaceId, workspacePath }, pdfFile).then(
       (result) => {
         if (generation !== pdfReadGeneration.current) {
           return
@@ -177,7 +180,7 @@ export function ResearchWritingPdfPane({
     return () => {
       pdfReadGeneration.current += 1
     }
-  }, [experiment, pdfFile, pdfRefreshKey])
+  }, [hostId, workspaceId, workspacePath, pdfFile, pdfRefreshKey])
 
   async function jumpToSource(point: PdfPagePoint): Promise<void> {
     if (!pdfFile || !onSourceJump) {

@@ -7,9 +7,8 @@ vi.mock('@/runtime/runtime-rpc-client', () => ({ callRuntimeRpc: mocks.callRunti
 
 const remoteScope: LibraryScope = {
   hostId: 'runtime:4b50072b-b793-4530-95dd-bbc9696f565d',
-  workspaceId:
-    '48f6f30b-b2da-4cfe-89d0-1454f398dea2::/data/projects/mingu/VideoMLLM_Research/StreamingVideo',
-  workspacePath: '/data/projects/mingu/VideoMLLM_Research/StreamingVideo'
+  workspaceId: '48f6f30b-b2da-4cfe-89d0-1454f398dea2::/srv/projects/example-paper',
+  workspacePath: '/srv/projects/example-paper'
 }
 
 describe('Library PDF download routing', () => {
@@ -23,8 +22,7 @@ describe('Library PDF download routing', () => {
       { kind: 'environment', environmentId: '4b50072b-b793-4530-95dd-bbc9696f565d' },
       'researchProject.downloadArxivPdf',
       {
-        worktree:
-          'id:48f6f30b-b2da-4cfe-89d0-1454f398dea2::/data/projects/mingu/VideoMLLM_Research/StreamingVideo',
+        worktree: 'id:48f6f30b-b2da-4cfe-89d0-1454f398dea2::/srv/projects/example-paper',
         reference: '2607.13298'
       },
       { timeoutMs: 120_000 }

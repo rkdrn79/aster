@@ -25,6 +25,7 @@ describe('electron-builder config', () => {
     expect(electronBuilderConfig.files).toEqual(
       expect.arrayContaining([
         '!src{,/**/*}',
+        '!out/bin{,/**/*}',
         '!config{,/**/*}',
         '!cloud{,/**/*}',
         '!docs{,/**/*}',
@@ -55,7 +56,9 @@ describe('electron-builder config', () => {
     for (const stagingPath of [
       '.build/release-javascript/release-javascript.tar.gz',
       '.build/release-javascript/manifest.json',
-      '.build/release-javascript-123/out/main/index.js'
+      '.build/release-javascript-123/out/main/index.js',
+      'out/bin/aster',
+      'out/bin/aster-dev'
     ]) {
       expect(isPacked(join('/app', stagingPath), { isDirectory: () => false })).toBe(false)
     }

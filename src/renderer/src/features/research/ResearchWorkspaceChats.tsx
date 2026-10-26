@@ -27,6 +27,7 @@ import { useResearchRecords } from './research-records-store'
 import { useResearchLibrary } from './research-library-store'
 import { ResearchConversationRow } from './ResearchConversationRow'
 import { ResearchDelegationList } from './ResearchDelegationList'
+import { ResearchPaseoWorkbenchAgents } from './ResearchPaseoWorkbenchAgents'
 import { linkResearchConversation } from './research-conversation-link'
 import { useResearchActiveProject } from './research-home-projects'
 import { collectProjectAgentGroups } from './research-project-agent-groups'
@@ -40,6 +41,7 @@ import {
 } from './research-orchestration-worker-tabs'
 import { useResearchInlineWorkerTabs } from './research-inline-worker-tabs'
 import { structuredAgentSessionOwnerForTab } from '@/runtime/structured-agent-session-owner'
+import { selectResearchWorkspaceContext } from './research-workspace-context'
 
 /** Project conversations remain reachable while a different worktree is active. */
 export function ResearchWorkspaceChats(): React.JSX.Element {
@@ -57,6 +59,7 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
   const chatEnabled = useAppStore((state) => state.settings?.experimentalNativeChat === true)
   const workspaceId = useAppStore((state) => state.activeWorktreeId)
   const onWorkbench = useAppStore((state) => state.activeView === 'terminal')
+  const paseoContext = useAppStore(useShallow(selectResearchWorkspaceContext))
   const allTabs = useAppStore((state) => state.unifiedTabsByWorktree)
   const orchestration = useAppStore((state) => state.runtimeAgentOrchestrationByPaneKey)
   const agentStatus = useAppStore((state) => state.agentStatusByPaneKey)
@@ -358,6 +361,18 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
             )
           })}
       </div>
+      {paseoContext.hostId && paseoContext.workspaceId && paseoContext.workspacePath ? (
+        <ResearchPaseoWorkbenchAgents
+          key={paseoContext.hostId}
+          scope={{
+            hostId: paseoContext.hostId,
+            workspaceId: paseoContext.workspaceId,
+            workspacePath: paseoContext.workspacePath
+          }}
+          hostLabel={paseoContext.hostLabel}
+          active={onWorkbench}
+        />
+      ) : null}
       <ResearchDelegationList
         workspaceScopes={projectAgentGroups.map((group) => ({
           workspaceId: group.workspace.id,

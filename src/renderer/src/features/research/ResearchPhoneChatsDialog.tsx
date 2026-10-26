@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import QRCodeBrowser from 'qrcode/lib/browser'
-import { Plus, RefreshCw, Send, Smartphone } from 'lucide-react'
+import { Plus, RefreshCw, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -22,18 +22,23 @@ import type {
   PaseoCompanionProvider,
   PaseoCompanionScope
 } from '../../../../shared/research/research-paseo-companion'
+import { ResearchPhoneChatPairing } from './ResearchPhoneChatPairing'
 
 export function ResearchPhoneChatsDialog({
   open,
   onClose,
-  scope
+  scope,
+  allHost = false,
+  initialAgentId = null
 }: {
   open: boolean
   onClose: () => void
   scope: PaseoCompanionScope
+  allHost?: boolean
+  initialAgentId?: string | null
 }): React.JSX.Element {
   const [agents, setAgents] = useState<PaseoCompanionAgent[]>([])
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(initialAgentId)
   const [log, setLog] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
@@ -54,6 +59,14 @@ export function ResearchPhoneChatsDialog({
   const visiblePairingQr = open && pairingQr?.scopeKey === scopeKey ? pairingQr.dataUrl : null
 
   useEffect(() => {
+    if (!open || !allHost) {
+      return
+    }
+    const interval = window.setInterval(() => setRefresh((value) => value + 1), 30_000)
+    return () => window.clearInterval(interval)
+  }, [open, allHost])
+
+  useEffect(() => {
     if (!open) {
       return
     }
@@ -65,7 +78,9 @@ export function ResearchPhoneChatsDialog({
       try {
         let next: PaseoCompanionAgent[]
         try {
-          next = await window.api.researchPaseo.list(currentScope)
+          next = await (allHost
+            ? window.api.researchPaseo.listHost(currentScope)
+            : window.api.researchPaseo.list(currentScope))
         } catch (cause) {
           if (hostId === 'local' || !String(cause).includes('Paseo is not installed')) {
             throw cause
@@ -74,7 +89,9 @@ export function ResearchPhoneChatsDialog({
             setSettingUp(true)
           }
           await window.api.researchPaseo.setup(currentScope)
-          next = await window.api.researchPaseo.list(currentScope)
+          next = await (allHost
+            ? window.api.researchPaseo.listHost(currentScope)
+            : window.api.researchPaseo.list(currentScope))
         }
         if (live) {
           setAgents(next)
@@ -98,7 +115,7 @@ export function ResearchPhoneChatsDialog({
     return () => {
       live = false
     }
-  }, [open, hostId, workspaceId, workspacePath, refresh])
+  }, [open, hostId, workspaceId, workspacePath, allHost, refresh])
 
   useEffect(() => {
     if (!open || !selectedId) {
@@ -107,7 +124,11 @@ export function ResearchPhoneChatsDialog({
     }
     let live = true
     setLog('')
-    void window.api.researchPaseo.logs({ hostId, workspaceId, workspacePath }, selectedId).then(
+    const currentScope = { hostId, workspaceId, workspacePath }
+    const logs = allHost
+      ? window.api.researchPaseo.logsHost(currentScope, selectedId)
+      : window.api.researchPaseo.logs(currentScope, selectedId)
+    void logs.then(
       (next) => {
         if (live) {
           setLog(next)
@@ -122,7 +143,7 @@ export function ResearchPhoneChatsDialog({
     return () => {
       live = false
     }
-  }, [open, hostId, workspaceId, workspacePath, selectedId, refresh])
+  }, [open, hostId, workspaceId, workspacePath, allHost, selectedId, refresh])
 
   useEffect(() => {
     if (!open || !newOpen) {
@@ -170,7 +191,9 @@ export function ResearchPhoneChatsDialog({
     setSending(true)
     setError(null)
     try {
-      await window.api.researchPaseo.send(scope, selectedId, message)
+      await (allHost
+        ? window.api.researchPaseo.sendHost(scope, selectedId, message)
+        : window.api.researchPaseo.send(scope, selectedId, message))
       setMessage('')
       setRefresh((value) => value + 1)
     } catch (cause) {
@@ -225,38 +248,21 @@ export function ResearchPhoneChatsDialog({
     <Dialog open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogContent className="sm:max-w-3xl" scrollable>
         <DialogHeader>
-          <DialogTitle>Phone chats</DialogTitle>
+          <DialogTitle>{allHost ? 'Paseo agents' : 'Phone chats'}</DialogTitle>
           <DialogDescription>
-            Paseo conversations in this project are shared with the Paseo phone app when that phone
-            is paired to the same daemon. Aster conversations remain separate. On first use, Aster
-            sets up Paseo on supported SSH hosts.
+            {allHost
+              ? 'Paseo conversations on this host are shared with the Paseo phone app when that phone is paired to the same daemon. New chats start in the selected project folder.'
+              : 'Paseo conversations in this project are shared with the Paseo phone app when that phone is paired to the same daemon. Aster conversations remain separate. On first use, Aster sets up Paseo on supported SSH hosts.'}
           </DialogDescription>
         </DialogHeader>
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-xs text-muted-foreground">
-            Pair this project’s host in the Paseo iPhone app to use its conversations away from your
-            computer.
-          </span>
-          <Button size="sm" variant="outline" disabled={pairing} onClick={() => void pairPhone()}>
-            <Smartphone aria-hidden /> {pairing ? 'Preparing…' : 'Pair phone'}
-          </Button>
-        </div>
-        {visiblePairingQr ? (
-          <div className="flex flex-col items-center gap-2 rounded-md border border-border p-3 text-center">
-            <img
-              src={visiblePairingQr}
-              alt="Paseo phone pairing QR code"
-              width={232}
-              height={232}
-            />
-            <p className="text-xs text-muted-foreground">
-              Scan with the Paseo app. Keep this code private and refresh it if pairing fails.
-            </p>
-          </div>
-        ) : null}
+        <ResearchPhoneChatPairing
+          pairing={pairing}
+          qrDataUrl={visiblePairingQr}
+          onPair={() => void pairPhone()}
+        />
         <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
           <span className="truncate" title={scope.workspacePath}>
-            {scope.workspacePath}
+            {allHost ? `New chats: ${scope.workspacePath}` : scope.workspacePath}
           </span>
           <Button
             size="icon-xs"
@@ -348,7 +354,9 @@ export function ResearchPhoneChatsDialog({
             ) : null}
             {!loading && agents.length === 0 ? (
               <p className="p-2 text-xs text-muted-foreground">
-                No Paseo conversations in this project. Start one in the Paseo app, then refresh.
+                {allHost
+                  ? 'No Paseo conversations on this host. Start one in the Paseo app, then refresh.'
+                  : 'No Paseo conversations in this project. Start one in the Paseo app, then refresh.'}
               </p>
             ) : null}
             {agents.map((agent) => (
@@ -359,7 +367,7 @@ export function ResearchPhoneChatsDialog({
                 className="h-auto w-full min-w-0 justify-start text-left"
                 onClick={() => setSelectedId(agent.id)}
               >
-                <span className="min-w-0 flex-1">
+                <span className="min-w-0 flex-1" title={agent.cwd}>
                   <span className="block truncate">{agent.name}</span>
                   <span className="block truncate text-2xs text-muted-foreground">
                     {agent.status} · {agent.provider}

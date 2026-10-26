@@ -4,11 +4,14 @@ import { runtimeRpcTargetForAuthorityKey } from '@/runtime/runtime-client-target
 import { authorityKey, parseHostAuthorityKey } from '../../../../shared/host-authority'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
 import { MAX_FILE_RANGE_READ_BYTES } from '../../../../shared/file-range-read'
+import { forEachWithConcurrency } from '../../../../shared/map-with-concurrency'
 import { relativePathInsideRoot, resolveRuntimePath } from '../../../../shared/cross-platform-path'
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
 
 const MAX_TEX_BYTES = 2 * 1024 * 1024
 const MAX_PDF_BYTES = 24 * 1024 * 1024
+// Why: the remote control queue has room for two capped range replies, but not three.
+const READ_CONCURRENCY = 2
 
 export type ManuscriptFile = {
   absolutePath: string
@@ -104,14 +107,18 @@ async function readManuscriptBytes(
     )
   }
   const bytes = new Uint8Array(before.size)
-  for (let offset = 0; offset < before.size; offset += MAX_FILE_RANGE_READ_BYTES) {
+  const offsets = Array.from(
+    { length: Math.ceil(before.size / MAX_FILE_RANGE_READ_BYTES) },
+    (_, index) => index * MAX_FILE_RANGE_READ_BYTES
+  )
+  await forEachWithConcurrency(offsets, READ_CONCURRENCY, async (offset) => {
     const length = Math.min(MAX_FILE_RANGE_READ_BYTES, before.size - offset)
     const chunk = await readRuntimeFileRange(args, offset, length)
     if (chunk.length !== length) {
       throw new Error('File changed during reading. Refresh to retry.')
     }
     bytes.set(chunk, offset)
-  }
+  })
   const after = await statRuntimeReadTarget(args)
   if (after.size !== before.size || after.mtime !== before.mtime) {
     throw new Error('File changed during reading. Refresh to retry.')

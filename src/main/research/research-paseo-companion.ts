@@ -1,7 +1,7 @@
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { accessSync, constants } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
-import { join, resolve, sep } from 'node:path'
+import { join } from 'node:path'
 import { runProcess } from '@orca/process-host'
 import { resolveExecutableCommand } from '../../shared/node-cli-command-resolution'
 import { parseHostAuthorityKey } from '../../shared/host-authority'
@@ -9,14 +9,21 @@ import { parseExecutionHostId } from '../../shared/execution-host'
 import { quotePosixShell } from '../../shared/shell-argument-quoting'
 import { listRegisteredSshTargets } from '../ssh/targets/ssh-target-registry'
 import { runResearchComputeCommand } from './research-compute-transport'
+import {
+  AGENT_ID,
+  parsePaseoHostAgents,
+  parsePaseoProjectAgents
+} from './research-paseo-agent-list'
 import type {
   PaseoCompanionAgent,
   PaseoCompanionScope
 } from '../../shared/research/research-paseo-companion'
 
+export { parsePaseoHostAgents, parsePaseoProjectAgents } from './research-paseo-agent-list'
+
 const MAX_OUTPUT_BYTES = 256 * 1024
 export const CLI_TIMEOUT_MS = 20_000
-export const AGENT_ID = /^[a-zA-Z0-9_-]{8,128}$/
+export { AGENT_ID } from './research-paseo-agent-list'
 const PASEO_PACKAGE = '@getpaseo/cli@0.12.0'
 const REMOTE_RESEARCH_TOOLS_PATH = `for aster_tools in "$HOME"/.orca/research-tools/bin "$HOME"/.orca-*/research-tools/bin; do
   if [ -x "$aster_tools/node" ]; then PATH="$aster_tools:$PATH"; export PATH; break; fi
@@ -25,7 +32,7 @@ done`
 export const REMOTE_CLI_RESOLVE = `${REMOTE_RESEARCH_TOOLS_PATH}
 paseo_bin=$(command -v paseo 2>/dev/null || true)
 if [ -z "$paseo_bin" ]; then
-  for candidate in "$HOME"/.local/aster-paseo/node_modules/.bin/paseo "$HOME"/.local/paseo-*/bin/paseo "$HOME"/.local/bin/paseo "$HOME"/.npm-global/bin/paseo; do
+  for candidate in "$HOME"/.local/aster-paseo/node_modules/.bin/paseo "$HOME"/.local/paseo/bin/paseo "$HOME"/.local/paseo-*/bin/paseo "$HOME"/.local/bin/paseo "$HOME"/.npm-global/bin/paseo; do
     if [ -x "$candidate" ]; then paseo_bin=$candidate; break; fi
   done
 fi
@@ -125,55 +132,10 @@ async function callPaseo(
   return result.stdout
 }
 
-function normalizeCwd(scope: PaseoCompanionScope, cwd: string): string {
-  if (scope.hostId === 'local') {
-    return resolve(cwd.startsWith('~/') ? join(homedir(), cwd.slice(2)) : cwd)
-  }
-  return cwd.replace(/\/+$/, '')
-}
-
-export function parsePaseoProjectAgents(
-  output: string,
+export async function listPaseoHostAgents(
   scope: PaseoCompanionScope
-): PaseoCompanionAgent[] {
-  const value: unknown = JSON.parse(output)
-  if (!Array.isArray(value)) {
-    throw new Error('Paseo returned an unsupported agent list.')
-  }
-  const root = normalizeCwd(scope, scope.workspacePath)
-  return value
-    .flatMap((item) => {
-      if (!item || typeof item !== 'object') {
-        return []
-      }
-      if (!('id' in item) || !('cwd' in item)) {
-        return []
-      }
-      if (typeof item.id !== 'string' || !AGENT_ID.test(item.id) || typeof item.cwd !== 'string') {
-        return []
-      }
-      const cwd = normalizeCwd(scope, item.cwd)
-      const prefix = scope.hostId === 'local' ? `${root}${sep}` : `${root}/`
-      if (cwd !== root && !cwd.startsWith(prefix)) {
-        return []
-      }
-      return [
-        {
-          id: item.id,
-          name: 'name' in item && typeof item.name === 'string' ? item.name.slice(0, 200) : item.id,
-          provider:
-            'provider' in item && typeof item.provider === 'string'
-              ? item.provider.slice(0, 100)
-              : 'unknown',
-          status:
-            'status' in item && typeof item.status === 'string'
-              ? item.status.slice(0, 40)
-              : 'unknown',
-          cwd
-        }
-      ]
-    })
-    .slice(0, 200)
+): Promise<PaseoCompanionAgent[]> {
+  return parsePaseoHostAgents(await callWithDaemon(scope, ['ls', '--json']), scope)
 }
 
 export async function listPaseoProjectAgents(
@@ -240,11 +202,28 @@ async function assertProjectAgent(scope: PaseoCompanionScope, agentId: string): 
   }
 }
 
+async function assertHostAgent(scope: PaseoCompanionScope, agentId: string): Promise<void> {
+  if (!AGENT_ID.test(agentId)) {
+    throw new Error('Invalid Paseo agent ID.')
+  }
+  if (!(await listPaseoHostAgents(scope)).some((agent) => agent.id === agentId)) {
+    throw new Error('This Paseo agent is not on the selected host.')
+  }
+}
+
 export async function readPaseoProjectAgentLog(
   scope: PaseoCompanionScope,
   agentId: string
 ): Promise<string> {
   await assertProjectAgent(scope, agentId)
+  return (await callPaseo(scope, ['logs', agentId, '--tail', '30', '--no-color'])).slice(-64_000)
+}
+
+export async function readPaseoHostAgentLog(
+  scope: PaseoCompanionScope,
+  agentId: string
+): Promise<string> {
+  await assertHostAgent(scope, agentId)
   return (await callPaseo(scope, ['logs', agentId, '--tail', '30', '--no-color'])).slice(-64_000)
 }
 
@@ -274,10 +253,27 @@ export async function sendPaseoProjectAgentMessage(
   agentId: string,
   message: string
 ): Promise<void> {
+  await sendPaseoAgentMessage(scope, agentId, message, assertProjectAgent)
+}
+
+export async function sendPaseoHostAgentMessage(
+  scope: PaseoCompanionScope,
+  agentId: string,
+  message: string
+): Promise<void> {
+  await sendPaseoAgentMessage(scope, agentId, message, assertHostAgent)
+}
+
+async function sendPaseoAgentMessage(
+  scope: PaseoCompanionScope,
+  agentId: string,
+  message: string,
+  assertAgent: (scope: PaseoCompanionScope, agentId: string) => Promise<void>
+): Promise<void> {
   if (!message.trim() || message.length > 20_000) {
     throw new Error('Enter a message under 20,000 characters.')
   }
-  await assertProjectAgent(scope, agentId)
+  await assertAgent(scope, agentId)
   if (scope.hostId !== 'local') {
     await callPaseo(
       scope,

@@ -14,7 +14,7 @@ afterEach(() => {
 
 it('sets up a missing SSH daemon and sends only to the selected project conversation', async () => {
   const scope = {
-    hostId: 'runtime:vip',
+    hostId: 'runtime:research',
     workspaceId: 'repo::/project',
     workspacePath: '/project'
   }
@@ -86,11 +86,62 @@ it('hides a host pairing QR when the selected project changes', async () => {
       pair: vi.fn().mockResolvedValue('paseo://pair/secret')
     }
   })
-  const first = { hostId: 'runtime:vip', workspaceId: 'repo::/first', workspacePath: '/first' }
+  const first = { hostId: 'runtime:research', workspaceId: 'repo::/first', workspacePath: '/first' }
   const second = { hostId: 'runtime:other', workspaceId: 'repo::/second', workspacePath: '/second' }
   const view = render(<ResearchPhoneChatsDialog open onClose={vi.fn()} scope={first} />)
   fireEvent.click(screen.getByRole('button', { name: 'Pair phone' }))
   await waitFor(() => expect(screen.getByAltText('Paseo phone pairing QR code')).toBeTruthy())
   view.rerender(<ResearchPhoneChatsDialog open onClose={vi.fn()} scope={second} />)
   expect(screen.queryByAltText('Paseo phone pairing QR code')).toBeNull()
+})
+
+it('opens the requested host-wide agent and routes logs and messages through its Paseo ID', async () => {
+  const scope = {
+    hostId: 'runtime:research',
+    workspaceId: 'repo::/project',
+    workspacePath: '/project'
+  }
+  const agents = [
+    { id: 'first', name: 'Project agent', provider: 'codex', status: 'idle', cwd: '/project' },
+    {
+      id: 'mobile-id',
+      name: 'Other folder agent',
+      provider: 'codex',
+      status: 'busy',
+      cwd: '/other'
+    }
+  ]
+  const listHost = vi.fn().mockResolvedValue(agents)
+  const logsHost = vi.fn().mockResolvedValue('Other folder activity')
+  const sendHost = vi.fn().mockResolvedValue(undefined)
+  const list = vi.fn()
+  const logs = vi.fn()
+  const send = vi.fn()
+  vi.stubGlobal('api', {
+    researchPaseo: { listHost, logsHost, sendHost, list, logs, send }
+  })
+
+  render(
+    <ResearchPhoneChatsDialog
+      open
+      onClose={vi.fn()}
+      scope={scope}
+      allHost
+      initialAgentId="mobile-id"
+    />
+  )
+  await waitFor(() => expect(screen.getByText('Other folder activity')).toBeTruthy())
+  expect(listHost).toHaveBeenCalledWith(scope)
+  expect(logsHost).toHaveBeenCalledWith(scope, 'mobile-id')
+  expect(list).not.toHaveBeenCalled()
+  expect(logs).not.toHaveBeenCalled()
+
+  fireEvent.change(screen.getByRole('textbox', { name: 'Message to phone conversation' }), {
+    target: { value: 'Continue the review.' }
+  })
+  fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+  await waitFor(() =>
+    expect(sendHost).toHaveBeenCalledWith(scope, 'mobile-id', 'Continue the review.')
+  )
+  expect(send).not.toHaveBeenCalled()
 })

@@ -9,9 +9,12 @@ import { splitWorktreeIdForFilesystem } from '../../shared/worktree/id'
 import type { PaseoCompanionScope } from '../../shared/research/research-paseo-companion'
 import {
   getPaseoPhonePairingUrl,
+  listPaseoHostAgents,
   listPaseoProjectAgents,
+  readPaseoHostAgentLog,
   readPaseoProjectAgentLog,
   setUpPaseoProjectDaemon,
+  sendPaseoHostAgentMessage,
   sendPaseoProjectAgentMessage
 } from './research-paseo-companion'
 import { listPaseoProjectProviders, startPaseoProjectAgent } from './research-paseo-agent-create'
@@ -95,6 +98,9 @@ export function registerResearchPaseoIpcHandlers(): void {
   ipcMain.handle('researchPaseo:list', async (_event, scope: unknown) =>
     listPaseoProjectAgents(await authorizedScope(scope))
   )
+  ipcMain.handle('researchPaseo:listHost', async (_event, scope: unknown) =>
+    listPaseoHostAgents(await authorizedScope(scope))
+  )
   ipcMain.handle('researchPaseo:providers', async (_event, scope: unknown) =>
     listPaseoProjectProviders(await authorizedScope(scope))
   )
@@ -106,6 +112,9 @@ export function registerResearchPaseoIpcHandlers(): void {
   )
   ipcMain.handle('researchPaseo:logs', async (_event, scope: unknown, agentId: unknown) =>
     readPaseoProjectAgentLog(await authorizedScope(scope), agentSchema.parse(agentId))
+  )
+  ipcMain.handle('researchPaseo:logsHost', async (_event, scope: unknown, agentId: unknown) =>
+    readPaseoHostAgentLog(await authorizedScope(scope), agentSchema.parse(agentId))
   )
   ipcMain.handle(
     'researchPaseo:start',
@@ -123,6 +132,15 @@ export function registerResearchPaseoIpcHandlers(): void {
     'researchPaseo:send',
     async (_event, scope: unknown, agentId: unknown, message: unknown) =>
       sendPaseoProjectAgentMessage(
+        await authorizedScope(scope),
+        agentSchema.parse(agentId),
+        z.string().min(1).max(20_000).parse(message)
+      )
+  )
+  ipcMain.handle(
+    'researchPaseo:sendHost',
+    async (_event, scope: unknown, agentId: unknown, message: unknown) =>
+      sendPaseoHostAgentMessage(
         await authorizedScope(scope),
         agentSchema.parse(agentId),
         z.string().min(1).max(20_000).parse(message)

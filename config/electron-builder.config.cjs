@@ -256,6 +256,8 @@ module.exports = {
     // extraResources. Shipping them in app.asar bloats the desktop bundle.
     '!src{,/**/*}',
     '!out/orcad{,/**/*}',
+    // Local development CLI wrappers embed the build machine's absolute paths.
+    '!out/bin{,/**/*}',
     // Never in app.asar: the template ships via orcadTemplateExtraResource; prebuilds are build inputs.
     '!out/orcad-*{,/**/*}',
     '!out/.orcad-*{,/**/*}',

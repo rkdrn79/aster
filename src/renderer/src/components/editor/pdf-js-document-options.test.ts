@@ -7,6 +7,7 @@ describe('pdf.js document resource options', () => {
       buildPdfJsDocumentOptions(new Uint8Array([1]), 'https://orca.test/web-index.html')
     ).toEqual({
       data: new Uint8Array([1]),
+      enableHWA: true,
       cMapUrl: 'https://orca.test/cmaps/',
       cMapPacked: true,
       standardFontDataUrl: 'https://orca.test/standard_fonts/',

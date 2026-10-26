@@ -37,6 +37,7 @@ function serveConnection(input: {
   lease: SlackBridgeLease
   signal: AbortSignal
   report: (connection: SlackBridgeConnection, notice?: string | null) => void
+  ensureRuntime?: () => Promise<void>
 }): Promise<void> {
   const { socket, session, lease, signal } = input
   return new Promise<void>((resolve) => {
@@ -60,6 +61,13 @@ function serveConnection(input: {
         return
       }
       session.noteLiveCoverage()
+      if (input.ensureRuntime) {
+        void input
+          .ensureRuntime()
+          .catch((error: unknown) =>
+            console.error('[slack-bridge] runtime recovery failed:', error)
+          )
+      }
     }, SLACK_LEASE_REFRESH_MS)
     signal.addEventListener('abort', stop, { once: true })
     socket.on('message', (data: RawData) => {
@@ -112,6 +120,7 @@ export async function runSlackBridge(args: {
   slack?: SlackBridgeTransport
   coordinator?: SlackCoordinator
   now?: () => number
+  ensureRuntime?: () => Promise<void>
 }): Promise<void> {
   const api = args.slack?.api ?? slackApi
   const openSocket = args.slack?.openSocket ?? openSlackSocket
@@ -135,6 +144,7 @@ export async function runSlackBridge(args: {
         continue
       }
       try {
+        await args.ensureRuntime?.()
         report('connecting')
         session ??= await SlackBridgeSession.open({
           client: args.client,
@@ -151,13 +161,25 @@ export async function runSlackBridge(args: {
         }
         report('connected')
         reconnectDelay = 1_000
-        await serveConnection({ socket, session, routes: args.routes, lease, signal, report })
+        await serveConnection({
+          socket,
+          session,
+          routes: args.routes,
+          lease,
+          signal,
+          report,
+          ensureRuntime: args.ensureRuntime
+        })
       } catch (error) {
         console.error('[slack-bridge] connection failed; retrying')
         const auth = error instanceof SlackApiError && AUTH_ERRORS.has(error.code)
         report(
           'error',
-          auth ? 'Slack rejected the tokens. Reconnect the Slack bot in Aster.' : null
+          auth
+            ? 'Slack rejected the tokens. Reconnect the Slack bot in Aster.'
+            : error instanceof Error
+              ? error.message.slice(0, 300)
+              : 'Slack bridge failed to connect.'
         )
         if (auth) {
           reconnectDelay = AUTH_RETRY_MS

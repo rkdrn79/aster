@@ -14,9 +14,9 @@ vi.mock('./research-writing-source', () => ({
 const scope: WritingProjectScope = {
   hostId: 'runtime:vip',
   workspaceId: 'streaming-video',
-  workspacePath: '/data/projects/SampleVideo',
+  workspacePath: '/data/projects/StreamingVideo',
   projectId: null,
-  name: 'SampleVideo'
+  name: 'StreamingVideo'
 }
 
 describe('project Writing without a research catalog', () => {

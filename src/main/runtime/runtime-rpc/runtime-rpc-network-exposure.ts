@@ -1,3 +1,4 @@
+import type { WebSocket } from 'ws'
 import { WebSocketTransport } from '../rpc/ws-transport'
 import { writeWsFallbackPort } from '../rpc/ws-fallback-port-store'
 import { RuntimeRpcLifecycle } from './runtime-rpc-lifecycle'
@@ -7,6 +8,21 @@ export class RuntimeRpcNetworkExposure extends RuntimeRpcLifecycle {
   // Why: pairing offers must advertise addresses this host answers once widened, not the loopback it may sit on now.
   getNetworkExposureBindHost(): string {
     return this.pinnedBindHost ?? WS_BIND_HOST_ALL_INTERFACES
+  }
+
+  // Why the live listener: a relay socket gets the direct path's caps, pre-auth timeout and E2EE wiring.
+  adoptRelayWebSocket(
+    ws: WebSocket,
+    options: { rewriteFirstInboundText?: (text: string) => string } = {}
+  ): boolean {
+    const transport = this.activeTransports.find(
+      (candidate): candidate is WebSocketTransport => candidate instanceof WebSocketTransport
+    )
+    if (!transport) {
+      ws.terminate()
+      return false
+    }
+    return transport.adoptConnection(ws, options)
   }
 
   // Why: STA-2370 — widen the loopback listener to all interfaces so a freshly generated pairing

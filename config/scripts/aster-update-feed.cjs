@@ -1,5 +1,9 @@
+const ASTER_STABLE_UPDATE_FEED = 'https://github.com/rkdrn79/aster/releases/latest/download'
+
 function resolveAsterUpdateFeed(env = process.env) {
-  const value = env.ASTER_UPDATE_FEED_URL?.trim()
+  const value =
+    env.ASTER_UPDATE_FEED_URL?.trim() ||
+    (env.ORCA_MAC_RELEASE === '1' ? ASTER_STABLE_UPDATE_FEED : null)
   if (!value) {
     return null
   }
@@ -15,4 +19,4 @@ function resolveAsterUpdateFeed(env = process.env) {
   return url.href.replace(/\/+$/, '')
 }
 
-module.exports = { resolveAsterUpdateFeed }
+module.exports = { ASTER_STABLE_UPDATE_FEED, resolveAsterUpdateFeed }

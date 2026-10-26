@@ -33,6 +33,37 @@ it('offers the Aster update action without linking to upstream release notes', (
   expect(onUpdate).toHaveBeenCalledOnce()
 })
 
+it('offers a manual DMG and explains app replacement', () => {
+  render(
+    <UpdateCardStateContent
+      status={{
+        state: 'available',
+        version: '0.1.1',
+        changelog: null,
+        manualDownloadUrl:
+          'https://github.com/rkdrn79/aster/releases/download/v0.1.1/Aster-mac-arm64.dmg'
+      }}
+      changelog={null}
+      errorCard={null}
+      linuxPackageRecovery={null}
+      isLocalBuild={false}
+      hasStartedDownload={false}
+      prefersReducedMotion={false}
+      mediaFailed={false}
+      mediaLoaded={false}
+      onMediaError={() => undefined}
+      onMediaLoad={() => undefined}
+      onUpdate={() => undefined}
+      onInstallRetry={() => undefined}
+      onDismiss={() => undefined}
+      onCollapse={() => undefined}
+    />
+  )
+
+  expect(screen.getByRole('button', { name: 'Download DMG' })).toBeTruthy()
+  expect(screen.getByText(/replace the app in Applications/)).toBeTruthy()
+})
+
 it('shows Aster download progress and restart action for a future update', () => {
   const props = {
     changelog: null,

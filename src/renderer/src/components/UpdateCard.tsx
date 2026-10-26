@@ -117,11 +117,13 @@ export function UpdateCard(): React.JSX.Element | null {
   }
 
   const handleUpdate = (): void => {
-    hasStartedDownload.current = true
-    if (!reassuranceSeen) {
+    if (status.state === 'available' && !status.manualDownloadUrl) {
+      hasStartedDownload.current = true
+    }
+    if (status.state === 'available' && !status.manualDownloadUrl && !reassuranceSeen) {
       markReassuranceSeen()
     }
-    void window.api.updater.download()
+    void window.api.updater.download().catch(console.error)
   }
   const handleClose = (): void => {
     dismissUpdate()

@@ -185,7 +185,9 @@ async function serveWithSelectedRuntime(
     executable,
     appRoot: resolveAppRoot(),
     userDataPath,
-    usesMacUpdateHandoff: args.recipeJson !== true && getMacAppBundlePath(executable) !== null
+    // Why not with --relay: only orcad can join a relay, so it outranks the Electron updater.
+    usesMacUpdateHandoff:
+      args.recipeJson !== true && !args.relay && getMacAppBundlePath(executable) !== null
   })
   if (selection.kind === 'orcad') {
     // Why only supervised: orcad refuses a held profile as a configuration fault (exit 78), which
@@ -215,6 +217,12 @@ function serveWithElectron(
   args: ServeOrcaAppArgs,
   userDataPath: string
 ): Promise<number> {
+  if (args.relay) {
+    process.stderr.write(
+      '[serve] Not starting: --relay needs orcad, and this serve runs on Electron.\n'
+    )
+    return Promise.resolve(1)
+  }
   const preflight = preflightElectronServe(args, userDataPath)
   if (preflight === null) {
     return spawnElectronServe(executable, args, userDataPath)

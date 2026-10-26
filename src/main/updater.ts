@@ -14,6 +14,12 @@ import type { ReleaseBuildListOptions } from './updater-release-build-cache'
 import { UpdaterSetup, type UpdaterSetupOptions } from './updater/updater-setup'
 import type { PreQuitCleanupFailureMode, UpdateInstallMode } from './updater/updater-state'
 import { isUpstreamProduct, PRODUCT_BRAND, PRODUCT_NAME } from '../shared/product-brand'
+import {
+  checkForManualUpdate,
+  getManualUpdateStatus,
+  openManualUpdateDownload,
+  setupManualUpdateChecks
+} from './aster-manual-updates'
 
 // Keep one service instance so all public API calls share updater state and event listeners.
 const updater = new UpdaterSetup()
@@ -37,6 +43,9 @@ export function resolveUpdateInstallMode(isServeMode: boolean): UpdateInstallMod
 }
 
 export function getUpdateStatus(): UpdateStatus {
+  if (isUpdateFeedUnconfigured() && !isUpstreamProduct()) {
+    return getManualUpdateStatus()
+  }
   return updater.getUpdateStatus()
 }
 
@@ -83,6 +92,9 @@ export function installRemoteServerUpdate(runtimeId: string): RemoteServerUpdate
 
 export function checkForUpdates(): void {
   if (isUpdateFeedUnconfigured()) {
+    if (!isUpstreamProduct()) {
+      void checkForManualUpdate()
+    }
     return
   }
   updater.checkForUpdates()
@@ -90,6 +102,9 @@ export function checkForUpdates(): void {
 
 export function checkForUpdatesFromMenu(options?: UpdateCheckOptions): void {
   if (isUpdateFeedUnconfigured()) {
+    if (!isUpstreamProduct()) {
+      void checkForManualUpdate(true)
+    }
     return
   }
   updater.checkForUpdatesFromMenu(
@@ -97,8 +112,11 @@ export function checkForUpdatesFromMenu(options?: UpdateCheckOptions): void {
   )
 }
 
-export function downloadUpdate(): void {
+export function downloadUpdate(): void | Promise<void> {
   if (isUpdateFeedUnconfigured()) {
+    if (!isUpstreamProduct()) {
+      return openManualUpdateDownload()
+    }
     return
   }
   updater.downloadUpdate()
@@ -146,6 +164,9 @@ export function setupAutoUpdater(
   opts?: UpdaterSetupOptions
 ): void {
   if (isUpdateFeedUnconfigured()) {
+    if (!isUpstreamProduct()) {
+      setupManualUpdateChecks(mainWindow)
+    }
     return
   }
   updater.setupAutoUpdater(mainWindow, opts)

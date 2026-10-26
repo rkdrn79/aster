@@ -64,6 +64,8 @@ export class WebSocketTransport implements RpcTransport {
   private connectionCloseHandler: WebSocketConnectionCloseHandler | null = null
   // Why: maps each socket to its authenticated clientId so close can report which device disconnected.
   private wsClientIds = new Map<WebSocket, string>()
+  // Why: sockets opened outward (relay data sockets) are not in wss.clients but share its cap and stop().
+  private adoptedConnections = new Set<WebSocket>()
   private heartbeatConnections = new Set<WebSocket>()
   private preAuthTimers = new WeakMap<WebSocket, ReturnType<typeof setTimeout>>()
 
@@ -215,7 +217,7 @@ export class WebSocketTransport implements RpcTransport {
     })
 
     wss.on('connection', (ws) => {
-      if (wss.clients.size > WEBSOCKET_TRANSPORT_MAX_CONNECTIONS) {
+      if (wss.clients.size + this.adoptedConnections.size > WEBSOCKET_TRANSPORT_MAX_CONNECTIONS) {
         rejectNodeWebSocketOverCapacity(ws)
         return
       }
@@ -226,11 +228,38 @@ export class WebSocketTransport implements RpcTransport {
     this.wss = wss
   }
 
+  /**
+   * Serves an already-open socket this host dialed (a relay data socket) exactly like an accepted
+   * one: same connection cap, pre-auth timeout, heartbeat and message handler. False if refused.
+   */
+  adoptConnection(
+    ws: WebSocket,
+    options: { rewriteFirstInboundText?: (text: string) => string } = {}
+  ): boolean {
+    const wss = this.wss
+    if (!wss) {
+      ws.terminate()
+      return false
+    }
+    if (wss.clients.size + this.adoptedConnections.size >= WEBSOCKET_TRANSPORT_MAX_CONNECTIONS) {
+      rejectNodeWebSocketOverCapacity(ws)
+      return false
+    }
+    this.adoptedConnections.add(ws)
+    ws.once('close', () => this.adoptedConnections.delete(ws))
+    this.handleConnection(ws, options.rewriteFirstInboundText)
+    return true
+  }
+
   async stop(): Promise<void> {
     const wss = this.wss
     const httpServer = this.httpServer
     this.wss = null
     this.httpServer = null
+    for (const ws of this.adoptedConnections) {
+      ws.terminate()
+    }
+    this.adoptedConnections.clear()
     await stopNodeWebSocketTransport({
       wss,
       httpServer,
@@ -239,7 +268,10 @@ export class WebSocketTransport implements RpcTransport {
     })
   }
 
-  private handleConnection(ws: WebSocket): void {
+  private handleConnection(
+    ws: WebSocket,
+    rewriteFirstInboundText?: (text: string) => string
+  ): void {
     attachNodeWebSocketLifecycle({
       ws,
       heartbeat: this.heartbeat,
@@ -248,7 +280,8 @@ export class WebSocketTransport implements RpcTransport {
       clientIds: this.wsClientIds,
       heartbeatConnections: this.heartbeatConnections,
       getMessageHandler: () => this.messageHandler,
-      getConnectionCloseHandler: () => this.connectionCloseHandler
+      getConnectionCloseHandler: () => this.connectionCloseHandler,
+      ...(rewriteFirstInboundText ? { rewriteFirstInboundText } : {})
     })
   }
 }

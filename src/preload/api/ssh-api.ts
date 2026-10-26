@@ -12,6 +12,7 @@ import type {
   SshTargetUpdateInput
 } from '../../shared/ssh-types'
 import type { FilesystemPathFlavor } from '../../shared/filesystem-entry-types'
+import type { ResearchHostToolsStatus } from '../../shared/research-host-tools-status'
 
 export type SshApi = {
   listTargets: () => Promise<SshTarget[]>
@@ -27,6 +28,7 @@ export type SshApi = {
   connect: (args: { targetId: string; automatic?: boolean }) => Promise<SshConnectionState | null>
   disconnect: (args: { targetId: string }) => Promise<void>
   getState: (args: { targetId: string }) => Promise<SshConnectionState | null>
+  getResearchTools: (args: { targetId: string }) => Promise<ResearchHostToolsStatus>
   needsPassphrasePrompt: (args: { targetId: string }) => Promise<boolean>
   testConnection: (args: {
     targetId: string

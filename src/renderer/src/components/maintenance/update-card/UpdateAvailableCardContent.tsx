@@ -35,6 +35,7 @@ export function UpdateAvailableRichContent({
   onMediaLoad,
   onUpdate,
   onClose,
+  manualInstall = false,
   externallyManaged = false
 }: {
   release: NonNullable<ChangelogData['release']>
@@ -46,6 +47,7 @@ export function UpdateAvailableRichContent({
   onMediaLoad: () => void
   onUpdate: () => void
   onClose: () => void
+  manualInstall?: boolean
   externallyManaged?: boolean
 }): React.JSX.Element {
   const showMedia =
@@ -107,11 +109,21 @@ export function UpdateAvailableRichContent({
       >
         {translate('auto.components.UpdateCard.aad383aecc', 'Read the full release notes')}
       </button>
+      {manualInstall && (
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {translate(
+            'research.updates.manualInstallHint',
+            'Download the DMG, quit Aster, and replace the app in Applications.'
+          )}
+        </p>
+      )}
       {externallyManaged ? (
         <ExternallyManagedNote />
       ) : (
         <Button variant="default" size="sm" onClick={onUpdate} className="w-full cursor-pointer">
-          {translate('auto.components.UpdateCard.ec8fe71cfc', 'Update')}
+          {manualInstall
+            ? translate('research.updates.downloadDmg', 'Download DMG')
+            : translate('auto.components.UpdateCard.ec8fe71cfc', 'Update')}
         </Button>
       )}
     </div>
@@ -123,12 +135,14 @@ export function UpdateAvailableSimpleContent({
   releaseUrl,
   onUpdate,
   onClose,
+  manualInstall = false,
   externallyManaged = false
 }: {
   version: string
   releaseUrl?: string
   onUpdate: () => void
   onClose: () => void
+  manualInstall?: boolean
   externallyManaged?: boolean
 }): React.JSX.Element {
   return (
@@ -160,7 +174,12 @@ export function UpdateAvailableSimpleContent({
         <ExternallyManagedNote />
       ) : (
         <p className="text-xs leading-relaxed text-muted-foreground">
-          {translate('auto.components.UpdateCard.fdd4a364fa', "Sessions won't be interrupted.")}
+          {manualInstall
+            ? translate(
+                'research.updates.manualInstallHint',
+                'Download the DMG, quit Aster, and replace the app in Applications.'
+              )
+            : translate('auto.components.UpdateCard.fdd4a364fa', "Sessions won't be interrupted.")}
         </p>
       )}
       {releaseUrl && (
@@ -179,7 +198,9 @@ export function UpdateAvailableSimpleContent({
           onClick={onUpdate}
           className="mt-0.5 w-full cursor-pointer"
         >
-          {translate('auto.components.UpdateCard.ec8fe71cfc', 'Update')}
+          {manualInstall
+            ? translate('research.updates.downloadDmg', 'Download DMG')
+            : translate('auto.components.UpdateCard.ec8fe71cfc', 'Update')}
         </Button>
       )}
     </div>

@@ -10,6 +10,10 @@ vi.mock('./ReleaseChannelSection', () => ({ ReleaseChannelSection: () => null })
 const quitAndInstall = vi.fn()
 
 beforeEach(() => {
+  Object.defineProperty(window.navigator, 'userAgent', {
+    configurable: true,
+    value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'
+  })
   quitAndInstall.mockReset().mockResolvedValue(undefined)
   useAppStore.setState({
     updateStatus: { state: 'available', version: '1.4.200', changelog: null }
@@ -32,15 +36,31 @@ afterEach(() => {
   useAppStore.setState({ updateStatus: { state: 'idle' } })
 })
 
-it('does not claim this Aster build checks for automatic updates', () => {
+it('offers GitHub release checks without promising automatic installation', () => {
   useAppStore.setState({ updateStatus: { state: 'idle' } })
   render(<GeneralUpdateSettingsSection />)
 
   expect(screen.getByRole('button', { name: 'Check for Updates' }).hasAttribute('disabled')).toBe(
-    true
+    false
   )
-  expect(screen.getByText('Automatic updates are not configured in this build.')).toBeTruthy()
+  expect(screen.getByText(/Aster checks GitHub Releases on launch/)).toBeTruthy()
   expect(screen.queryByText('Updates are checked automatically on launch.')).toBeNull()
+})
+
+it('offers the manual DMG when a GitHub release is available', () => {
+  useAppStore.setState({
+    updateStatus: {
+      state: 'available',
+      version: '0.1.1',
+      changelog: null,
+      manualDownloadUrl:
+        'https://github.com/rkdrn79/aster/releases/download/v0.1.1/Aster-mac-arm64.dmg'
+    }
+  })
+  render(<GeneralUpdateSettingsSection />)
+
+  expect(screen.getByRole('button', { name: 'Download DMG (0.1.1)' })).toBeTruthy()
+  expect(screen.getByText(/replace the app in Applications/)).toBeTruthy()
 })
 
 it('describes the available action as a download', () => {

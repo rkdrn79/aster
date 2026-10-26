@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -89,6 +89,22 @@ describe('Slack bridge user service', () => {
     ])
     const windows = deps('win32').value
     expect(() => renderSlackBridgeService(windows, '/bin/aster', [])).toThrow('Windows')
+  })
+
+  it('keeps a managed SSH bridge independent of the desktop serve unit', () => {
+    const { value } = deps('linux')
+    const launcher = join(value.userDataPath, 'cli', 'bin', 'aster')
+    mkdirSync(join(value.userDataPath, 'cli', 'bin'), { recursive: true })
+    writeFileSync(launcher, '#!/bin/sh\n', { mode: 0o700 })
+    const spec = renderSlackBridgeService(value, launcher, [
+      '--routes-file',
+      join(value.userDataPath, 'slack', 'server-projects-v1.json')
+    ])
+    expect(spec.content).toContain('ConditionHost=')
+    expect(spec.content).toContain('After=network-online.target')
+    expect(spec.content).not.toContain('Wants=orca-serve.service')
+    expect(spec.content).not.toContain('xapp-')
+    expect(spec.content).not.toContain('xoxb-')
   })
 
   it('removes a first-time unit when the service manager refuses to start it', async () => {

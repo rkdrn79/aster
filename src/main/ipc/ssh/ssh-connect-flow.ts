@@ -39,6 +39,7 @@ import {
   liftSshHostUserDisconnect,
   resumeRuntimeEnvironmentStatus
 } from './ssh-host-user-disconnect'
+import { beginResearchSshToolPreparation } from '../../research/research-ssh-tools'
 
 /** `automatic`: no user asked for this connect, so a cancelled sign-in or a Disconnect stays. */
 export async function connectTarget(
@@ -176,6 +177,7 @@ async function doConnect(
       server.serving,
       server.linked
     )
+    beginResearchSshToolPreparation(targetId)
     // Why after publishing: the check costs round trips, and only a macOS host shows a result.
     void import('./ssh-host-launch-session-note')
       .then(({ noteEndedLaunchSshSession }) =>

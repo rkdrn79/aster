@@ -60,6 +60,24 @@ export const SLACK_COMMAND_SPECS: CommandSpec[] = [
     allowedFlags: [...GLOBAL_FLAGS]
   },
   {
+    path: ['slack', 'project', 'setup'],
+    summary: 'Configure a project-owned Slack bridge on this server from a trusted desktop',
+    usage: `${CLI_NAME} slack project setup`,
+    allowedFlags: [...GLOBAL_FLAGS]
+  },
+  {
+    path: ['slack', 'project', 'status'],
+    summary: 'Read this server’s Slack connection for one project',
+    usage: `${CLI_NAME} slack project status --project-key <key>`,
+    allowedFlags: [...GLOBAL_FLAGS, 'project-key']
+  },
+  {
+    path: ['slack', 'project', 'remove'],
+    summary: 'Remove a project from this server’s Slack connection',
+    usage: `${CLI_NAME} slack project remove --project-key <key>`,
+    allowedFlags: [...GLOBAL_FLAGS, 'project-key']
+  },
+  {
     path: ['slack', 'send'],
     summary: 'Post a message to a Slack conversation',
     usage: `${CLI_NAME} slack send --channel <channel-id> --text <message> [--thread-ts <timestamp>]`,

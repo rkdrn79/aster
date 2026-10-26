@@ -2,7 +2,6 @@ import { isAbsolute, resolve } from 'node:path'
 import { CLI_NAME } from '../../shared/product-brand'
 import type { CommandHandler } from '../dispatch'
 import { getOptionalStringFlag, getRequiredStringFlag } from '../flags'
-import { resolveServiceCommand } from '../runtime/serve-app-launcher'
 import { RuntimeClientError } from '../runtime/types'
 import {
   installSlackBridgeService,
@@ -10,7 +9,7 @@ import {
   renderSlackBridgeService,
   uninstallSlackBridgeService
 } from '../slack-bridge-service'
-import { slackServiceDeps as serviceDeps } from '../slack-service-host'
+import { resolveSlackServiceCommand, slackServiceDeps as serviceDeps } from '../slack-service-host'
 import {
   deleteSlackServiceTokens,
   readSlackServiceTokens,
@@ -65,10 +64,10 @@ export const SLACK_SERVICE_HANDLERS: Record<string, CommandHandler> = {
   'slack service install': async ({ flags, cwd, json }) => {
     const deps = serviceDeps()
     const args = bridgeArgs(flags, cwd)
-    const command = resolveServiceCommand(getOptionalStringFlag(flags, 'command') ?? null, {
-      platform: deps.platform,
-      env: process.env
-    })
+    const command = resolveSlackServiceCommand(
+      getOptionalStringFlag(flags, 'command') ?? null,
+      deps
+    )
     if (flags.get('dry-run') === true) {
       const spec = renderSlackBridgeService(deps, command, args)
       print(

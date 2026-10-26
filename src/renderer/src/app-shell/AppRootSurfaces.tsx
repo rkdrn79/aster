@@ -99,7 +99,7 @@ const OnboardingFlow = lazy(() => import('../components/onboarding/OnboardingFlo
 
 // Why: upstream promotion and telemetry are unavailable to forks; an Aster release can have its own update feed.
 const SHOW_UPSTREAM_SURFACES = isUpstreamProduct()
-const SHOW_UPDATE_CARD = SHOW_UPSTREAM_SURFACES || PRODUCT_BRAND.links.updateFeed !== null
+const SHOW_UPDATE_CARD = !isUpstreamProduct() || PRODUCT_BRAND.links.updateFeed !== null
 
 /**
  * Every overlay and modal hosted at the App root, in a fixed sibling order so stacking stays

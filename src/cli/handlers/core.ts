@@ -98,29 +98,36 @@ export const CORE_HANDLERS: Record<string, CommandHandler> = {
     if (superviseError) {
       throw new RuntimeClientError('invalid_argument', superviseError)
     }
+    const pairingAddressValue = flags.get('pairing-address')
+    const pairingAddress = typeof pairingAddressValue === 'string' ? pairingAddressValue : null
+    const relayValue = flags.get('relay')
+    // Why '' for a bare --relay: validation then names the missing URL instead of ignoring the flag.
+    const relay = relayValue === undefined ? null : typeof relayValue === 'string' ? relayValue : ''
     const validationError = getServeOptionValidationError({
       noPairing,
       mobilePairing,
       grantDesktopControl,
       recipeJson,
-      projectRoot
+      projectRoot,
+      relay,
+      pairingAddress
     })
     if (validationError) {
       throw new RuntimeClientError('invalid_argument', validationError)
     }
     const port = getOptionalServePort(flags)
-    const pairingAddressValue = flags.get('pairing-address')
     const exitCode = await serveOrcaApp({
       json,
       port,
-      pairingAddress: typeof pairingAddressValue === 'string' ? pairingAddressValue : null,
+      pairingAddress,
       noPairing,
       mobilePairing,
       grantDesktopControl,
       recipeJson,
       projectRoot,
       ...(force ? { force: true } : {}),
-      ...(supervise ? { supervise: true } : {})
+      ...(supervise ? { supervise: true } : {}),
+      ...(relay ? { relay } : {})
     })
     process.exitCode = exitCode
   },

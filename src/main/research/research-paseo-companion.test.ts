@@ -26,7 +26,7 @@ const agent = (id: string, cwd: string) => ({
 
 describe('Paseo project agent scope', () => {
   it('keeps only conversations in the selected SSH project', () => {
-    const root = '/data/projects/research/SampleVideo'
+    const root = '/data/projects/research/StreamingVideo'
     const agents = parsePaseoProjectAgents(
       JSON.stringify([
         agent('11111111-1111-1111-1111-111111111111', root),
@@ -56,8 +56,8 @@ describe('Paseo project agent scope', () => {
   it('uses the linked SSH host and streams messages to its Paseo daemon without shell arguments', async () => {
     const scope = {
       hostId: 'runtime:vip',
-      workspaceId: 'repo::/data/projects/SampleVideo',
-      workspacePath: '/data/projects/SampleVideo'
+      workspaceId: 'repo::/data/projects/StreamingVideo',
+      workspacePath: '/data/projects/StreamingVideo'
     }
     const id = '11111111-1111-1111-1111-111111111111'
     remoteCommand.mockResolvedValueOnce({
@@ -80,8 +80,8 @@ describe('Paseo project agent scope', () => {
   it('uses the selected host daemon for phone pairing', async () => {
     const scope = {
       hostId: 'runtime:vip',
-      workspaceId: 'repo::/data/projects/SampleVideo',
-      workspacePath: '/data/projects/SampleVideo'
+      workspaceId: 'repo::/data/projects/StreamingVideo',
+      workspacePath: '/data/projects/StreamingVideo'
     }
     remoteCommand.mockResolvedValueOnce({
       status: 'ok',
@@ -95,8 +95,8 @@ describe('Paseo project agent scope', () => {
   it('installs a pinned Paseo CLI only when the selected server lacks one', async () => {
     const scope = {
       hostId: 'runtime:vip',
-      workspaceId: 'repo::/data/projects/SampleVideo',
-      workspacePath: '/data/projects/SampleVideo'
+      workspaceId: 'repo::/data/projects/StreamingVideo',
+      workspacePath: '/data/projects/StreamingVideo'
     }
     remoteCommand.mockResolvedValueOnce({ status: 'error', message: 'PASEO_CLI_MISSING' })
     remoteCommand.mockResolvedValueOnce({ status: 'ok', stdout: '' })
@@ -109,8 +109,8 @@ describe('Paseo project agent scope', () => {
   it('starts a phone-visible agent in the selected project without putting its prompt in SSH arguments', async () => {
     const scope = {
       hostId: 'runtime:vip',
-      workspaceId: 'repo::/data/projects/SampleVideo',
-      workspacePath: '/data/projects/SampleVideo'
+      workspaceId: 'repo::/data/projects/StreamingVideo',
+      workspacePath: '/data/projects/StreamingVideo'
     }
     const prompt = 'Review the latest results. Do not edit files.'
     const id = '55555555-5555-5555-5555-555555555555'
@@ -136,7 +136,7 @@ describe('Paseo project agent scope', () => {
     expect(remoteCommand.mock.lastCall?.[0]).toBe('ssh-vip')
     expect(remoteCommand.mock.lastCall?.[4]).toBe(prompt)
     expect(String(remoteCommand.mock.lastCall?.[2])).not.toContain(prompt)
-    expect(String(remoteCommand.mock.lastCall?.[2])).toContain("'/data/projects/SampleVideo'")
+    expect(String(remoteCommand.mock.lastCall?.[2])).toContain("'/data/projects/StreamingVideo'")
     expect(String(remoteCommand.mock.lastCall?.[2])).toContain("'codex'")
   })
 })

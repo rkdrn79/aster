@@ -16,6 +16,7 @@ import { isUpstreamProduct, PRODUCT_BRAND } from '../../../../shared/product-bra
 
 export function GeneralUpdateSettingsSection(): React.JSX.Element {
   const updateFeedConfigured = PRODUCT_BRAND.links.updateFeed !== null
+  const manualUpdateChecksAvailable = !isUpstreamProduct() && navigator.userAgent.includes('Mac')
   const updateStatus = useAppStore((s) => s.updateStatus)
   // Why: older hosts omit `version` from errors, so retain the last target for correct copy.
   const updateVersionRef = useRef<string | null>(null)
@@ -102,10 +103,15 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
                   'research.updates.automatic',
                   'Check for a newer Aster version, then download and restart to install it.'
                 )
-            : translate(
-                'research.updates.unconfigured',
-                'Automatic updates are not configured in this build.'
-              )
+            : manualUpdateChecksAvailable
+              ? translate(
+                  'research.updates.manualChecks',
+                  'Check GitHub Releases for a newer Aster version. Installation is manual.'
+                )
+              : translate(
+                  'research.updates.unconfigured',
+                  'Automatic updates are not configured in this build.'
+                )
         }
         keywords={['update', 'version', 'release notes', 'download']}
         className="space-y-3"
@@ -119,7 +125,7 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
             onClick={(event) => window.api.updater.check(getUpdateCheckClickOptions(event))}
             title={updateCheckHint}
             disabled={
-              !updateFeedConfigured ||
+              (!updateFeedConfigured && !manualUpdateChecksAvailable) ||
               updateStatus.state === 'checking' ||
               updateStatus.state === 'downloading'
             }
@@ -156,10 +162,12 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
               className="gap-2"
             >
               <Download className="size-3.5" />
-              {translate(
-                'auto.components.settings.GeneralUpdateSettingsSection.42717918f4',
-                'Download Update ('
-              )}
+              {updateStatus.manualDownloadUrl
+                ? translate('research.updates.downloadDmgWithVersion', 'Download DMG (')
+                : translate(
+                    'auto.components.settings.GeneralUpdateSettingsSection.42717918f4',
+                    'Download Update ('
+                  )}
               {updateStatus.version})
             </Button>
           ) : updateStatus.state === 'error' &&
@@ -195,7 +203,14 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
               'Updates are checked automatically on launch.'
             )}
           {updateStatus.state === 'idle' &&
+            manualUpdateChecksAvailable &&
+            translate(
+              'research.updates.manualCheckOnLaunch',
+              'Aster checks GitHub Releases on launch. New versions are installed manually.'
+            )}
+          {updateStatus.state === 'idle' &&
             !updateFeedConfigured &&
+            !manualUpdateChecksAvailable &&
             translate(
               'research.updates.unconfigured',
               'Automatic updates are not configured in this build.'
@@ -212,20 +227,25 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
                 'Version'
               )}{' '}
               {updateStatus.version}{' '}
-              {updateStatus.externallyManaged
-                ? isUpstreamProduct()
-                  ? translate(
-                      'auto.components.settings.GeneralUpdateSettingsSection.e3b9d21c07',
-                      'is available. Update Aster through your system package manager — Aster cannot install this release itself.'
-                    )
+              {updateStatus.manualDownloadUrl
+                ? translate(
+                    'research.updates.manualAvailableInSettings',
+                    'is available. Download the DMG, quit Aster, and replace the app in Applications.'
+                  )
+                : updateStatus.externallyManaged
+                  ? isUpstreamProduct()
+                    ? translate(
+                        'auto.components.settings.GeneralUpdateSettingsSection.e3b9d21c07',
+                        'is available. Update Aster through your system package manager — Aster cannot install this release itself.'
+                      )
+                    : translate(
+                        'research.updates.externallyManagedInSettings',
+                        'is available. Update Aster through your system package manager.'
+                      )
                   : translate(
-                      'research.updates.externallyManagedInSettings',
-                      'is available. Update Aster through your system package manager.'
-                    )
-                : translate(
-                    'auto.components.settings.GeneralUpdateSettingsSection.8311da27ba',
-                    'is available. Click "Download Update" to download it.'
-                  )}{' '}
+                      'auto.components.settings.GeneralUpdateSettingsSection.8311da27ba',
+                      'is available. Click "Download Update" to download it.'
+                    )}{' '}
               {updateStatus.source !== 'local' && releaseNotesUrl && (
                 <a
                   href={releaseNotesUrl}

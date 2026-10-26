@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Loader2, MoreHorizontal, Pencil, PlugZap, Trash2 } from 'lucide-react'
 import type {
   SshConnectionState,
@@ -26,6 +26,7 @@ import {
 } from './SshTargetServerStatus'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
+import type { ResearchHostToolsStatus } from '../../../../shared/research-host-tools-status'
 
 // ── Shared status helpers ────────────────────────────────────────────
 
@@ -94,6 +95,7 @@ export function SshTargetCard({
   const status: SshConnectionStatus = state?.status ?? 'disconnected'
   const [actionInFlight, setActionInFlight] = useState<'connect' | 'disconnect' | null>(null)
   const [serverDialog, setServerDialog] = useState<SshTargetServerDialog | null>(null)
+  const [researchTools, setResearchTools] = useState<ResearchHostToolsStatus | null>(null)
   const hasActionInFlight = actionInFlight !== null || busyAction !== undefined
   const removeInFlight = busyAction === 'remove'
   const mountedRef = useRef(true)
@@ -103,6 +105,40 @@ export function SshTargetCard({
   const keyName = sshIdentityFileName(target.identityFile)
   const servedByOrcaServer =
     isManagedServerSshHost(target) || state?.managedServer?.kind === 'managed'
+
+  useEffect(() => {
+    if (status !== 'connected' || !servedByOrcaServer) {
+      setResearchTools(null)
+      return
+    }
+    let active = true
+    const refresh = (): void => {
+      void window.api.ssh
+        .getResearchTools({ targetId: target.id })
+        .then((result) => {
+          if (active) {
+            setResearchTools(result)
+          }
+        })
+        .catch((error: unknown) => {
+          if (active) {
+            setResearchTools({
+              state: 'error',
+              node: false,
+              npm: false,
+              pdf: false,
+              detail: String(error)
+            })
+          }
+        })
+    }
+    refresh()
+    const timer = setInterval(refresh, 15_000)
+    return () => {
+      active = false
+      clearInterval(timer)
+    }
+  }, [status, servedByOrcaServer, target.id])
 
   const handleCardRef = useCallback((node: HTMLDivElement | null): void => {
     // Why: SSH target actions can resolve after the card is removed; the root
@@ -241,6 +277,21 @@ export function SshTargetCard({
           <p className="mt-0.5 text-xs text-destructive [overflow-wrap:anywhere]">{state.error}</p>
         ) : null}
         <SshTargetServerStatusLine target={target} state={state} />
+        {researchTools ? (
+          <p
+            className={cn(
+              'mt-0.5 text-xs',
+              researchTools.state === 'error' ? 'text-destructive' : 'text-muted-foreground'
+            )}
+          >
+            Research tools:{' '}
+            {researchTools.state === 'ready'
+              ? 'Node, npm and PDF compiler ready on this server'
+              : researchTools.state === 'preparing'
+                ? 'Preparing npm and PDF compiler on this server…'
+                : (researchTools.detail ?? 'Setup needs attention')}
+          </p>
+        ) : null}
       </div>
 
       <div className="flex shrink-0 items-center gap-2">

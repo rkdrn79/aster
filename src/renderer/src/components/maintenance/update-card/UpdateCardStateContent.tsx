@@ -158,6 +158,7 @@ export function UpdateCardStateContent({
       onMediaLoad={onMediaLoad}
       onUpdate={onUpdate}
       onClose={onDismiss}
+      manualInstall={Boolean(status.manualDownloadUrl)}
       externallyManaged={status.externallyManaged}
     />
   ) : (
@@ -166,6 +167,7 @@ export function UpdateCardStateContent({
       releaseUrl={releaseUrl}
       onUpdate={onUpdate}
       onClose={onDismiss}
+      manualInstall={Boolean(status.manualDownloadUrl)}
       externallyManaged={status.externallyManaged}
     />
   )

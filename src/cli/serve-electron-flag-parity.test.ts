@@ -12,12 +12,14 @@ import { SERVE_COMMAND_SPECS } from './specs/serve'
 // - pairing-code / environment: nothing in src/main reads them, so they ride through untouched.
 // - force: overrides the CLI's own pre-exec check; a direct `<binary> serve` launch has none to override.
 // - supervise: the CLI is the supervisor; a direct `<binary> serve` launch has no parent to restart it.
+// - relay: orcad only (experimental); the CLI refuses it before any Electron serve launch.
 const UNTRANSLATED_GLOBAL_FLAGS = new Set([
   'help',
   'pairing-code',
   'environment',
   'force',
-  'supervise'
+  'supervise',
+  'relay'
 ])
 
 const serveSpec = SERVE_COMMAND_SPECS.find((spec) => spec.path.join(' ') === 'serve')

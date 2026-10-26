@@ -99,6 +99,12 @@ function credentials(config: Disk): SlackTokens | null {
   return z.object({ appToken: z.string(), botToken: z.string() }).strict().parse(parsed)
 }
 
+/** Internal migration snapshot; never exposed through IPC. */
+export function getResearchSlackTokens(): SlackTokens | null {
+  ensureLoaded()
+  return credentials(current)
+}
+
 let current: Disk = empty
 let loaded = false
 let leaseFile: string | null = null

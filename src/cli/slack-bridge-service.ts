@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { hostname } from 'node:os'
 import { dirname, join } from 'node:path'
 import { CLI_NAME, PRODUCT_BRAND, PRODUCT_NAME } from '../shared/product-brand'
 import {
@@ -68,6 +69,18 @@ function runtimeUnit(deps: SlackServiceDeps): { name: string; unitPath: string }
   })
 }
 
+function managedHostCondition(): string {
+  try {
+    const id = readFileSync('/etc/machine-id', 'utf8').trim()
+    if (/^[0-9a-f]{32}$/.test(id)) {
+      return `ConditionHost=${id}\n`
+    }
+  } catch {
+    // Older distributions may provide only a hostname.
+  }
+  return `ConditionHost=${hostname()}\n`
+}
+
 /**
  * Tokens never appear here: the bridge reads them from the login Keychain or the profile's
  * owner-only token file at start (`--service`).
@@ -94,14 +107,15 @@ export function renderSlackBridgeService(
   }
   const name = `${PRODUCT_BRAND.id}-slack-bridge${suffix ? `-${suffix}` : ''}.service`
   const runtime = runtimeUnit(deps).name
+  const managedProfile = existsSync(join(deps.userDataPath, 'cli', 'bin', CLI_NAME))
   const environment = Object.entries(env)
     .map(([key, value]) => `Environment=${systemdQuote(`${key}=${value}`)}`)
     .join('\n')
-  // Why Wants= the runtime: without it the bridge can receive a mention but no agent can answer.
+  // A managed SSH profile restores its active slot itself; a desktop profile needs serve service.
   const content = `[Unit]
 Description=${PRODUCT_NAME} Slack bridge (${CLI_NAME} slack bridge --service)
-Wants=${runtime}
-After=${runtime} network-online.target
+${managedProfile ? managedHostCondition() : ''}
+${managedProfile ? 'After=network-online.target' : `Wants=${runtime}\nAfter=${runtime} network-online.target`}
 StartLimitIntervalSec=900
 StartLimitBurst=5
 
@@ -185,7 +199,9 @@ export async function readSlackBridgeServiceStatus(deps: SlackServiceDeps): Prom
     installed: existsSync(spec.unitPath),
     name: spec.name,
     unitPath: spec.unitPath,
-    runtimeInstalled: existsSync(runtimeUnit(deps).unitPath),
+    runtimeInstalled:
+      existsSync(runtimeUnit(deps).unitPath) ||
+      existsSync(join(deps.userDataPath, 'cli', 'bin', CLI_NAME)),
     ...(await probeUserService(managerRun(deps.run), deps.uid, spec))
   }
 }

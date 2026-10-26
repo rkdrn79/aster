@@ -38,15 +38,15 @@ import { ResearchProjectMenuItems } from './research-home-project-actions'
 function project(groupId: string | null, hostId: 'local' | 'runtime:vip'): ResearchHomeProject {
   return {
     key: groupId ? `group:${groupId}` : 'repo:shared',
-    name: 'SampleVideo',
+    name: 'StreamingVideo',
     badgeColor: null,
     projectGroupId: groupId,
     workspaces: [
       {
-        id: groupId ? 'folder:workspace-1' : 'shared::/data/SampleVideo',
+        id: groupId ? 'folder:workspace-1' : 'shared::/data/StreamingVideo',
         executionHostId: hostId,
         name: 'main',
-        path: '/data/SampleVideo',
+        path: '/data/StreamingVideo',
         branch: groupId ? null : 'main',
         isMain: true,
         isFolder: groupId !== null,
@@ -61,8 +61,8 @@ function project(groupId: string | null, hostId: 'local' | 'runtime:vip'): Resea
 function repo(hostId: 'local' | 'runtime:vip'): Repo {
   return {
     id: 'shared',
-    path: '/data/SampleVideo',
-    displayName: 'SampleVideo',
+    path: '/data/StreamingVideo',
+    displayName: 'StreamingVideo',
     badgeColor: '',
     addedAt: 0,
     kind: 'git',
@@ -107,7 +107,7 @@ it('targets the owning host when identical repo ids exist locally and remotely',
   fireEvent.click(screen.getByRole('button', { name: /Remove from Aster/ }))
   expect(mocks.openModal).toHaveBeenCalledWith('confirm-remove-folder', {
     repoId: 'shared',
-    displayName: 'SampleVideo',
+    displayName: 'StreamingVideo',
     hostId: 'runtime:vip'
   })
 })

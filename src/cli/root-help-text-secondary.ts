@@ -37,7 +37,7 @@ export const ROOT_HELP_TEXT_SECONDARY = [
   '',
   'Common Commands:',
   `  ${CLI_NAME} open [--json]`,
-  `  ${CLI_NAME} serve [--port <port>] [--pairing-address <host>] [--mobile-pairing] [--no-pairing] [--grant-desktop-control] [--project-root <path>] [--recipe-json] [--supervise] [--json]`,
+  `  ${CLI_NAME} serve [--port <port>] [--pairing-address <host>] [--mobile-pairing] [--no-pairing] [--grant-desktop-control] [--project-root <path>] [--recipe-json] [--relay <wss-url>] [--supervise] [--json]`,
   `  ${CLI_NAME} status [--json]`,
   `  ${CLI_NAME} diagnostics memory [--json]`,
   `  ${CLI_NAME} agent-context [--json]`,

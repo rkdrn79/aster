@@ -1,0 +1,155 @@
+name: Aster macOS release
+
+# A version tag is the release switch. A normal branch push never publishes a build.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aster-mac-release-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  linux-prebuild:
+    # The private aster-dev origin cannot publish the public download with GITHUB_TOKEN.
+    if: github.repository == 'rkdrn79/aster'
+    runs-on: ubuntu-22.04
+    container: quay.io/pypa/manylinux_2_28_x86_64@sha256:407f771c51a2c3e83ebe5a7970b4289ead3a6db21d9b9c089168775cad11d328
+    timeout-minutes: 35
+    steps:
+      - name: Install container prerequisites
+        run: |
+          missing=false
+          for tool in git ps unzip which xz; do
+            if ! command -v "$tool" >/dev/null 2>&1; then
+              missing=true
+            fi
+          done
+          if [ "$missing" = true ]; then
+            dnf --disablerepo='epel*' install -y git procps-ng unzip which xz
+          fi
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Trust the checked-out workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - uses: ./.github/actions/install-node-dependencies
+      - name: Build Linux x64 node-pty for Aster's bundled remote server
+        run: |
+          pnpm build:orcad-prebuilds
+          node config/scripts/build-orcad-prebuilds.mjs --require-slots linux-x64-glibc
+      - uses: actions/upload-artifact@v7
+        with:
+          name: aster-linux-x64-prebuild
+          path: out/orcad-prebuilds/
+          if-no-files-found: error
+          retention-days: 7
+
+  mac-package:
+    needs: linux-prebuild
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      ORCA_BACKGROUND_LAUNCH: '1'
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Match the tag to the packaged app version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          node -e 'const v=require("./package.json").version; if(!/^v\d+\.\d+\.\d+$/.test(process.env.RELEASE_TAG)||process.env.RELEASE_TAG!==`v${v}`) { console.error(`Stable tag ${process.env.RELEASE_TAG} must match package.json version ${v}`); process.exit(1) }'
+      - uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: electron
+          cache-pnpm-store-lookup-only: 'false'
+      - name: Build Apple Silicon node-pty for Aster's bundled remote server
+        run: |
+          pnpm build:orcad-prebuilds
+          node config/scripts/build-orcad-prebuilds.mjs --require-slots darwin-arm64
+          mv out/orcad-prebuilds "$RUNNER_TEMP/aster-mac-prebuilds"
+      - uses: actions/download-artifact@v8
+        with:
+          name: aster-linux-x64-prebuild
+          path: ${{ runner.temp }}/aster-linux-prebuilds
+      - name: Assemble the two required remote-server prebuilds
+        run: |
+          node config/scripts/merge-orcad-prebuilds.mjs \
+            "$RUNNER_TEMP/aster-mac-prebuilds" "$RUNNER_TEMP/aster-linux-prebuilds"
+          node config/scripts/build-orcad-prebuilds.mjs --require-slots darwin-arm64,linux-x64-glibc
+      - name: Build the ad hoc signed DMG and ZIP
+        run: pnpm build:aster:mac:adhoc-release
+      - name: Verify the app and release files
+        run: |
+          codesign --verify --deep --strict dist/mac-arm64/Aster.app
+          node config/scripts/verify-aster-mac-update-artifacts.mjs
+          shasum -a 256 dist/Aster-mac-arm64.dmg dist/Aster-mac-arm64.zip > dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v7
+        with:
+          name: aster-mac-release-assets
+          path: |
+            dist/Aster-mac-arm64.dmg
+            dist/Aster-mac-arm64.zip
+            dist/latest-mac.yml
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    needs: mac-package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: aster-mac-release-assets
+          path: release-assets
+      - name: Publish only after every release asset is uploaded
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          current_tag="$(gh release view --json tagName --jq .tagName 2>/dev/null || true)"
+          CURRENT_TAG="$current_tag" node <<'NODE'
+          const next = process.env.RELEASE_TAG.match(/^v(\d+)\.(\d+)\.(\d+)$/)
+          const current = process.env.CURRENT_TAG.match(/^v(\d+)\.(\d+)\.(\d+)$/)
+          if (current) {
+            let newer = false
+            for (let index = 1; index <= 3; index += 1) {
+              if (Number(next[index]) === Number(current[index])) continue
+              newer = Number(next[index]) > Number(current[index])
+              break
+            }
+            if (!newer) {
+              console.error(`Release ${process.env.RELEASE_TAG} must be newer than ${process.env.CURRENT_TAG}`)
+              process.exit(1)
+            }
+          }
+          NODE
+          gh release create "$RELEASE_TAG" \
+            release-assets/Aster-mac-arm64.dmg \
+            release-assets/Aster-mac-arm64.zip \
+            release-assets/latest-mac.yml \
+            release-assets/SHA256SUMS.txt \
+            --draft --verify-tag --title "Aster $RELEASE_TAG" --generate-notes
+          assets="$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name')"
+          for name in Aster-mac-arm64.dmg Aster-mac-arm64.zip latest-mac.yml SHA256SUMS.txt; do
+            if ! grep -Fxq "$name" <<< "$assets"; then
+              echo "Missing release asset: $name" >&2
+              exit 1
+            fi
+          done
+          gh release edit "$RELEASE_TAG" --draft=false --latest

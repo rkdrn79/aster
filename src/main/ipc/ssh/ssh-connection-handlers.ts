@@ -17,6 +17,7 @@ import {
   clearSshCredentialDeclined,
   isSshCredentialDeclined
 } from '../../ssh/ssh-credential-decline'
+import { getResearchSshToolStatus } from '../../research/research-ssh-tools'
 
 export function registerSshConnectionHandlers(): void {
   setSshTargetRegistryHandlers({
@@ -34,6 +35,13 @@ export function registerSshConnectionHandlers(): void {
 
   ipcMain.handle('ssh:getState', (_event, args: { targetId: string }) => {
     return getPublicSshState(args.targetId)
+  })
+
+  ipcMain.handle('ssh:getResearchTools', (_event, args: { targetId: string }) => {
+    if (!getSshTargetRegistryStore()?.getTarget(args.targetId)) {
+      throw new Error('SSH host not found')
+    }
+    return getResearchSshToolStatus(args.targetId)
   })
 
   // Why: auto-connect callers need to know whether connecting will prompt; true when the last connect required a credential and no live conn has it cached.

@@ -140,11 +140,13 @@ export function SshPane({ addTargetIntentSignal }: SshPaneProps): React.JSX.Elem
     setSaving(true)
 
     try {
+      let addedTargetId: string | null = null
       if (editingId) {
         await window.api.ssh.updateTarget({ id: editingId, updates: savePayload.payload.updates })
       } else {
         const result = await window.api.ssh.addTarget({ target: savePayload.payload.target })
         useAppStore.getState().recordSshRepoReadoptions(result.repoReadoptions)
+        addedTargetId = result.target.id
       }
       recordFeatureInteraction('ssh')
       if (!mountedRef.current) {
@@ -159,6 +161,13 @@ export function SshPane({ addTargetIntentSignal }: SshPaneProps): React.JSX.Elem
       setEditingId(null)
       setForm(EMPTY_FORM)
       await loadTargets()
+      if (addedTargetId) {
+        void window.api.ssh
+          .connect({ targetId: addedTargetId })
+          .catch((err: unknown) =>
+            toastSshConnectFailure(addedTargetId, err, 'Connection and research tool setup failed')
+          )
+      }
     } catch (err) {
       if (mountedRef.current) {
         toast.error(

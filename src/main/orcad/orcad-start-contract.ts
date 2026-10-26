@@ -17,6 +17,8 @@ export type OrcadOptions = {
   bind?: string
   /** The browser client's directory; the slot carries none, so `orca serve` passes the app's. */
   webClientRoot?: string
+  /** EXPERIMENT(paseo-relay): a Paseo protocol v2 relay URL to serve clients through. */
+  relay?: string
 }
 
 export type OrcadHandle = {

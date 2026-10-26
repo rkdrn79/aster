@@ -78,6 +78,8 @@ export type UpdateStatus = (
       // release-notes link fallback and for potential future use if the main
       // process starts extracting release URLs from electron-updater metadata.
       releaseUrl?: string
+      /** Aster ad hoc builds open this DMG in the browser; the user replaces the app manually. */
+      manualDownloadUrl?: string
       // Why: changelog is always explicitly set by the main process — null means
       // the fetch failed or the version wasn't in the JSON (simple mode), and a
       // populated object means rich mode. Using `| null` (not `?`) avoids a

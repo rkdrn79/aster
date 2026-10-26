@@ -4,7 +4,6 @@
 
 <p align="center">
   <a href="https://github.com/rkdrn79/aster/releases/latest"><img src="https://img.shields.io/badge/download-macOS%20Apple%20Silicon-111?style=flat&logo=apple" alt="Download for macOS (Apple Silicon)" /></a>
-  <a href="https://github.com/rkdrn79/aster/releases/tag/v0.1.0-windows.1"><img src="https://img.shields.io/badge/download-Windows%20x64%20preview-555?style=flat&logo=windows" alt="Download the Windows x64 preview" /></a>
   <a href="https://github.com/rkdrn79/aster/releases/latest"><img src="https://img.shields.io/github/v/release/rkdrn79/aster?style=flat&color=555&label=release" alt="Latest release" /></a>
   <img src="https://img.shields.io/badge/license-MIT-555?style=flat" alt="License: MIT" />
 </p>
@@ -20,7 +19,6 @@
 
 <h3 align="center">
   <a href="https://github.com/rkdrn79/aster/releases/latest">Download for macOS</a> ·
-  <a href="https://github.com/rkdrn79/aster/releases/tag/v0.1.0-windows.1">Windows x64 preview</a> ·
   <a href="https://rkdrn79.github.io/aster-site/">Website</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#try-the-demo-project">Try the demo</a>
@@ -223,8 +221,6 @@ Appearance**.
    [Claude Code](https://docs.anthropic.com/en/docs/claude-code) or
    [Codex](https://github.com/openai/codex). Any other CLI agent runs in a terminal tab.
 
-On Windows x64, download the [unsigned preview installer](https://github.com/rkdrn79/aster/releases/download/v0.1.0-windows.1/Aster-windows-setup-x64.exe) or [ZIP](https://github.com/rkdrn79/aster/releases/download/v0.1.0-windows.1/Aster-windows-x64.zip). The installer has passed Windows CI installation and packaged smoke tests; a normal user-PC workflow has not yet been verified. Windows may show a SmartScreen warning because this preview is unsigned.
-
 Optional: [Tectonic](https://tectonic-typesetting.github.io/) on `PATH` to compile PDFs, and SSH
 access to your GPU hosts (with SLURM to submit jobs). Aster keeps its data in
 `~/Library/Application Support/Aster`.
@@ -320,12 +316,15 @@ Aster bundles agent skills that teach Claude Code and Codex the workflow above.
 
 ## Status
 
-Aster 0.1.0 is the first macOS release. Windows x64 is available as an unsigned preview: Windows CI passed typecheck, unit tests, research E2E, installer/ZIP packaging, and packaged smoke tests. Known gaps:
+Aster 1.0.0 is the first integrated desktop release target. The research flows above are covered by
+unit tests and headless Electron tests. Known gaps:
 
-- The macOS build is for Apple Silicon, signed ad hoc, not notarized, and has no update feed.
+- Apple Silicon macOS builds are signed ad hoc and are not notarized. The app checks GitHub Releases
+  for updates, but installation still requires downloading and replacing the app manually.
 - Aster is desktop-only. For agent conversations on a phone, use the Paseo app, which runs against
   its own host.
-- Windows has not been tested on a separate user PC; Linux desktop has not been verified or published.
+- An unsigned Windows x64 preview passed CI packaging, smoke, and research E2E tests; installation
+  and research work on a user's Windows PC remain unverified. Linux desktop is not published yet.
 - Writing: the round trip from a selected passage through an agent's edit to a recompiled PDF has not
   been verified with a live agent. The first compile on an empty TeX cache downloads packages and can
   take minutes.

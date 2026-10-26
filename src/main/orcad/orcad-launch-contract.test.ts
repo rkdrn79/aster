@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 import { parseArgs } from './orcad-command-arguments'
+import { orcadServeArgs } from '../../shared/orcad-serve-argv'
 import { ORCAD_EXIT_CONFIGURATION } from './orcad-configuration-exit'
 import { ORCAD_EXIT_FAILED, resolveOrcadExitCode } from './orcad-exit-code'
 import { startOrcadWithLifecycle } from './orcad-lifecycle'
@@ -95,6 +96,19 @@ describe('parseArgs', () => {
   it('rejects --bind with no value rather than silently binding the default', () => {
     expect(() => parseArgs(['--bind'])).toThrow('--bind expects a value')
     expect(() => parseArgs(['--bind', '--json'])).not.toThrow()
+  })
+
+  it('takes the experimental --relay orca serve forwards, refusing what cannot be a relay', () => {
+    const relay = 'wss://relay.paseo.sh/ws'
+    expect(
+      parseArgs(orcadServeArgs({ relay, mobilePairing: true }, undefined, '127.0.0.1'))
+    ).toEqual({ bind: '127.0.0.1', mobilePairing: true, relay })
+    expect(() => parseArgs(['--relay', 'https://relay.paseo.sh/ws'])).toThrow(
+      '--relay expects a ws:// or wss:// relay URL'
+    )
+    expect(() =>
+      parseArgs(['--relay', relay, '--mobile-pairing', '--pairing-address', '10.0.0.5'])
+    ).toThrow('Use either --relay or --pairing-address with --mobile-pairing')
   })
 })
 

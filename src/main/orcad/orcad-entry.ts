@@ -10,7 +10,7 @@
  * the runtime factory, but only when an Electron serve sidecar or an operator-supplied
  * Chromium proves available at startup.
  */
-import { join } from 'node:path'
+import { delimiter, join } from 'node:path'
 import process from 'node:process'
 import { getAppEnvironment } from '../../shared/app-environment'
 import { resolveOrcadInstallRoot, resolveUserDataPath } from './orcad-app-paths'
@@ -59,6 +59,10 @@ export async function startOrcad(options: OrcadOptions = {}): Promise<OrcadHandl
   // Why: an orcad started from an Orca terminal must not fence its own CLI children to that Orca.
   stampRuntimeSourceEnv(process.env, null)
   const userDataPath = resolveUserDataPath()
+  const researchToolsBin = join(userDataPath, 'research-tools', 'bin')
+  if (!(process.env.PATH ?? '').split(delimiter).includes(researchToolsBin)) {
+    process.env.PATH = `${researchToolsBin}${delimiter}${process.env.PATH ?? ''}`
+  }
   // Why, as on the desktop: an inherited value would aim the CLI-shared Codex home paths elsewhere.
   process.env.ORCA_USER_DATA_PATH = userDataPath
   const { readiness, instance, stop } = await startOrcadWithHost(
@@ -340,7 +344,7 @@ async function startOrcadRuntime(
 
   const bindHost = resolveOrcadBindHost(options.bind)
   bindOrcadStopTerminalAdmission(runtime.terminalUpdateAdmission)
-  const rpc = await startOrcadRpcServer({
+  const { rpc, pairingOptions } = await startOrcadRpcServer({
     runtime,
     options,
     bindHost,
@@ -357,7 +361,7 @@ async function startOrcadRuntime(
   console.error(`[orcad] ${describeOrcadBindExposure(bindHost)}`)
 
   const readiness = await buildOrcadServeReadiness({
-    options,
+    options: pairingOptions,
     runtimeId: runtime.getRuntimeId(),
     rpc,
     collectHealth: () =>

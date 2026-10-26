@@ -6,7 +6,7 @@ import { papersFromBibtex } from './research-library-bibtex-import'
 const scope: LibraryScope = {
   hostId: 'runtime:vip',
   workspaceId: 'streaming-video',
-  workspacePath: '/data/projects/SampleVideo'
+  workspacePath: '/data/projects/StreamingVideo'
 }
 
 describe('project bibliography import', () => {

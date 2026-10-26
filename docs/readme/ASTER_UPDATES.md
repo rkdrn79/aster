@@ -1,57 +1,53 @@
 # Aster updates
 
-## Getting a new version
+## How updates reach users
 
-Current Aster builds do not update themselves. To upgrade, download the latest
-`Aster-mac-arm64.dmg` (or `.zip`) from the
-[Releases page](https://github.com/rkdrn79/aster/releases/latest) and replace
-`/Applications/Aster.app` with it. Projects and settings stay in place, because they live in your
-project folders and `~/Library/Application Support/Aster`, not in the app bundle.
+The previously published 0.1.0 app has no release checker. Its users must install 1.0.0 or later
+once before they can receive in-app update notices.
 
-Builds are signed ad hoc and are not notarized yet, so macOS blocks the first open of each new
-version. Right-click **Aster** → **Open**, or run
-`xattr -dr com.apple.quarantine /Applications/Aster.app`.
+Starting with the packaged 1.0.0 Apple Silicon release, Aster checks the latest published
+[GitHub Release](https://github.com/rkdrn79/aster/releases/latest) on launch and every 24 hours.
+When a higher `vX.Y.Z` tag has an `Aster-mac-arm64.dmg` asset, the app displays an update card and
+the **Settings → Updates** action. **Download DMG** opens that exact release asset in the browser.
+The user quits Aster and replaces Aster.app in Applications. Projects and settings remain in their
+project folders and `~/Library/Application Support/Aster`.
 
-The app's version always matches its release tag: version `X.Y.Z` is published as `vX.Y.Z`.
+These builds are signed ad hoc. They have no Developer ID certificate or notarization, so macOS
+may require the same manual open step as the initial install, and some privacy permissions may
+need to be granted again after replacement. The app does not silently install an update.
 
-## How updates will work
+## Automated macOS release
 
-The in-app updater is built in but switched off. `src/shared/product-brand.json` has a null
-`links.updateFeed`, so the app makes no update requests, and the Aster electron-builder config has
-no publish target.
+The [`aster-mac-release.yml`](../../.github/workflows/aster-mac-release.yml) GitHub Actions
+workflow runs when a `vX.Y.Z` tag newer than the current Release is pushed to the public
+`rkdrn79/aster` repository. The private `rkdrn79/aster-dev` origin cannot publish to that separate
+repository with its default `GITHUB_TOKEN`, so this workflow skips tags pushed there. It checks
+that `package.json` has exactly the same version, builds the Apple Silicon app and its
+remote-server prebuilds on hosted runners, packages
+an ad hoc signed DMG and ZIP, verifies their signatures and update manifest, and publishes all
+assets in a GitHub Release. The Release starts as a draft and becomes public only after the four
+assets have uploaded. Publication is the event that makes the new version visible to installed
+apps. A normal branch push alone does not publish an update.
 
-A release build turns the updater on by embedding an HTTPS feed at build time:
+To ship version `X.Y.Z`:
 
-```bash
-ASTER_UPDATE_FEED_URL=https://updates.example.com/aster/stable \
-  pnpm build:aster:mac:release
-```
+1. Update `package.json` to `X.Y.Z` and commit the release source, including this updater.
+2. Push that source to the public `rkdrn79/aster` repository (`release` is its local Git remote).
+   Push tag `vX.Y.Z` to that same remote, pointing to the release commit. A tag pushed only to
+   private `origin` cannot publish the public download.
+3. Watch **Actions → Aster macOS release**. When all three jobs finish, check the published Release
+   contains `Aster-mac-arm64.dmg`, `Aster-mac-arm64.zip`, `latest-mac.yml`, and `SHA256SUMS.txt`.
+4. Install the DMG on a test Mac, open it, and verify that **Settings → Updates** detects a later
+   published version and opens that version's DMG. Test replacement before announcing the release.
 
-`ASTER_UPDATE_FEED_URL` is embedded in both the main process and the renderer, and written into
-electron-builder's `app-update.yml`. Local builds leave it unset and never contact an update
-server. The release command stops before building when the feed or the macOS signing environment is
-missing. It builds the DMG, the update ZIP and `latest-mac.yml` without publishing them; upload the
-complete set together. The example URL above is not a live service.
+The workflow uses GitHub's hosted runners and repository token. It needs no Apple Developer
+credentials. If the release job fails, the build artifact remains in the Actions run for diagnosis;
+the Release is not published. An incomplete draft should be removed before retrying that tag.
 
-Once a feed-enabled build is installed, the app checks for updates on launch and from **Settings →
-Updates**, downloads the new version after you choose **Update**, keeps the macOS signature checks,
-and restarts after its normal session cleanup. Installs from earlier builds have no feed and need
-one manual upgrade to a feed-enabled build.
+## Later: automatic installation
 
-## Release gate for automatic updates
-
-Automatic updates stay off until all of these hold:
-
-1. **Developer ID signing.** The build is signed with a Developer ID Application identity, keeping
-   the same bundle ID and signing team across releases.
-2. **Notarization.** Apple notarizes the build. Ad hoc signatures cannot be notarized.
-3. **N → N+1 update test.** An installed, signed version N updates to signed version N+1 from the
-   feed: notification, download, signature validation, restart, and workspace and session
-   restoration all work, and a partially published release fails safely.
-
-The version must also increase with every release, since the updater only offers a version greater
-than the installed one.
-
-References: [Apple Developer ID](https://developer.apple.com/developer-id/),
-[notarizing macOS software](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution),
-[electron-builder auto-update](https://www.electron.build/docs/features/auto-update/).
+`pnpm build:aster:mac:release` is the separate Developer ID path. With Apple Developer Program
+membership, a Developer ID Application certificate, and notarization credentials, it builds the
+same DMG and ZIP with an embedded update feed. That path can use Electron's in-app downloader and
+installer after signing and end-to-end update testing. Until those credentials exist, keep using
+the GitHub Release notice and manual app replacement.

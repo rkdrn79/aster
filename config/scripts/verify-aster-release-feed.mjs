@@ -5,7 +5,7 @@ const { resolveAsterUpdateFeed } = createRequire(import.meta.url)('./aster-updat
 try {
   const feed = resolveAsterUpdateFeed()
   if (!feed) {
-    throw new Error('Set ASTER_UPDATE_FEED_URL to the HTTPS update feed for this release.')
+    throw new Error('Aster release requires ORCA_MAC_RELEASE=1 or ASTER_UPDATE_FEED_URL.')
   }
   process.stdout.write(`Aster release update feed: ${new URL(feed).origin}\n`)
 } catch (error) {

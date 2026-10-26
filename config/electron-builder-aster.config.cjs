@@ -1,9 +1,15 @@
-// Aster's install identity is separate from the upstream app. Releases remain
-// unconfigured until Aster owns a signed, authenticated update channel.
+// Aster's install identity is separate from the upstream app. Only release builds
+// embed its own update feed; local builds remain disconnected.
 const base = require('./electron-builder.config.cjs')
 const brand = require('../src/shared/product-brand.json')
 const { resolveAsterUpdateFeed } = require('./scripts/aster-update-feed.cjs')
 const updateFeed = resolveAsterUpdateFeed() ?? brand.links.updateFeed
+// electron-builder needs a publish provider to emit latest-mac.yml; the ad hoc app still embeds no feed.
+const artifactFeed =
+  updateFeed ??
+  (process.env.ASTER_ADHOC_RELEASE === '1'
+    ? 'https://github.com/rkdrn79/aster/releases/latest/download'
+    : null)
 
 const researchHarnessResource = { from: 'src/research-harness', to: 'research-harness' }
 // MIT requires the upstream copyright and permission notice to travel with every copy.
@@ -47,7 +53,7 @@ module.exports = {
     '!{.anti-slop-plugin,.github,.husky,.cache}{,/**/*}',
     '!{.gitattributes,.gitignore,.oxfmtrc.json,.oxlintrc.json,components.json,opencode.json,orca.yaml,pnpm-workspace.yaml,vite.web.config.ts,THIRD_PARTY_NOTICES.md}'
   ],
-  publish: updateFeed ? { provider: 'generic', url: updateFeed } : null,
+  publish: artifactFeed ? { provider: 'generic', url: artifactFeed } : null,
   win: {
     ...base.win,
     extraResources: [...baseResources(base.win.extraResources), ...asterResources],
@@ -65,10 +71,13 @@ module.exports = {
   },
   mac: {
     ...base.mac,
+    // An unsigned GitHub Actions release needs an explicit ad hoc app signature before archiving.
+    ...(process.env.ASTER_ADHOC_RELEASE === '1' ? { identity: '-' } : {}),
     extraResources: [...baseResources(base.mac.extraResources), ...asterResources],
-    icon: `resources/build/${brand.id}.icns`
+    icon: `resources/build/${brand.id}.icns`,
+    artifactName: 'Aster-mac-${arch}.${ext}'
   },
-  dmg: { ...base.dmg, artifactName: `${brand.id}-macos-\${arch}.\${ext}` },
+  dmg: { ...base.dmg, artifactName: 'Aster-mac-${arch}.${ext}' },
   linux: {
     ...base.linux,
     extraResources: [...baseResources(base.linux.extraResources), ...asterResources],

@@ -179,6 +179,13 @@ export function createSshApi(): NonNullable<Partial<PreloadApi>['ssh']> {
       return state
     },
     needsPassphrasePrompt: () => Promise.resolve(false),
+    getResearchTools: () => Promise.resolve({
+      state: 'error' as const,
+      node: false,
+      npm: false,
+      pdf: false,
+      detail: 'Research tool setup is available in the desktop SSH settings.'
+    }),
     testConnection: () =>
       Promise.resolve({
         success: false,

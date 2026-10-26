@@ -76,6 +76,7 @@ const SSH_IPC_CHANNELS = [
   'ssh:connect',
   'ssh:disconnect',
   'ssh:getState',
+  'ssh:getResearchTools',
   'ssh:needsPassphrasePrompt',
   'ssh:testConnection',
   'ssh:addPortForward',

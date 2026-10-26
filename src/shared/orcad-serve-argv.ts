@@ -15,6 +15,8 @@ export type ServeOrcaAppArgs = {
   force?: boolean
   /** Restart the server under a service manager instead of exiting with it; never inferred. */
   supervise?: boolean
+  /** EXPERIMENT(paseo-relay): orcad only; Electron serve refuses it. */
+  relay?: string | null
 }
 
 export function serveOptionArgs(args: ServeOrcaAppArgs, prefix: '--' | '--serve-'): string[] {
@@ -41,6 +43,7 @@ export function orcadServeArgs(
     '--bind',
     bindHost,
     ...serveOptionArgs(args, '--'),
+    ...(args.relay ? ['--relay', args.relay] : []),
     ...(webClientRoot ? ['--web-client-root', webClientRoot] : [])
   ]
 }

@@ -33,3 +33,16 @@ export type SlackConnectionStatus = {
   notice: string | null
   background: SlackBackgroundStatus
 }
+
+export type SlackRemoteProjectStatus = {
+  configured: boolean
+  connection: SlackConnectionStatus['connection']
+  error: string | null
+  notice: string | null
+  route: Pick<
+    SlackProjectRoute,
+    'projectKey' | 'projectName' | 'workspacePath' | 'channelIds' | 'allowedUsers' | 'agent'
+  > | null
+  service: 'live' | 'exited' | 'unverifiable'
+  runtimeInstalled: boolean
+}

@@ -1,4 +1,5 @@
 import { levenshtein } from './edit-distance'
+import { parsePaseoRelayUrl } from './paseo-relay-url'
 
 export type ServeOptionValidationInput = {
   noPairing: boolean
@@ -6,9 +7,18 @@ export type ServeOptionValidationInput = {
   grantDesktopControl?: boolean
   recipeJson: boolean
   projectRoot: string | null | undefined
+  /** EXPERIMENT(paseo-relay): orcad only. */
+  relay?: string | null
+  pairingAddress?: string | null
 }
 
 export function getServeOptionValidationError(options: ServeOptionValidationInput): string | null {
+  if (options.relay != null && !parsePaseoRelayUrl(options.relay)) {
+    return `--relay expects a ws:// or wss:// relay URL, got ${options.relay || "''"}.`
+  }
+  if (options.relay != null && options.mobilePairing && options.pairingAddress) {
+    return 'Use either --relay or --pairing-address with --mobile-pairing: the relay URL is the advertised endpoint.'
+  }
   if (options.noPairing && options.mobilePairing) {
     return 'Use either --mobile-pairing or --no-pairing, not both.'
   }

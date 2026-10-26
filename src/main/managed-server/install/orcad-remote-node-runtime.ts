@@ -187,6 +187,7 @@ export function promoteRemoteNodeRuntimeCommand(
   assertPosixOrcadHost(host)
   const asset = pinnedNodeRuntimeAsset(args.target)
   const member = nodeRuntimeExecutablePath(args.target, asset.archive)
+  const archiveRoot = member.slice(0, -'/bin/node'.length)
   const stage = quotePosixShell(args.stageDir)
   const extracted = quotePosixShell(joinRemotePath(host, args.stageDir, ...member.split('/')))
   const binDir = quotePosixShell(joinRemotePath(host, args.runtimeDir, 'bin'))
@@ -195,9 +196,17 @@ export function promoteRemoteNodeRuntimeCommand(
   )
   const executable = quotePosixShell(posixNodeRuntimeExecutable(host, args.runtimeDir))
   const verified = quotePosixShell(joinRemotePath(host, args.runtimeDir, VERIFIED_MARKER))
+  const npmMember = `${archiveRoot}/lib/node_modules/npm`
+  const npmSource = quotePosixShell(joinRemotePath(host, args.stageDir, npmMember))
+  const npmParent = quotePosixShell(joinRemotePath(host, args.runtimeDir, 'lib', 'node_modules'))
+  const npmTarget = quotePosixShell(
+    joinRemotePath(host, args.runtimeDir, 'lib', 'node_modules', 'npm')
+  )
   return [
     `cd ${stage} || exit 1`,
     `tar -xzf ${quotePosixShell(joinRemotePath(host, args.stageDir, args.archive))} ${quotePosixShell(member)} || { echo ORCA_NODE_RUNTIME_EXTRACT_FAILED; exit 1; }`,
+    // The official pinned archive already carries npm; stage it beside Node for research tools.
+    `tar -xzf ${quotePosixShell(joinRemotePath(host, args.stageDir, args.archive))} ${quotePosixShell(npmMember)} || :`,
     `[ "$(${remoteSha256Command(extracted)})" = ${quotePosixShell(asset.executableSha256)} ] || { echo ORCA_NODE_RUNTIME_HASH_MISMATCH; exit 1; }`,
     `chmod 755 ${extracted}`,
     // Why run it: executing is the only reliable check for noexec mounts and a wrong libc.
@@ -207,6 +216,8 @@ export function promoteRemoteNodeRuntimeCommand(
       `{ echo ${REMOTE_NODE_RUNTIME_SELFTEST_FAILED}; echo "${REMOTE_NODE_RUNTIME_EXIT_PREFIX}$orca_rt_status"; ` +
       `printf '%s\\n' "$orca_rt_out" | head -c 4000; exit 0; }; }`,
     `mkdir -p ${binDir}`,
+    `mkdir -p ${npmParent}`,
+    `if [ -d ${npmSource} ] && [ ! -d ${npmTarget} ]; then mv ${npmSource} ${npmTarget}; fi`,
     `mv -f ${extracted} ${temporary}`,
     `mv -f ${temporary} ${executable}`,
     `: > ${verified}`,

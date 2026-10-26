@@ -10,6 +10,7 @@ import { RuntimeClient, RuntimeClientError } from '../runtime-client'
 import { runSlackBridge, type SlackBridgeRoute } from '../slack-bridge'
 import { postSlackMessage } from '../slack-api'
 import { readStoredBridgeTokens } from '../slack-service-host'
+import { ensureSlackManagedRuntime } from '../slack-managed-runtime'
 
 const routesSchema = z.object({
   version: z.literal(1),
@@ -185,6 +186,9 @@ export const SLACK_HANDLERS: Record<string, CommandHandler> = {
           ...tokens,
           signal: controller.signal,
           mode: service ? 'service' : 'process',
+          ...(service && flags.has('routes-file')
+            ? { ensureRuntime: () => ensureSlackManagedRuntime(client) }
+            : {}),
           onStatus: (status) => process.stdout.write(`ASTER_SLACK_STATUS:${status}\n`)
         })
       }

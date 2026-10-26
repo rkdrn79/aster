@@ -18,6 +18,7 @@ import {
 } from '../../shared/ssh-retained-payload-admission'
 import type { FilesystemPathFlavor } from '../../shared/filesystem-entry-types'
 import type { PreloadApi } from '../api-types'
+import type { ResearchHostToolsStatus } from '../../shared/research-host-tools-status'
 
 export const sshApi = {
   listTargets: (): Promise<SshTarget[]> => ipcRenderer.invoke('ssh:listTargets'),
@@ -58,6 +59,9 @@ export const sshApi = {
     const state: unknown = await ipcRenderer.invoke('ssh:getState', args)
     return state ? admitSshConnectionStateForAuthorityReconciliation(state, args.targetId) : null
   },
+
+  getResearchTools: (args: { targetId: string }): Promise<ResearchHostToolsStatus> =>
+    ipcRenderer.invoke('ssh:getResearchTools', args),
 
   needsPassphrasePrompt: (args: { targetId: string }): Promise<boolean> =>
     ipcRenderer.invoke('ssh:needsPassphrasePrompt', args),

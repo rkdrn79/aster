@@ -1,7 +1,11 @@
+import { accessSync, constants } from 'node:fs'
 import { homedir } from 'node:os'
+import { join } from 'node:path'
 import { delayUnlessAborted } from '../shared/abort-aware-delay'
+import { CLI_NAME } from '../shared/product-brand'
 import { resolveLaunchUserDataPath } from './runtime/launch-user-data-path'
 import { getPlatformUserDataPath } from './runtime/metadata'
+import { resolveServiceCommand } from './runtime/serve-app-launcher'
 import { RuntimeClientError } from './runtime/types'
 import { SLACK_SERVICE_UNSUPPORTED, type SlackServiceDeps } from './slack-bridge-service'
 import {
@@ -25,6 +29,24 @@ export function slackServiceDeps(
     userDataPath,
     defaultUserDataPath: getPlatformUserDataPath(process.platform, homedir()),
     run: defaultCommandRunner
+  }
+}
+
+/** An SSH-managed runtime writes this stable profile launcher on every update. */
+export function resolveSlackServiceCommand(
+  explicit: string | null,
+  deps: Pick<SlackServiceDeps, 'platform' | 'userDataPath'>,
+  env: NodeJS.ProcessEnv = process.env
+): string {
+  if (explicit) {
+    return resolveServiceCommand(explicit, { platform: deps.platform, env })
+  }
+  const profileLauncher = join(deps.userDataPath, 'cli', 'bin', CLI_NAME)
+  try {
+    accessSync(profileLauncher, constants.X_OK)
+    return profileLauncher
+  } catch {
+    return resolveServiceCommand(null, { platform: deps.platform, env })
   }
 }
 

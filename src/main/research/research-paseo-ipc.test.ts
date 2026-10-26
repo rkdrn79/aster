@@ -40,7 +40,7 @@ vi.mock('./research-paseo-agent-create', () => ({
 
 import { registerResearchPaseoIpcHandlers } from './research-paseo-ipc'
 
-const path = '/data/projects/research/SampleVideo'
+const path = '/data/projects/research/StreamingVideo'
 const scope = { hostId: 'runtime:vip', workspaceId: `repo::${path}`, workspacePath: path }
 
 beforeEach(() => {

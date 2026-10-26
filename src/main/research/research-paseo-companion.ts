@@ -18,8 +18,12 @@ const MAX_OUTPUT_BYTES = 256 * 1024
 export const CLI_TIMEOUT_MS = 20_000
 export const AGENT_ID = /^[a-zA-Z0-9_-]{8,128}$/
 const PASEO_PACKAGE = '@getpaseo/cli@0.12.0'
+const REMOTE_RESEARCH_TOOLS_PATH = `for aster_tools in "$HOME"/.orca/research-tools/bin "$HOME"/.orca-*/research-tools/bin; do
+  if [ -x "$aster_tools/node" ]; then PATH="$aster_tools:$PATH"; export PATH; break; fi
+done`
 
-export const REMOTE_CLI_RESOLVE = `paseo_bin=$(command -v paseo 2>/dev/null || true)
+export const REMOTE_CLI_RESOLVE = `${REMOTE_RESEARCH_TOOLS_PATH}
+paseo_bin=$(command -v paseo 2>/dev/null || true)
 if [ -z "$paseo_bin" ]; then
   for candidate in "$HOME"/.local/aster-paseo/node_modules/.bin/paseo "$HOME"/.local/paseo-*/bin/paseo "$HOME"/.local/bin/paseo "$HOME"/.npm-global/bin/paseo; do
     if [ -x "$candidate" ]; then paseo_bin=$candidate; break; fi
@@ -197,7 +201,8 @@ export async function setUpPaseoProjectDaemon(scope: PaseoCompanionScope): Promi
   if (!targetId) {
     throw new Error('This project is not linked to an SSH host in Aster.')
   }
-  const command = `command -v npm >/dev/null 2>&1 || { echo NPM_MISSING >&2; exit 127; }; npm install --prefix "$HOME/.local/aster-paseo" --no-audit --no-fund --silent ${quotePosixShell(PASEO_PACKAGE)}`
+  const command = `${REMOTE_RESEARCH_TOOLS_PATH}
+command -v npm >/dev/null 2>&1 || { echo NPM_MISSING >&2; exit 127; }; npm install --prefix "$HOME/.local/aster-paseo" --no-audit --no-fund --silent ${quotePosixShell(PASEO_PACKAGE)}`
   const result = await runResearchComputeCommand(targetId, true, command, 120_000)
   if (result.status !== 'ok') {
     throw new Error(

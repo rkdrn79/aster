@@ -17,6 +17,12 @@ export type HandlerGroup = {
 // real exports by handler-group-manifest.test.ts, so drift fails CI, not dispatch.
 export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   ...SLACK_HANDLER_GROUPS,
+  {
+    name: 'research-host-tools',
+    keys: ['research host prepare', 'research host tools'],
+    load: async () =>
+      (await import('./handlers/research-host-tools.js')).RESEARCH_HOST_TOOLS_HANDLERS
+  },
   JIRA_HANDLER_GROUP,
   LINEAR_HANDLER_GROUP,
   REFERENCE_HANDLER_GROUP,

@@ -6,6 +6,18 @@ const RUN_TARGET_FLAGS = ['run', 'project', 'server']
 
 export const RESEARCH_RUN_COMMAND_SPECS: CommandSpec[] = [
   {
+    path: ['research', 'host', 'prepare'],
+    summary: 'Install the research tools needed on this SSH project host',
+    usage: `${CLI_NAME} research host prepare`,
+    allowedFlags: [...GLOBAL_FLAGS]
+  },
+  {
+    path: ['research', 'host', 'tools'],
+    summary: 'Show Node, npm and PDF compiler readiness on this host',
+    usage: `${CLI_NAME} research host tools`,
+    allowedFlags: [...GLOBAL_FLAGS]
+  },
+  {
     path: ['research', 'harness-path'],
     summary: 'Print the version-matched local research harness CLI path',
     usage: `${CLI_NAME} research harness-path [--json]`,

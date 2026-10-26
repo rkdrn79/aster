@@ -26,6 +26,9 @@ Options:
   --recipe-json            Print only the VM recipe line; requires --project-root.
   --project-root <dir>     Existing absolute project directory for --recipe-json.
   --web-client-root <dir>  Serve the browser client from this directory (holds web-index.html).
+  --relay <wss-url>        Experimental: also serve clients through a Paseo protocol v2 relay
+                           (for example wss://relay.paseo.sh/ws), with no inbound port. With
+                           --mobile-pairing the offer points the phone at the relay.
   --help, -h               Print this text and exit without starting the server.
 
 Environment:
@@ -91,6 +94,13 @@ export function parseArgs(argv: string[]): OrcadCommandArguments {
       }
       options.pairingAddress = value
       i += 1
+    } else if (arg === '--relay') {
+      const value = argv[i + 1]
+      if (value === undefined) {
+        throw new Error('--relay expects a value')
+      }
+      options.relay = value
+      i += 1
     } else {
       throw new Error(`Unknown argument: ${arg}`)
     }
@@ -100,7 +110,9 @@ export function parseArgs(argv: string[]): OrcadCommandArguments {
     mobilePairing: options.mobilePairing === true,
     grantDesktopControl: options.grantDesktopControl,
     recipeJson: options.recipeJson === true,
-    projectRoot: options.projectRoot
+    projectRoot: options.projectRoot,
+    relay: options.relay,
+    pairingAddress: options.pairingAddress
   })
   if (validationError) {
     throw new Error(validationError)

@@ -17,6 +17,7 @@ import { useExperimentChatPanel } from './research-experiment-agent-chat'
 import { researchConversationHome } from './research-conversation-home'
 import { useResearchLibrary } from './research-library-store'
 import { requestWritingAgentFocus } from './research-writing-agent-focus'
+import { projectWritingRecordId } from './research-writing-project'
 import { useCatalogExperimentSync } from './use-catalog-experiment-sync'
 import { researchErrorText } from './research-error-text'
 import { linkResearchConversation } from './research-conversation-link'
@@ -288,7 +289,12 @@ export function ExperimentExplorer({
       useExperimentChatPanel.getState().setOpen(home.experimentId, true)
       openResearchExperimentPage(home.experimentId, 'notebook')
     } else if (home.kind === 'writing') {
-      requestWritingAgentFocus(home.experimentId)
+      requestWritingAgentFocus(
+        projectWritingRecordId({
+          hostId: context.hostId ?? 'local',
+          workspaceId: tab.worktreeId
+        })
+      )
       openResearchView('research-writing')
     } else {
       const state = useAppStore.getState()

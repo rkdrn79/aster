@@ -7,7 +7,12 @@ import {
   emptyResearchLibraryDocument,
   libraryScopeKey
 } from '../../../../shared/research/research-library'
-import { researchConversationHome, researchConversationHomeKey } from './research-conversation-home'
+import {
+  researchChatAvailableForHome,
+  researchConversationHome,
+  researchConversationHomeKey
+} from './research-conversation-home'
+import { withWritingAgentSession } from './research-writing-agent-session'
 
 const experiment = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -23,6 +28,25 @@ const experiment = {
 }
 
 describe('research conversation home', () => {
+  it('offers older Writing chats in project Writing while isolating Experiment chats', () => {
+    const projectWriting = { kind: 'writing' as const, experimentId: null }
+    const olderWriting = { kind: 'writing' as const, experimentId: experiment.id }
+    expect(researchChatAvailableForHome(olderWriting, projectWriting)).toBe(true)
+    expect(researchChatAvailableForHome({ kind: 'workbench' }, projectWriting)).toBe(true)
+    expect(
+      researchChatAvailableForHome(
+        { kind: 'experiment', experimentId: experiment.id },
+        projectWriting
+      )
+    ).toBe(false)
+    expect(
+      researchChatAvailableForHome(
+        { kind: 'experiment', experimentId: '22222222-2222-4222-8222-222222222222' },
+        { kind: 'experiment', experimentId: experiment.id }
+      )
+    ).toBe(false)
+  })
+
   it('places an Experiment workspace chat under its Experiment, saved or bound', () => {
     const records = {
       ...emptyResearchDocument(),
@@ -64,7 +88,7 @@ describe('research conversation home', () => {
     }
     expect(
       researchConversationHome(records, library, 'local', 'workspace-a', 'current-writing')
-    ).toEqual({ kind: 'writing', experimentId: experiment.id })
+    ).toEqual({ kind: 'writing', experimentId: null })
     expect(
       researchConversationHome(records, library, 'local', 'workspace-a', 'current-reading')
     ).toEqual({ kind: 'library' })
@@ -89,12 +113,48 @@ describe('research conversation home', () => {
     )
     expect(
       researchConversationHome(records, null, 'local', 'workspace-a', 'older-writing')
-    ).toEqual({ kind: 'writing', experimentId: experiment.id })
+    ).toEqual({ kind: 'writing', experimentId: null })
+    expect(
+      researchConversationHome(
+        { ...records, experiments: [] },
+        null,
+        'local',
+        'workspace-a',
+        'older-writing'
+      )
+    ).toEqual({ kind: 'writing', experimentId: null })
     expect(
       researchConversationHome(records, null, 'local', 'workspace-a', 'older-reading')
     ).toEqual({ kind: 'library' })
     expect(
       researchConversationHome(records, null, 'ssh:other', 'workspace-a', 'older-reading')
     ).toEqual({ kind: 'workbench' })
+  })
+
+  it('keeps a project-only Writing chat in Writing across host scopes and future Experiments', () => {
+    const scope = { hostId: 'ssh:vip', workspaceId: 'workspace-a' }
+    const first = withWritingAgentSession(emptyResearchDocument(), scope, 'writing-a')
+    const records = withWritingAgentSession(first, scope, 'writing-b')
+    expect(researchDocumentSchema.safeParse(records).success).toBe(true)
+    for (const sessionId of ['writing-a', 'writing-b']) {
+      expect(
+        researchConversationHome(records, null, scope.hostId, scope.workspaceId, sessionId)
+      ).toEqual({ kind: 'writing', experimentId: null })
+      expect(
+        researchConversationHome(records, null, 'local', scope.workspaceId, sessionId)
+      ).toEqual({
+        kind: 'workbench'
+      })
+    }
+    const afterFirstExperiment = { ...records, experiments: [{ ...experiment, ...scope }] }
+    expect(
+      researchConversationHome(
+        afterFirstExperiment,
+        null,
+        scope.hostId,
+        scope.workspaceId,
+        'writing-b'
+      )
+    ).toEqual({ kind: 'writing', experimentId: null })
   })
 })

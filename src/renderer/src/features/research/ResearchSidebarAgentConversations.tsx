@@ -24,8 +24,8 @@ import { useResearchRecords } from './research-records-store'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
 import { requestWritingAgentFocus } from './research-writing-agent-focus'
 import { bindWritingAgentSession, launchWritingAgent } from './research-writing-agent-session'
-import { selectWritingOwner } from './research-writing-project'
-import { researchConversationHome } from './research-conversation-home'
+import { projectWritingRecordId, selectWritingOwner } from './research-writing-project'
+import { researchConversationHome, writingAgentScopeKey } from './research-conversation-home'
 
 const NO_TABS: Tab[] = []
 
@@ -64,7 +64,10 @@ export function ResearchSidebarAgentConversations({
   const scopeKey = scope ? libraryScopeKey(scope) : null
   const sessionId =
     kind === 'writing'
-      ? experiment?.writingAgentSessionId
+      ? scope
+        ? (records?.writingAgentSessionByScope[writingAgentScopeKey(scope)] ??
+          experiment?.writingAgentSessionId)
+        : undefined
       : scope
         ? library?.readingAgentSessionByScope[scopeKey ?? '']
         : undefined
@@ -78,9 +81,7 @@ export function ResearchSidebarAgentConversations({
             context.workspaceId ?? '',
             entry.entityId
           )
-          return kind === 'library'
-            ? home.kind === 'library'
-            : home.kind === 'writing' && home.experimentId === experiment?.id
+          return kind === 'library' ? home.kind === 'library' : home.kind === 'writing'
         })
         .sort(
           (first, second) =>
@@ -95,8 +96,8 @@ export function ResearchSidebarAgentConversations({
   }, [])
 
   function openAgent(): void {
-    if (kind === 'writing' && experiment) {
-      requestWritingAgentFocus(experiment.id)
+    if (kind === 'writing' && scope) {
+      requestWritingAgentFocus(projectWritingRecordId(scope))
       openResearchView('research-writing')
     } else if (kind === 'library' && scope) {
       requestLibraryAgentFocus(libraryScopeKey(scope))
@@ -112,11 +113,11 @@ export function ResearchSidebarAgentConversations({
     setError(null)
     try {
       const failure =
-        kind === 'writing' && experiment
-          ? await launchWritingAgent(experiment, agent)
+        kind === 'writing' && scope
+          ? await launchWritingAgent(scope, agent)
           : kind === 'library' && scope
             ? await launchReadingChat(scope, agent)
-            : 'Choose a workspace and Experiment first.'
+            : 'Choose a workspace first.'
       if (failure) {
         setError(failure)
       } else {
@@ -131,8 +132,8 @@ export function ResearchSidebarAgentConversations({
 
   async function select(tab: Tab): Promise<void> {
     try {
-      if (kind === 'writing' && experiment) {
-        await bindWritingAgentSession(experiment, tab.entityId)
+      if (kind === 'writing' && scope) {
+        await bindWritingAgentSession(scope, tab.entityId)
       } else if (kind === 'library' && scope) {
         await bindReadingSession(scope, tab.entityId)
       }
@@ -185,14 +186,14 @@ export function ResearchSidebarAgentConversations({
         ))
       ) : (
         <p className="px-2 text-xs text-muted-foreground">
-          {kind === 'writing' && !experiment
-            ? 'Choose an Experiment to start writing.'
+          {kind === 'writing' && !scope
+            ? 'Choose a project to start writing.'
             : kind === 'writing'
               ? 'No writing chat yet.'
               : 'No reading chat yet.'}
         </p>
       )}
-      {(kind === 'writing' ? Boolean(experiment) : Boolean(scope)) ? (
+      {scope ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="xs" variant="ghost" className="w-full justify-start" disabled={launching}>

@@ -7,6 +7,7 @@ import {
   type StructuredSessionBackgroundTasksView
 } from '../../../../shared/structured-session-background-tasks-view'
 import { useStructuredSessionChildRowContext } from './use-structured-session-child-row-context'
+import { NativeChatOrchestrationWorkers } from './NativeChatOrchestrationWorkers'
 
 type StoppingBackgroundTasks = {
   sessionId: string
@@ -115,6 +116,7 @@ export function NativeChatStructuredSessionStatus(props: {
           onStop={onStop}
         />
       ) : null}
+      <NativeChatOrchestrationWorkers paneKey={props.paneKey} />
     </>
   )
 }

@@ -44,12 +44,18 @@ export function selectWritingOwner(
 }
 
 /** Writing's stand-in record for a project with no Experiment yet; its manuscript is the catalog's. */
+export function projectWritingRecordId(
+  scope: Pick<WritingProjectScope, 'hostId' | 'workspaceId'>
+): string {
+  return `project:${scope.hostId}:${scope.workspaceId}`
+}
+
 export function projectWritingRecord(
   scope: WritingProjectScope,
   manuscript: ExperimentRecord['manuscript']
 ): ExperimentRecord {
   return {
-    id: `project:${scope.hostId}:${scope.workspaceId}`,
+    id: projectWritingRecordId(scope),
     name: scope.name,
     projectId: scope.projectId,
     workspaceId: scope.workspaceId,

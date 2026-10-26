@@ -61,6 +61,7 @@ import { useNativeChatLocalCommandAnswer } from './use-native-chat-local-command
 import { matchNativeChatSplitShortcut } from './native-chat-split-shortcut'
 import { getShortcutPlatform } from '@/lib/shortcut-platform'
 import { formatShortcutLabel } from '@/hooks/useShortcutLabel'
+import { NativeChatOrchestrationWorkers } from './NativeChatOrchestrationWorkers'
 
 /** Renders the bridge UI after NativeChatSessionGate resolves its agent session. */
 export function NativeChatResolvedView({
@@ -167,9 +168,8 @@ export function NativeChatResolvedView({
     [record]
   )
   const onSlashCommand = useCallback(
-    (command: string, output?: string) => {
-      setCommandMarkers(appendCommandMarkerCache(commandMarkerScope, command, Date.now(), output))
-    },
+    (command: string, output?: string) =>
+      setCommandMarkers(appendCommandMarkerCache(commandMarkerScope, command, Date.now(), output)),
     [commandMarkerScope]
   )
 
@@ -415,6 +415,7 @@ export function NativeChatResolvedView({
       {collapsedCard ? (
         <NativeChatPromptStrip card={collapsedCard} onExpand={promptCardPresentation.expand} />
       ) : null}
+      <NativeChatOrchestrationWorkers paneKey={paneKey} />
       {/* canSend reflects the mobile presence-lock: when a mobile client holds
           the pty, the composer shows its guarded state instead of racing the
           mobile driver (R8). Under a card it stays mounted but hidden, so its state survives;

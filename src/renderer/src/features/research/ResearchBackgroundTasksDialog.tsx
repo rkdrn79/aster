@@ -24,6 +24,7 @@ import { researchConversationHome } from './research-conversation-home'
 import { libraryScopeKey } from '../../../../shared/research/research-library'
 import { requestLibraryAgentFocus } from './research-library-agent-focus'
 import { requestWritingAgentFocus } from './research-writing-agent-focus'
+import { projectWritingRecordId } from './research-writing-project'
 import { researchLiveAgentTasks, researchLiveTaskDismissalKey } from './research-live-agent-tasks'
 import { useResearchSlackBackgroundTasks } from './research-slack-background-tasks'
 import { useResearchDelegationRows } from './use-research-delegation-rows'
@@ -61,11 +62,7 @@ async function openParentTask(
         )
       : { kind: 'workbench' as const }
   if (home.kind === 'writing') {
-    await useResearchRecords.getState().update((current) => ({
-      ...current,
-      selectedExperimentId: home.experimentId
-    }))
-    requestWritingAgentFocus(home.experimentId)
+    requestWritingAgentFocus(projectWritingRecordId({ hostId: hostId ?? 'local', workspaceId }))
     openResearchView('research-writing')
     return
   }
@@ -91,6 +88,7 @@ export function ResearchBackgroundTasksDialog({
   const dismissals = useResearchDelegationDismissals()
   const tasks = researchLiveAgentTasks(statuses, tabsByWorkspace, now, dismissals)
   const slackEntries = useResearchSlackBackgroundTasks((state) => state.entries)
+  const slackErrors = useResearchSlackBackgroundTasks((state) => state.errors)
   const slackTasks = slackEntries.map((entry) => entry.delegation)
   const slackRows = useResearchDelegationRows(slackTasks)
   const { project } = useResearchActiveProject()
@@ -225,6 +223,11 @@ export function ResearchBackgroundTasksDialog({
             </div>
           </section>
         ) : null}
+        {Object.entries(slackErrors).map(([scope, error]) => (
+          <p key={scope} role="alert" className="text-xs text-destructive">
+            Slack tasks could not be checked for {scope}: {error}
+          </p>
+        ))}
         {recordsError ? (
           <p role="alert" className="text-xs text-destructive">
             {recordsError}

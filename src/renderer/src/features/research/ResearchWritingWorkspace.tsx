@@ -336,7 +336,6 @@ export function ResearchWritingWorkspace({
                 agent={
                   <ResearchWritingAgentPane
                     experiment={record}
-                    projectOnly={projectOnly}
                     visible={wideLayout ? visiblePanes[0] : activePane === 'agent'}
                   />
                 }

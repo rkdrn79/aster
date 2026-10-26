@@ -33,6 +33,7 @@ import { useResearchRecords } from './research-records-store'
 import { linkResearchConversation } from './research-conversation-link'
 import { useResearchLibrary } from './research-library-store'
 import {
+  researchChatAvailableForHome,
   researchConversationHome,
   type ResearchConversationHome
 } from './research-conversation-home'
@@ -136,12 +137,7 @@ export function ResearchAgentChatPane({
   const sessions = researchChatSessionTabs(useAppStore.getState(), workspaceTabs, hostId)
   const availableSessions = sessions.filter((tab) => {
     const placement = researchConversationHome(records, library, hostId, workspaceId, tab.entityId)
-    return (
-      placement.kind === 'workbench' ||
-      (placement.kind === home.kind &&
-        (!('experimentId' in placement) ||
-          ('experimentId' in home && placement.experimentId === home.experimentId)))
-    )
+    return researchChatAvailableForHome(placement, home)
   })
   const boundSession = sessions.find((tab) => tab.entityId === boundSessionId)
 

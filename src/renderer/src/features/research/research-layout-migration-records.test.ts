@@ -57,6 +57,7 @@ function document(): ResearchDocument {
     delegations: [],
     conversationExperimentIds: {},
     conversationHomes: {},
+    writingAgentSessionByScope: {},
     selectedExperimentByWorkspace: {},
     selectedExperimentId: null,
     selectedRunId: null,

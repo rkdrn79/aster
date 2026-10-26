@@ -34,6 +34,12 @@ import { canCreateResearchWorktree, openResearchNewWorktree } from './research-n
 import { researchConversationHome } from './research-conversation-home'
 import { researchBackgroundTabIsHidden } from './research-background-tab'
 import { useResearchSlackBackgroundTasks } from './research-slack-background-tasks'
+import {
+  researchOrchestrationWorkerContexts,
+  researchOrchestrationWorkerTabIds
+} from './research-orchestration-worker-tabs'
+import { useResearchInlineWorkerTabs } from './research-inline-worker-tabs'
+import { structuredAgentSessionOwnerForTab } from '@/runtime/structured-agent-session-owner'
 
 /** Project conversations remain reachable while a different worktree is active. */
 export function ResearchWorkspaceChats(): React.JSX.Element {
@@ -52,6 +58,10 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
   const workspaceId = useAppStore((state) => state.activeWorktreeId)
   const onWorkbench = useAppStore((state) => state.activeView === 'terminal')
   const allTabs = useAppStore((state) => state.unifiedTabsByWorktree)
+  const orchestration = useAppStore((state) => state.runtimeAgentOrchestrationByPaneKey)
+  const agentStatus = useAppStore((state) => state.agentStatusByPaneKey)
+  const retainedAgents = useAppStore((state) => state.retainedAgentsByPaneKey)
+  const shownWorkerTabs = useResearchInlineWorkerTabs((state) => state.shown)
   const terminalTabs = useAppStore((state) => state.tabsByWorktree)
   const groupId = useAppStore((state) =>
     workspaceId
@@ -96,11 +106,22 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
     terminalTabs,
     (id) => getResolvedExecutionHostIdForWorktree(useAppStore.getState(), id)
   )
+  const workerTabIds = researchOrchestrationWorkerTabIds(
+    projectAgentGroups.flatMap((group) => group.tabs),
+    Object.values(allTabs).flat(),
+    researchOrchestrationWorkerContexts({
+      runtimeAgentOrchestrationByPaneKey: orchestration,
+      agentStatusByPaneKey: agentStatus,
+      retainedAgentsByPaneKey: retainedAgents
+    }),
+    (tab) => structuredAgentSessionOwnerForTab(useAppStore.getState(), tab)
+  )
   const workbenchGroups = projectAgentGroups.map((group) => ({
     ...group,
     tabs: group.tabs.filter(
       (tab) =>
         !researchBackgroundTabIsHidden(document, tab, group.hostId, slackTasks) &&
+        (!workerTabIds.has(tab.id) || shownWorkerTabs.has(tab.id)) &&
         (tab.contentType !== 'agent-session' ||
           researchConversationHome(
             document,
@@ -159,21 +180,6 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
     void useResearchRecords.getState().load()
     void useResearchLibrary.getState().load()
   }, [])
-
-  useEffect(() => {
-    if (!project) {
-      return
-    }
-    const refresh = (): void => {
-      void useResearchSlackBackgroundTasks
-        .getState()
-        .refresh(project)
-        .catch(() => {})
-    }
-    refresh()
-    const timer = setInterval(refresh, 5_000)
-    return () => clearInterval(timer)
-  }, [project])
 
   useEffect(() => {
     if (chatEnabled) {

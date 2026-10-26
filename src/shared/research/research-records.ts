@@ -159,11 +159,12 @@ export const researchDocumentSchema = z
         z.string().min(1),
         z.discriminatedUnion('kind', [
           z.object({ kind: z.literal('library') }),
-          z.object({ kind: z.literal('writing'), experimentId: z.string().uuid() }),
+          z.object({ kind: z.literal('writing'), experimentId: z.string().uuid().nullable() }),
           z.object({ kind: z.literal('experiment'), experimentId: z.string().uuid() })
         ])
       )
       .default({}),
+    writingAgentSessionByScope: z.record(z.string(), z.string().trim().min(1).max(256)).default({}),
     selectedExperimentByWorkspace: z.record(z.string(), z.string().uuid()).default({}),
     selectedExperimentId: z.string().uuid().nullable(),
     selectedRunId: z.string().uuid().nullable(),
@@ -297,6 +298,7 @@ export function emptyResearchDocument(): ResearchDocument {
     delegations: [],
     conversationExperimentIds: {},
     conversationHomes: {},
+    writingAgentSessionByScope: {},
     selectedExperimentByWorkspace: {},
     selectedExperimentId: null,
     selectedRunId: null,

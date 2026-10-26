@@ -5,7 +5,7 @@ import {
   emptyResearchLibraryDocument,
   libraryScopeKey
 } from '../../../../shared/research/research-library'
-import { researchConversationHomeKey } from './research-conversation-home'
+import { researchConversationHomeKey, writingAgentScopeKey } from './research-conversation-home'
 import {
   withoutReadingConversation,
   withoutResearchConversation
@@ -73,5 +73,15 @@ describe('research conversation removal', () => {
     const removed = withoutResearchConversation(document, tab, 'local')
     expect(removed.experiments[0]?.writingAgentSessionId).toBeUndefined()
     expect(removed.experiments[1]?.writingAgentSessionId).toBe('reading')
+  })
+
+  it('unbinds a project Writing chat without removing another host’s binding', () => {
+    const document = emptyResearchDocument()
+    const ownKey = writingAgentScopeKey({ hostId: 'local', workspaceId: 'workspace' })
+    const otherKey = writingAgentScopeKey({ hostId: 'other-host', workspaceId: 'workspace' })
+    document.writingAgentSessionByScope = { [ownKey]: 'reading', [otherKey]: 'reading' }
+    expect(withoutResearchConversation(document, tab, 'local').writingAgentSessionByScope).toEqual({
+      [otherKey]: 'reading'
+    })
   })
 })

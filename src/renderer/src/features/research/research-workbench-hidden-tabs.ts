@@ -19,6 +19,11 @@ import {
   researchWritingEditorTabIds,
   useResearchWritingEditors
 } from './research-writing-editor-ownership'
+import {
+  researchOrchestrationWorkerContexts,
+  researchOrchestrationWorkerTabIds
+} from './research-orchestration-worker-tabs'
+import { useResearchInlineWorkerTabs } from './research-inline-worker-tabs'
 
 const NO_TABS: readonly Tab[] = []
 
@@ -28,7 +33,8 @@ export function researchHiddenTabIds(
   records: ResearchDocument | null,
   library: ResearchLibraryDocument | null,
   ownerOf: (tab: Tab) => string | null,
-  additionalTasks: readonly ResearchDelegationRecord[] = []
+  additionalTasks: readonly ResearchDelegationRecord[] = [],
+  workerTabIds: ReadonlySet<string> = new Set()
 ): string[] {
   return tabs.flatMap((tab) => {
     if (tab.contentType !== 'agent-session' && tab.contentType !== 'terminal') {
@@ -36,6 +42,9 @@ export function researchHiddenTabIds(
     }
     const owner = ownerOf(tab)
     if (researchBackgroundTabIsHidden(records, tab, owner, additionalTasks)) {
+      return [tab.id]
+    }
+    if (workerTabIds.has(tab.id)) {
       return [tab.id]
     }
     return tab.contentType === 'agent-session' &&
@@ -52,23 +61,32 @@ function hiddenTabIdsForState(
   records: ResearchDocument | null,
   library: ResearchLibraryDocument | null,
   writingEditors: readonly string[],
-  slackTasks: readonly ResearchDelegationRecord[]
+  slackTasks: readonly ResearchDelegationRecord[],
+  shownWorkerTabs: ReadonlySet<string>
 ): string[] {
   // Why: the Code layout has no Library or Writing pane, so its tab strip keeps every chat.
   if (state.settings?.researchUiEnabled !== true) {
     return []
   }
   const tabs = state.unifiedTabsByWorktree[worktreeId] ?? NO_TABS
+  const ownerOf = (tab: Tab): string | null =>
+    tab.contentType === 'agent-session'
+      ? structuredAgentSessionOwnerForTab(state, tab)
+      : (tab.executionHostId ?? getResolvedExecutionHostIdForWorktree(state, tab.worktreeId))
+  const workerTabIds = researchOrchestrationWorkerTabIds(
+    tabs,
+    Object.values(state.unifiedTabsByWorktree).flat(),
+    researchOrchestrationWorkerContexts(state),
+    ownerOf
+  )
   return [
     ...researchHiddenTabIds(
       tabs,
       records,
       library,
-      (tab) =>
-        tab.contentType === 'agent-session'
-          ? structuredAgentSessionOwnerForTab(state, tab)
-          : (tab.executionHostId ?? getResolvedExecutionHostIdForWorktree(state, tab.worktreeId)),
-      slackTasks
+      ownerOf,
+      slackTasks,
+      new Set([...workerTabIds].filter((tabId) => !shownWorkerTabs.has(tabId)))
     ),
     ...researchWritingEditorTabIds(tabs, writingEditors)
   ]
@@ -85,7 +103,8 @@ export function selectResearchHiddenTabIds(
       useResearchRecords.getState().document,
       useResearchLibrary.getState().document,
       useResearchWritingEditors.getState().keys,
-      useResearchSlackBackgroundTasks.getState().entries.map((entry) => entry.delegation)
+      useResearchSlackBackgroundTasks.getState().entries.map((entry) => entry.delegation),
+      useResearchInlineWorkerTabs.getState().shown
     )
   )
 }
@@ -95,11 +114,20 @@ export function useResearchHiddenTabIds(worktreeId: string): ReadonlySet<string>
   const library = useResearchLibrary((state) => state.document)
   const writingEditors = useResearchWritingEditors((state) => state.keys)
   const slackEntries = useResearchSlackBackgroundTasks((state) => state.entries)
+  const shownWorkerTabs = useResearchInlineWorkerTabs((state) => state.shown)
   const slackTasks = slackEntries.map((entry) => entry.delegation)
   const enabled = useAppStore((state) => state.settings?.researchUiEnabled === true)
   const ids = useAppStore(
     useShallow((state) =>
-      hiddenTabIdsForState(state, worktreeId, records, library, writingEditors, slackTasks)
+      hiddenTabIdsForState(
+        state,
+        worktreeId,
+        records,
+        library,
+        writingEditors,
+        slackTasks,
+        shownWorkerTabs
+      )
     )
   )
   useEffect(() => {

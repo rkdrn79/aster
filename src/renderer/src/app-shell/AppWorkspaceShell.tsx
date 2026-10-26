@@ -13,6 +13,7 @@ import type { AppChromeLayout } from './use-app-chrome-layout'
 import type { FloatingWorkspacePanelState } from './use-floating-workspace-panel'
 import { ResearchWorkbench, ResearchRunStatus } from '@/features/research/ResearchWorkbench'
 import { ResearchLanding } from '@/features/research/ResearchLanding'
+import { ResearchSlackBackgroundTaskMonitor } from '@/features/research/ResearchSlackBackgroundTaskMonitor'
 import { ResearchPreviewPage } from '@/features/research/ResearchPreviewPage'
 import { isResearchPage } from '@/features/research/research-navigation'
 import { SettingsPage, usePreloadSettingsPage } from './settings-page-preload'
@@ -126,6 +127,7 @@ export function AppWorkspaceShell(props: {
         'The app is still running. Retry the shell or use the menu to report the crash details.'
       )}
     >
+      {layout.researchUiEnabled ? <ResearchSlackBackgroundTaskMonitor /> : null}
       <div className="flex flex-row flex-1 min-h-0 overflow-hidden">
         {/* Why: keep the non-workspace titlebar inside this left+center wrapper so it doesn't span over the right-sidebar column. */}
         <div className="flex flex-col flex-1 min-w-0 min-h-0">

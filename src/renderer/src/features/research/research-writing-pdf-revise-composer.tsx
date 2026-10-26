@@ -20,6 +20,9 @@ import {
 } from './research-writing-pdf-agent-send'
 import { useWritingPdfSourceLocation } from './research-writing-pdf-source-location'
 import { startProjectPdfRevision } from './research-writing-pdf-background-revision'
+import { useResearchRecords } from './research-records-store'
+import { writingAgentScopeKey } from './research-conversation-home'
+import { requestWritingAgentFocus } from './research-writing-agent-focus'
 
 export function ResearchWritingPdfReviseComposer({
   experiment,
@@ -60,23 +63,26 @@ export function ResearchWritingPdfReviseComposer({
       setMessage('Return to this manuscript workspace before sending the revision.')
       return
     }
-    const boundSessionId = experiment.writingAgentSessionId
-    const tab = projectOnly
-      ? undefined
-      : (state.unifiedTabsByWorktree[experiment.workspaceId] ?? []).find(
-          (candidate) => candidate.entityId === boundSessionId
-        )
-    const check = projectOnly
-      ? null
-      : validateWritingAgentBinding({
-          experiment,
-          boundSessionId,
-          currentWorkspaceId: workspace.workspaceId,
-          currentHostId: workspace.hostId,
-          tab,
-          tabOwnerHostId: tab ? structuredAgentSessionOwnerForTab(state, tab) : null
-        })
-    if (check && !check.ok) {
+    const boundSessionId = projectOnly
+      ? useResearchRecords.getState().document?.writingAgentSessionByScope[
+          writingAgentScopeKey({ hostId: experiment.hostId, workspaceId: experiment.workspaceId })
+        ]
+      : experiment.writingAgentSessionId
+    const tab = (state.unifiedTabsByWorktree[experiment.workspaceId] ?? []).find(
+      (candidate) => candidate.entityId === boundSessionId
+    )
+    const check =
+      projectOnly && !boundSessionId
+        ? null
+        : validateWritingAgentBinding({
+            experiment,
+            boundSessionId,
+            currentWorkspaceId: workspace.workspaceId,
+            currentHostId: workspace.hostId,
+            tab,
+            tabOwnerHostId: tab ? structuredAgentSessionOwnerForTab(state, tab) : null
+          })
+    if (check && !check.ok && !projectOnly) {
       setMessage(writingAgentBindingError(check.reason))
       return
     }
@@ -97,7 +103,7 @@ export function ResearchWritingPdfReviseComposer({
     setSending(true)
     setMessage(null)
     try {
-      if (projectOnly) {
+      if (projectOnly && !check?.ok) {
         const failure = await startProjectPdfRevision({
           project: experiment,
           source,
@@ -123,6 +129,9 @@ export function ResearchWritingPdfReviseComposer({
       })
       if (result.status === 'sent') {
         onSent?.(check.binding.sessionId)
+        if (projectOnly) {
+          requestWritingAgentFocus(experiment.id)
+        }
         onClose()
       } else if (result.status === 'invalid') {
         setMessage(result.reason)
@@ -137,7 +146,7 @@ export function ResearchWritingPdfReviseComposer({
       }
     } catch (cause) {
       setMessage(
-        projectOnly
+        projectOnly && !check?.ok
           ? `Could not start the revision on the project host. ${String(cause)}`
           : 'Could not confirm delivery. Check the Writing chat before sending again.'
       )
@@ -223,11 +232,7 @@ export function ResearchWritingPdfReviseComposer({
           disabled={sending || location === 'finding' || !instruction.trim()}
           onClick={() => void send()}
         >
-          {sending
-            ? 'Sending…'
-            : projectOnly
-              ? 'Start background revision'
-              : 'Send to Writing agent'}
+          {sending ? 'Sending…' : projectOnly ? 'Start revision' : 'Send to Writing agent'}
         </Button>
       </div>
     </div>,

@@ -151,8 +151,19 @@ export function useResearchActiveProject(): {
 } {
   const projects = useResearchHomeProjects()
   const workspaceId = useAppStore((state) => state.activeWorktreeId)
+  const hostId = useAppStore((state) => state.activeWorkspaceExecutionHostId)
+  return findResearchActiveProject(projects, workspaceId, hostId)
+}
+
+export function findResearchActiveProject(
+  projects: readonly ResearchHomeProject[],
+  workspaceId: string | null,
+  hostId: ExecutionHostId | null
+): { project: ResearchHomeProject | null; workspace: ResearchHomeWorkspace | null } {
   for (const project of projects) {
-    const workspace = project.workspaces.find((entry) => entry.id === workspaceId)
+    const workspace = project.workspaces.find(
+      (entry) => entry.id === workspaceId && (!hostId || entry.executionHostId === hostId)
+    )
     if (workspace) {
       return { project, workspace }
     }

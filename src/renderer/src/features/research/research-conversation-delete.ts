@@ -10,7 +10,7 @@ import {
 import { useAppStore } from '@/store'
 import { useResearchLibrary } from './research-library-store'
 import { useResearchRecords } from './research-records-store'
-import { researchConversationHomeKey } from './research-conversation-home'
+import { researchConversationHomeKey, writingAgentScopeKey } from './research-conversation-home'
 
 export function withoutResearchConversation(
   document: ResearchDocument,
@@ -23,10 +23,18 @@ export function withoutResearchConversation(
   if (hostId && tab.contentType === 'agent-session') {
     delete conversationHomes[researchConversationHomeKey(hostId, tab.worktreeId, tab.entityId)]
   }
+  const writingAgentSessionByScope = { ...document.writingAgentSessionByScope }
+  if (hostId && tab.contentType === 'agent-session') {
+    const scopeKey = writingAgentScopeKey({ hostId, workspaceId: tab.worktreeId })
+    if (writingAgentSessionByScope[scopeKey] === tab.entityId) {
+      delete writingAgentSessionByScope[scopeKey]
+    }
+  }
   return {
     ...document,
     conversationExperimentIds,
     conversationHomes,
+    writingAgentSessionByScope,
     experiments: document.experiments.map((experiment) =>
       hostId &&
       experiment.hostId === hostId &&

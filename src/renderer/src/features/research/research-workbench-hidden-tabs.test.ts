@@ -10,6 +10,7 @@ import {
   researchHiddenTabIds,
   researchWorkbenchFallbackTabId
 } from './research-workbench-hidden-tabs'
+import { writingAgentScopeKey } from './research-conversation-home'
 
 function tab(
   entityId: string,
@@ -32,6 +33,19 @@ function tab(
 }
 
 describe('Research Workbench hidden tabs', () => {
+  it('hides a project-only Writing chat from the Workbench on its owning host', () => {
+    const records = {
+      ...emptyResearchDocument(),
+      writingAgentSessionByScope: {
+        [writingAgentScopeKey({ hostId: 'local', workspaceId: 'workspace-a' })]: 'project-writing'
+      }
+    }
+    const tabs = [tab('project-writing'), tab('other')]
+    expect(
+      researchHiddenTabIds(tabs, records, null, (entry) => entry.executionHostId ?? null)
+    ).toEqual(['agent-session:project-writing'])
+  })
+
   it('hides only chats whose home is Library or Writing on their own host', () => {
     const records = {
       ...emptyResearchDocument(),
@@ -149,6 +163,15 @@ describe('Research Workbench hidden tabs', () => {
     expect(
       researchHiddenTabIds(tabs, null, null, owner, [{ ...coordinator, workbenchVisible: true }])
     ).toEqual([])
+  })
+
+  it('keeps a child chat out of Workbench until it is explicitly opened from its parent', () => {
+    const child = tab('worker')
+    const owner = (entry: Tab): string | null => entry.executionHostId ?? null
+    expect(researchHiddenTabIds([child], null, null, owner, [], new Set([child.id]))).toEqual([
+      child.id
+    ])
+    expect(researchHiddenTabIds([child], null, null, owner)).toEqual([])
   })
 
   it('falls back from a hidden active tab to the most recent visible one', () => {

@@ -5,8 +5,28 @@ import type { ResearchDocument } from '../../../../shared/research/research-reco
 export type ResearchConversationHome =
   | { kind: 'workbench' }
   | { kind: 'library' }
-  | { kind: 'writing'; experimentId: string }
+  | { kind: 'writing'; experimentId: string | null }
   | { kind: 'experiment'; experimentId: string }
+
+export function researchChatAvailableForHome(
+  placement: ResearchConversationHome,
+  home: Exclude<ResearchConversationHome, { kind: 'workbench' }>
+): boolean {
+  if (placement.kind === 'workbench') {
+    return true
+  }
+  if (placement.kind !== home.kind) {
+    return false
+  }
+  return (
+    home.kind !== 'experiment' ||
+    (placement.kind === 'experiment' && placement.experimentId === home.experimentId)
+  )
+}
+
+export function writingAgentScopeKey(scope: { hostId: string; workspaceId: string }): string {
+  return JSON.stringify([scope.hostId, scope.workspaceId])
+}
 
 /** Session IDs are only unique within the workspace and execution host that owns them. */
 export function researchConversationHomeKey(
@@ -32,8 +52,11 @@ export function researchConversationHome(
   if (saved?.kind === 'library') {
     return saved
   }
+  if (saved?.kind === 'writing') {
+    return { kind: 'writing', experimentId: null }
+  }
   if (
-    (saved?.kind === 'writing' || saved?.kind === 'experiment') &&
+    saved?.kind === 'experiment' &&
     records?.experiments.some(
       (entry) =>
         entry.id === saved.experimentId &&
@@ -46,6 +69,11 @@ export function researchConversationHome(
   if (library?.readingAgentSessionByScope[libraryScopeKey({ hostId, workspaceId })] === sessionId) {
     return { kind: 'library' }
   }
+  if (
+    records?.writingAgentSessionByScope[writingAgentScopeKey({ hostId, workspaceId })] === sessionId
+  ) {
+    return { kind: 'writing', experimentId: null }
+  }
   const writing = records?.experiments.find(
     (entry) =>
       entry.hostId === hostId &&
@@ -53,7 +81,7 @@ export function researchConversationHome(
       entry.writingAgentSessionId === sessionId
   )
   if (writing) {
-    return { kind: 'writing', experimentId: writing.id }
+    return { kind: 'writing', experimentId: null }
   }
   const docked = records?.experiments.find(
     (entry) =>

@@ -10,6 +10,7 @@ import {
   consumeWritingAgentFocus,
   subscribeWritingAgentFocus
 } from './research-writing-agent-focus'
+import { projectWritingRecordId } from './research-writing-project'
 
 export function useWritingAgentFocus(
   record: Pick<ExperimentRecord, 'id' | 'hostId' | 'workspaceId'>,
@@ -19,19 +20,12 @@ export function useWritingAgentFocus(
   const { id: layoutKey, hostId, workspaceId } = record
   useEffect(() => {
     const focus = (): void => {
-      const accepted = consumeWritingAgentFocus(
-        (experimentId) =>
-          experimentId === layoutKey ||
-          Boolean(
-            useResearchRecords
-              .getState()
-              .document?.experiments.some(
-                (entry) =>
-                  entry.id === experimentId &&
-                  entry.hostId === hostId &&
-                  entry.workspaceId === workspaceId
-              )
-          )
+      const accepted = consumeWritingAgentFocus((focusId) =>
+        writingAgentFocusMatches(
+          { id: layoutKey, hostId, workspaceId },
+          focusId,
+          useResearchRecords.getState().document?.experiments ?? []
+        )
       )
       if (!accepted) {
         return
@@ -47,4 +41,22 @@ export function useWritingAgentFocus(
     focus()
     return unsubscribe
   }, [layoutKey, hostId, workspaceId, setActivePane, setVisiblePanes])
+}
+
+export function writingAgentFocusMatches(
+  record: Pick<ExperimentRecord, 'id' | 'hostId' | 'workspaceId'>,
+  focusId: string,
+  experiments: readonly ExperimentRecord[]
+): boolean {
+  return (
+    focusId === record.id ||
+    focusId === projectWritingRecordId(record) ||
+    experiments.some(
+      (entry) =>
+        !entry.archived &&
+        entry.id === focusId &&
+        entry.hostId === record.hostId &&
+        entry.workspaceId === record.workspaceId
+    )
+  )
 }

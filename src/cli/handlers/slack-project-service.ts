@@ -187,7 +187,7 @@ export const SLACK_PROJECT_SERVICE_HANDLERS: Record<string, CommandHandler> = {
     const projectKey = getRequiredStringFlag(flags, 'project-key')
     console.log(JSON.stringify({ ok: true, result: await status(projectKey) }))
   },
-  'slack project remove': async ({ flags }) => {
+  'slack project rm': async ({ flags }) => {
     const projectKey = getRequiredStringFlag(flags, 'project-key')
     const deps = slackServiceDeps()
     const path = routeFile(deps.userDataPath)

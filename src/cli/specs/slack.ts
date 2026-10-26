@@ -72,9 +72,11 @@ export const SLACK_COMMAND_SPECS: CommandSpec[] = [
     allowedFlags: [...GLOBAL_FLAGS, 'project-key']
   },
   {
-    path: ['slack', 'project', 'remove'],
+    path: ['slack', 'project', 'rm'],
+    aliases: [['slack', 'project', 'remove']],
+    destructive: true,
     summary: 'Remove a project from this server’s Slack connection',
-    usage: `${CLI_NAME} slack project remove --project-key <key>`,
+    usage: `${CLI_NAME} slack project rm --project-key <key>`,
     allowedFlags: [...GLOBAL_FLAGS, 'project-key']
   },
   {

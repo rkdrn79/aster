@@ -79,17 +79,15 @@ function ResearchProjectNavigation(): React.JSX.Element {
           {translate('research.navigation.back', 'Projects')}
         </Button>
         {project ? (
-          // Why: the same project actions as its Home card; this row's "⋯" stays the app menu.
           <ResearchProjectRowMenu
             project={project}
-            showTrigger={false}
+            showTrigger
             className="gap-2 px-2 text-worktree-sidebar-foreground"
           >
             <ResearchComputeProjectDot color={project.badgeColor} />
             <span className="min-w-0 flex-1 truncate text-base font-semibold" title={project.name}>
               {project.name}
             </span>
-            <ResearchOptionsMenu />
           </ResearchProjectRowMenu>
         ) : (
           <div className="flex items-center gap-2 px-2 text-worktree-sidebar-foreground">

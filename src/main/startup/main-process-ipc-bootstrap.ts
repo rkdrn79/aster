@@ -27,6 +27,7 @@ import { registerResearchAnalysisIpcHandlers } from '../research/research-analys
 import { registerConferenceDeadlinesIpcHandlers } from '../research/conference-deadlines-ipc'
 import { registerResearchLibraryIpcHandlers } from '../research/research-library-ipc'
 import { registerResearchSlackIpcHandlers } from '../research/research-slack-ipc'
+import { registerResearchPaseoIpcHandlers } from '../research/research-paseo-ipc'
 
 export function registerMainProcessIpcHandlers(): void {
   registerResearchRecordsIpcHandlers()
@@ -46,6 +47,7 @@ export function registerMainProcessIpcHandlers(): void {
   registerConferenceDeadlinesIpcHandlers()
   registerResearchLibraryIpcHandlers()
   registerResearchSlackIpcHandlers()
+  registerResearchPaseoIpcHandlers()
   ipcMain.handle('app:awaitFirstWindowStartupServices', async () => {
     await Promise.all([
       state.firstWindowStartupServicesReady,

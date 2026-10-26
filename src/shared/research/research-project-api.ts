@@ -20,6 +20,10 @@ export const RESEARCH_PROJECT_LOG_TAIL_MAX_BYTES = 256 * 1024
 
 export const ResearchProjectReadParams = WorktreeSelector.extend({})
 
+export const ResearchProjectLatexCompileParams = WorktreeSelector.extend({
+  sourcePath: z.string().min(1).max(4096)
+})
+
 const runSelector = {
   /** The Experiment's folder slug, e.g. `lora-r16`. */
   experiment: requiredString('Missing experiment slug'),

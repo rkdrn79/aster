@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useTranslation } from 'react-i18next'
-import { Activity, Repeat, Send } from 'lucide-react'
+import { Activity, Repeat, Send, Smartphone } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '@/store'
+import { useNow } from '@/hooks/use-now'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
 import { useResearchRecords } from './research-records-store'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
@@ -14,9 +15,11 @@ import { ResearchPageHeader } from './ResearchPageLayout'
 import { ResearchDelegateDialog, useDelegateDestinations } from './ResearchDelegateDialog'
 import { ResearchLoopStartDialog } from './ResearchLoopStartDialog'
 import { ResearchBackgroundTasksDialog } from './ResearchBackgroundTasksDialog'
+import { ResearchPhoneChatsDialog } from './ResearchPhoneChatsDialog'
 import { openResearchExperimentPage } from './research-experiment-page'
 import { researchRunStatusLabel } from './research-run-status-label'
 import { researchActiveAgentTaskCount } from './research-live-agent-tasks'
+import { useResearchDelegationDismissals } from './research-delegation-dismissals'
 import { useResearchDelegationRows } from './use-research-delegation-rows'
 import type { ResearchDelegationRecord } from '../../../../shared/research/research-records'
 
@@ -24,9 +27,10 @@ const NO_DELEGATIONS: ResearchDelegationRecord[] = []
 
 /** Background work running or waiting on the user, across projects: what the dialog lists live. */
 function useActiveBackgroundTaskCount(): number {
-  const childTasks = useAppStore((state) =>
-    researchActiveAgentTaskCount(state.agentStatusByPaneKey)
-  )
+  const now = useNow(60_000)
+  const statuses = useAppStore((state) => state.agentStatusByPaneKey)
+  const dismissals = useResearchDelegationDismissals()
+  const childTasks = researchActiveAgentTaskCount(statuses, now, dismissals)
   const delegations = useResearchRecords((state) => state.document?.delegations ?? NO_DELEGATIONS)
   const rows = useResearchDelegationRows(delegations)
   return childTasks + rows.filter((row) => row.active).length
@@ -37,6 +41,7 @@ export function ResearchWorkbench(): React.JSX.Element {
   const [delegateOpen, setDelegateOpen] = useState(false)
   const [loopOpen, setLoopOpen] = useState(false)
   const [backgroundTasksOpen, setBackgroundTasksOpen] = useState(false)
+  const [phoneChatsOpen, setPhoneChatsOpen] = useState(false)
   const activeTasks = useActiveBackgroundTaskCount()
   const context = useAppStore(useShallow(selectResearchWorkspaceContext))
   const delegateDestinations = useDelegateDestinations(context.hostId)
@@ -55,6 +60,14 @@ export function ResearchWorkbench(): React.JSX.Element {
         title={translate('research.navigation.workbench', 'Workbench')}
         actions={
           <>
+            {context.hostId &&
+            context.workspaceId &&
+            context.workspacePath &&
+            window.api?.researchPaseo ? (
+              <Button size="sm" variant="ghost" onClick={() => setPhoneChatsOpen(true)}>
+                <Smartphone aria-hidden /> Phone chats
+              </Button>
+            ) : null}
             <Button
               size="sm"
               variant="ghost"
@@ -120,6 +133,18 @@ export function ResearchWorkbench(): React.JSX.Element {
         </div>
       ) : null}
       <ResearchLoopStartDialog open={loopOpen} onClose={() => setLoopOpen(false)} />
+      {phoneChatsOpen && context.hostId && context.workspaceId && context.workspacePath ? (
+        <ResearchPhoneChatsDialog
+          key={`${context.hostId}:${context.workspaceId}`}
+          open={phoneChatsOpen}
+          onClose={() => setPhoneChatsOpen(false)}
+          scope={{
+            hostId: context.hostId,
+            workspaceId: context.workspaceId,
+            workspacePath: context.workspacePath
+          }}
+        />
+      ) : null}
       {backgroundTasksOpen ? (
         <ResearchBackgroundTasksDialog
           open={backgroundTasksOpen}

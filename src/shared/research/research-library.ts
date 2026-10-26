@@ -25,6 +25,7 @@ export const libraryPaperSchema = z
     abstract: z.string().trim().max(20_000).optional(),
     arxivId: z.string().regex(ARXIV_ID_PATTERN).optional(),
     doi: z.string().trim().min(1).max(256).optional(),
+    bibtexKey: z.string().trim().min(1).max(256).optional(),
     externalUrl: z
       .url()
       .regex(/^https?:\/\//i)

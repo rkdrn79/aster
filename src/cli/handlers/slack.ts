@@ -1,13 +1,15 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, statSync } from 'node:fs'
 import { z } from 'zod'
 import { slackProjectRouteId } from '../../shared/slack-project-route-binding'
+import { assertSlackRouteHost } from '../../shared/slack-project-route-host'
 import type { CommandHandler } from '../dispatch'
 import { getRequiredStringFlag } from '../flags'
 import { parseCliAgent } from '../agent-launch-request'
 import { getRequiredWorktreeSelector } from '../selectors'
-import { RuntimeClientError } from '../runtime-client'
+import { RuntimeClient, RuntimeClientError } from '../runtime-client'
 import { runSlackBridge, type SlackBridgeRoute } from '../slack-bridge'
 import { postSlackMessage } from '../slack-api'
+import { readStoredBridgeTokens } from '../slack-service-host'
 
 const routesSchema = z.object({
   version: z.literal(1),
@@ -17,6 +19,11 @@ const routesSchema = z.object({
         projectKey: z.string().min(1),
         projectName: z.string().min(1),
         workspacePath: z.string().min(1),
+        executionHostId: z.string().min(1).optional(),
+        workspaceId: z.string().min(1).optional(),
+        environmentId: z.string().min(1).optional(),
+        hostKeyFingerprint: z.string().optional(),
+        runtimeId: z.string().optional(),
         channelIds: z.array(z.string().regex(/^[CG][A-Z0-9]+$/)).min(1),
         allowedUsers: z
           .array(z.union([z.literal('*'), z.string().regex(/^[UW][A-Z0-9]+$/)]))
@@ -40,10 +47,26 @@ export function readProjectRoutes(path: string): SlackBridgeRoute[] {
       }
       channels.add(channel)
     }
+    if (
+      route.environmentId &&
+      (!route.workspaceId || !route.hostKeyFingerprint || !route.runtimeId)
+    ) {
+      throw new Error('Remote Slack route is missing its verified workspace or host identity')
+    }
+    if (!route.environmentId && route.executionHostId && route.executionHostId !== 'local') {
+      throw new Error('Remote Slack route is missing its paired runtime')
+    }
     return {
       id: slackProjectRouteId(route),
       projectName: route.projectName,
-      worktree: `path:${route.workspacePath}`,
+      worktree: route.environmentId ? `id:${route.workspaceId}` : `path:${route.workspacePath}`,
+      ...(route.environmentId
+        ? {
+            environmentId: route.environmentId,
+            hostKeyFingerprint: route.hostKeyFingerprint,
+            runtimeId: route.runtimeId
+          }
+        : {}),
       agent: route.agent,
       allowedUsers: new Set(route.allowedUsers),
       allowedChannels: new Set(route.channelIds)
@@ -51,7 +74,25 @@ export function readProjectRoutes(path: string): SlackBridgeRoute[] {
   })
 }
 
-function requiredToken(name: string): string {
+/** Rereads the profile's bindings when the app saves them, so the service needs no restart. */
+function watchedRoutes(path: string): () => readonly SlackBridgeRoute[] {
+  let routes = readProjectRoutes(path)
+  let stamp = statSync(path).mtimeMs
+  return () => {
+    try {
+      const next = statSync(path).mtimeMs
+      if (next !== stamp) {
+        routes = readProjectRoutes(path)
+        stamp = next
+      }
+    } catch (error) {
+      console.error('[slack-bridge] keeping the previous project routes:', error)
+    }
+    return routes
+  }
+}
+
+export function requiredToken(name: string): string {
   const token = process.env[name]?.trim()
   if (!token) {
     throw new RuntimeClientError('invalid_argument', `${name} is required in the environment`)
@@ -64,7 +105,7 @@ export const SLACK_HANDLERS: Record<string, CommandHandler> = {
     if (client.isRemote) {
       throw new RuntimeClientError('invalid_argument', 'Run the Slack bridge on the execution host')
     }
-    let routes: SlackBridgeRoute[]
+    let routes: () => readonly SlackBridgeRoute[]
     if (flags.has('routes-file')) {
       if (
         ['worktree', 'agent', 'allowed-users', 'allowed-channels'].some((flag) => flags.has(flag))
@@ -74,7 +115,7 @@ export const SLACK_HANDLERS: Record<string, CommandHandler> = {
           '--routes-file cannot be combined with single-workspace flags'
         )
       }
-      routes = readProjectRoutes(getRequiredStringFlag(flags, 'routes-file'))
+      routes = watchedRoutes(getRequiredStringFlag(flags, 'routes-file'))
     } else {
       const allowedUsers = new Set(
         getRequiredStringFlag(flags, 'allowed-users')
@@ -108,7 +149,7 @@ export const SLACK_HANDLERS: Record<string, CommandHandler> = {
         )
       }
       const worktree = await getRequiredWorktreeSelector(flags, 'worktree', cwd, client)
-      routes = [
+      const single: SlackBridgeRoute[] = [
         {
           id: 'cli-default',
           projectName: worktree,
@@ -118,14 +159,43 @@ export const SLACK_HANDLERS: Record<string, CommandHandler> = {
           allowedChannels
         }
       ]
+      routes = () => single
     }
-    await runSlackBridge({
-      client,
-      routes: () => routes,
-      appToken: requiredToken('SLACK_APP_TOKEN'),
-      botToken: requiredToken('SLACK_BOT_TOKEN'),
-      onStatus: (status) => process.stdout.write(`ASTER_SLACK_STATUS:${status}\n`)
-    })
+    const service = flags.get('service') === true
+    const controller = new AbortController()
+    const stop = (): void => controller.abort()
+    process.once('SIGTERM', stop)
+    process.once('SIGINT', stop)
+    try {
+      const tokens = service
+        ? await readStoredBridgeTokens(client.userDataPath, controller.signal)
+        : { appToken: requiredToken('SLACK_APP_TOKEN'), botToken: requiredToken('SLACK_BOT_TOKEN') }
+      if (tokens) {
+        await runSlackBridge({
+          client,
+          routes,
+          clientForRoute: (route) => {
+            if (!route.environmentId) {
+              return client
+            }
+            assertSlackRouteHost(client.userDataPath, route)
+            // Re-read the saved pairing each time. A tunnel restart can change its loopback port.
+            return new RuntimeClient(client.userDataPath, 60_000, null, route.environmentId)
+          },
+          ...tokens,
+          signal: controller.signal,
+          mode: service ? 'service' : 'process',
+          onStatus: (status) => process.stdout.write(`ASTER_SLACK_STATUS:${status}\n`)
+        })
+      }
+    } finally {
+      process.off('SIGTERM', stop)
+      process.off('SIGINT', stop)
+    }
+    // Why exit: replies still being awaited hold timers open; the lease is already released.
+    if (controller.signal.aborted) {
+      process.exit(0)
+    }
   },
   'slack send': async ({ flags }) => {
     await postSlackMessage({

@@ -85,6 +85,7 @@ import type { ResearchWatchesApi } from './api/research-watches-bridge'
 import type { ConferenceDeadlinesApi } from './api/conference-deadlines-bridge'
 import type { ResearchLibraryApi } from './api/research-library-bridge'
 import type { ResearchSlackApi } from './api/research-slack-bridge'
+import type { ResearchPaseoApi } from './api/research-paseo-bridge'
 
 // Flattens contracts that share one PreloadApi key: an intersection is not type-identical to the flat shape.
 type Merged<T> = { [K in keyof T]: T[K] }
@@ -200,6 +201,7 @@ export type PreloadApi = {
   conferenceDeadlines: ConferenceDeadlinesApi
   researchLibrary: ResearchLibraryApi
   researchSlack: ResearchSlackApi
+  researchPaseo: ResearchPaseoApi
   speech: SpeechApi
 }
 

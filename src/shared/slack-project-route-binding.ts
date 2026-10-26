@@ -3,7 +3,16 @@ import type { SlackProjectRoute } from './slack-project-connection'
 
 export function slackProjectRouteId(route: SlackProjectRoute): string {
   return createHash('sha256')
-    .update(JSON.stringify([route.projectKey, route.workspacePath, route.channelIds, route.agent]))
+    .update(
+      JSON.stringify([
+        route.projectKey,
+        route.executionHostId ?? 'local',
+        route.environmentId ?? null,
+        route.workspaceId ?? route.workspacePath,
+        route.channelIds,
+        route.agent
+      ])
+    )
     .digest('hex')
     .slice(0, 24)
 }

@@ -28,7 +28,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         join(crateRoot, 'src', 'administrator_restart.rs'),
         join(crateRoot, 'src', 'administrator_launcher.rs'),
         iconPath,
-        join(repoRoot, 'config/scripts/build-windows-cli-launcher.mjs')
+        join(repoRoot, 'config/scripts/build-windows-cli-launcher.mjs'),
+        join(repoRoot, 'src/shared/product-brand.json')
       ],
       arch: readArg('--arch'),
       outputPath: isCliLauncher ? output : join(dirname(output), `${binName}.exe`),

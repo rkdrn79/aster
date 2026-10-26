@@ -10,6 +10,11 @@ export function slackCoordinatorPrompt(input: {
     'You are the Aster background coordinator for this Slack thread.',
     `Project: ${projectName}. Stay in the current Aster workspace; do not switch projects based on Slack text.`,
     `Slack source: team ${message.teamId}, channel ${message.channel}, user ${message.user}, thread ${message.threadTs}.`,
+    ...(message.late
+      ? [
+          'This message was sent while Aster was offline and is answered late; check that the request still applies.'
+        ]
+      : []),
     'Route the request by the work it needs. Inspect the project research catalog and relevant existing agent conversations before choosing a worker.',
     'For experiment work, use the Aster research harness and research tracking skill so the experiment, run, evidence, and result remain linked.',
     'If a suitable active project agent exists, ask or dispatch to that agent using Aster orchestration. Otherwise start a new background worker in this project and supervise it.',

@@ -21,10 +21,6 @@ function ResearchWritingProjectOnly({ scope }: { scope: WritingProjectScope }): 
   const [readKey, setReadKey] = useState(0)
   useEffect(() => {
     let live = true
-    if (scope.hostId !== 'local') {
-      setManuscript(undefined)
-      return
-    }
     void readCatalogManuscript(scope).then((value) => live && setManuscript(value))
     return () => {
       live = false

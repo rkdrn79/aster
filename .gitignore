@@ -174,7 +174,8 @@ ci-shards/
 
 # Upstream project files Aster does not use: CI for the upstream infrastructure, its
 # maintainers and issue forms, Dependabot, and Homebrew casks. They stay local only.
-/.github/workflows/
+/.github/workflows/*
+!/.github/workflows/aster-*.yml
 /.github/CODEOWNERS
 /.github/dependabot.yml
 /.github/ISSUE_TEMPLATE/

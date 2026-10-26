@@ -3,6 +3,7 @@ import { getRelativePathInsideWorktree } from '@/runtime/runtime-file-routing'
 import { readRuntimeFileRange, statRuntimeReadTarget } from '@/runtime/runtime-file-range-client'
 import { runtimeRpcTargetForAuthorityKey } from '@/runtime/runtime-client-target'
 import { authorityKey, parseHostAuthorityKey } from '../../../../shared/host-authority'
+import { parseExecutionHostId } from '../../../../shared/execution-host'
 import { MAX_FILE_RANGE_READ_BYTES } from '../../../../shared/file-range-read'
 import { resolveRuntimePath } from '../../../../shared/cross-platform-path'
 
@@ -35,7 +36,7 @@ type ResearchWorkspaceReadScope = Pick<
 
 function researchReadTarget(run: ResearchWorkspaceReadScope, path: string) {
   const authority = parseHostAuthorityKey(run.hostId)
-  if (!authority || authority.at !== 'local') {
+  if (!authority || (authority.endpoint.kind === 'environment' && authority.at !== 'local')) {
     throw new Error('This host does not support bounded research file reads.')
   }
   const target = runtimeRpcTargetForAuthorityKey(authorityKey(authority))
@@ -46,11 +47,15 @@ function researchReadTarget(run: ResearchWorkspaceReadScope, path: string) {
   if (relativePath === null) {
     throw new Error('Choose a file inside the connected workspace.')
   }
+  const ssh = authority.endpoint.kind === 'self' ? parseExecutionHostId(authority.at) : null
   return {
     target,
     filePath: path,
     relativePath,
     worktreeId: run.workspaceId,
+    ...(ssh?.kind === 'ssh'
+      ? { connectionId: ssh.targetId, expectedExternalSshTargetId: ssh.targetId }
+      : {}),
     access: { kind: 'research-workspace' as const, workspacePath: run.workspacePath }
   }
 }
@@ -64,7 +69,11 @@ export async function researchFileExists(
     // Why: a miss is a normal answer here, and a rejected fs:stat is logged by main on every poll.
     if (
       target.target.kind !== 'environment' &&
-      !(await window.api.fs.pathExists({ filePath: target.filePath, access: target.access }))
+      !(await window.api.fs.pathExists({
+        filePath: target.filePath,
+        connectionId: target.connectionId,
+        access: target.access
+      }))
     ) {
       return false
     }

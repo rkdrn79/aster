@@ -210,4 +210,18 @@ describe('researchProject.libraryRead', () => {
     expect(result.papers).toMatchObject({ status: 'present', value: { pdfs: [] } })
     expect(result.metadata).toEqual({ status: 'absent' })
   })
+
+  it('finds an existing paper/main.bib without an Aster catalog', async () => {
+    const existing = join(parent, 'existing-paper')
+    await mkdir(join(existing, 'paper'), { recursive: true })
+    await writeFile(join(existing, 'paper', 'main.bib'), BIBLIOGRAPHY)
+
+    const result = await readResearchProjectLibrary(rootOf(existing))
+
+    expect(result.bibliographyPath).toBe('paper/main.bib')
+    expect(result.bibliography.status).toBe('present')
+    expect(
+      result.bibliography.status === 'present' && result.bibliography.value.entries
+    ).toHaveLength(3)
+  })
 })

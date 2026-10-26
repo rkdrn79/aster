@@ -1,5 +1,6 @@
 import type { AgentSessionHistoryPage, AgentSessionLatestTurn } from '../shared/agent-session-wire'
 import { agentJournalSubmissionKey } from '../shared/agent-session-journal-item-key'
+import type { TuiAgent } from '../shared/tui-agent'
 
 export type SlackIncomingMessage = {
   eventId: string
@@ -9,6 +10,28 @@ export type SlackIncomingMessage = {
   eventTs: string
   user: string
   text: string
+  /** Found by catch-up after the bridge was offline, so the reply is marked as late. */
+  late?: boolean
+}
+
+export type SlackBridgeRoute = {
+  id: string
+  projectName: string
+  agent: TuiAgent
+  worktree: string
+  /** Only set for a route whose project is hosted on a paired remote runtime. */
+  environmentId?: string
+  hostKeyFingerprint?: string
+  runtimeId?: string
+  allowedUsers: ReadonlySet<string>
+  allowedChannels?: ReadonlySet<string>
+}
+
+/** One Slack message, whether it arrived live or through catch-up. */
+export function slackMessageKey(
+  message: Pick<SlackIncomingMessage, 'channel' | 'eventTs'>
+): string {
+  return `${message.channel}:${message.eventTs}`
 }
 
 /** Agent output is data, so it must not turn into a Slack mention or link instruction. */

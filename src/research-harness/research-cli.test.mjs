@@ -103,11 +103,14 @@ async function waitFor(check, timeoutMs = 10_000) {
 const metricScript = `
 console.log('ASTER_METRIC ' + JSON.stringify({ step: 1, split: 'val', metrics: { loss: 0.9, acc: 0.5 } }))
 console.log(JSON.stringify({ step: 2, split: 'val', metrics: { loss: 0.4 } }))
-console.error('ASTER_METRIC ' + JSON.stringify({ step: 3, split: 'val', metrics: { loss: 0.6 } }))
 console.log('{"not":"a metric"}')
 console.log('ASTER_METRIC not json')
 console.log('plain log line')
-process.exit(Number(process.argv[2] ?? 0))
+// Why the delay: stdout and stderr are separate pipes, so only time orders lines across them.
+setTimeout(() => {
+  console.error('ASTER_METRIC ' + JSON.stringify({ step: 3, split: 'val', metrics: { loss: 0.6 } }))
+  process.exit(Number(process.argv[2] ?? 0))
+}, 200)
 `
 
 test('run exec records launch provenance, metrics, log, and success from a project subdirectory', async () => {
@@ -261,14 +264,29 @@ test('run exec forwards cancellation and refuses a manual finish while it runs',
     assert.equal(finish.code, 1)
     assert.equal(finish.body.error.code, 'run_active')
 
+    if (process.platform === 'win32') {
+      // Windows has no catchable signal from another process: kill() is TerminateProcess, so the
+      // Run stays running; libuv's kill-on-close job object still ends the command with it.
+      child.kill()
+      await done
+      const { manifest } = await readRun(directory, 'long-1')
+      assert.equal(manifest.execution.state, 'running')
+      const alive = (pid) => {
+        try {
+          return process.kill(pid, 0)
+        } catch (error) {
+          return error.code !== 'ESRCH'
+        }
+      }
+      await waitFor(async () => !alive(manifest.launch.pid))
+      return
+    }
     child.kill('SIGTERM')
     const result = await done
     const { manifest } = await readRun(directory, 'long-1')
     assert.equal(manifest.execution.state, 'cancelled')
-    if (process.platform !== 'win32') {
-      assert.equal(result.code, 143)
-      assert.equal(manifest.launch.signal, 'SIGTERM')
-    }
+    assert.equal(result.code, 143)
+    assert.equal(manifest.launch.signal, 'SIGTERM')
   })
 })
 

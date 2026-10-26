@@ -87,6 +87,26 @@ async function readBibliography(
   }
 }
 
+async function existingBibliographyPath(
+  root: ResearchProjectRoot,
+  configured: string | null,
+  fallback: string
+): Promise<string> {
+  if (configured) {
+    return configured
+  }
+  for (const candidate of [fallback, 'paper/main.bib']) {
+    try {
+      if ((await lstat(await resolveResearchWorkspacePath(root, candidate))).isFile()) {
+        return candidate
+      }
+    } catch {
+      // Missing candidates do not prevent a project without a bibliography from opening.
+    }
+  }
+  return fallback
+}
+
 /** PDFs under the papers folder, a few levels deep; symlinks are not followed. */
 async function listPdfs(
   root: ResearchProjectRoot,
@@ -185,6 +205,13 @@ export async function readResearchProjectLibrary(
   const locations = libraryLocations(
     root,
     catalog.file.status === 'present' ? catalog.file.value.references : null
+  )
+  locations.bibliography = await existingBibliographyPath(
+    root,
+    catalog.file.status === 'present'
+      ? (catalog.file.value.references?.bibliography ?? null)
+      : null,
+    locations.bibliography
   )
   const [bibliography, papers, metadata] = await Promise.all([
     readBibliography(root, locations.bibliography),

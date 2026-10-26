@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Activity, ArrowUpRight, Bot } from 'lucide-react'
+import { Activity, ArrowUpRight, Bot, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,6 +10,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { useAppStore } from '@/store'
+import { useNow } from '@/hooks/use-now'
 import { getResolvedExecutionHostIdForWorktree } from '@/lib/resolved-worktree-execution-host'
 import type { Tab } from '../../../../shared/tab-types'
 import { ResearchDelegationList } from './ResearchDelegationList'
@@ -22,7 +23,11 @@ import { researchConversationHome } from './research-conversation-home'
 import { libraryScopeKey } from '../../../../shared/research/research-library'
 import { requestLibraryAgentFocus } from './research-library-agent-focus'
 import { requestWritingAgentFocus } from './research-writing-agent-focus'
-import { researchLiveAgentTasks } from './research-live-agent-tasks'
+import { researchLiveAgentTasks, researchLiveTaskDismissalKey } from './research-live-agent-tasks'
+import {
+  dismissResearchDelegations,
+  useResearchDelegationDismissals
+} from './research-delegation-dismissals'
 
 async function openParentTask(tab: Tab, workspaceId: string): Promise<void> {
   const state = useAppStore.getState()
@@ -70,7 +75,9 @@ export function ResearchBackgroundTasksDialog({
 }): React.JSX.Element {
   const statuses = useAppStore((state) => state.agentStatusByPaneKey)
   const tabsByWorkspace = useAppStore((state) => state.unifiedTabsByWorktree)
-  const tasks = researchLiveAgentTasks(statuses, tabsByWorkspace)
+  const now = useNow(60_000, open)
+  const dismissals = useResearchDelegationDismissals()
+  const tasks = researchLiveAgentTasks(statuses, tabsByWorkspace, now, dismissals)
   const recordsError = useResearchRecords((state) => state.error)
 
   useEffect(() => {
@@ -133,6 +140,20 @@ export function ResearchBackgroundTasksDialog({
                       <ArrowUpRight aria-hidden />
                     </Button>
                   ) : null}
+                  <Button
+                    size="icon-xs"
+                    variant="ghost"
+                    aria-label={`Dismiss ${task.name} from background tasks`}
+                    title="Hide until new activity"
+                    onClick={() =>
+                      dismissResearchDelegations(
+                        [researchLiveTaskDismissalKey(task.id)],
+                        task.observedAt
+                      )
+                    }
+                  >
+                    <X aria-hidden />
+                  </Button>
                 </div>
               ))}
             </div>

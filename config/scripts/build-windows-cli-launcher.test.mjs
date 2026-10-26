@@ -20,9 +20,11 @@ import {
   windowsRustExecutableFingerprint
 } from './windows-rust-executable-build.mjs'
 import { findDynamicVcRuntimeImports, readPeImportedDllNames } from './windows-pe-imports.mjs'
+import productBrand from '../../src/shared/product-brand.json' with { type: 'json' }
 
 const itCrossHost = process.platform === 'win32' ? it.skip : it
 const projectRoot = resolve(import.meta.dirname, '../..')
+const brandIcon = join('resources', 'build', `${productBrand.id}.ico`)
 const WINDOWS_LOCK_CODES = ['EBUSY', 'ENOTEMPTY', 'EPERM']
 
 // Why: Windows releases the image handle on a just-executed exe (and finishes the
@@ -68,7 +70,7 @@ beforeAll(() => {
     throw new Error(`${result.stdout}\n${result.stderr}`)
   }
   copyFileSync(
-    join(projectRoot, 'native', 'windows-cli-launcher', '.build', 'orca.exe'),
+    join(projectRoot, 'native', 'windows-cli-launcher', '.build', `${productBrand.cliName}.exe`),
     sharedLauncherPath
   )
 }, 300_000)
@@ -111,7 +113,8 @@ describe('Windows CLI launcher', () => {
         hookScript,
         join('config', 'scripts', 'windows-rust-executable-build.mjs'),
         join('config', 'scripts', 'windows-pe-imports.mjs'),
-        join('resources', 'build', 'icon.ico'),
+        brandIcon,
+        join('src', 'shared', 'product-brand.json'),
         ...[
           'src/main.rs',
           'build.rs',
@@ -255,9 +258,9 @@ describe('Windows CLI launcher', () => {
         expect(inspect.status, inspect.stderr).toBe(0)
         const info = JSON.parse(inspect.stdout)
         const { version } = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
-        expect(info.CompanyName).toBe('Stably AI')
-        expect(info.ProductName).toBe('Orca')
-        expect(info.FileDescription).toBe('Orca CLI Launcher')
+        expect(info.CompanyName).toBe(productBrand.copyrightHolder)
+        expect(info.ProductName).toBe(productBrand.name)
+        expect(info.FileDescription).toBe(`${productBrand.name} CLI Launcher`)
         expect(info.FileVersion).toBe(`${version.split(/[+-]/)[0]}.0`)
         expect(info.ProductVersion).toBe(version)
         const binary = readFileSync(launcherPath)
@@ -265,7 +268,7 @@ describe('Windows CLI launcher', () => {
         const imports = readPeImportedDllNames(binary)
         expect(imports.map((name) => name.toLowerCase())).toContain('kernel32.dll')
         expect(findDynamicVcRuntimeImports(imports)).toEqual([])
-        const icon = readFileSync(join(projectRoot, 'resources', 'build', 'icon.ico'))
+        const icon = readFileSync(join(projectRoot, brandIcon))
         const imageSize = icon.readUInt32LE(14)
         const imageOffset = icon.readUInt32LE(18)
         expect(binary.includes(icon.subarray(imageOffset, imageOffset + imageSize))).toBe(true)
@@ -301,6 +304,7 @@ describe('Windows CLI launcher', () => {
       mkdirSync(join(resourcesPath, 'bin'), { recursive: true })
       mkdirSync(dirname(cliPath), { recursive: true })
       copyFileSync(process.execPath, join(appRoot, 'Orca.exe'))
+      writeFileSync(join(resourcesPath, 'app-executable-name'), 'Orca')
       writeFileSync(
         cliPath,
         `process.stdout.write(JSON.stringify({
@@ -437,6 +441,7 @@ describe('Windows CLI launcher', () => {
       mkdirSync(dirname(launcherPath), { recursive: true })
       mkdirSync(dirname(cliPath), { recursive: true })
       copyFileSync(process.execPath, join(appRoot, 'Orca.exe'))
+      writeFileSync(join(resourcesPath, 'app-executable-name'), 'Orca')
       writeFileSync(
         cliPath,
         `require('node:fs').writeFileSync(process.env.ORCA_TEST_OUTPUT, JSON.stringify({

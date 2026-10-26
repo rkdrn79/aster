@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { BookOpen, Download, FileUp, Plus } from 'lucide-react'
+import { toast } from 'sonner'
 import type { PdfNavigationRequest } from '@/components/editor/PdfViewer'
 import { Button } from '@/components/ui/button'
 import { createBrowserUuid } from '@/lib/browser-uuid'
@@ -33,6 +34,7 @@ import {
 import { useReadingLanguage } from './research-library-reading-language'
 import type { ReaderSelectionAction } from './research-library-selection-toolbar'
 import { useResearchLibrary } from './research-library-store'
+import { importProjectBibliography } from './research-library-bibtex-import'
 import {
   consumeLibraryAgentFocus,
   subscribeLibraryAgentFocus
@@ -66,6 +68,7 @@ function ResearchLibraryWorkspace({ scope }: { scope: LibraryScope }): React.JSX
   const [arxivOpen, setArxivOpen] = useState(false)
   const [language, setLanguage] = useReadingLanguage()
   const [actionError, setActionError] = useState<string | null>(null)
+  const [importingBibliography, setImportingBibliography] = useState(false)
   const canImportFiles = scope.hostId === 'local' && Boolean(window.api.researchLibrary?.importPdf)
 
   const papers = useMemo(
@@ -142,6 +145,22 @@ function ResearchLibraryWorkspace({ scope }: { scope: LibraryScope }): React.JSX
     }
   }
 
+  async function importBibliography(): Promise<void> {
+    setActionError(null)
+    setImportingBibliography(true)
+    try {
+      const result = await importProjectBibliography(scope)
+      toast.success(`${result.added} papers imported from ${result.path}`)
+      if (result.malformed || result.truncated) {
+        toast.warning('Some bibliography entries could not be imported.')
+      }
+    } catch (cause) {
+      setActionError(extractIpcErrorMessage(cause, 'The bibliography was not imported.'))
+    } finally {
+      setImportingBibliography(false)
+    }
+  }
+
   async function attachPdf(paper: LibraryPaper): Promise<void> {
     setActionError(null)
     try {
@@ -197,6 +216,15 @@ function ResearchLibraryWorkspace({ scope }: { scope: LibraryScope }): React.JSX
             <>
               <Button size="sm" variant="ghost" onClick={() => setMode('new')}>
                 <Plus aria-hidden /> Manual
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={importingBibliography}
+                onClick={() => void importBibliography()}
+              >
+                <BookOpen aria-hidden />
+                {importingBibliography ? 'Importing…' : 'Import BibTeX'}
               </Button>
               {canImportFiles ? (
                 <Button size="sm" variant="outline" onClick={() => void importPdf()}>

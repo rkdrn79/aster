@@ -18,6 +18,10 @@ export type ResearchLiveAgentTask = {
 const MAX_TASKS = 100
 const ACTIVE_STATES = new Set(['working', 'monitoring', 'waiting', 'blocked'])
 
+export function researchLiveTaskDismissalKey(id: string): string {
+  return `child:${id}`
+}
+
 function parentTab(
   status: AgentStatusEntry,
   tabsByWorkspace: Record<string, Tab[]>
@@ -49,7 +53,8 @@ function parentTab(
 export function researchLiveAgentTasks(
   statuses: Record<string, AgentStatusEntry>,
   tabsByWorkspace: Record<string, Tab[]>,
-  now = Date.now()
+  now = Date.now(),
+  dismissals: Readonly<Record<string, number>> = {}
 ): ResearchLiveAgentTask[] {
   const rows: ResearchLiveAgentTask[] = []
   for (const status of Object.values(statuses)) {
@@ -67,7 +72,7 @@ export function researchLiveAgentTasks(
     }
     if (status.children) {
       for (const child of status.children) {
-        if (child.membership !== 'live' || child.state === 'done') {
+        if (child.membership !== 'live' || child.state === 'done' || child.state === 'idle') {
           continue
         }
         rows.push({
@@ -82,6 +87,9 @@ export function researchLiveAgentTasks(
       }
     } else {
       for (const child of status.subagents ?? []) {
+        if (child.state === 'idle') {
+          continue
+        }
         rows.push({
           id: `${status.paneKey}:${child.id}`,
           name: child.agentType || child.description || 'Subagent',
@@ -97,13 +105,16 @@ export function researchLiveAgentTasks(
       break
     }
   }
-  return rows
+  return rows.filter(
+    (task) => (dismissals[researchLiveTaskDismissalKey(task.id)] ?? -Infinity) < task.observedAt
+  )
 }
 
 /** How many reported child tasks are running or waiting on the user; a stable number to select. */
 export function researchActiveAgentTaskCount(
   statuses: Record<string, AgentStatusEntry>,
-  now = Date.now()
+  now = Date.now(),
+  dismissals: Readonly<Record<string, number>> = {}
 ): number {
-  return researchLiveAgentTasks(statuses, {}, now).filter((task) => task.active).length
+  return researchLiveAgentTasks(statuses, {}, now, dismissals).filter((task) => task.active).length
 }

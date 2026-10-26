@@ -56,8 +56,7 @@ describe('researchLiveAgentTasks', () => {
     }
     expect(researchLiveAgentTasks(statuses, {}, NOW).map((task) => task.name)).toEqual([
       'sweep',
-      'asks',
-      'resting'
+      'asks'
     ])
     expect(researchActiveAgentTaskCount(statuses, NOW)).toBe(2)
   })
@@ -72,5 +71,29 @@ describe('researchLiveAgentTasks', () => {
       { name: 'maybe', state: 'Status unavailable', active: false }
     ])
     expect(researchActiveAgentTaskCount(statuses, NOW)).toBe(0)
+  })
+
+  it('hides a legacy child as soon as its host reports it idle', () => {
+    const statuses = {
+      legacy: {
+        ...parent('legacy', []),
+        children: undefined,
+        subagents: [
+          { id: 'finished', state: 'idle' as const, startedAt: NOW - 1_000 },
+          { id: 'active', state: 'working' as const, startedAt: NOW - 1_000 }
+        ]
+      }
+    }
+    expect(researchLiveAgentTasks(statuses, {}, NOW).map((task) => task.name)).toEqual(['Subagent'])
+  })
+
+  it('allows a reported child to be hidden until it has newer activity', () => {
+    const statuses = { fresh: parent('fresh', [child('running', 'working')]) }
+    const id = 'fresh:running'
+    const dismissed = { [`child:${id}`]: NOW - 500 }
+    expect(researchLiveAgentTasks(statuses, {}, NOW, dismissed)).toEqual([])
+    expect(researchActiveAgentTaskCount(statuses, NOW, dismissed)).toBe(0)
+    statuses.fresh.children = [{ ...child('running', 'working'), observedAt: NOW + 100 }]
+    expect(researchLiveAgentTasks(statuses, {}, NOW + 100, dismissed)).toHaveLength(1)
   })
 })

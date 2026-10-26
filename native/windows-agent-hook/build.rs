@@ -9,6 +9,8 @@ fn main() {
     println!("cargo:rerun-if-changed=app.manifest");
     println!("cargo:rerun-if-env-changed=ORCA_HOOK_BUILD_VERSION");
     println!("cargo:rerun-if-env-changed=ORCA_HOOK_BUILD_ICON");
+    println!("cargo:rerun-if-env-changed=ORCA_HOOK_PRODUCT_NAME");
+    println!("cargo:rerun-if-env-changed=ORCA_HOOK_COMPANY_NAME");
 
     if env::var("CARGO_CFG_TARGET_OS").as_deref() != Ok("windows") {
         return;
@@ -19,13 +21,16 @@ fn main() {
         .expect("ORCA_HOOK_BUILD_VERSION must be set; build through build-windows-agent-hook.mjs");
     let (major, minor, patch) = numeric_version_parts(&version);
 
+    // Set from src/shared/product-brand.json; Task Manager shows these for the hook process.
+    let product = env::var("ORCA_HOOK_PRODUCT_NAME").unwrap_or_else(|_| "Orca".into());
+    let company = env::var("ORCA_HOOK_COMPANY_NAME").unwrap_or_else(|_| "Stably AI".into());
     let mut resource = winresource::WindowsResource::new();
-    resource.set("ProductName", "Orca");
-    resource.set("FileDescription", "Orca Agent Hook");
-    resource.set("CompanyName", "Stably AI");
+    resource.set("ProductName", &product);
+    resource.set("FileDescription", &format!("{product} Agent Hook"));
+    resource.set("CompanyName", &company);
     resource.set(
         "LegalCopyright",
-        "Copyright (C) Stably AI. All rights reserved.",
+        &format!("Copyright (C) {company}. All rights reserved."),
     );
     resource.set("InternalName", "orca-agent-hook.exe");
     resource.set("OriginalFilename", "orca-agent-hook.exe");

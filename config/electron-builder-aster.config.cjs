@@ -26,9 +26,13 @@ module.exports = {
   // Why extraMetadata: the workspace package keeps its name for pnpm filters; only shipped metadata changes.
   extraMetadata: {
     ...base.extraMetadata,
+    // NSIS names the per-user install folder after this, which upstream also installs into.
+    name: brand.id,
     productName: brand.name,
     description: brand.description,
-    author: brand.copyrightHolder,
+    // An object: extraMetadata skips package.json normalization, and a string author leaves
+    // Aster.exe's CompanyName and the uninstall entry's Publisher at Electron's own.
+    author: { name: brand.copyrightHolder },
     homepage: brand.links.homepage
   },
   files: [
@@ -49,7 +53,9 @@ module.exports = {
     extraResources: [...baseResources(base.win.extraResources), ...asterResources],
     executableName: brand.name,
     icon: `resources/build/${brand.id}.ico`,
-    signtoolOptions: undefined
+    signtoolOptions: undefined,
+    // Archive targets such as zip use this; nsis keeps its own name below.
+    artifactName: `${brand.id}-windows-\${arch}.\${ext}`
   },
   nsis: {
     ...base.nsis,

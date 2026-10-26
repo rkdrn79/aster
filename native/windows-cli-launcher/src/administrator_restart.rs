@@ -75,9 +75,15 @@ pub fn run_if_requested() {
         .status()
     {
         Ok(status) => std::process::exit(status.code().unwrap_or(1)),
-        Err(error) => crate::fail(&format!("Unable to reopen Orca: {error}")),
+        Err(error) => crate::fail(&format!("Unable to reopen {PRODUCT_NAME}: {error}")),
     }
 }
+
+// Set from src/shared/product-brand.json by build-windows-cli-launcher.mjs.
+const PRODUCT_NAME: &str = match option_env!("ORCA_LAUNCHER_PRODUCT_NAME") {
+    Some(name) => name,
+    None => "Orca",
+};
 
 fn wide(value: &OsStr) -> Vec<u16> {
     value.encode_wide().chain(std::iter::once(0)).collect()

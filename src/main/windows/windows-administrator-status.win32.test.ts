@@ -1,11 +1,12 @@
 import { resolve, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { runProcess } from '@orca/process-host'
+import { CLI_NAME } from '../../shared/product-brand'
 
 describe.runIf(process.platform === 'win32')('native Windows administrator status', () => {
   it('agrees with the independent Windows integrity-level report', async () => {
     const root = resolve(import.meta.dirname, '../../..')
-    const launcher = join(root, 'native', 'windows-cli-launcher', '.build', 'orca.exe')
+    const launcher = join(root, 'native', 'windows-cli-launcher', '.build', `${CLI_NAME}.exe`)
     const [probe, groups] = await Promise.all([
       runProcess({ program: launcher, args: ['--orca-administrator-status'] }),
       runProcess({

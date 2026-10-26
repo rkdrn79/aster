@@ -31,10 +31,11 @@ describe('LaTeX engine process', () => {
 
   it('stops a build that goes quiet, not one that keeps printing', async () => {
     const chatty = run(
-      'let n = 0; const t = setInterval(() => { process.stdout.write("note: downloading f" + n + "\\n"); if (++n === 6) { clearInterval(t) } }, 50)',
-      { idleTimeoutMs: 200 }
+      'process.stdout.write("note: started\\n"); let n = 0; const t = setInterval(() => { process.stdout.write("note: downloading f" + n + "\\n"); if (++n === 5) { clearInterval(t) } }, 600)',
+      { idleTimeoutMs: 2_000 }
     )
     expect((await chatty.result).outcome).toBe('exited')
+    expect(chatty.chunks.join('')).toContain('downloading f4')
     const quiet = run('setTimeout(() => {}, 5000)', { idleTimeoutMs: 200 })
     expect((await quiet.result).outcome).toBe('idle-timeout')
   })

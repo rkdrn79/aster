@@ -40,6 +40,7 @@ import {
   ResearchDeadlinesUpdateParams
 } from '../research/research-deadlines-api'
 import {
+  ResearchProjectLatexCompileParams,
   ResearchProjectReadParams,
   ResearchProjectRunLogTailParams,
   ResearchProjectRunReadParams
@@ -1301,6 +1302,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'researchGpu.status': ResearchGpuStatusParams,
   'researchGpu.submit': ResearchGpuSubmitParams,
   'researchProject.claimsAudit': ResearchProjectClaimsAuditParams,
+  'researchProject.latexCompile': ResearchProjectLatexCompileParams,
   'researchProject.libraryRead': ResearchProjectLibraryReadParams,
   'researchProject.read': ResearchProjectReadParams,
   'researchProject.runLogTail': ResearchProjectRunLogTailParams,

@@ -148,8 +148,24 @@ function verifyTarget(resourcesDir, templateDir, target, value, schemaVersion) {
   requireExactNames(listFiles(targetDir), inventory, `${target} file inventory`)
 }
 
-/** `targets` narrows the inventory for a CI-only partial template; packaging checks them all. */
-function verifyPackagedOrcadTemplate(resourcesDir, targets = ORCAD_TEMPLATE_TARGETS) {
+/**
+ * Targets a local package ships: `ORCA_ORCAD_TEMPLATE_TARGETS` (comma list) narrows them when the
+ * build machine only has some node-pty prebuilds; release packaging leaves it unset and checks all.
+ */
+function packagedOrcadTemplateTargets(env = process.env) {
+  const requested = (env.ORCA_ORCAD_TEMPLATE_TARGETS ?? '').split(',').filter(Boolean)
+  if (requested.length === 0) {
+    return ORCAD_TEMPLATE_TARGETS
+  }
+  const unknown = requested.filter((target) => !ORCAD_TEMPLATE_TARGETS.includes(target))
+  if (unknown.length > 0) {
+    throw new Error(`[verify-packaged-orcad-template] unknown targets: ${unknown.join(',')}`)
+  }
+  return requested
+}
+
+/** `targets` narrows the inventory for a partial template; by default packaging checks them all. */
+function verifyPackagedOrcadTemplate(resourcesDir, targets = packagedOrcadTemplateTargets()) {
   const templateDir = join(resourcesDir, 'orcad-template')
   const manifest = requireRecord(readManifest(templateDir), 'manifest')
   if (![TEMPLATE_SCHEMA_VERSION, 4].includes(manifest.schemaVersion)) {
@@ -188,4 +204,8 @@ function verifyPackagedOrcadTemplate(resourcesDir, targets = ORCAD_TEMPLATE_TARG
   )
 }
 
-module.exports = { TEMPLATE_SCHEMA_VERSION, verifyPackagedOrcadTemplate }
+module.exports = {
+  TEMPLATE_SCHEMA_VERSION,
+  packagedOrcadTemplateTargets,
+  verifyPackagedOrcadTemplate
+}

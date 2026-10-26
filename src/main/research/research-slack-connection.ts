@@ -1,22 +1,49 @@
-import { spawn, type ChildProcess } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app } from 'electron'
 import { z } from 'zod'
+import { readSlackBridgeLease, slackBridgeLeasePath } from '../../cli/slack-bridge-lease'
+import type { SlackTokens } from '../../cli/slack-token-store'
 import type {
   SlackConnectionStatus,
   SlackProjectRoute
 } from '../../shared/slack-project-connection'
 import { upsertSlackProjectRoute } from '../../shared/slack-project-route-binding'
+import { resolveEnvironment } from '../../shared/runtime-environment-store'
+import {
+  assertSlackRouteLifetimeCompatible,
+  slackBackgroundRouteBlocker
+} from '../../shared/slack-route-lifetime'
 import { writeSecureFile } from '../../shared/secure-file'
 import { guardedSafeStorage } from '../host/safe-storage-availability'
 import { getCanonicalUserDataPath } from '../persistence/loading-store/user-data-path'
+import {
+  disableSlackBackground,
+  enableSlackBackground,
+  readSlackBackgroundConfig,
+  refreshSlackBackgroundTokens,
+  slackBackgroundUnavailableReason
+} from './research-slack-background'
+import { backgroundHost } from './research-slack-background-host'
+import {
+  desktopSlackBridgeStatus,
+  restartDesktopSlackBridge,
+  stopDesktopSlackBridge
+} from './research-slack-desktop-bridge'
 
 const routeSchema = z
   .object({
     projectKey: z.string().min(1).max(256),
     projectName: z.string().min(1).max(160),
     workspacePath: z.string().min(1).max(4096),
+    executionHostId: z.string().min(1).max(256).optional(),
+    workspaceId: z.string().min(1).max(4096).optional(),
+    environmentId: z.string().min(1).max(256).optional(),
+    hostKeyFingerprint: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .optional(),
+    runtimeId: z.string().min(1).max(256).optional(),
     channelIds: z
       .array(z.string().regex(/^[CG][A-Z0-9]+$/))
       .min(1)
@@ -59,7 +86,7 @@ function saveConfig(config: Disk): void {
   }
 }
 
-function credentials(config: Disk): { appToken: string; botToken: string } | null {
+function credentials(config: Disk): SlackTokens | null {
   if (!config.encryptedCredentials) {
     return null
   }
@@ -74,25 +101,8 @@ function credentials(config: Disk): { appToken: string; botToken: string } | nul
 
 let current: Disk = empty
 let loaded = false
-let bridgeChild: ChildProcess | null = null
-let running: Promise<void> | null = null
-let generation = 0
-let connection: SlackConnectionStatus['connection'] = 'disabled'
-let lastError: string | null = null
-
-export function getResearchSlackConnection(): SlackConnectionStatus {
-  ensureLoaded()
-  return {
-    configured: current.encryptedCredentials !== null,
-    connection,
-    error: lastError,
-    routes: current.routes.map((route) => ({
-      ...route,
-      channelIds: [...route.channelIds],
-      allowedUsers: [...route.allowedUsers]
-    }))
-  }
-}
+let leaseFile: string | null = null
+let loadError: string | null = null
 
 function ensureLoaded(): void {
   if (loaded) {
@@ -102,140 +112,125 @@ function ensureLoaded(): void {
   loaded = true
 }
 
-function cliEntryPath(): string {
-  const root = app.isPackaged ? join(process.resourcesPath, 'app.asar.unpacked') : app.getAppPath()
-  return join(root, 'out', 'cli', 'index.js')
+function backgroundEnabled(): boolean {
+  return readSlackBackgroundConfig(getCanonicalUserDataPath()).enabled
 }
 
-function stopChild(child: ChildProcess | null): Promise<void> {
-  if (!child || child.exitCode !== null || child.signalCode !== null) {
-    return Promise.resolve()
+function backgroundRouteBlocker(routes: readonly SlackProjectRoute[]): string | null {
+  return slackBackgroundRouteBlocker(
+    routes,
+    (environmentId) =>
+      resolveEnvironment(getCanonicalUserDataPath(), environmentId).connectionDependency
+  )
+}
+
+function liveLease(): ReturnType<typeof readSlackBridgeLease> {
+  if (!leaseFile && current.encryptedCredentials) {
+    try {
+      const tokens = credentials(current)
+      leaseFile = tokens ? slackBridgeLeasePath(getCanonicalUserDataPath(), tokens.appToken) : null
+    } catch {
+      return null
+    }
   }
-  return new Promise((resolve) => {
-    const timer = setTimeout(() => {
-      child.kill('SIGKILL')
-      resolve()
-    }, 3_000)
-    timer.unref?.()
-    child.once('close', () => {
-      clearTimeout(timer)
-      resolve()
-    })
-    child.kill()
-  })
+  return leaseFile ? readSlackBridgeLease(leaseFile) : null
 }
 
+export function getResearchSlackConnection(): SlackConnectionStatus {
+  ensureLoaded()
+  const background = readSlackBackgroundConfig(getCanonicalUserDataPath())
+  const desktop = desktopSlackBridgeStatus()
+  const holder = liveLease()
+  const owner = !holder
+    ? null
+    : holder.pid === desktop.pid
+      ? 'app'
+      : holder.mode === 'service'
+        ? 'service'
+        : 'other'
+  return {
+    configured: current.encryptedCredentials !== null,
+    // Why from the lease: with the service on, the app has no child to ask.
+    connection: background.enabled ? (holder?.connection ?? 'disconnected') : desktop.connection,
+    error: loadError ?? (background.enabled ? null : desktop.error),
+    routes: current.routes.map((route) => ({
+      ...route,
+      channelIds: [...route.channelIds],
+      allowedUsers: [...route.allowedUsers]
+    })),
+    owner,
+    notice: holder?.notice ?? null,
+    background: {
+      unavailableReason:
+        backgroundRouteBlocker(current.routes) ??
+        slackBackgroundUnavailableReason({
+          platform: process.platform,
+          isPackaged: app.isPackaged
+        }),
+      enabled: background.enabled,
+      installedRuntime: background.installedRuntime
+    }
+  }
+}
+
+/** One Socket Mode connection per token: the app connects only while the service is off. */
 function startBridge(): void {
   ensureLoaded()
-  const old = bridgeChild
-  bridgeChild = null
-  const previous = running
-  const turn = ++generation
-  connection = current.encryptedCredentials && current.routes.length ? 'connecting' : 'disabled'
-  lastError = null
-  running = (async () => {
-    await stopChild(old)
-    await previous
-    if (turn !== generation || !current.encryptedCredentials || current.routes.length === 0) {
-      return
-    }
-    const tokens = credentials(current)
-    if (!tokens) {
-      return
-    }
-    const cliEntry = cliEntryPath()
-    if (!existsSync(cliEntry)) {
-      throw new Error('Aster CLI is missing from this build')
-    }
-    const child = spawn(
-      process.execPath,
-      [cliEntry, 'slack', 'bridge', '--routes-file', configPath()],
-      {
-        windowsHide: true,
-        stdio: ['ignore', 'pipe', 'pipe'],
-        env: {
-          ...process.env,
-          ELECTRON_RUN_AS_NODE: '1',
-          ORCA_USER_DATA_PATH: getCanonicalUserDataPath(),
-          ORCA_PAIRING_CODE: '',
-          ORCA_REMOTE_PAIRING: '',
-          SLACK_APP_TOKEN: tokens.appToken,
-          SLACK_BOT_TOKEN: tokens.botToken
-        }
-      }
-    )
-    bridgeChild = child
-    let output = ''
-    child.stderr?.resume()
-    child.stdout?.on('data', (data: Buffer) => {
-      output += data.toString('utf8')
-      if (output.length > 8_192) {
-        output = output.slice(-8_192)
-      }
-      const lines = output.split('\n')
-      output = lines.pop() ?? ''
-      for (const line of lines) {
-        if (turn !== generation || !line.startsWith('ASTER_SLACK_STATUS:')) {
-          continue
-        }
-        const status = line.slice('ASTER_SLACK_STATUS:'.length)
-        if (
-          status === 'connecting' ||
-          status === 'connected' ||
-          status === 'disconnected' ||
-          status === 'error'
-        ) {
-          connection = status
-        }
-      }
-    })
-    await new Promise<void>((resolve) => {
-      child.once('error', (error) => {
-        if (turn === generation) {
-          connection = 'error'
-          lastError = error.message
-        }
-        resolve()
-      })
-      child.once('close', (code) => {
-        if (turn === generation) {
-          connection = 'error'
-          lastError = `Slack bridge exited (${code ?? 'unknown'})`
-        }
-        resolve()
-      })
-    })
-    if (bridgeChild === child) {
-      bridgeChild = null
-    }
-  })().catch((error: unknown) => {
-    if (turn === generation) {
-      connection = 'error'
-      lastError = error instanceof Error ? error.message : 'Slack connection failed'
-    }
+  restartDesktopSlackBridge({
+    routesFile: configPath(),
+    userDataPath: getCanonicalUserDataPath(),
+    tokens: () => (current.routes.length > 0 && !backgroundEnabled() ? credentials(current) : null)
   })
 }
 
 export function startResearchSlackConnection(): void {
   try {
+    loadError = null
     startBridge()
   } catch (error) {
-    connection = 'error'
-    lastError = error instanceof Error ? error.message : 'Slack settings could not be loaded'
+    loadError = error instanceof Error ? error.message : 'Slack settings could not be loaded'
   }
 }
 
 export function stopResearchSlackConnection(): void {
-  generation += 1
-  void stopChild(bridgeChild)
-  bridgeChild = null
-  connection = 'disabled'
+  void stopDesktopSlackBridge()
 }
 
-export function setResearchSlackCredentials(
+function save(next: Disk): void {
+  saveConfig(next)
+  current = next
+  leaseFile = null
+}
+
+export async function setResearchSlackBackground(enabled: boolean): Promise<SlackConnectionStatus> {
+  ensureLoaded()
+  if (!enabled) {
+    await disableSlackBackground(backgroundHost())
+    startBridge()
+    return getResearchSlackConnection()
+  }
+  const tokens = credentials(current)
+  if (!tokens || current.routes.length === 0) {
+    throw new Error('Connect the Slack bot and bind a channel before keeping it connected')
+  }
+  const routeBlocker = backgroundRouteBlocker(current.routes)
+  if (routeBlocker) {
+    throw new Error(routeBlocker)
+  }
+  // Why stop first: the service must not open a second socket while the app's is still up.
+  await stopDesktopSlackBridge()
+  try {
+    await enableSlackBackground(backgroundHost(), tokens, configPath())
+  } finally {
+    startBridge()
+  }
+  return getResearchSlackConnection()
+}
+
+export async function setResearchSlackCredentials(
   appToken: string,
   botToken: string
-): SlackConnectionStatus {
+): Promise<SlackConnectionStatus> {
   ensureLoaded()
   if (!/^xapp-\S+$/.test(appToken) || !/^xoxb-\S+$/.test(botToken)) {
     throw new Error('Enter Slack-issued xapp and xoxb tokens')
@@ -246,18 +241,20 @@ export function setResearchSlackCredentials(
   const encryptedCredentials = guardedSafeStorage
     .encryptString(JSON.stringify({ appToken, botToken }))
     .toString('base64')
-  const next = { ...current, encryptedCredentials }
-  saveConfig(next)
-  current = next
+  save({ ...current, encryptedCredentials })
+  if (backgroundEnabled()) {
+    await refreshSlackBackgroundTokens(backgroundHost(), { appToken, botToken })
+  }
   startBridge()
   return getResearchSlackConnection()
 }
 
-export function clearResearchSlackCredentials(): SlackConnectionStatus {
+export async function clearResearchSlackCredentials(): Promise<SlackConnectionStatus> {
   ensureLoaded()
-  const next = { ...current, encryptedCredentials: null }
-  saveConfig(next)
-  current = next
+  save({ ...current, encryptedCredentials: null })
+  if (backgroundEnabled()) {
+    await disableSlackBackground(backgroundHost())
+  }
   startBridge()
   return getResearchSlackConnection()
 }
@@ -265,24 +262,24 @@ export function clearResearchSlackCredentials(): SlackConnectionStatus {
 export function upsertResearchSlackRoute(routeInput: SlackProjectRoute): SlackConnectionStatus {
   ensureLoaded()
   const route = routeSchema.parse(routeInput)
-  const next = {
-    ...current,
-    routes: upsertSlackProjectRoute(current.routes, route)
-  }
-  saveConfig(next)
-  current = next
+  assertSlackRouteLifetimeCompatible(
+    [route],
+    backgroundEnabled(),
+    (environmentId) =>
+      resolveEnvironment(getCanonicalUserDataPath(), environmentId).connectionDependency
+  )
+  // Why no service restart: the service rereads this file when it changes.
+  save({ ...current, routes: upsertSlackProjectRoute(current.routes, route) })
   startBridge()
   return getResearchSlackConnection()
 }
 
-export function removeResearchSlackRoute(projectKey: string): SlackConnectionStatus {
+export async function removeResearchSlackRoute(projectKey: string): Promise<SlackConnectionStatus> {
   ensureLoaded()
-  const next = {
-    ...current,
-    routes: current.routes.filter((item) => item.projectKey !== projectKey)
+  save({ ...current, routes: current.routes.filter((item) => item.projectKey !== projectKey) })
+  if (current.routes.length === 0 && backgroundEnabled()) {
+    await disableSlackBackground(backgroundHost())
   }
-  saveConfig(next)
-  current = next
   startBridge()
   return getResearchSlackConnection()
 }

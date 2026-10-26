@@ -2,6 +2,7 @@ import { getRelativePathInsideWorktree } from '@/runtime/runtime-file-routing'
 import { readRuntimeFileRange, statRuntimeReadTarget } from '@/runtime/runtime-file-range-client'
 import { runtimeRpcTargetForAuthorityKey } from '@/runtime/runtime-client-target'
 import { authorityKey, parseHostAuthorityKey } from '../../../../shared/host-authority'
+import { parseExecutionHostId } from '../../../../shared/execution-host'
 import { MAX_FILE_RANGE_READ_BYTES } from '../../../../shared/file-range-read'
 import { relativePathInsideRoot, resolveRuntimePath } from '../../../../shared/cross-platform-path'
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
@@ -63,7 +64,7 @@ export function isWritingTeXFile(
 
 function manuscriptReadTarget(experiment: ResearchWorkspaceFileOwner, file: ManuscriptFile) {
   const authority = parseHostAuthorityKey(experiment.hostId)
-  if (!authority || authority.at !== 'local') {
+  if (!authority || (authority.endpoint.kind === 'environment' && authority.at !== 'local')) {
     throw new Error('This host does not support manuscript file reads.')
   }
   const target = runtimeRpcTargetForAuthorityKey(authorityKey(authority))
@@ -74,11 +75,15 @@ function manuscriptReadTarget(experiment: ResearchWorkspaceFileOwner, file: Manu
   if (relativePath === null) {
     throw new Error('Choose a file inside the project workspace.')
   }
+  const ssh = authority.endpoint.kind === 'self' ? parseExecutionHostId(authority.at) : null
   return {
     target,
     filePath: file.absolutePath,
     relativePath,
     worktreeId: experiment.workspaceId,
+    ...(ssh?.kind === 'ssh'
+      ? { connectionId: ssh.targetId, expectedExternalSshTargetId: ssh.targetId }
+      : {}),
     access: { kind: 'research-workspace' as const, workspacePath: experiment.workspacePath }
   }
 }

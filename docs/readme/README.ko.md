@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/rkdrn79/aster/releases/latest"><img src="https://img.shields.io/badge/download-macOS%20Apple%20Silicon-111?style=flat&logo=apple" alt="macOS(Apple Silicon)용 다운로드" /></a>
+  <a href="https://github.com/rkdrn79/aster/releases/tag/v0.1.0-windows.1"><img src="https://img.shields.io/badge/download-Windows%20x64%20preview-555?style=flat&logo=windows" alt="Windows x64 미리보기 다운로드" /></a>
   <a href="https://github.com/rkdrn79/aster/releases/latest"><img src="https://img.shields.io/github/v/release/rkdrn79/aster?style=flat&color=555&label=release" alt="최신 릴리스" /></a>
   <img src="https://img.shields.io/badge/license-MIT-555?style=flat" alt="라이선스: MIT" />
 </p>
@@ -19,6 +20,7 @@
 
 <h3 align="center">
   <a href="https://github.com/rkdrn79/aster/releases/latest">macOS용 다운로드</a> ·
+  <a href="https://github.com/rkdrn79/aster/releases/tag/v0.1.0-windows.1">Windows x64 미리보기</a> ·
   <a href="https://rkdrn79.github.io/aster-site/">웹사이트</a> ·
   <a href="#작동-방식">작동 방식</a> ·
   <a href="#데모-프로젝트-열어보기">데모 열어보기</a>
@@ -193,7 +195,7 @@ missing evidence로 표시합니다. Run이 뒷받침하지 않는 결과 수치
 불러오므로 에이전트와 화면이 기록을 똑같이 해석합니다. 명령은 [리서치 하네스](#리서치-하네스)에 있습니다.
 
 **Slack:** 허용한 채널에서 프로젝트의 Aster 봇을 멘션하면 그 프로젝트의 코디네이터 에이전트가 요청을 받아
-스레드에 답합니다. 승인은 Aster 안에서만 합니다. 설정 방법은 [`SLACK.md`](SLACK.md)에 있습니다.
+스레드에 답합니다. 승인은 Aster 안에서만 합니다. 설정 방법은 [Slack 연결 안내](SLACK.ko.md)에 있습니다.
 
 흑백 팔레트의 라이트·다크 테마를 쓰고, 강조색은 **설정 → Appearance**에서 고릅니다.
 
@@ -214,6 +216,8 @@ missing evidence로 표시합니다. Run이 뒷받침하지 않는 결과 수치
 3. 에이전트 CLI 하나 이상에 로그인합니다:
    [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 또는
    [Codex](https://github.com/openai/codex). 다른 CLI 에이전트는 터미널 탭에서 실행됩니다.
+
+Windows x64에서는 [미서명 미리보기 설치 파일](https://github.com/rkdrn79/aster/releases/download/v0.1.0-windows.1/Aster-windows-setup-x64.exe) 또는 [ZIP](https://github.com/rkdrn79/aster/releases/download/v0.1.0-windows.1/Aster-windows-x64.zip)을 받습니다. 설치·패키지 스모크 테스트는 Windows CI에서 통과했지만 일반 사용자 PC에서의 연구 작업은 아직 검증하지 않았습니다. 미서명 빌드라 SmartScreen 경고가 나올 수 있습니다.
 
 선택 사항: PDF 컴파일용 [Tectonic](https://tectonic-typesetting.github.io/)을 `PATH`에 두고, GPU
 호스트에 SSH로 접속할 수 있게 합니다(작업 제출에는 SLURM 필요). Aster의 데이터는
@@ -309,14 +313,13 @@ Aster는 위 작업 흐름을 Claude Code와 Codex에 가르치는 에이전트 
 
 ## 상태
 
-Aster 0.1.0은 첫 공개 릴리스입니다. 위 연구 흐름은 macOS에서 동작하고 단위 테스트와 headless
-Electron 테스트로 확인했습니다. 아직 남은 부분은 다음과 같습니다.
+Aster 0.1.0은 첫 macOS 릴리스입니다. Windows x64 미서명 미리보기는 CI에서 타입 검사, 단위 테스트, 연구 E2E, 설치 파일·ZIP 패키징과 스모크 테스트를 통과했습니다. 아직 남은 부분은 다음과 같습니다.
 
-- Apple Silicon macOS만 지원합니다. 빌드는 ad hoc 서명만 되어 있고, 공증되지 않았고, 자동 업데이트가
-  없습니다.
+- Apple Silicon macOS 빌드는 ad hoc 서명만 되어 있고, 공증되지 않았고, 자동 업데이트가 없습니다.
+- Windows x64 공개 미리보기는 서명되지 않았으며 자동 업데이트가 없습니다.
 - Aster는 데스크톱 전용입니다. 휴대폰에서 에이전트와 대화하려면 자체 호스트에서 동작하는 Paseo 앱을
   쓰세요.
-- Windows와 Linux는 검증하지 않았습니다.
+- Windows의 실제 사용자 PC 설치·연구 작업과 Linux 데스크톱은 아직 검증하지 않았습니다.
 - Writing: 선택한 문단 → 에이전트 수정 → PDF 재컴파일 왕복은 실제 에이전트로 검증하지 않았습니다.
   TeX 캐시가 비어 있으면 첫 컴파일 때 패키지를 내려받느라 몇 분 걸릴 수 있습니다.
 - SSH: 큰 결과 파일의 범위 읽기, 로그 증분 커서, 전체 로그 검색이 완성되지 않았습니다.

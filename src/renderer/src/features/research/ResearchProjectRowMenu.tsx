@@ -8,7 +8,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import type { ResearchHomeProject } from './research-home-projects'
-import { ResearchProjectMenuItems, useResearchProjectRename } from './research-home-project-actions'
+import {
+  ResearchProjectMenuItems,
+  useResearchFolderProjectRemoval,
+  useResearchProjectRename
+} from './research-home-project-actions'
 import { ResearchSlackProjectDialog } from './ResearchSlackProjectDialog'
 
 /** The Home card's project actions on a sidebar row: right-click it, or use its hover "⋯". */
@@ -25,6 +29,7 @@ export function ResearchProjectRowMenu({
   children: React.ReactNode
 }): React.JSX.Element {
   const rename = useResearchProjectRename(project)
+  const removeFolderProject = useResearchFolderProjectRemoval(project)
   const [slackOpen, setSlackOpen] = useState(false)
   const [contextPoint, setContextPoint] = useState<{ x: number; y: number } | null>(null)
   return (
@@ -54,6 +59,7 @@ export function ResearchProjectRowMenu({
                 project={project}
                 onRename={rename.open}
                 onSlack={() => setSlackOpen(true)}
+                onRemoveFolderProject={removeFolderProject.open}
               />
             </DropdownMenuContent>
           </DropdownMenu>
@@ -80,10 +86,12 @@ export function ResearchProjectRowMenu({
             project={project}
             onRename={rename.open}
             onSlack={() => setSlackOpen(true)}
+            onRemoveFolderProject={removeFolderProject.open}
           />
         </DropdownMenuContent>
       </DropdownMenu>
       {rename.dialog}
+      {removeFolderProject.dialog}
       <ResearchSlackProjectDialog project={project} open={slackOpen} onOpenChange={setSlackOpen} />
     </div>
   )

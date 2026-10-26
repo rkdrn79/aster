@@ -12,7 +12,11 @@ import { cn } from '@/lib/utils'
 import { enterResearchWorkspace } from './research-navigation'
 import type { ResearchHomeProject } from './research-home-projects'
 import { researchHomeNeedsYou, type ResearchHomeActivity } from './research-home-activity'
-import { ResearchProjectMenuItems, useResearchProjectRename } from './research-home-project-actions'
+import {
+  ResearchProjectMenuItems,
+  useResearchFolderProjectRemoval,
+  useResearchProjectRename
+} from './research-home-project-actions'
 import { ResearchComputeProjectDot } from './ResearchComputeProjectDot'
 import { ResearchSlackProjectDialog } from './ResearchSlackProjectDialog'
 
@@ -64,6 +68,7 @@ export function ResearchProjectCard({
   const others = project.workspaces.slice(1, WORKSPACES_SHOWN)
   const hidden = project.workspaces.length - 1 - others.length
   const rename = useResearchProjectRename(project)
+  const removeFolderProject = useResearchFolderProjectRemoval(project)
   const [slackOpen, setSlackOpen] = useState(false)
   const [contextPoint, setContextPoint] = useState<{ x: number; y: number } | null>(null)
   const parts = researchHomeActivityParts(activity, now)
@@ -135,6 +140,7 @@ export function ResearchProjectCard({
               project={project}
               onRename={rename.open}
               onSlack={() => setSlackOpen(true)}
+              onRemoveFolderProject={removeFolderProject.open}
             />
           </DropdownMenuContent>
         </DropdownMenu>
@@ -161,6 +167,7 @@ export function ResearchProjectCard({
             project={project}
             onRename={rename.open}
             onSlack={() => setSlackOpen(true)}
+            onRemoveFolderProject={removeFolderProject.open}
           />
         </DropdownMenuContent>
       </DropdownMenu>
@@ -185,6 +192,7 @@ export function ResearchProjectCard({
         </div>
       ) : null}
       {rename.dialog}
+      {removeFolderProject.dialog}
       <ResearchSlackProjectDialog project={project} open={slackOpen} onOpenChange={setSlackOpen} />
     </div>
   )

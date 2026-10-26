@@ -41,7 +41,10 @@ export function serveServiceArgs(
   ]
 }
 
-function profileSuffix(input: ServeServiceInput): string {
+/** Empty for the app's default profile, so that profile's services keep their plain names. */
+export function serviceProfileSuffix(
+  input: Pick<ServeServiceInput, 'userDataPath' | 'defaultUserDataPath'>
+): string {
   return input.userDataPath === input.defaultUserDataPath
     ? ''
     : createHash('sha256').update(input.userDataPath).digest('hex').slice(0, 8)
@@ -56,7 +59,7 @@ export function renderServeService(input: ServeServiceInput): ServeServiceSpec {
   if (!manager) {
     throw new Error(`No service manager support on ${input.platform}`)
   }
-  const suffix = profileSuffix(input)
+  const suffix = serviceProfileSuffix(input)
   // Why always pin: the manager's environment may resolve a different default profile.
   const env: Record<string, string> = { PATH: input.path, ORCA_USER_DATA_PATH: input.userDataPath }
   const argv = [input.command, ...serveServiceArgs(input)]
@@ -89,7 +92,7 @@ function xml(value: string): string {
     .replace(/"/g, '&quot;')
 }
 
-function renderLaunchAgent(
+export function renderLaunchAgent(
   label: string,
   argv: string[],
   env: Record<string, string>,

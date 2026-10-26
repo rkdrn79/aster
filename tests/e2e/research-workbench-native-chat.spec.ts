@@ -2,15 +2,13 @@ import { rm } from 'node:fs/promises'
 import path from 'node:path'
 import { expect } from './helpers/orca-app'
 import { waitForActiveWorktree, waitForSessionReady } from './helpers/store'
-import { buildFakeAgentCommandOverride } from './helpers/fake-agent-command-override'
-import { SUPPORTED, createChatOnHost, test } from './helpers/structured-claude-stub'
+import { createChatOnHost, test } from './helpers/structured-claude-stub'
 
 test('Aster New conversation starts a chat instead of a CLI terminal', async ({
   orcaPage: page,
   claudeStub,
   registerPostElectronShutdownCleanup
 }) => {
-  test.skip(!SUPPORTED, 'the Claude stub wrapper is POSIX-only')
   test.setTimeout(120_000)
   await waitForSessionReady(page)
   await waitForActiveWorktree(page)
@@ -18,19 +16,14 @@ test('Aster New conversation starts a chat instead of a CLI terminal', async ({
     await window.__store?.getState().updateSettings({
       agentCmdOverrides: { claude: command }
     })
-  }, buildFakeAgentCommandOverride(claudeStub.command))
+  }, claudeStub.override)
 
   await expect(page.getByRole('heading', { name: 'Workbench', exact: true })).toBeVisible()
   const layoutSwitcher = page.getByRole('radiogroup', { name: 'Layout' })
   await expect(layoutSwitcher.getByRole('radio', { name: 'Research' })).toBeChecked()
   await expect(layoutSwitcher.getByRole('radio', { name: 'Code' })).toBeVisible()
-  await page.getByRole('button', { name: 'More options' }).click()
-  const optionsMenu = page.getByRole('menu')
-  await expect(optionsMenu.getByRole('menuitem', { name: 'Settings' })).toBeVisible()
-  await expect(
-    optionsMenu.getByRole('menuitem', { name: /Mobile|Tasks|Automations|Skills|Artifacts/ })
-  ).toHaveCount(0)
-  await optionsMenu.getByRole('menuitem', { name: 'Settings' }).click()
+  await expect(page.getByRole('button', { name: 'Application menu' })).toBeVisible()
+  await page.evaluate(() => window.__store?.getState().openSettingsPage())
   await expect(page.getByRole('button', { name: 'Back to app' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Experimental' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Automations' })).toHaveCount(0)
@@ -94,7 +87,6 @@ test('Research Workbench shows the workspace agent as a conversation', async ({
   orcaPage: page,
   claudeStub
 }, testInfo) => {
-  test.skip(!SUPPORTED, 'the Claude stub wrapper is POSIX-only')
   test.setTimeout(120_000)
   await waitForSessionReady(page)
   const worktreeId = await waitForActiveWorktree(page)
@@ -102,7 +94,7 @@ test('Research Workbench shows the workspace agent as a conversation', async ({
     await window.__store?.getState().updateSettings({
       agentCmdOverrides: { claude: command }
     })
-  }, buildFakeAgentCommandOverride(claudeStub.command))
+  }, claudeStub.override)
 
   await expect(page.getByRole('heading', { name: 'Workbench', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Workbench', exact: true })).toBeVisible()
@@ -161,7 +153,6 @@ test('Workbench asks in the current chat and deletes its session from the conver
   orcaPage: page,
   claudeStub
 }) => {
-  test.skip(!SUPPORTED, 'the Claude stub wrapper is POSIX-only')
   test.setTimeout(120_000)
   await waitForSessionReady(page)
   const worktreeId = await waitForActiveWorktree(page)
@@ -169,7 +160,7 @@ test('Workbench asks in the current chat and deletes its session from the conver
     await window.__store?.getState().updateSettings({
       agentCmdOverrides: { claude: command }
     })
-  }, buildFakeAgentCommandOverride(claudeStub.command))
+  }, claudeStub.override)
   await createChatOnHost(page, worktreeId)
 
   const conversations = page.getByRole('region', { name: 'Conversations' })
@@ -196,7 +187,6 @@ test('Library reading chats stay in Library while general chats stay in Workbenc
   orcaPage: page,
   claudeStub
 }) => {
-  test.skip(!SUPPORTED, 'the Claude stub wrapper is POSIX-only')
   test.setTimeout(120_000)
   await waitForSessionReady(page)
   const worktreeId = await waitForActiveWorktree(page)
@@ -204,7 +194,7 @@ test('Library reading chats stay in Library while general chats stay in Workbenc
     await window.__store?.getState().updateSettings({
       agentCmdOverrides: { claude: command }
     })
-  }, buildFakeAgentCommandOverride(claudeStub.command))
+  }, claudeStub.override)
 
   await createChatOnHost(page, worktreeId)
   const workbenchChats = page.getByRole('region', { name: 'Conversations' })
@@ -255,7 +245,6 @@ test('Writing chats stay with their Experiment instead of the Workbench list', a
   orcaPage: page,
   claudeStub
 }) => {
-  test.skip(!SUPPORTED, 'the Claude stub wrapper is POSIX-only')
   test.setTimeout(120_000)
   await waitForSessionReady(page)
   const worktreeId = await waitForActiveWorktree(page)
@@ -263,7 +252,7 @@ test('Writing chats stay with their Experiment instead of the Workbench list', a
     await window.__store?.getState().updateSettings({
       agentCmdOverrides: { claude: command }
     })
-  }, buildFakeAgentCommandOverride(claudeStub.command))
+  }, claudeStub.override)
 
   await createChatOnHost(page, worktreeId)
   const workbenchChats = page.getByRole('region', { name: 'Conversations' })

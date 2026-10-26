@@ -3,6 +3,7 @@ import { appendFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/pro
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { researchRunWatchDocumentSchema } from '../../shared/research/research-run-watch'
+import { quotePosixShellUnlessPlain } from '../../shared/shell-argument-quoting'
 import type { ResearchWatchRuntime } from './research-run-watch-delivery'
 import { createResearchRunWatch } from './research-run-agent-api'
 import { readResearchRunStatus } from './research-run-status'
@@ -119,7 +120,10 @@ describe('research Run watches', () => {
     )
     expect(prompts[0].text).toContain('- log:Traceback fired: log line: Traceback')
     expect(prompts[0].text).toContain('Your note: compare with baseline')
-    expect(prompts[0].text).toContain(`research status --run lora-r16/seed-42 --project ${project}`)
+    // A Windows temp path has backslashes, so the command quotes it.
+    expect(prompts[0].text).toContain(
+      `research status --run lora-r16/seed-42 --project ${quotePosixShellUnlessPlain(project)}`
+    )
     expect(notifications).toHaveLength(2)
 
     const stored = await storedWatches()

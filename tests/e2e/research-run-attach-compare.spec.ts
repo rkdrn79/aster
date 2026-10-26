@@ -8,7 +8,8 @@ test('attaches real local results, compares observations, and persists research 
   electronApp,
   registerPostElectronShutdownCleanup
 }, testInfo) => {
-  test.setTimeout(120_000)
+  // Why longer on Windows: each action takes ~2s on the hosted Windows runner, shown or hidden.
+  test.setTimeout(process.platform === 'win32' ? 300_000 : 120_000)
   await waitForSessionReady(orcaPage)
   await waitForActiveWorktree(orcaPage)
   const workspacePath = await orcaPage.evaluate(() => {
@@ -387,6 +388,8 @@ test('attaches real local results, compares observations, and persists research 
     )
     .toBe(1)
   await navigation.getByRole('button', { name: 'Second experiment', exact: true }).click()
+  // Release only once the switch has landed; a slow host would otherwise finish the read first.
+  await expect(runs.getByText('Second experiment', { exact: true })).toBeVisible()
   await electronApp.evaluate(({ ipcMain }) => ipcMain.emit('aster:test:releaseChunk'))
   await orcaPage.evaluate(
     () =>

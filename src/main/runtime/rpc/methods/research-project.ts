@@ -1,6 +1,7 @@
 import { defineMethod } from '../core'
 import {
   ResearchProjectReadParams,
+  ResearchProjectLatexCompileParams,
   ResearchProjectRunLogTailParams,
   ResearchProjectRunReadParams
 } from '../../../../shared/research/research-project-api'
@@ -9,6 +10,7 @@ import { ResearchProjectLibraryReadParams } from '../../../../shared/research/re
 import { readResearchProjectClaimsAudit } from '../../../research/research-project-claims-read'
 import { resolveResearchProjectRoot } from '../../../research/research-project-files'
 import { readResearchProjectLibrary } from '../../../research/research-project-library-read'
+import { compileResearchProjectLatex } from '../../../research/research-project-latex-compile'
 import { readResearchProject } from '../../../research/research-project-overview'
 import {
   readResearchProjectRun,
@@ -55,5 +57,15 @@ export const RESEARCH_PROJECT_METHODS = [
     params: ResearchProjectLibraryReadParams,
     handler: async (params, { runtime }) =>
       readResearchProjectLibrary(await resolveResearchProjectRoot(runtime, params.worktree))
+  }),
+  defineMethod({
+    name: 'researchProject.latexCompile',
+    permission: 'workspace',
+    params: ResearchProjectLatexCompileParams,
+    handler: async (params, { runtime }) =>
+      compileResearchProjectLatex(
+        await resolveResearchProjectRoot(runtime, params.worktree),
+        params.sourcePath
+      )
   })
 ]

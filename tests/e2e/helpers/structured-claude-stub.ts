@@ -14,6 +14,7 @@ import os from 'node:os'
 import path from 'node:path'
 import type { Page } from '@stablyai/playwright-test'
 import { test as base, expect } from './orca-app'
+import { buildFakeAgentCommandOverride } from './fake-agent-command-override'
 import { resolveCliCommand } from '../../../src/shared/node-cli-command-resolution'
 import { createStructuredAgentSessionId } from '../../../src/shared/structured-agent-session-create'
 import {
@@ -21,8 +22,8 @@ import {
   structuredAgentSessionCreateFingerprint
 } from '../../../src/shared/structured-agent-session-mutation'
 
-// Why skip Windows: the stub runs through a POSIX sh wrapper, a .cmd variant is unverified, and
-// the full e2e suite runs on Linux CI only.
+// Why skip Windows: specs that set `buildFakeAgentCommandOverride(claudeStub.command)` hand native
+// chat a PowerShell call (`& '...'`), which it refuses; `claudeStub.override` works everywhere.
 export const SUPPORTED = process.platform !== 'win32'
 const STUB_SCRIPT = path.join(
   process.cwd(),
@@ -34,7 +35,8 @@ const STUB_SCRIPT = path.join(
 
 const SYSTEM_DIRS = ['/usr/bin', '/bin', '/usr/sbin', '/sbin']
 
-export type ClaudeStub = { command: string; launchLog: string }
+/** `override` is the Claude Command setting that starts the stub, for native chat on any host. */
+export type ClaudeStub = { command: string; launchLog: string; override: string }
 
 /** Dirs a login shell puts ahead of the launch PATH on macOS (path_helper). */
 function macLoginShellPathDirs(): string[] {
@@ -54,7 +56,8 @@ export const test = base.extend<{ claudeStub: ClaudeStub }>({
   // oxlint-disable-next-line no-empty-pattern -- Playwright fixture callbacks require object destructuring here.
   claudeStub: async ({}, provideFixture, testInfo) => {
     const dir = mkdtempSync(path.join(os.tmpdir(), 'orca-e2e-structured-claude-'))
-    const command = path.join(dir, 'claude')
+    // Why .cmd on Windows: an extensionless file cannot start there; process-host runs .cmd shims.
+    const command = path.join(dir, process.platform === 'win32' ? 'claude.cmd' : 'claude')
     const launchLog = path.join(dir, 'launches.jsonl')
     const emptyHome = path.join(dir, 'empty-home')
     mkdirSync(emptyHome)
@@ -70,18 +73,27 @@ export const test = base.extend<{ claudeStub: ClaudeStub }>({
     }
     const quote = (value: string): string => `'${value.replaceAll("'", `'\\''`)}'`
     // Absolute node and stub paths, so the wrapper needs nothing from PATH to run.
-    writeFileSync(
-      command,
-      `#!/bin/sh\nexec ${quote(process.execPath)} ${quote(STUB_SCRIPT)} ${quote(launchLog)} "$@"\n`
-    )
-    chmodSync(command, 0o755)
-    await provideFixture({ command, launchLog })
+    if (process.platform === 'win32') {
+      writeFileSync(command, `@"${process.execPath}" "${STUB_SCRIPT}" "${launchLog}" %*\r\n`)
+    } else {
+      writeFileSync(
+        command,
+        `#!/bin/sh\nexec ${quote(process.execPath)} ${quote(STUB_SCRIPT)} ${quote(launchLog)} "$@"\n`
+      )
+      chmodSync(command, 0o755)
+    }
+    // Native chat takes one program token: a bare Windows path, not a PowerShell `& '...'` call.
+    const override = process.platform === 'win32' ? command : buildFakeAgentCommandOverride(command)
+    await provideFixture({ command, launchLog, override })
     rmSync(dir, { recursive: true, force: true })
   },
   launchEnv: async ({ claudeStub }, provideFixture) => {
     // Only the stub's directory and the system tool dirs: no user bin, Homebrew or npm prefix.
+    // Windows keeps its PATH behind the stub: git, PowerShell and System32 live on it.
+    const systemPath =
+      process.platform === 'win32' ? [process.env.Path ?? process.env.PATH ?? ''] : SYSTEM_DIRS
     await provideFixture({
-      PATH: [path.dirname(claudeStub.command), ...SYSTEM_DIRS].join(path.delimiter)
+      PATH: [path.dirname(claudeStub.command), ...systemPath].join(path.delimiter)
     })
   }
 })

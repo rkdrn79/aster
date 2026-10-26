@@ -102,6 +102,7 @@ import { researchWatchesApi } from './api/research-watches-bridge'
 import { conferenceDeadlinesApi } from './api/conference-deadlines-bridge'
 import { researchLibraryApi } from './api/research-library-bridge'
 import { researchSlackApi } from './api/research-slack-bridge'
+import { researchPaseoApi } from './api/research-paseo-bridge'
 
 installBrowserFindListener()
 
@@ -219,6 +220,7 @@ const api = {
   conferenceDeadlines: conferenceDeadlinesApi,
   researchLibrary: researchLibraryApi,
   researchSlack: researchSlackApi,
+  researchPaseo: researchPaseoApi,
   agentStatus: agentStatusApi,
   speech: speechApi
 } satisfies PreloadApi

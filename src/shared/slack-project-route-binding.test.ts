@@ -26,6 +26,9 @@ describe('Slack project binding', () => {
       slackProjectRouteId(alpha)
     )
     expect(slackProjectRouteId({ ...alpha, agent: 'claude' })).not.toBe(slackProjectRouteId(alpha))
+    expect(
+      slackProjectRouteId({ ...alpha, executionHostId: 'runtime:vip', environmentId: 'vip' })
+    ).not.toBe(slackProjectRouteId(alpha))
   })
 
   it('deduplicates IDs and rejects a wildcard mixed with user IDs', () => {

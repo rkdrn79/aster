@@ -1,0 +1,312 @@
+name: Aster Windows
+
+# Builds, packages and tests Aster on a hosted Windows runner. Unsigned: no secrets, no
+# self-hosted runners, no signing service. Jobs are split so a failed one re-runs alone:
+#   build -> smoke   (packaged installer + zip, then CLI / harness / hidden launch on them)
+#   test             (typecheck, research + CLI unit tests, a Windows-native slice)
+#   e2e              (research Playwright specs; dispatch with e2e=true or "[e2e]" in the commit)
+# "[e2e-only]" in the pushed commit message (or only_e2e on dispatch) runs just the e2e job.
+
+on:
+  push:
+    branches: [windows-ci]
+  workflow_dispatch:
+    inputs:
+      e2e:
+        description: Run the research E2E specs
+        type: boolean
+        default: false
+      only_e2e:
+        description: Run only the research E2E specs
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aster-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ORCA_BACKGROUND_LAUNCH: '1'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build and package (x64)
+    if: ${{ !inputs.only_e2e && !contains(github.event.head_commit.message, '[e2e-only]') }}
+    runs-on: windows-latest
+    timeout-minutes: 75
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: electron
+          cache-pnpm-store-lookup-only: 'false'
+
+      # Fingerprinted .build outputs let build-windows-*.mjs skip cargo when nothing changed.
+      - name: Cache Rust builds
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            native/windows-cli-launcher/target
+            native/windows-cli-launcher/.build
+            native/windows-agent-hook/target
+            native/windows-agent-hook/.build
+          key: aster-rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('native/windows-cli-launcher/**', 'native/windows-agent-hook/**', 'config/scripts/build-windows-*.mjs', 'config/scripts/windows-rust-executable-build.mjs', 'src/shared/product-brand.json', 'resources/build/*.ico', 'package.json') }}
+          restore-keys: aster-rust-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Cache electron-builder downloads
+        uses: actions/cache@v5
+        with:
+          path: ~\AppData\Local\electron-builder\Cache
+          key: aster-electron-builder-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: aster-electron-builder-${{ runner.os }}-
+
+      # build:native compiles the Rust CLI launcher and agent hook; the node-gyp addons were
+      # rebuilt for Electron by the install action's native-runtime step.
+      - name: Build native executables and the app
+        run: pnpm run build:release
+
+      - name: Report native outputs
+        run: |
+          ls -l native/windows-cli-launcher/.build native/windows-agent-hook/.build
+          ls -l native/windows-*/build/Release/*.node node_modules/.pnpm/node-pty@*/node_modules/node-pty/build/Release/*.node || true
+
+      - name: Package unsigned installer and zip
+        run: |
+          pnpm exec electron-builder --config config/electron-builder-aster.config.cjs \
+            --win nsis zip --x64 --publish never
+          ls -l dist
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: aster-windows-setup-x64
+          path: dist/aster-windows-setup.exe
+          if-no-files-found: error
+          compression-level: 0
+          # ~420 MB a run; a private repo's artifact storage is small.
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: aster-windows-x64-zip
+          path: dist/aster-windows-x64.zip
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  smoke:
+    name: Packaged smoke (installer + zip)
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      # The smoke script needs only Node built-ins and two JSON files, not the source tree.
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            config/scripts/packaged-app-smoke.mjs
+            src/shared/product-brand.json
+            package.json
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: aster-windows-setup-x64
+          path: artifacts
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: aster-windows-x64-zip
+          path: artifacts
+
+      - name: Silent-install the installer
+        shell: pwsh
+        run: |
+          $setup = Get-Item artifacts/aster-windows-setup.exe
+          "Installer: {0:N1} MB" -f ($setup.Length / 1MB)
+          $process = Start-Process -FilePath $setup.FullName -ArgumentList '/S' -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "Installer exited $($process.ExitCode)" }
+          $exe = Get-ChildItem "$env:LOCALAPPDATA\Programs" -Recurse -Filter Aster.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $exe) { throw 'Aster.exe was not installed under %LOCALAPPDATA%\Programs' }
+          "Installed: $($exe.FullName)"
+          # Upstream installs into Programs\orca; sharing it would overwrite that app's files.
+          if ($exe.Directory.Name -eq 'orca') { throw "Installed into the upstream app's folder $($exe.DirectoryName)" }
+          "ASTER_INSTALL_DIR=$($exe.DirectoryName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $shortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'Aster.lnk'
+          if (-not (Test-Path $shortcut)) { Write-Warning "No Start menu shortcut at $shortcut" }
+
+      - name: Smoke-test the installed app
+        run: node config/scripts/packaged-app-smoke.mjs --app-dir "$ASTER_INSTALL_DIR" --report-dir smoke-report/installed
+
+      - name: Smoke-test the zip (CLI and harness only)
+        if: ${{ !cancelled() }}
+        shell: pwsh
+        run: |
+          Get-Process Aster -ErrorAction SilentlyContinue | Stop-Process -Force
+          Expand-Archive artifacts/aster-windows-x64.zip -DestinationPath "$env:RUNNER_TEMP\aster zip"
+          node config/scripts/packaged-app-smoke.mjs --app-dir "$env:RUNNER_TEMP\aster zip" --report-dir smoke-report/zip --cli-only
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Silent-uninstall
+        if: ${{ !cancelled() && env.ASTER_INSTALL_DIR != '' }}
+        shell: pwsh
+        run: |
+          Get-Process Aster -ErrorAction SilentlyContinue | Stop-Process -Force
+          $uninstaller = Get-ChildItem $env:ASTER_INSTALL_DIR -Filter 'Uninstall*.exe' | Select-Object -First 1
+          if (-not $uninstaller) { throw 'No uninstaller in the install directory' }
+          $process = Start-Process -FilePath $uninstaller.FullName -ArgumentList '/S' -Wait -PassThru
+          # The NSIS uninstaller copies itself to %TEMP% and returns before the copy finishes.
+          for ($i = 0; $i -lt 30 -and (Test-Path (Join-Path $env:ASTER_INSTALL_DIR 'Aster.exe')); $i++) { Start-Sleep 1 }
+          if (Test-Path (Join-Path $env:ASTER_INSTALL_DIR 'Aster.exe')) { throw 'Aster.exe is still installed after uninstall' }
+          "Uninstalled (exit $($process.ExitCode))"
+
+      - uses: actions/upload-artifact@v7
+        if: ${{ !cancelled() }}
+        with:
+          name: aster-windows-smoke-report
+          path: smoke-report/
+          retention-days: 14
+
+  test:
+    name: Typecheck and unit tests
+    if: ${{ !inputs.only_e2e && !contains(github.event.head_commit.message, '[e2e-only]') }}
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      # Plain Node, no dependencies: runs before the install so it reports even if that fails.
+      - name: Research harness tests (node --test)
+        run: node --test "src/research-harness/**/*.test.mjs"
+
+      - uses: ./.github/actions/install-node-dependencies
+        if: ${{ !cancelled() }}
+        with:
+          native-runtime: node
+          cache-pnpm-store-lookup-only: 'false'
+
+      - name: Restore Rust builds
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            native/windows-cli-launcher/target
+            native/windows-cli-launcher/.build
+            native/windows-agent-hook/target
+            native/windows-agent-hook/.build
+          key: aster-rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('native/windows-cli-launcher/**', 'native/windows-agent-hook/**', 'config/scripts/build-windows-*.mjs', 'config/scripts/windows-rust-executable-build.mjs', 'src/shared/product-brand.json', 'resources/build/*.ico', 'package.json') }}
+          restore-keys: aster-rust-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Typecheck
+        if: ${{ !cancelled() }}
+        run: pnpm tc
+
+      - name: Unit tests - research, CLI and Slack bridge
+        if: ${{ !cancelled() }}
+        env:
+          # Upstream orchestration and `serve` suites written for POSIX: sh quoting, Unix sockets,
+          # LaunchAgent/systemd paths, SIGTERM. They fail on Windows by construction, not by Aster.
+          POSIX_ONLY_UPSTREAM_TESTS: >-
+            src/cli/orchestration-mutation-recovery.test.ts
+            src/cli/orchestration-session-caller-cli.test.ts
+            src/cli/handlers/orchestration-gate-cli.test.ts
+            src/cli/handlers/orchestration-worker-cli.test.ts
+            src/cli/handlers/orchestration.test.ts
+            src/cli/handlers/serve-service.test.ts
+            src/cli/runtime/client-execution-host.test.ts
+            src/cli/runtime/client-recovery.test.ts
+            src/cli/runtime/launch-serve-replaced-app-restart.test.ts
+            src/cli/runtime/launch-serve-supervise.test.ts
+            src/cli/runtime/serve-install-hold.test.ts
+            src/cli/runtime/serve-orcad-launch.test.ts
+            src/cli/runtime/serve-service-unit.test.ts
+            src/cli/runtime/serve-supervisor-relocation.test.ts
+        # Why named files: --exclude does not reach vitest projects. Why node: cmd.exe, which a
+        # pnpm shim may go through, caps a command line at 8191 characters.
+        run: |
+          mapfile -t cli_tests < <(git ls-files 'src/cli/*.test.ts' | grep -vxF "$(printf '%s\n' $POSIX_ONLY_UPSTREAM_TESTS)")
+          node node_modules/vitest/vitest.mjs run --config config/vitest.config.ts --maxWorkers=2 \
+            src/main/research src/shared/research src/renderer/src/features/research \
+            src/shared/slack- "${cli_tests[@]}"
+
+      # The win32 launcher tests run the built aster.exe; reuses the restored build when current.
+      - name: Build the Rust launcher and agent hook
+        if: ${{ !cancelled() }}
+        run: pnpm run build:native
+
+      - name: Unit tests - Windows native slice
+        if: ${{ !cancelled() }}
+        run: >-
+          pnpm exec vitest run --config config/vitest.config.ts --maxWorkers=2
+          config/scripts/build-windows-cli-launcher.test.mjs
+          src/main/windows src/shared/__tests__/process-host
+          src/main/daemon/daemon-host-relocation src/main/startup/windows-install-dir
+          src/shared/windows-security-addon src/shared/secure-path-windows-acl
+
+  e2e:
+    name: Research E2E (Playwright)
+    if: >-
+      inputs.e2e || inputs.only_e2e || contains(github.event.head_commit.message, '[e2e]') ||
+      contains(github.event.head_commit.message, '[e2e-only]')
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/install-node-dependencies
+        with:
+          native-runtime: electron
+          cache-pnpm-store-lookup-only: 'false'
+
+      - name: Build the e2e app and CLI
+        run: |
+          pnpm exec electron-vite build --mode e2e
+          pnpm run build:cli
+
+      # One retry reports a slow-runner stall as flaky; the failed attempt keeps its trace.
+      - name: Run research specs
+        env:
+          SKIP_BUILD: '1'
+          ORCA_E2E_FORWARD_APP_LOGS: '1'
+        run: >-
+          pnpm exec playwright test --config tests/playwright.config.ts
+          tests/e2e/research-run-attach-compare.spec.ts
+          tests/e2e/research-workbench-native-chat.spec.ts
+          --project=electron-headless --workers=1 --retries=1
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: aster-windows-e2e-traces
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore

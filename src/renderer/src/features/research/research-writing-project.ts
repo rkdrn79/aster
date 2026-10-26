@@ -5,7 +5,7 @@ import type {
 import { relativePathInsideRoot } from '../../../../shared/cross-platform-path'
 import { useResearchRecords } from './research-records-store'
 import { readProjectCatalog } from './research-project-catalog'
-import { resolveManuscriptFile } from './research-writing-source'
+import { resolveManuscriptFile, statManuscriptSource } from './research-writing-source'
 
 export type WritingProjectScope = Pick<
   ExperimentRecord,
@@ -122,6 +122,9 @@ export async function saveProjectManuscript(
     })
   }
   await saveRecordsManuscript(scope, { sourcePath: file.relativePath, pdfPath: null })
+  if (!hasExperiments) {
+    saveProjectManuscriptPath(scope, file.relativePath)
+  }
   return file.relativePath
 }
 
@@ -149,11 +152,48 @@ export async function readCatalogManuscript(
     const catalog = await readProjectCatalog(scope)
     return { sourcePath: catalog.manuscript.source, pdfPath: catalog.manuscript.pdf }
   } catch {
-    return undefined
+    const selected = readProjectManuscriptPath(scope)
+    const sourcePath = selected ?? 'paper/main.tex'
+    try {
+      await statManuscriptSource(scope, resolveManuscriptFile(scope, sourcePath, '.tex'))
+    } catch {
+      return undefined
+    }
+    const pdfPathBesideSource = sourcePath.replace(/\.tex$/i, '.pdf')
+    const pdfCandidates =
+      sourcePath === 'paper/main.tex'
+        ? [pdfPathBesideSource, 'paper/build/main.pdf']
+        : [pdfPathBesideSource]
+    for (const pdfPath of pdfCandidates) {
+      try {
+        await statManuscriptSource(scope, resolveManuscriptFile(scope, pdfPath, '.pdf'))
+        return { sourcePath, pdfPath }
+      } catch {
+        // A source file is useful even when no PDF has been built yet.
+      }
+    }
+    return { sourcePath, pdfPath: null }
   }
 }
 
 const PROJECT_PDF_PREFIX = 'aster.research-writing-project-pdf.v1:'
+const PROJECT_SOURCE_PREFIX = 'aster.research-writing-project-source.v1:'
+
+function projectSourceKey(scope: WritingProjectScope): string {
+  return `${PROJECT_SOURCE_PREFIX}${scope.hostId}:${scope.workspaceId}`
+}
+
+function readProjectManuscriptPath(scope: WritingProjectScope): string | null {
+  try {
+    return localStorage.getItem(projectSourceKey(scope))
+  } catch {
+    return null
+  }
+}
+
+function saveProjectManuscriptPath(scope: WritingProjectScope, path: string): void {
+  localStorage.setItem(projectSourceKey(scope), path)
+}
 
 /** A project without Experiments has no record for its last build, so the PDF path stays here. */
 export function readProjectPdfPath(recordId: string, sourcePath: string): string | null {

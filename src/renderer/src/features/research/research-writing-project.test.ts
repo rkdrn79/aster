@@ -16,11 +16,11 @@ vi.mock('./research-writing-source', () => ({
 }))
 
 const scope: WritingProjectScope = {
-  hostId: 'runtime:vip',
+  hostId: 'runtime:research',
   workspaceId: 'streaming-video',
-  workspacePath: '/data/projects/StreamingVideo',
+  workspacePath: '/data/projects/ExamplePaper',
   projectId: null,
-  name: 'StreamingVideo'
+  name: 'ExamplePaper'
 }
 
 afterEach(() => vi.unstubAllGlobals())
@@ -49,7 +49,7 @@ describe('project Writing without a research catalog', () => {
   it('keeps the chosen main.tex when a new catalog points at a missing template path', async () => {
     vi.stubGlobal('localStorage', {
       getItem: (key: string) =>
-        key === 'aster.research-writing-project-source.v1:runtime:vip:streaming-video'
+        key === 'aster.research-writing-project-source.v1:runtime:research:streaming-video'
           ? 'main.tex'
           : null
     })

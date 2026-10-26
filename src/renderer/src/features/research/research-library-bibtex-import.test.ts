@@ -4,9 +4,9 @@ import { libraryPaperSchema, type LibraryScope } from '../../../../shared/resear
 import { bibtexArxivId, papersFromBibtex } from './research-library-bibtex-import'
 
 const scope: LibraryScope = {
-  hostId: 'runtime:vip',
+  hostId: 'runtime:research',
   workspaceId: 'streaming-video',
-  workspacePath: '/data/projects/StreamingVideo'
+  workspacePath: '/data/projects/ExamplePaper'
 }
 
 describe('project bibliography import', () => {

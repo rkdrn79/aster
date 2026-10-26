@@ -6,12 +6,12 @@ import type { ExperimentRecord } from '../../../../shared/research/research-reco
 const mocks = vi.hoisted(() => ({
   experiments: new Array<ExperimentRecord>(),
   scope: {
-    hostId: 'runtime:vip',
+    hostId: 'runtime:research',
     workspaceId: 'streaming-video',
-    workspacePath: '/data/projects/StreamingVideo',
+    workspacePath: '/data/projects/ExamplePaper',
     projectId: null,
-    workspaceName: 'StreamingVideo',
-    projectName: 'StreamingVideo'
+    workspaceName: 'ExamplePaper',
+    projectName: 'ExamplePaper'
   },
   readWritingManuscript: vi.fn()
 }))

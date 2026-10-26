@@ -7,16 +7,16 @@ import { researchHiddenTabIds } from './research-workbench-hidden-tabs'
 
 const project: ResearchHomeProject = {
   key: 'project:streaming',
-  name: 'StreamingVideo',
+  name: 'ExamplePaper',
   badgeColor: null,
   projectGroupId: null,
   lastVisitedAt: 0,
   workspaces: [
     {
       id: 'workspace-1',
-      executionHostId: 'runtime:vip',
-      name: 'StreamingVideo',
-      path: '/srv/StreamingVideo',
+      executionHostId: 'runtime:research',
+      name: 'ExamplePaper',
+      path: '/srv/ExamplePaper',
       branch: null,
       isMain: true,
       isFolder: false,
@@ -35,7 +35,7 @@ describe('remote Slack background task discovery', () => {
   it('keeps a coordinator out of Workbench until the user opens it, including after refresh', async () => {
     const getRemoteProjectTasks = vi.fn().mockResolvedValue({
       projectKey: project.key,
-      workspacePath: '/srv/StreamingVideo',
+      workspacePath: '/srv/ExamplePaper',
       agent: 'codex',
       sessions: [
         {
@@ -51,7 +51,7 @@ describe('remote Slack background task discovery', () => {
     const first = useResearchSlackBackgroundTasks.getState().entries[0]?.delegation
     expect(first).toMatchObject({
       targetWorkspaceId: 'workspace-1',
-      targetHostId: 'runtime:vip',
+      targetHostId: 'runtime:research',
       sessionId: 'codex-session-1'
     })
     expect(first?.workbenchVisible).toBeUndefined()
@@ -60,7 +60,7 @@ describe('remote Slack background task discovery', () => {
       entityId: 'codex-session-1',
       groupId: 'group-1',
       worktreeId: 'workspace-1',
-      executionHostId: 'runtime:vip',
+      executionHostId: 'runtime:research',
       contentType: 'agent-session',
       label: 'Slack coordinator',
       customLabel: null,
@@ -91,16 +91,16 @@ describe('remote Slack background task discovery', () => {
           ...project.workspaces[0]!,
           id: 'workspace-2',
           executionHostId: 'ssh:other',
-          path: '/work/StreamingVideo'
+          path: '/work/ExamplePaper'
         }
       ]
     }
     const getRemoteProjectTasks = vi.fn().mockImplementation(({ executionHostId }) =>
-      executionHostId === 'runtime:vip'
-        ? Promise.reject(new Error('VIP unreachable'))
+      executionHostId === 'runtime:research'
+        ? Promise.reject(new Error('Research host unreachable'))
         : Promise.resolve({
             projectKey: project.key,
-            workspacePath: '/work/StreamingVideo',
+            workspacePath: '/work/ExamplePaper',
             agent: 'codex',
             sessions: [
               {
@@ -114,7 +114,7 @@ describe('remote Slack background task discovery', () => {
     vi.stubGlobal('window', { api: { researchSlack: { getRemoteProjectTasks } } })
 
     await expect(useResearchSlackBackgroundTasks.getState().refresh(bothHosts)).rejects.toThrow(
-      'VIP unreachable'
+      'Research host unreachable'
     )
     expect(getRemoteProjectTasks).toHaveBeenCalledTimes(2)
     expect(useResearchSlackBackgroundTasks.getState().entries[0]?.delegation).toMatchObject({
@@ -123,7 +123,7 @@ describe('remote Slack background task discovery', () => {
       targetHostId: 'ssh:other'
     })
     expect(useResearchSlackBackgroundTasks.getState().errors).toMatchObject({
-      'runtime:vip:project:streaming': 'Error: VIP unreachable'
+      'runtime:research:project:streaming': 'Error: Research host unreachable'
     })
   })
 })

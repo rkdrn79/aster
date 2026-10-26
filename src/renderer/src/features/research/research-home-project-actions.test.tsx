@@ -39,18 +39,21 @@ vi.mock('./research-adopt-conversation', () => ({
 
 import { ResearchProjectMenuItems } from './research-home-project-actions'
 
-function project(groupId: string | null, hostId: 'local' | 'runtime:vip'): ResearchHomeProject {
+function project(
+  groupId: string | null,
+  hostId: 'local' | 'runtime:research'
+): ResearchHomeProject {
   return {
     key: groupId ? `group:${groupId}` : 'repo:shared',
-    name: 'StreamingVideo',
+    name: 'ExamplePaper',
     badgeColor: null,
     projectGroupId: groupId,
     workspaces: [
       {
-        id: groupId ? 'folder:workspace-1' : 'shared::/data/StreamingVideo',
+        id: groupId ? 'folder:workspace-1' : 'shared::/data/ExamplePaper',
         executionHostId: hostId,
         name: 'main',
-        path: '/data/StreamingVideo',
+        path: '/data/ExamplePaper',
         branch: groupId ? null : 'main',
         isMain: true,
         isFolder: groupId !== null,
@@ -62,11 +65,11 @@ function project(groupId: string | null, hostId: 'local' | 'runtime:vip'): Resea
   }
 }
 
-function repo(hostId: 'local' | 'runtime:vip'): Repo {
+function repo(hostId: 'local' | 'runtime:research'): Repo {
   return {
     id: 'shared',
-    path: '/data/StreamingVideo',
-    displayName: 'StreamingVideo',
+    path: '/data/ExamplePaper',
+    displayName: 'ExamplePaper',
     badgeColor: '',
     addedAt: 0,
     kind: 'git',
@@ -86,7 +89,7 @@ it('shows folder-project removal even though no Git repo row exists', () => {
   const removeFolderProject = vi.fn()
   render(
     <ResearchProjectMenuItems
-      project={project('group-1', 'runtime:vip')}
+      project={project('group-1', 'runtime:research')}
       onRename={vi.fn()}
       onSlack={vi.fn()}
       onRemoveFolderProject={removeFolderProject}
@@ -99,10 +102,10 @@ it('shows folder-project removal even though no Git repo row exists', () => {
 })
 
 it('targets the owning host when identical repo ids exist locally and remotely', () => {
-  mocks.repos = [repo('local'), repo('runtime:vip')]
+  mocks.repos = [repo('local'), repo('runtime:research')]
   render(
     <ResearchProjectMenuItems
-      project={project(null, 'runtime:vip')}
+      project={project(null, 'runtime:research')}
       onRename={vi.fn()}
       onSlack={vi.fn()}
       onRemoveFolderProject={vi.fn()}
@@ -112,15 +115,15 @@ it('targets the owning host when identical repo ids exist locally and remotely',
   fireEvent.click(screen.getByRole('button', { name: /Remove from Aster/ }))
   expect(mocks.openModal).toHaveBeenCalledWith('confirm-remove-folder', {
     repoId: 'shared',
-    displayName: 'StreamingVideo',
-    hostId: 'runtime:vip'
+    displayName: 'ExamplePaper',
+    hostId: 'runtime:research'
   })
 })
 
 it('keeps project organization available from the project actions menu', () => {
   render(
     <ResearchProjectMenuItems
-      project={project('group-1', 'runtime:vip')}
+      project={project('group-1', 'runtime:research')}
       onRename={vi.fn()}
       onSlack={vi.fn()}
       onRemoveFolderProject={vi.fn()}
@@ -130,8 +133,8 @@ it('keeps project organization available from the project actions menu', () => {
   fireEvent.click(screen.getByRole('button', { name: /Organize with agent in background/ }))
   expect(mocks.startResearchAdoptInBackground).toHaveBeenCalledWith({
     workspaceId: 'folder:workspace-1',
-    hostId: 'runtime:vip',
+    hostId: 'runtime:research',
     workspaceName: 'main',
-    projectName: 'StreamingVideo'
+    projectName: 'ExamplePaper'
   })
 })

@@ -34,19 +34,19 @@ describe('Slack bridge project routes', () => {
     const [route] = read([
       {
         ...base,
-        executionHostId: 'runtime:vip',
+        executionHostId: 'runtime:research',
         workspaceId: 'repo::/data/project',
-        environmentId: 'vip',
+        environmentId: 'research',
         hostKeyFingerprint: 'a'.repeat(64),
         runtimeId: 'remote-runtime'
       }
     ])
     expect(route).toMatchObject({
       worktree: 'id:repo::/data/project',
-      environmentId: 'vip',
+      environmentId: 'research',
       runtimeId: 'remote-runtime'
     })
-    expect(() => read([{ ...base, executionHostId: 'runtime:vip' }])).toThrow('paired runtime')
-    expect(() => read([{ ...base, environmentId: 'vip' }])).toThrow('verified workspace')
+    expect(() => read([{ ...base, executionHostId: 'runtime:research' }])).toThrow('paired runtime')
+    expect(() => read([{ ...base, environmentId: 'research' }])).toThrow('verified workspace')
   })
 })

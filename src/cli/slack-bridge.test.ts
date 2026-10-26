@@ -137,10 +137,10 @@ describe('Slack Socket Mode bridge', () => {
         allowedChannels: new Set(['C123'])
       },
       {
-        id: 'vip',
-        projectName: 'VIP',
-        worktree: 'id:vip-repo::/project',
-        environmentId: 'vip',
+        id: 'research',
+        projectName: 'Research host',
+        worktree: 'id:research-repo::/project',
+        environmentId: 'research',
         agent: 'codex',
         allowedUsers: new Set(['U123']),
         allowedChannels: new Set(['C456'])
@@ -159,7 +159,7 @@ describe('Slack Socket Mode bridge', () => {
     const openSocket = vi.fn(async () => wire.socket)
     const bridge = runSlackBridge({
       client: local,
-      clientForRoute: (route) => (route.id === 'vip' ? remote : local),
+      clientForRoute: (route) => (route.id === 'research' ? remote : local),
       routes: () => routes,
       appToken: 'xapp-test',
       botToken: 'xoxb-test',
@@ -183,7 +183,7 @@ describe('Slack Socket Mode bridge', () => {
       wire.emit(mention('C456', '1720000000.000001'))
       await vi.waitFor(() => expect(deliver).toHaveBeenCalledTimes(1))
       expect(deliver).toHaveBeenCalledWith(
-        expect.objectContaining({ client: remote, worktree: 'id:vip-repo::/project' })
+        expect.objectContaining({ client: remote, worktree: 'id:research-repo::/project' })
       )
       await vi.waitFor(() => expect(waitForAnswer).toHaveBeenCalledWith(remote, expect.anything()))
       wire.emit(mention('C123', '1720000000.000002'))
@@ -219,14 +219,14 @@ describe('Slack Socket Mode bridge', () => {
     const bridge = runSlackBridge({
       client,
       clientForRoute: () => {
-        throw new Error('VIP disconnected')
+        throw new Error('Research host disconnected')
       },
       routes: () => [
         {
-          id: 'vip',
-          projectName: 'VIP',
+          id: 'research',
+          projectName: 'Research host',
           worktree: 'id:repo::/project',
-          environmentId: 'vip',
+          environmentId: 'research',
           agent: 'codex',
           allowedUsers: new Set(['U123']),
           allowedChannels: new Set(['C456'])

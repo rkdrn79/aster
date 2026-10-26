@@ -6,8 +6,8 @@ describe('active research workspace', () => {
     const workspace = {
       id: 'same-worktree',
       executionHostId: 'local' as const,
-      name: 'StreamingVideo',
-      path: '/local/StreamingVideo',
+      name: 'ExamplePaper',
+      path: '/local/ExamplePaper',
       branch: null,
       isMain: true,
       isFolder: false,
@@ -16,21 +16,21 @@ describe('active research workspace', () => {
     }
     const project: ResearchHomeProject = {
       key: 'project:streaming',
-      name: 'StreamingVideo',
+      name: 'ExamplePaper',
       badgeColor: null,
       projectGroupId: null,
       lastVisitedAt: 0,
       workspaces: [
         workspace,
-        { ...workspace, executionHostId: 'runtime:vip', path: '/srv/StreamingVideo' }
+        { ...workspace, executionHostId: 'runtime:research', path: '/srv/ExamplePaper' }
       ]
     }
 
     expect(
-      findResearchActiveProject([project], workspace.id, 'runtime:vip').workspace
+      findResearchActiveProject([project], workspace.id, 'runtime:research').workspace
     ).toMatchObject({
-      executionHostId: 'runtime:vip',
-      path: '/srv/StreamingVideo'
+      executionHostId: 'runtime:research',
+      path: '/srv/ExamplePaper'
     })
     expect(findResearchActiveProject([project], workspace.id, 'ssh:missing')).toEqual({
       project: null,

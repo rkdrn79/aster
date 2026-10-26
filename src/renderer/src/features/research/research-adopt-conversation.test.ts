@@ -22,15 +22,15 @@ describe('resolveResearchAdoptAgent', () => {
     mocks.callRuntimeRpc.mockReset()
   })
 
-  it('uses the VIP host default instead of the Mac default', async () => {
-    mocks.targetForHost.mockReturnValue({ kind: 'environment', environmentId: 'vip' })
+  it('uses the Research host host default instead of the Mac default', async () => {
+    mocks.targetForHost.mockReturnValue({ kind: 'environment', environmentId: 'research' })
     mocks.callRuntimeRpc.mockResolvedValue({
       settings: { defaultTuiAgent: 'codex', disabledTuiAgents: [] }
     })
 
-    await expect(resolveResearchAdoptAgent('runtime:vip')).resolves.toBe('codex')
+    await expect(resolveResearchAdoptAgent('runtime:research')).resolves.toBe('codex')
     expect(mocks.callRuntimeRpc).toHaveBeenCalledWith(
-      { kind: 'environment', environmentId: 'vip' },
+      { kind: 'environment', environmentId: 'research' },
       'settings.get',
       undefined,
       { timeoutMs: 15_000 }
@@ -45,10 +45,10 @@ describe('resolveResearchAdoptAgent', () => {
   })
 
   it('refuses an unavailable host default instead of silently starting Claude', async () => {
-    mocks.targetForHost.mockReturnValue({ kind: 'environment', environmentId: 'vip' })
+    mocks.targetForHost.mockReturnValue({ kind: 'environment', environmentId: 'research' })
     mocks.callRuntimeRpc.mockResolvedValue({ settings: { defaultTuiAgent: 'blank' } })
 
-    await expect(resolveResearchAdoptAgent('runtime:vip')).rejects.toThrow(
+    await expect(resolveResearchAdoptAgent('runtime:research')).rejects.toThrow(
       'Set an available default agent on the project host'
     )
   })

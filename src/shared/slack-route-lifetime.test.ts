@@ -13,33 +13,35 @@ const local: SlackProjectRoute = {
   allowedUsers: ['U123'],
   agent: 'codex'
 }
-const vip: SlackProjectRoute = {
+const research: SlackProjectRoute = {
   ...local,
-  projectKey: 'vip',
-  executionHostId: 'runtime:vip',
-  environmentId: 'vip',
+  projectKey: 'research',
+  executionHostId: 'runtime:research',
+  environmentId: 'research',
   workspaceId: 'repo::/project',
   hostKeyFingerprint: 'a'.repeat(64),
-  runtimeId: 'runtime-vip'
+  runtimeId: 'runtime-research'
 }
 
 describe('Slack route lifetime', () => {
-  const dependency = (id: string) => (id === 'vip' ? 'ssh-tunnel' : undefined)
+  const dependency = (id: string) => (id === 'research' ? 'ssh-tunnel' : undefined)
 
-  it('blocks moving a VIP route into the app-closed service', () => {
-    expect(slackBackgroundRouteBlocker([local, vip], dependency)).toContain('needs Aster open')
-    expect(() => assertSlackRouteLifetimeCompatible([local, vip], true, dependency)).toThrow(
+  it('blocks moving a Research host route into the app-closed service', () => {
+    expect(slackBackgroundRouteBlocker([local, research], dependency)).toContain('needs Aster open')
+    expect(() => assertSlackRouteLifetimeCompatible([local, research], true, dependency)).toThrow(
       'needs Aster open'
     )
   })
 
-  it('blocks adding VIP while the service owns the socket, but permits the app-owned socket', () => {
-    expect(() => assertSlackRouteLifetimeCompatible([vip], true, dependency)).toThrow()
-    expect(() => assertSlackRouteLifetimeCompatible([vip], false, dependency)).not.toThrow()
+  it('blocks adding Research host while the service owns the socket, but permits the app-owned socket', () => {
+    expect(() => assertSlackRouteLifetimeCompatible([research], true, dependency)).toThrow()
+    expect(() => assertSlackRouteLifetimeCompatible([research], false, dependency)).not.toThrow()
     expect(() => assertSlackRouteLifetimeCompatible([local], true, dependency)).not.toThrow()
   })
 
   it('does not mistake an independent relay runtime for an app-owned SSH tunnel', () => {
-    expect(slackBackgroundRouteBlocker([{ ...vip, environmentId: 'relay' }], dependency)).toBeNull()
+    expect(
+      slackBackgroundRouteBlocker([{ ...research, environmentId: 'relay' }], dependency)
+    ).toBeNull()
   })
 })

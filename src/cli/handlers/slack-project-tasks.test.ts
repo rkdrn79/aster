@@ -21,8 +21,8 @@ describe('Slack project background tasks', () => {
     mkdirSync(join(root, 'slack'))
     const route = {
       projectKey: 'streaming',
-      projectName: 'StreamingVideo',
-      workspacePath: '/srv/StreamingVideo',
+      projectName: 'ExamplePaper',
+      workspacePath: '/srv/ExamplePaper',
       channelIds: ['C123'],
       allowedUsers: ['*'],
       agent: 'codex' as const
@@ -43,7 +43,7 @@ describe('Slack project background tasks', () => {
     })
     expect(readSlackProjectTasks(root, 'streaming')).toEqual({
       projectKey: 'streaming',
-      workspacePath: '/srv/StreamingVideo',
+      workspacePath: '/srv/ExamplePaper',
       agent: 'codex',
       sessions: [{ channelId: 'C123', threadTs: '1720000000.000001', sessionId: 'codex-thread-a' }]
     })

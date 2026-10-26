@@ -8,16 +8,16 @@ vi.mock('./runtime-environment-store', () => ({ resolveEnvironment: vi.fn() }))
 
 const key = Buffer.alloc(32, 7).toString('base64')
 const route = {
-  environmentId: 'vip',
-  executionHostId: 'runtime:vip',
+  environmentId: 'research',
+  executionHostId: 'runtime:research',
   hostKeyFingerprint: slackHostKeyFingerprint(key),
   runtimeId: 'runtime-1'
 }
 
 function environment(publicKeyB64: string, runtimeId: string) {
   return createEnvironmentFromPairingOffer({
-    id: 'vip',
-    name: 'VIP',
+    id: 'research',
+    name: 'Research host',
     now: 1,
     runtimeId,
     offer: {
@@ -35,8 +35,8 @@ beforeEach(() => {
 
 describe('remote Slack host fence', () => {
   it('allows only the pinned paired host and runtime', () => {
-    expect(assertSlackRouteHost('/profile', route)).toBe('vip')
-    expect(resolveEnvironment).toHaveBeenCalledWith('/profile', 'vip')
+    expect(assertSlackRouteHost('/profile', route)).toBe('research')
+    expect(resolveEnvironment).toHaveBeenCalledWith('/profile', 'research')
   })
 
   it('refuses a re-paired host or changed runtime before delivery', () => {
@@ -49,7 +49,7 @@ describe('remote Slack host fence', () => {
   })
 
   it('never routes a remote binding without a paired environment as local', () => {
-    expect(() => assertSlackRouteHost('/profile', { executionHostId: 'runtime:vip' })).toThrow(
+    expect(() => assertSlackRouteHost('/profile', { executionHostId: 'runtime:research' })).toThrow(
       'no paired runtime'
     )
   })

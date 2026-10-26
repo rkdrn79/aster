@@ -4,12 +4,12 @@ import { afterEach, expect, it, vi } from 'vitest'
 
 const project = {
   key: 'project:streaming',
-  name: 'StreamingVideo',
+  name: 'ExamplePaper',
   workspaces: [
     {
       id: 'workspace-1',
-      executionHostId: 'runtime:vip',
-      path: '/srv/StreamingVideo'
+      executionHostId: 'runtime:research',
+      path: '/srv/ExamplePaper'
     }
   ]
 }
@@ -34,13 +34,13 @@ it('discovers new Slack coordinators without a mounted Workbench conversation li
     .fn()
     .mockResolvedValueOnce({
       projectKey: project.key,
-      workspacePath: '/srv/StreamingVideo',
+      workspacePath: '/srv/ExamplePaper',
       agent: 'codex',
       sessions: []
     })
     .mockResolvedValue({
       projectKey: project.key,
-      workspacePath: '/srv/StreamingVideo',
+      workspacePath: '/srv/ExamplePaper',
       agent: 'codex',
       sessions: [
         {

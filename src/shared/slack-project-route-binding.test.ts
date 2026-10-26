@@ -27,7 +27,11 @@ describe('Slack project binding', () => {
     )
     expect(slackProjectRouteId({ ...alpha, agent: 'claude' })).not.toBe(slackProjectRouteId(alpha))
     expect(
-      slackProjectRouteId({ ...alpha, executionHostId: 'runtime:vip', environmentId: 'vip' })
+      slackProjectRouteId({
+        ...alpha,
+        executionHostId: 'runtime:research',
+        environmentId: 'research'
+      })
     ).not.toBe(slackProjectRouteId(alpha))
   })
 

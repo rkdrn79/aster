@@ -27,9 +27,9 @@ vi.mock('./research-library-store', () => ({
 }))
 
 const scope: LibraryScope = {
-  hostId: 'runtime:vip',
+  hostId: 'runtime:research',
   workspaceId: 'streaming-video',
-  workspacePath: '/data/projects/StreamingVideo'
+  workspacePath: '/data/projects/ExamplePaper'
 }
 
 let document: ResearchLibraryDocument

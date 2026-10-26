@@ -29,17 +29,17 @@ import { useWritingCompile } from './research-writing-compile'
 
 const record: ExperimentRecord = {
   id: 'experiment-1',
-  name: 'StreamingVideo',
+  name: 'ExamplePaper',
   projectId: null,
   workspaceId: 'streaming-video',
-  workspacePath: '/data/projects/StreamingVideo',
-  hostId: 'runtime:vip',
+  workspacePath: '/data/projects/ExamplePaper',
+  hostId: 'runtime:research',
   archived: false,
   createdAt: '2026-10-26T00:00:00Z',
   updatedAt: '2026-10-26T00:00:00Z'
 }
 const rootFile = {
-  absolutePath: '/data/projects/StreamingVideo/main.tex',
+  absolutePath: '/data/projects/ExamplePaper/main.tex',
   relativePath: 'main.tex'
 }
 
@@ -72,7 +72,7 @@ it('records a remote PDF build on active Experiments missing the project manuscr
   mocks.document.mockImplementation(() => document)
   mocks.rpc.mockResolvedValue({
     status: 'ok',
-    pdfPath: '/data/projects/StreamingVideo/build/main.pdf',
+    pdfPath: '/data/projects/ExamplePaper/build/main.pdf',
     builtAt: '2026-10-26T01:00:00Z',
     output: 'Build complete'
   })
@@ -115,7 +115,7 @@ function attachSavedExperiment(experiment: ExperimentRecord): () => ExperimentRe
   )
   mocks.localCompile.mockResolvedValue({
     status: 'ok',
-    pdfPath: '/data/projects/StreamingVideo/build/main.pdf',
+    pdfPath: '/data/projects/ExamplePaper/build/main.pdf',
     builtAt: '2026-10-26T01:00:00Z',
     output: 'Build complete'
   })

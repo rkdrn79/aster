@@ -12,7 +12,7 @@ const remoteScope: LibraryScope = {
 }
 
 describe('Library PDF download routing', () => {
-  it('saves a remote project PDF on its owning VIP runtime', async () => {
+  it('saves a remote project PDF on its owning Research host runtime', async () => {
     mocks.callRuntimeRpc.mockResolvedValue({ relativePath: '.aster/library/papers/2607.13298.pdf' })
     expect(canDownloadLibraryPdf(remoteScope)).toBe(true)
     await expect(downloadLibraryArxivPdf(remoteScope, '2607.13298')).resolves.toEqual({

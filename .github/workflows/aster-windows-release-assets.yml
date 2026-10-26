@@ -1,0 +1,72 @@
+name: Aster Windows release assets
+
+# Publish only a completed, passing Windows run built from the exact release tag.
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Published Aster release tag (for example v1.0.1)
+        required: true
+        type: string
+      source_run_id:
+        description: Successful Aster Windows workflow run ID
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    if: github.repository == 'rkdrn79/aster'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ASTER_RELEASE_TAG: ${{ inputs.release_tag }}
+      ASTER_SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.release_tag }}
+          persist-credentials: false
+      - name: Verify release and source run
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$ASTER_RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$ASTER_SOURCE_RUN_ID" =~ ^[0-9]+$ ]]
+          test "$(gh release view "$ASTER_RELEASE_TAG" --json isDraft --jq .isDraft)" = false
+          test "$(gh run view "$ASTER_SOURCE_RUN_ID" --json status --jq .status)" = completed
+          test "$(gh run view "$ASTER_SOURCE_RUN_ID" --json conclusion --jq .conclusion)" = success
+          test "$(gh run view "$ASTER_SOURCE_RUN_ID" --json workflowName --jq .workflowName)" = 'Aster Windows'
+          test "$(gh run view "$ASTER_SOURCE_RUN_ID" --json headSha --jq .headSha)" = "$(git rev-parse HEAD)"
+          node -e 'const v=require("./package.json").version; if(process.env.ASTER_RELEASE_TAG!==`v${v}`) process.exit(1)'
+      - name: Download and verify the tested Windows packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run download "$ASTER_SOURCE_RUN_ID" -n aster-windows-setup-x64 -D setup
+          gh run download "$ASTER_SOURCE_RUN_ID" -n aster-windows-x64-zip -D portable
+          test -s setup/aster-windows-setup.exe
+          test -s portable/aster-windows-x64.zip
+          unzip -tq portable/aster-windows-x64.zip
+          mkdir release-assets
+          mv setup/aster-windows-setup.exe release-assets/Aster-windows-setup-x64.exe
+          mv portable/aster-windows-x64.zip release-assets/Aster-windows-x64.zip
+          cd release-assets
+          sha256sum Aster-windows-setup-x64.exe Aster-windows-x64.zip > SHA256SUMS-windows.txt
+      - name: Attach packages to the existing release
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release upload "$ASTER_RELEASE_TAG" \
+            release-assets/Aster-windows-setup-x64.exe \
+            release-assets/Aster-windows-x64.zip \
+            release-assets/SHA256SUMS-windows.txt
+          assets="$(gh release view "$ASTER_RELEASE_TAG" --json assets --jq '.assets[].name')"
+          for name in Aster-windows-setup-x64.exe Aster-windows-x64.zip SHA256SUMS-windows.txt; do
+            grep -Fxq "$name" <<< "$assets"
+          done

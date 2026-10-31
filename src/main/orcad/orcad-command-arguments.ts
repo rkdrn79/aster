@@ -26,9 +26,12 @@ Options:
   --recipe-json            Print only the VM recipe line; requires --project-root.
   --project-root <dir>     Existing absolute project directory for --recipe-json.
   --web-client-root <dir>  Serve the browser client from this directory (holds web-index.html).
-  --relay <wss-url>        Experimental: also serve clients through a Paseo protocol v2 relay
-                           (for example wss://relay.paseo.sh/ws), with no inbound port. With
-                           --mobile-pairing the offer points the phone at the relay.
+  --relay <wss-url>        Experimental: also serve clients through an Aster relay (for example
+                           wss://aster-relay.<subdomain>.workers.dev/ws?key=<key>), with no
+                           inbound port. Pairing offers then point at the relay, and the
+                           runtime offer's link opens the hosted web client.
+  --web-client-url <url>   Experimental: the hosted web client a runtime pairing link opens
+                           (default with --relay: the Aster site's copy).
   --help, -h               Print this text and exit without starting the server.
 
 Environment:
@@ -101,6 +104,13 @@ export function parseArgs(argv: string[]): OrcadCommandArguments {
       }
       options.relay = value
       i += 1
+    } else if (arg === '--web-client-url') {
+      const value = argv[i + 1]
+      if (value === undefined) {
+        throw new Error('--web-client-url expects a value')
+      }
+      options.webClientUrl = value
+      i += 1
     } else {
       throw new Error(`Unknown argument: ${arg}`)
     }
@@ -112,6 +122,7 @@ export function parseArgs(argv: string[]): OrcadCommandArguments {
     recipeJson: options.recipeJson === true,
     projectRoot: options.projectRoot,
     relay: options.relay,
+    webClientUrl: options.webClientUrl,
     pairingAddress: options.pairingAddress
   })
   if (validationError) {

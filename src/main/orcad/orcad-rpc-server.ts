@@ -4,10 +4,13 @@ import { resolveOrcadWebClientRoot } from './orcad-command-arguments'
 import type { OrcadRuntimeCleanup } from './orcad-runtime-lifetime'
 import type { OrcadOptions } from './orcad-start-contract'
 import { orcadWsPortOptions } from './orcad-ws-port-policy'
+import { OrcadPhoneRelay, readConfiguredRelayUrl, withRelayPairingEndpoint } from './orcad-relay'
+import { setPhoneRelayControl } from '../runtime/phone-relay-control'
+import { startOrcadPhoneNotify } from './orcad-phone-notify'
 
 /**
- * Serves runtime RPC on orcad's pinned listener and, with `--relay`, through that relay too.
- * Returns the options the pairing offer should read.
+ * Serves runtime RPC on orcad's pinned listener and, with `--relay` or a desktop-configured relay,
+ * through that relay too. Returns the options the pairing offer should read.
  */
 export async function startOrcadRpcServer(input: {
   runtime: OrcaRuntimeService
@@ -32,16 +35,28 @@ export async function startOrcadRpcServer(input: {
   // Stops first: no RPC may write while the rest of the runtime is torn down.
   registerCleanup(() => rpc.stop())
   await rpc.start()
-  if (!options.relay) {
-    return { rpc, pairingOptions: options }
+  const phoneRelay = new OrcadPhoneRelay({ userDataPath: input.userDataPath, rpc })
+  // Why the flag wins: it is this launch's posture, while the configured URL is the desktop's choice.
+  const relayUrl = options.relay ?? readConfiguredRelayUrl(input.userDataPath)
+  if (relayUrl) {
+    phoneRelay.start(relayUrl)
   }
-  const { startOrcadPaseoRelay, withRelayPairingEndpoint } = await import('./orcad-paseo-relay')
-  const relay = startOrcadPaseoRelay({
-    relayUrl: options.relay,
-    userDataPath: input.userDataPath,
-    rpc
-  })
+  setPhoneRelayControl(phoneRelay)
   // Registered after the RPC stop so it runs first: no relay client is redialed mid-shutdown.
-  registerCleanup(() => relay.stop())
-  return { rpc, pairingOptions: withRelayPairingEndpoint(options, relay.clientUrl) }
+  registerCleanup(() => {
+    setPhoneRelayControl(null)
+    phoneRelay.stop()
+  })
+  startOrcadPhoneNotify({
+    runtime: input.runtime,
+    rpc,
+    userDataPath: input.userDataPath,
+    registerCleanup
+  })
+  // Why only --relay moves the offer: a managing desktop pairs itself from it through its tunnel.
+  const clientUrl = options.relay ? phoneRelay.clientUrl : null
+  return {
+    rpc,
+    pairingOptions: clientUrl ? withRelayPairingEndpoint(options, clientUrl) : options
+  }
 }

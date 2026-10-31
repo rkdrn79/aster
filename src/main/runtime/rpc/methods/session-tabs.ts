@@ -16,6 +16,7 @@ import {
 } from './session-tabs-inventory'
 import { SESSION_TAB_MARKDOWN_METHODS } from './session-tab-markdown-methods'
 import { SESSION_TAB_MUTATION_METHODS } from './session-tab-mutation-methods'
+import { SESSION_TAB_ORCHESTRATION_LINEAGE_METHODS } from './session-tab-orchestration-lineage'
 import { createSessionTabsRetirementProofDelta } from './session-tabs-retirement-proof-delta'
 import { restoreStructuredTabsIfSupported } from './structured-session-tab-restore'
 import { assertLegacyAiVaultResumeCommandAllowed } from '../../../ai-vault/structured-session-ownership'
@@ -51,6 +52,7 @@ export const SESSION_TAB_METHODS = [
   }),
   ...SESSION_TAB_MUTATION_METHODS,
   ...SESSION_TAB_CLOSE_METHODS,
+  ...SESSION_TAB_ORCHESTRATION_LINEAGE_METHODS,
   defineMethod({
     name: 'session.tabs.createTerminal',
     permission: 'workspace',

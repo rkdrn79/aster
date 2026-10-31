@@ -15,7 +15,8 @@ export type RpcCallerScope =
   /** `delegated`: a phone a paired desktop holds a child device for; it reaches no further than that
    *  desktop, which is never granted `pairing-admin`. */
   | { kind: 'mobile'; delegated?: boolean }
-  | { kind: 'runtime-paired'; grants: readonly RuntimeDeviceGrant[] }
+  /** `phoneAccess`: a phone that paired from a phone-access QR or link (phoneRelay.pair). */
+  | { kind: 'runtime-paired'; grants: readonly RuntimeDeviceGrant[]; phoneAccess?: boolean }
 
 export const OWNER_RPC_CALLER_SCOPE: RpcCallerScope = { kind: 'owner' }
 
@@ -32,6 +33,8 @@ const RUNTIME_PAIRED_STANDARD: ReadonlySet<RpcMethodPermission> = new Set([
   'host-admin',
   'device-self'
 ])
+
+const PHONE_RELAY_METHOD_PREFIX = 'phoneRelay.'
 
 /**
  * Returns the refusal message, or null when the caller may invoke the method. `permission` is
@@ -53,6 +56,11 @@ export function denyRpcMethodForCaller(
   }
   if (scope.kind === 'owner' || permission === undefined) {
     return null
+  }
+  // Why: phoneRelay.* mints pairings, revokes phones and repoints every phone's relay; only the
+  // desktop managing this host does that, and a phone's UI never calls it.
+  if (scope.phoneAccess && methodName.startsWith(PHONE_RELAY_METHOD_PREFIX)) {
+    return `Method '${methodName}' is not available to a phone paired through phone access. Manage phone access from the desktop that manages this server.`
   }
   return !RUNTIME_PAIRED_STANDARD.has(permission) &&
     !scope.grants.some((grant) => grant === permission)

@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useAppStore } from '../../store'
 import { captureWorkspaceEmptiedReaction } from './workspace-emptied-reaction'
 import { isEditorTabContentType } from '@/store/slices/editor/tabs/editor-tab-content-type'
+import { selectResearchHiddenTabIds } from '@/features/research/research-workbench-hidden-tabs'
 import {
   useBulkTabCloseConfirmation,
   type BulkTabCloseScope
@@ -29,8 +30,10 @@ export function useTabGroupCloseScopeCommands({
       if (!group) {
         return []
       }
+      // Why: bulk closes act on the strip the user sees; folded subagents keep running.
+      const hidden = selectResearchHiddenTabIds(state, worktreeId)
       const tabs = (state.unifiedTabsByWorktree[worktreeId] ?? []).filter(
-        (tab) => tab.groupId === groupId
+        (tab) => tab.groupId === groupId && !hidden.has(tab.id)
       )
       if (scope === 'editors') {
         return tabs

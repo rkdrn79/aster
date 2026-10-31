@@ -32,6 +32,7 @@ import type { TerminalPaneManagerOptionsContext } from './terminal-pane-mount-co
 import { resolveTerminalInlineImagesEnabled } from '../../../../shared/terminal-inline-images-settings'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
 import { layoutOwnerPaneGestures } from './terminal-pane-layout-owner-gestures'
+import { phoneTerminalFontSize } from '@/phone-shell/use-phone-shell'
 
 /** Builds the imperative PaneManager option bag from the mount context. */
 export function createTerminalPaneManagerOptions(
@@ -151,7 +152,7 @@ export function createTerminalPaneManagerOptions(
       return {
         ...buildWindowsPtyCompatibilityOptions(ptyBackendContext),
         ...buildTerminalKeyboardProtocolOptions(ptyBackendContext),
-        fontSize: currentSettings?.terminalFontSize ?? 14,
+        fontSize: phoneTerminalFontSize(currentSettings?.terminalFontSize ?? 14),
         fontFamily: buildFontFamily(currentSettings?.terminalFontFamily ?? ''),
         fontWeight: terminalFontWeights.fontWeight,
         fontWeightBold: terminalFontWeights.fontWeightBold,

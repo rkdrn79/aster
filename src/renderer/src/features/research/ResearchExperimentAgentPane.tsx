@@ -20,7 +20,7 @@ import {
 import { cn } from '@/lib/utils'
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
 import { ResearchAgentChatPane } from './ResearchAgentChatPane'
-import { LOCAL_CATALOG_ONLY, type AgentReviewOutcome } from './research-agent-review-launch'
+import { CATALOG_ONLY, type AgentReviewOutcome } from './research-agent-review-launch'
 import type { AgentReviewSetup, AgentReviewTarget } from './research-agent-review-prompt'
 import {
   askExperimentAgent,
@@ -83,7 +83,7 @@ function QuickPrompts({ experiment }: { experiment: ExperimentRecord }): React.J
     <div
       role="group"
       aria-label="Ask the experiment agent"
-      title={scope ? undefined : LOCAL_CATALOG_ONLY}
+      title={scope ? undefined : CATALOG_ONLY}
       className="@container flex shrink-0 items-center gap-1.5 overflow-hidden border-b border-border px-3 py-2"
     >
       {EXPERIMENT_CHAT_QUICK_PROMPTS.map(({ label, request }, index) => {

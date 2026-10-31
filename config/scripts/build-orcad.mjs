@@ -6,6 +6,7 @@ import {
   buildOrcadEntry,
   buildOrcadCli,
   buildOrcadLauncher,
+  buildOrcadResearchHarness,
   externalNativeAddons,
   ORCAD_EXTERNAL_MODULES,
   ORCAD_CHILD_ENTRY_POINTS,
@@ -47,6 +48,7 @@ import {
   ORCAD_NODE_RUNTIME_MARKER_FILENAME,
   ORCAD_PARCEL_WATCHER_ENTRY,
   ORCAD_PARCEL_WATCHER_NATIVE,
+  ORCAD_RESEARCH_HARNESS_CLI_FILENAME,
   ORCAD_SERVER_TARGET_FILENAME,
   ORCAD_VERSION_FILENAME,
   orcadNodePtySlotFiles,
@@ -248,6 +250,7 @@ const childResults = await Promise.all(
 
 const result = await buildOrcadEntry(SERVER_OUT_FILE)
 const cliResult = await buildOrcadCli(join(OUT_DIR, ORCAD_CLI_ENTRY_FILENAME))
+await buildOrcadResearchHarness(join(OUT_DIR, ORCAD_RESEARCH_HARNESS_CLI_FILENAME))
 const { version: cliVersion } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'))
 // Why commit: `orca skills install|update` pins official skills to it, as the desktop CLI does.
 const cliPackage = {

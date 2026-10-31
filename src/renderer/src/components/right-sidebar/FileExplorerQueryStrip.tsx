@@ -6,12 +6,15 @@ import type { RightSidebarExplorerView } from '../../../../shared/ui-chrome-type
 type FileExplorerQueryStripProps = {
   view: RightSidebarExplorerView
   onSelectView: (view: RightSidebarExplorerView) => void
+  /** The phone layout: only the name filter, on the page gutter. */
+  phone?: boolean
   children: React.ReactNode
 }
 
 export function FileExplorerQueryStrip({
   view,
   onSelectView,
+  phone = false,
   children
 }: FileExplorerQueryStripProps): React.JSX.Element {
   const stripRef = useRef<HTMLDivElement>(null)
@@ -34,7 +37,9 @@ export function FileExplorerQueryStrip({
   return (
     <div
       ref={stripRef}
-      className="border-b border-border px-2 py-2"
+      className={
+        phone ? 'border-b border-border px-4 pt-1 pb-3' : 'border-b border-border px-2 py-2'
+      }
       onPointerDownCapture={(event) => {
         if (
           event.button === 0 &&
@@ -47,7 +52,7 @@ export function FileExplorerQueryStrip({
       }}
     >
       <div className="flex flex-col gap-2">
-        <FileExplorerViewSwitch view={view} onSelectView={handleSelectView} />
+        {phone ? null : <FileExplorerViewSwitch view={view} onSelectView={handleSelectView} />}
         {children}
       </div>
     </div>

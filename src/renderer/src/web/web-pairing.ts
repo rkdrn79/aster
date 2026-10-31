@@ -38,6 +38,10 @@ export function parseWebPairingInput(input: string): WebPairingOffer | null {
   }
 
   try {
+    if (isWebLink(trimmed)) {
+      const inner = pairingInputFromWebClientLink(trimmed)
+      return inner ? parseWebPairingInput(inner) : null
+    }
     if (startsWithAcceptedUrlScheme(trimmed)) {
       const code = extractPairingCodeFromUrl(trimmed)
       return code ? decodePairingPayload(code) : null
@@ -139,6 +143,23 @@ function decodePairingPayload(base64url: string): WebPairingOffer | null {
 
 function parseWebPairingScope(value: unknown): DeviceScope | null {
   return value === 'mobile' || value === 'runtime' ? value : null
+}
+
+function isWebLink(input: string): boolean {
+  return /^https?:\/\//i.test(input)
+}
+
+// Why: a home-screen web app keeps its own storage and can't be opened by a link, so the
+// web client link (https://…/web-index.html#pairing=…) has to work when pasted as well.
+function pairingInputFromWebClientLink(link: string): string | null {
+  let url: URL
+  try {
+    url = new URL(link)
+  } catch {
+    return null
+  }
+  const inner = readPairingInputFromLocation(url)
+  return inner && !isWebLink(inner) ? inner : null
 }
 
 function extractPairingCodeFromUrl(url: string): string | null {

@@ -41,10 +41,14 @@ import { useFileExplorerNameFilter } from './use-file-explorer-name-filter'
 import { useFileExplorerTreePaneState } from './use-file-explorer-tree-pane-state'
 import { useWslHostUnavailableReason } from '../terminal-pane/use-wsl-host-unavailable-reason'
 import { translate } from '@/i18n/i18n'
+import { usePhoneShell } from '@/phone-shell/use-phone-shell'
 
 /** Coordinates scoped navigation while retaining the actual worktree root for file operations and runtime routing. */
 function FileExplorerFiles(): React.JSX.Element {
-  const explorerView = useAppStore((s) => s.rightSidebarExplorerView)
+  // Why: a phone browses names only, under its own header; Contents search stays on desktop.
+  const phoneShell = usePhoneShell()
+  const storedExplorerView = useAppStore((s) => s.rightSidebarExplorerView)
+  const explorerView = phoneShell ? 'files' : storedExplorerView
   const setRightSidebarExplorerView = useAppStore((s) => s.setRightSidebarExplorerView)
   const searchPanel = useFileSearchPanel(explorerView)
   const activeWorktreeId = useAppStore((s) => s.activeWorktreeId)
@@ -248,21 +252,23 @@ function FileExplorerFiles(): React.JSX.Element {
         }
         className="flex min-h-0 flex-1 flex-col"
       >
-        <FileExplorerToolbar
-          repoName={repoName}
-          worktreePath={worktreePath}
-          {...getRouteForLocalPathOpenOwner(openInOwner)}
-          workspaceId={activeWorktreeId}
-          refresh={manualRefresh}
-          canRefresh={isFilesViewActive}
-          canCollapseAll={canCollapseAll}
-          onCollapseAll={handleCollapseAll}
-          showGitIgnoredFilesToggle={activeRepoSupportsGit}
-          showGitIgnoredFiles={showGitIgnoredFiles}
-          onToggleGitIgnoredFiles={toggleGitIgnoredFiles}
-          showDotfiles={showDotfiles}
-          onToggleDotfiles={handleToggleDotfiles}
-        />
+        {phoneShell ? null : (
+          <FileExplorerToolbar
+            repoName={repoName}
+            worktreePath={worktreePath}
+            {...getRouteForLocalPathOpenOwner(openInOwner)}
+            workspaceId={activeWorktreeId}
+            refresh={manualRefresh}
+            canRefresh={isFilesViewActive}
+            canCollapseAll={canCollapseAll}
+            onCollapseAll={handleCollapseAll}
+            showGitIgnoredFilesToggle={activeRepoSupportsGit}
+            showGitIgnoredFiles={showGitIgnoredFiles}
+            onToggleGitIgnoredFiles={toggleGitIgnoredFiles}
+            showDotfiles={showDotfiles}
+            onToggleDotfiles={handleToggleDotfiles}
+          />
+        )}
         {activeWorktree?.isSparse && (
           <FileExplorerScopeNotice
             rootSelect={
@@ -286,7 +292,11 @@ function FileExplorerFiles(): React.JSX.Element {
             sparse={!!activeWorktree?.isSparse}
           />
         )}
-        <FileExplorerQueryStrip view={explorerView} onSelectView={setRightSidebarExplorerView}>
+        <FileExplorerQueryStrip
+          view={explorerView}
+          onSelectView={setRightSidebarExplorerView}
+          phone={phoneShell}
+        >
           {/* Keep query rows mounted to preserve input selection when switching modes. */}
           <div className="relative min-h-8">
             <div hidden={explorerView !== 'files'}>

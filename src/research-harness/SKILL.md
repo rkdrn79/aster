@@ -47,6 +47,9 @@ version-matched absolute path to `cli.mjs`; use that path with Node. Call its pa
 `HARNESS` below and substitute the real path. An installed skill's own directory is not the
 harness. If the Aster CLI is unavailable in a source checkout, use the `cli.mjs` beside this
 source skill instead. Do not guess a path in a packaged app or another host.
+On an SSH host without a `node` (20 or newer), use the `node` path from
+`aster research harness-path --json`. If it reports no bundled harness, ask the user to update
+Aster and reconnect the host.
 
 ```bash
 node HARNESS/cli.mjs init       --project "$PWD" [--manuscript paper/main.tex] [--bibliography paper/refs.bib] [--papers related/]

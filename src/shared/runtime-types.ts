@@ -138,6 +138,7 @@ export type {
   RuntimeNativeChatLaunchDraftResolution,
   RuntimeRendererSyncWindowGraph,
   RuntimeSessionTabCloseReason,
+  RuntimeSessionTabsOrchestrationLineage,
   RuntimeStatus,
   RuntimeSyncedLeaf,
   RuntimeSyncedTab,

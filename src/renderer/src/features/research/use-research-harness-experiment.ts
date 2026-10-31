@@ -8,6 +8,10 @@ import type {
   ResearchLoopLedger
 } from '../../../../shared/research/research-harness-results'
 import type { ResearchRunWatchSummary } from '../../../../shared/research/research-run-agent-status'
+import {
+  isResearchExperimentSlug,
+  readResearchRunName
+} from '../../../../shared/research/research-run-reference'
 import { installWindowVisibilityInterval } from '@/lib/window-visibility-interval'
 import { useResearchRecords } from './research-records-store'
 import type { ResearchRunStatusFacts } from './research-run-status-label'
@@ -22,15 +26,27 @@ export function researchHarnessBridge(): Partial<Window['api']['researchHarness'
   return window.api.researchHarness ?? {}
 }
 
+/**
+ * The catalog slug, unless the harness would refuse it. Why: agents paste it into shell commands,
+ * and a legacy research/project.json can name any string.
+ */
+export function catalogExperimentSlug(
+  experiment: Pick<ExperimentRecord, 'catalogSlug'> | undefined
+): string | null {
+  const slug = experiment?.catalogSlug
+  return slug && isResearchExperimentSlug(slug) ? slug : null
+}
+
 /** Harness reads work on local projects with a current or legacy research catalog. */
 export function harnessExperimentSlug(experiment: ExperimentRecord | undefined): string | null {
-  return experiment?.hostId === 'local' && experiment.catalogSlug ? experiment.catalogSlug : null
+  return experiment?.hostId === 'local' ? catalogExperimentSlug(experiment) : null
 }
 
 /** `<experiment>/<run>` for a Run whose run.json sits in the current or legacy catalog. */
 export function catalogRunReference(run: Pick<ResearchRunRecord, 'manifestPath'>): string | null {
   const folder = run.manifestPath ? RUN_FOLDER.exec(run.manifestPath) : null
-  return folder ? `${folder[1]}/${folder[2]}` : null
+  const reference = folder ? `${folder[1]}/${folder[2]}` : null
+  return reference && readResearchRunName(reference) ? reference : null
 }
 
 /** Keeps saved Run statuses in step with run.json so every surface shows the same state. */

@@ -99,16 +99,27 @@ describe('parseArgs', () => {
   })
 
   it('takes the experimental --relay orca serve forwards, refusing what cannot be a relay', () => {
-    const relay = 'wss://relay.paseo.sh/ws'
+    const relay = 'wss://relay.example.test/ws?key=k'
     expect(
       parseArgs(orcadServeArgs({ relay, mobilePairing: true }, undefined, '127.0.0.1'))
     ).toEqual({ bind: '127.0.0.1', mobilePairing: true, relay })
-    expect(() => parseArgs(['--relay', 'https://relay.paseo.sh/ws'])).toThrow(
-      '--relay expects a ws:// or wss:// relay URL'
+    expect(() => parseArgs(['--relay', 'https://relay.example.test/ws?key=secret-key'])).toThrow(
+      /^--relay expects a ws:\/\/ or wss:\/\/ relay URL(?!.*secret-key)/
     )
-    expect(() =>
-      parseArgs(['--relay', relay, '--mobile-pairing', '--pairing-address', '10.0.0.5'])
-    ).toThrow('Use either --relay or --pairing-address with --mobile-pairing')
+    expect(() => parseArgs(['--relay', relay, '--pairing-address', '10.0.0.5'])).toThrow(
+      'Use either --relay or --pairing-address'
+    )
+  })
+
+  it('takes a hosted --web-client-url only for the runtime offer', () => {
+    const webClientUrl = 'https://example.test/app/web-index.html'
+    expect(parseArgs(['--web-client-url', webClientUrl])).toEqual({ webClientUrl })
+    expect(() => parseArgs(['--web-client-url', 'ftp://example.test/'])).toThrow(
+      '--web-client-url expects an http:// or https:// URL without a fragment'
+    )
+    expect(() => parseArgs(['--web-client-url', webClientUrl, '--mobile-pairing'])).toThrow(
+      '--web-client-url applies only to the default runtime pairing offer.'
+    )
   })
 })
 

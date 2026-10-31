@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -25,7 +25,8 @@ describe('orcad forked-child paths', () => {
   let originalArgv: string[]
 
   beforeEach(() => {
-    deployRoot = mkdtempSync(join(tmpdir(), 'orcad-deploy-'))
+    // The install root is realpathed, and macOS tmpdir sits behind the /var -> /private/var link.
+    deployRoot = realpathSync(mkdtempSync(join(tmpdir(), 'orcad-deploy-')))
     // The layout build-orcad.mjs emits: the bundle and its children side by side.
     writeFileSync(join(deployRoot, 'orcad.js'), '')
     writeFileSync(join(deployRoot, 'parcel-watcher-process-entry.js'), '')

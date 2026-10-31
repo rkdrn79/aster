@@ -64,6 +64,8 @@ export const ORCAD_ADDON_NAPI_VERSION = 8
 export const ORCAD_NODE_PTY_DIR = 'node_modules/node-pty'
 export const ORCAD_CLI_ENTRY_FILENAME = 'out/cli/index.js'
 export const ORCAD_CLI_PACKAGE_FILENAME = 'out/package.json'
+/** The research harness CLI as one ESM file; `research harness-path` prints it on an SSH host. */
+export const ORCAD_RESEARCH_HARNESS_CLI_FILENAME = 'research-harness/cli.mjs'
 // Test files and sources stay out; these are every module the runtime path requires.
 export const ORCAD_NODE_PTY_JS_ARTIFACTS = [
   'package.json',
@@ -196,6 +198,8 @@ export type OrcadArtifact = {
 export const ORCAD_ARTIFACTS: readonly OrcadArtifact[] = [
   { filename: ORCAD_CLI_ENTRY_FILENAME },
   { filename: ORCAD_CLI_PACKAGE_FILENAME },
+  // Agents on the host record Experiments and Runs with it; the desktop's copy is not reachable there.
+  { filename: ORCAD_RESEARCH_HARNESS_CLI_FILENAME },
   { filename: ORCAD_LAUNCHER_FILENAME },
   { filename: ORCAD_SERVER_ENTRY_FILENAME },
   // Forked so a native @parcel/watcher fault kills the child, not the server.

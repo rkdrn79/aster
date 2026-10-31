@@ -3,6 +3,7 @@ import type { ExperimentRecord } from '../../../../shared/research/research-reco
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import { launchResearchChat } from './ResearchAgentChatPane'
 import {
+  CATALOG_ONLY,
   loadAgentReviewSetup,
   researchChatTab,
   reviewChatAgent,
@@ -18,7 +19,7 @@ import {
 import { researchConversationHomeKey } from './research-conversation-home'
 import { linkResearchConversation } from './research-conversation-link'
 import { useResearchRecords } from './research-records-store'
-import { harnessExperimentSlug } from './use-research-harness-experiment'
+import { catalogExperimentSlug } from './use-research-harness-experiment'
 import { researchChatTitle } from './research-chat-label'
 import {
   analysisAddCommand,
@@ -37,9 +38,9 @@ export const useExperimentChatPanel = create<{
     set((state) => ({ closedIds: { ...state.closedIds, [experimentId]: !open } }))
 }))
 
-/** Where an Experiment's agent works: its catalog slug in a local project, else null. */
+/** Where an Experiment's agent works: its catalog slug in its project, on whichever host. */
 export function experimentChatScope(experiment: ExperimentRecord): AgentReviewScope | null {
-  const slug = harnessExperimentSlug(experiment)
+  const slug = catalogExperimentSlug(experiment)
   return slug
     ? {
         workspaceId: experiment.workspaceId,
@@ -240,7 +241,7 @@ export async function askExperimentChat(
 ): Promise<AgentReviewOutcome> {
   const scope = experimentChatScope(experiment)
   if (!scope) {
-    return { ok: false, message: 'Available for local projects with a research catalog.' }
+    return { ok: false, message: CATALOG_ONLY }
   }
   return sendToExperimentChat(experiment, build(await loadAgentReviewSetup(scope)))
 }

@@ -9,6 +9,7 @@ import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { runProcess, spawnProcess } from '@orca/process-host'
 import { ORCAD_NODE_RUNTIME_MARKER_FILENAME } from '../../shared/orcad-artifacts'
+import { PRODUCT_NAME } from '../../shared/product-brand'
 import {
   findBundledWebClientRoot,
   WEB_CLIENT_INDEX_FILENAME
@@ -191,7 +192,7 @@ describe.skipIf(skip)('orca serve on orcad', () => {
     })
     expect(result.code).toBe(78)
     expect(result.stdout).toBe('')
-    expect(result.stderr).toContain('The Orca desktop app')
+    expect(result.stderr).toContain(`The ${PRODUCT_NAME} desktop app`)
   }, 90_000)
 
   // #30120: the CLI never handed orcad the app's web client, so no URL was printed and GETs hung.

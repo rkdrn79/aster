@@ -24,7 +24,9 @@ export const RESEARCH_RUN_COMMAND_SPECS: CommandSpec[] = [
     allowedFlags: [...GLOBAL_FLAGS],
     notes: [
       'Use this path with Node to initialize research folders and record or verify Experiments and Runs.',
-      'The path belongs to this Aster installation. Resolve it again after an app update or on another host.'
+      'The path belongs to this Aster installation. Resolve it again after an app update or on another host.',
+      "On an SSH host Aster manages, this prints the harness shipped with that host's Aster runtime.",
+      '--json adds node: a Node executable that runs the harness when the host has none (null in the desktop app).'
     ]
   },
   {

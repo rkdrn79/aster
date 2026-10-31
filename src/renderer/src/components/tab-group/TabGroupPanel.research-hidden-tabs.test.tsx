@@ -18,13 +18,25 @@ const mocks = vi.hoisted(() => {
     sortOrder: 0,
     createdAt: 0
   })
+  const terminal = (id: string) => ({
+    ...chat(id),
+    id,
+    entityId: id,
+    contentType: 'terminal' as const,
+    unifiedTabId: id
+  })
   const tabs = [chat('reading'), chat('general')]
+  const terminals = [terminal('parent'), terminal('worker')]
+  const stripTabs: (ReturnType<typeof chat> | ReturnType<typeof terminal>)[] = tabs
   const state = {
     activeWorktreeId: 'wt-a',
     rightSidebarOpen: true,
     sidebarOpen: true,
     settings: { researchUiEnabled: true },
-    unifiedTabsByWorktree: { 'wt-a': tabs },
+    runtimeAgentOrchestrationByPaneKey: {},
+    agentStatusByPaneKey: {},
+    retainedAgentsByPaneKey: {},
+    unifiedTabsByWorktree: { 'wt-a': stripTabs },
     groupsByWorktree: {
       'wt-a': [
         {
@@ -38,13 +50,27 @@ const mocks = vi.hoisted(() => {
   }
   const useAppStore = (selector: (current: typeof state) => unknown): unknown => selector(state)
   useAppStore.getState = () => state
-  return { useAppStore, state, tabs, stripChatIds: new Array<string>() }
+  return {
+    useAppStore,
+    state,
+    tabs,
+    terminals,
+    stripChatIds: new Array<string>(),
+    stripTerminalIds: new Array<string>()
+  }
 })
 vi.mock('@/store', () => ({ useAppStore: mocks.useAppStore }))
 vi.mock('../../store', () => ({ useAppStore: mocks.useAppStore }))
 vi.mock('../tab-bar/TabBar', () => ({
-  default: ({ agentSessionTabs }: { agentSessionTabs: Tab[] }) => {
+  default: ({
+    agentSessionTabs,
+    tabs
+  }: {
+    agentSessionTabs: Tab[]
+    tabs: { unifiedTabId?: string }[]
+  }) => {
     mocks.stripChatIds = agentSessionTabs.map((tab) => tab.id)
+    mocks.stripTerminalIds = tabs.map((tab) => tab.unifiedTabId ?? '')
     return null
   }
 }))
@@ -62,7 +88,7 @@ vi.mock('./useTabGroupWorkspaceModel', () => ({
     commands: { focusGroup: () => undefined },
     editorItems: [],
     tabBarOrder: mocks.tabs.map((tab) => tab.id),
-    terminalTabs: [],
+    terminalTabs: mocks.terminals,
     groupTabs: mocks.tabs,
     expandedPaneByTabId: {}
   })
@@ -114,5 +140,21 @@ describe('TabGroupPanel Library chats', () => {
     mocks.state.settings.researchUiEnabled = false
     renderPanel()
     expect(mocks.stripChatIds).toEqual(['agent-session:reading', 'agent-session:general'])
+  })
+
+  it('folds a worker terminal under its parent in Code until it is the open tab', () => {
+    const leaf = '11111111-1111-4111-8111-111111111111'
+    mocks.state.settings.researchUiEnabled = false
+    mocks.state.unifiedTabsByWorktree['wt-a'] = [...mocks.tabs, ...mocks.terminals]
+    mocks.state.runtimeAgentOrchestrationByPaneKey = {
+      [`worker:${leaf}`]: { taskId: 't', dispatchId: 'd', parentPaneKey: `parent:${leaf}` }
+    }
+    renderPanel()
+    expect(mocks.stripTerminalIds).toEqual(['parent'])
+
+    cleanup()
+    mocks.state.groupsByWorktree['wt-a'][0].activeTabId = 'worker'
+    renderPanel()
+    expect(mocks.stripTerminalIds).toEqual(['parent', 'worker'])
   })
 })

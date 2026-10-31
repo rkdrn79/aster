@@ -18,13 +18,21 @@ import {
 export { PAIRING_OFFER_VERSION, PairingOfferSchema }
 export type { PairingOffer }
 
+// Why both paths: the web client re-encodes its pairing for the Home Screen app and has no Buffer.
+function utf8ToBase64(text: string): string {
+  if (typeof Buffer !== 'undefined') {
+    return Buffer.from(text, 'utf-8').toString('base64')
+  }
+  let binary = ''
+  for (const byte of new TextEncoder().encode(text)) {
+    binary += String.fromCharCode(byte)
+  }
+  return btoa(binary)
+}
+
 export function encodePairingOffer(offer: PairingOffer): string {
   const json = JSON.stringify(PairingOfferSchema.parse(offer))
-  const base64url = Buffer.from(json, 'utf-8')
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
+  const base64url = utf8ToBase64(json).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
   if (base64url.length > PAIRING_CODE_MAX_CHARACTERS) {
     throw new Error('Pairing offer exceeds safe size')
   }

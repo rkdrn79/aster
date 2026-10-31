@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { isWebClientLocation } from '@/lib/web-client-location'
 import type {
   ConferenceCatalog,
   ConferenceTracking
@@ -15,6 +16,8 @@ type ConferenceDeadlinesState = {
   refreshError: string | null
   /** True when this window's preload predates conference deadlines and needs an app restart. */
   needsRestart: boolean
+  /** True in the web client, which has no deadlines bridge; its fallback answers undefined. */
+  desktopOnly: boolean
   load: () => Promise<void>
   refresh: () => Promise<void>
   /** Downloads the list again only when the cached copy is missing or old. */
@@ -49,8 +52,13 @@ export const useConferenceDeadlines = create<ConferenceDeadlinesState>((set, get
   error: null,
   refreshError: null,
   needsRestart: false,
+  desktopOnly: false,
   load: () => {
     if (get().tracking) {
+      return Promise.resolve()
+    }
+    if (isWebClientLocation()) {
+      set({ desktopOnly: true })
       return Promise.resolve()
     }
     const api = window.api.conferenceDeadlines
@@ -73,7 +81,12 @@ export const useConferenceDeadlines = create<ConferenceDeadlinesState>((set, get
     return loadPromise
   },
   refresh: async () => {
-    if (get().refreshing || get().needsRestart || !window.api.conferenceDeadlines?.refreshCatalog) {
+    if (
+      get().refreshing ||
+      get().needsRestart ||
+      get().desktopOnly ||
+      !window.api.conferenceDeadlines?.refreshCatalog
+    ) {
       return
     }
     set({ refreshing: true, refreshError: null })

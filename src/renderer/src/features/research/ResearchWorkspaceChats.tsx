@@ -27,7 +27,6 @@ import { useResearchRecords } from './research-records-store'
 import { useResearchLibrary } from './research-library-store'
 import { ResearchConversationRow } from './ResearchConversationRow'
 import { ResearchDelegationList } from './ResearchDelegationList'
-import { ResearchPaseoWorkbenchAgents } from './ResearchPaseoWorkbenchAgents'
 import { linkResearchConversation } from './research-conversation-link'
 import { useResearchActiveProject } from './research-home-projects'
 import { collectProjectAgentGroups } from './research-project-agent-groups'
@@ -39,9 +38,8 @@ import {
   researchOrchestrationWorkerContexts,
   researchOrchestrationWorkerTabIds
 } from './research-orchestration-worker-tabs'
-import { useResearchInlineWorkerTabs } from './research-inline-worker-tabs'
 import { structuredAgentSessionOwnerForTab } from '@/runtime/structured-agent-session-owner'
-import { selectResearchWorkspaceContext } from './research-workspace-context'
+import { cn } from '@/lib/utils'
 
 /** Project conversations remain reachable while a different worktree is active. */
 export function ResearchWorkspaceChats(): React.JSX.Element {
@@ -59,12 +57,10 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
   const chatEnabled = useAppStore((state) => state.settings?.experimentalNativeChat === true)
   const workspaceId = useAppStore((state) => state.activeWorktreeId)
   const onWorkbench = useAppStore((state) => state.activeView === 'terminal')
-  const paseoContext = useAppStore(useShallow(selectResearchWorkspaceContext))
   const allTabs = useAppStore((state) => state.unifiedTabsByWorktree)
   const orchestration = useAppStore((state) => state.runtimeAgentOrchestrationByPaneKey)
   const agentStatus = useAppStore((state) => state.agentStatusByPaneKey)
   const retainedAgents = useAppStore((state) => state.retainedAgentsByPaneKey)
-  const shownWorkerTabs = useResearchInlineWorkerTabs((state) => state.shown)
   const terminalTabs = useAppStore((state) => state.tabsByWorktree)
   const groupId = useAppStore((state) =>
     workspaceId
@@ -115,7 +111,8 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
     researchOrchestrationWorkerContexts({
       runtimeAgentOrchestrationByPaneKey: orchestration,
       agentStatusByPaneKey: agentStatus,
-      retainedAgentsByPaneKey: retainedAgents
+      retainedAgentsByPaneKey: retainedAgents,
+      unifiedTabsByWorktree: allTabs
     }),
     (tab) => structuredAgentSessionOwnerForTab(useAppStore.getState(), tab)
   )
@@ -124,7 +121,8 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
     tabs: group.tabs.filter(
       (tab) =>
         !researchBackgroundTabIsHidden(document, tab, group.hostId, slackTasks) &&
-        (!workerTabIds.has(tab.id) || shownWorkerTabs.has(tab.id)) &&
+        // Why: subagents are listed under their parent's tab strip indicator, not here.
+        (!workerTabIds.has(tab.id) || tab.isPinned === true) &&
         (tab.contentType !== 'agent-session' ||
           researchConversationHome(
             document,
@@ -203,6 +201,12 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
     }
   }, [chatEnabled])
 
+  const shownGroups = workbenchGroups.filter(
+    (group) => group.tabs.length > 0 || group.workspace.id === workspaceId
+  )
+  // Why: one workspace needs no heading; with several, each is named and the current one stands out.
+  const showWorkspaceHeadings = shownGroups.length > 1
+
   return (
     <section className="space-y-2 py-1" aria-label="Conversations">
       {workspaceId && groupId ? (
@@ -218,7 +222,7 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
               className="truncate"
               title={[activeWorkspace?.name, activeWorkspace?.branch].filter(Boolean).join(' · ')}
             >
-              This workspace · {activeWorkspace?.name ?? 'Current'}
+              {activeWorkspace?.name ?? 'Current workspace'}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <QuickLaunchAgentMenuItems
@@ -283,22 +287,21 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
         </Button>
       ) : null}
       <div className="space-y-3">
-        {workbenchGroups
-          .filter((group) => group.tabs.length > 0 || group.workspace.id === workspaceId)
-          .map((group) => {
-            const { workspace, hostId: groupHostId } = group
-            const workspaceExperiments =
-              document?.experiments.filter(
-                (experiment) =>
-                  experiment.workspaceId === workspace.id && experiment.hostId === groupHostId
-              ) ?? []
-            const experiments = workspaceExperiments.filter((experiment) => !experiment.archived)
-            return (
-              <div key={JSON.stringify([workspace.id, groupHostId])} className="space-y-1">
+        {shownGroups.map((group) => {
+          const { workspace, hostId: groupHostId } = group
+          const workspaceExperiments =
+            document?.experiments.filter(
+              (experiment) =>
+                experiment.workspaceId === workspace.id && experiment.hostId === groupHostId
+            ) ?? []
+          const experiments = workspaceExperiments.filter((experiment) => !experiment.archived)
+          return (
+            <div key={JSON.stringify([workspace.id, groupHostId])} className="space-y-1">
+              {showWorkspaceHeadings ? (
                 <Button
                   size="xs"
                   variant="ghost"
-                  className="w-full justify-start text-2xs font-semibold text-muted-foreground"
+                  className="w-full justify-start"
                   title={[workspace.name, workspace.branch].filter(Boolean).join(' · ')}
                   onClick={() =>
                     activateAndRevealWorkspace(
@@ -307,72 +310,66 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
                     )
                   }
                 >
-                  <span className="min-w-0 flex-1 truncate text-left">
-                    {workspace.id === workspaceId ? 'This workspace' : workspace.name}
+                  <span
+                    className={cn(
+                      'min-w-0 flex-1 truncate text-left text-2xs font-semibold',
+                      workspace.id === workspaceId ? 'text-foreground' : 'text-muted-foreground'
+                    )}
+                  >
+                    {workspace.name}
                   </span>
                   <span
-                    className="shrink-0 font-normal tabular-nums"
+                    className="shrink-0 text-2xs tabular-nums text-muted-foreground"
                     aria-label={`${group.tabs.length} conversations`}
                   >
                     {group.tabs.length}
                   </span>
                 </Button>
-                {group.tabs.map((tab) => {
-                  const linkable = tab.contentType === 'agent-session' || tab.viewMode === 'chat'
-                  const contextLabel =
-                    tab.contentType === 'terminal' && tab.viewMode !== 'chat'
-                      ? 'Agent terminal'
-                      : undefined
-                  return (
-                    <ResearchConversationRow
-                      key={tab.id}
-                      tab={tab}
-                      hostId={groupHostId}
-                      // Why: only the Workbench page makes a conversation the current row.
-                      active={onWorkbench && workspace.id === workspaceId && activeTabId === tab.id}
-                      contextLabel={contextLabel}
-                      linkedExperiment={
-                        document && linkable
-                          ? conversationExperiment(
-                              document,
-                              tab.id,
-                              workspace.id,
-                              groupHostId,
-                              tab.entityId
-                            )
-                          : null
-                      }
-                      experiments={experiments}
-                      onSelect={() => void activateConversation(tab, groupHostId)}
-                      onLink={
-                        linkable
-                          ? (experimentId) => void linkConversation(tab, groupHostId, experimentId)
-                          : undefined
-                      }
-                      onSplit={
-                        canMoveTabToNewPaneColumn(tab.id, tab.groupId)
-                          ? () => showInSeparatePane(tab, groupHostId)
-                          : undefined
-                      }
-                    />
-                  )
-                })}
-              </div>
-            )
-          })}
+              ) : null}
+              {group.tabs.map((tab) => {
+                const linkable = tab.contentType === 'agent-session' || tab.viewMode === 'chat'
+                const contextLabel =
+                  tab.contentType === 'terminal' && tab.viewMode !== 'chat'
+                    ? 'Agent terminal'
+                    : undefined
+                return (
+                  <ResearchConversationRow
+                    key={tab.id}
+                    tab={tab}
+                    hostId={groupHostId}
+                    // Why: only the Workbench page makes a conversation the current row.
+                    active={onWorkbench && workspace.id === workspaceId && activeTabId === tab.id}
+                    contextLabel={contextLabel}
+                    linkedExperiment={
+                      document && linkable
+                        ? conversationExperiment(
+                            document,
+                            tab.id,
+                            workspace.id,
+                            groupHostId,
+                            tab.entityId
+                          )
+                        : null
+                    }
+                    experiments={experiments}
+                    onSelect={() => void activateConversation(tab, groupHostId)}
+                    onLink={
+                      linkable
+                        ? (experimentId) => void linkConversation(tab, groupHostId, experimentId)
+                        : undefined
+                    }
+                    onSplit={
+                      canMoveTabToNewPaneColumn(tab.id, tab.groupId)
+                        ? () => showInSeparatePane(tab, groupHostId)
+                        : undefined
+                    }
+                  />
+                )
+              })}
+            </div>
+          )
+        })}
       </div>
-      {paseoContext.hostId && paseoContext.workspaceId && paseoContext.workspacePath ? (
-        <ResearchPaseoWorkbenchAgents
-          key={paseoContext.hostId}
-          scope={{
-            hostId: paseoContext.hostId,
-            workspaceId: paseoContext.workspaceId,
-            workspacePath: paseoContext.workspacePath
-          }}
-          hostLabel={paseoContext.hostLabel}
-          active={onWorkbench}
-        />
-      ) : null}
       <ResearchDelegationList
         workspaceScopes={projectAgentGroups.map((group) => ({
           workspaceId: group.workspace.id,

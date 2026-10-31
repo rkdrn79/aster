@@ -478,6 +478,12 @@ import {
 } from './orchestration-worker-release-schemas-params'
 import { WorkerStartParams } from './orchestration-worker-start-params'
 import { WorkerDispatchParams as WorkerDispatchParamsOfOrchestrationWorkerStopParams } from './orchestration-worker-stop-params'
+import { PhoneNotifySubscribeParams } from './phone-notify-params'
+import {
+  PhoneRelayConfigureParams,
+  PhoneRelayPairParams,
+  PhoneRelayRevokeParams
+} from './phone-relay-params'
 import {
   PluginInvokeCommandParams,
   PluginReadPanelEntryParams,
@@ -1248,6 +1254,14 @@ export const RPC_PARAMS_BY_METHOD = {
   'pairing.getEndpoints': PairingGetEndpointsParamsSchema,
   'pairing.provisionRelay': PairingProvisionRelayParamsSchema,
   'pairing.registerDeviceKey': RegisterDeviceKeyParamsSchema,
+  'phoneNotify.subscribe': PhoneNotifySubscribeParams,
+  'phoneNotify.unsubscribe': null,
+  'phoneNotify.vapidKey': null,
+  'phoneRelay.configure': PhoneRelayConfigureParams,
+  'phoneRelay.devices': null,
+  'phoneRelay.pair': PhoneRelayPairParams,
+  'phoneRelay.revoke': PhoneRelayRevokeParams,
+  'phoneRelay.status': null,
   'plugins.consent': pluginConsentRequestSchema,
   'plugins.invokeCommand': PluginInvokeCommandParams,
   'plugins.list': null,
@@ -1327,6 +1341,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'session.tabs.list': WorktreeTabSelector,
   'session.tabs.listAll': null,
   'session.tabs.move': MoveTab,
+  'session.tabs.orchestrationLineage': null,
   'session.tabs.setTabProps': SetTabProps,
   'session.tabs.subscribe': WorktreeTabSelector,
   'session.tabs.subscribeAll': null,

@@ -3,6 +3,7 @@ import { ArrowRight, Cpu } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store'
+import { isWebClientLocation } from '@/lib/web-client-location'
 import { selectFolderWorkspaces, selectWorktreesByRepo } from '@/store/workspace-record-selectors'
 import { getHostSettingOverride } from '../../../../shared/host-setting-overrides'
 import { toSshExecutionHostId } from '../../../../shared/execution-host'
@@ -78,6 +79,8 @@ export function ResearchHomeCompute({
     }))
   )
   const [capabilities] = useState(computeBridgeCapabilities)
+  // Why: the web client has no compute bridge; its fallback would read as unlinked, empty hosts.
+  const desktopOnly = isWebClientLocation()
   const canProbe = typeof window.api.researchCompute?.sample === 'function'
   const { links, error: linksError } = useResearchComputeLinks(capabilities.links)
   const [snapshot, setSnapshot] = useState<{
@@ -231,7 +234,11 @@ export function ResearchHomeCompute({
         <span className="flex-1 text-sm font-medium">Compute</span>
         <ArrowRight className="size-4 text-muted-foreground" aria-hidden />
       </button>
-      {rows.length ? (
+      {desktopOnly ? (
+        <p className="border-t border-border px-4 py-4 text-xs text-muted-foreground">
+          Available in the desktop app.
+        </p>
+      ) : rows.length ? (
         <ul className="divide-y divide-border border-t border-border">
           {rows.slice(0, PROJECTS_SHOWN).map(({ project, runs, observation, parts }) => (
             <li key={project.key} className="min-w-0 px-4 py-2.5 text-xs">
@@ -257,7 +264,7 @@ export function ResearchHomeCompute({
           ))}
         </ul>
       ) : null}
-      {!projects.length ? (
+      {desktopOnly ? null : !projects.length ? (
         <p className="border-t border-border px-4 py-4 text-xs text-muted-foreground">
           Add a project to see its compute activity here.
         </p>
@@ -273,7 +280,7 @@ export function ResearchHomeCompute({
           </Button>
         </div>
       ) : null}
-      {rows.length > PROJECTS_SHOWN || unassignedCount || linksError ? (
+      {!desktopOnly && (rows.length > PROJECTS_SHOWN || unassignedCount || linksError) ? (
         <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
           {[
             rows.length > PROJECTS_SHOWN ? `${rows.length - PROJECTS_SHOWN} more projects` : null,

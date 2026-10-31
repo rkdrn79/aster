@@ -9,6 +9,12 @@ under their own licenses. Electron's and Chromium's notices ship beside the app
 executable (`LICENSE` and `LICENSES.chromium.html`), and each npm package carries
 its license in its own folder.
 
+## Paseo relay
+
+`relay/` is based on the Cloudflare relay adapter in Paseo (`packages/relay`), copyright (c)
+2025-present Mohamed Boudra, used under the Apache License, Version 2.0. The full license text is
+in `relay/LICENSE`, and `relay/README.md` lists the changes.
+
 ## Orca
 
 ```

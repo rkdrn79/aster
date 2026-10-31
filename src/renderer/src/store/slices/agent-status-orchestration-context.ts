@@ -13,6 +13,8 @@ export function orchestrationContextsEqual(
     a.displayName === b.displayName &&
     a.parentTerminalHandle === b.parentTerminalHandle &&
     a.parentPaneKey === b.parentPaneKey &&
+    a.parentAgentSessionId === b.parentAgentSessionId &&
+    a.agentSessionId === b.agentSessionId &&
     a.coordinatorHandle === b.coordinatorHandle &&
     a.orchestrationRunId === b.orchestrationRunId &&
     orchestrationFleetAttentionEqual(a.attention, b.attention)

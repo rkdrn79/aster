@@ -5,6 +5,9 @@ import type { RuntimePairingReach } from '../../shared/runtime-pairing-reach'
 import type { RelayDeviceBinding } from './mobile-cloud-relay/relay-revoke-outbox'
 import type { RuntimeDeviceGrant } from './rpc/rpc-method-permission'
 
+/** How a row was minted, when that decides who may list or revoke it. */
+export type DevicePairingOrigin = 'phone-access'
+
 export type DeviceEntry = {
   deviceId: string
   name: string
@@ -37,6 +40,8 @@ export type DeviceEntry = {
   forkedFrom?: string
   // Session-only browser key (memory only); the row is dropped on host restart and after idling.
   ephemeral?: true
+  // Why stored: phone access lists and revokes only the phones it paired, never the managing desktop.
+  pairingOrigin?: DevicePairingOrigin
 }
 
 /** A row that authenticates by bearer token: every pairing offer and delegated child. */

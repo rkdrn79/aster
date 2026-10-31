@@ -26,6 +26,7 @@ import type {
   PhysicalModifierToken
 } from '../../../shared/keybindings'
 import { shortcutPlatform } from './app-window-chrome'
+import { toggleLeftSidebar } from './compact-drawer-store'
 
 type AppStoreState = ReturnType<typeof useAppStore.getState>
 
@@ -67,7 +68,6 @@ export function useAppShortcutActions() {
   // Why: consolidate action refs into one useShallow subscription so React runs one equality check per store mutation instead of one per action.
   return useAppStore(
     useShallow((s) => ({
-      toggleSidebar: s.toggleSidebar,
       toggleRightSidebar: s.toggleRightSidebar,
       setRightSidebarOpen: s.setRightSidebarOpen,
       setRightSidebarTab: s.setRightSidebarTab,
@@ -174,7 +174,7 @@ export function createAppCommandHandlers(
         return claim('worktree.history.forward', () => goLayoutHistory('forward'))
       }
     ],
-    ['sidebar.left.toggle', () => claim('sidebar.left.toggle', () => actions.toggleSidebar())],
+    ['sidebar.left.toggle', () => claim('sidebar.left.toggle', () => toggleLeftSidebar())],
     [
       'sidebar.sleepingWorkspaces.toggle',
       () =>

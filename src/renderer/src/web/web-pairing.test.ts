@@ -96,6 +96,21 @@ describe('web pairing input', () => {
     )
   })
 
+  it('accepts a pasted web client link, as a home-screen app has to pair from one', () => {
+    const pairing = encodeURIComponent(`orca://pair?code=${encodeOffer({ scope: 'runtime' })}`)
+    const webClient = 'https://example.github.io/aster/web-index.html'
+    const expected = { ...offer, scope: 'runtime' }
+
+    expect(parseWebPairingInput(`${webClient}#pairing=${pairing}`)).toEqual(expected)
+    expect(parseWebPairingInput(` ${webClient}?pairing=${pairing} `)).toEqual(expected)
+    expect(parseWebPairingInput(webClient)).toBeNull()
+    expect(
+      parseWebPairingInput(
+        `${webClient}#pairing=${encodeURIComponent(`${webClient}#pairing=${pairing}`)}`
+      )
+    ).toBeNull()
+  })
+
   it('rejects orca URLs outside the exact pairing route', () => {
     expect(parseWebPairingInput(`orca://pairing?code=${encodeOffer()}`)).toBeNull()
     expect(parseWebPairingInput(`orca://pair-extra?code=${encodeOffer()}`)).toBeNull()

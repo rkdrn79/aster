@@ -13,6 +13,8 @@ import {
   saveStoredWebRuntimeEnvironment
 } from './web-runtime-environment'
 import { parseWebPairingInput } from './web-pairing'
+import { rememberWebPairingOffer } from './web-home-screen-pairing'
+import { isPhoneHomeScreenApp } from './web-install-prompt'
 import { WebRuntimeClient } from './web-runtime-client'
 import type { RuntimeStatus } from '../../../shared/runtime-types'
 import { translate } from '@/i18n/i18n'
@@ -89,6 +91,7 @@ export default function WebConnect({
         runtimeId: response._meta.runtimeId,
         lastUsedAt: Date.now()
       })
+      rememberWebPairingOffer(parsedOffer)
       onConnected()
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
@@ -128,10 +131,16 @@ export default function WebConnect({
               {translate('auto.web.WebConnect.e3bcd082ac', 'Connect to Aster')}
             </h1>
             <p className="mt-1 text-sm leading-5 text-muted-foreground">
-              {translate(
-                'auto.web.WebConnect.3affe7de3a',
-                'Paste a pairing URL from an Aster server that this browser can reach.'
-              )}
+              {/* Why: a Home Screen app keeps its own storage, so it is unpaired until pasted into. */}
+              {isPhoneHomeScreenApp()
+                ? translate(
+                    'web.WebConnect.homeScreenPaste',
+                    'Paste the link you copied from Aster in your browser or on your Mac.'
+                  )
+                : translate(
+                    'auto.web.WebConnect.3affe7de3a',
+                    'Paste a pairing URL from an Aster server that this browser can reach.'
+                  )}
             </p>
           </div>
         </div>

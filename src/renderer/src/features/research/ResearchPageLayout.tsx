@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
-import { useAppStore } from '@/store'
 import { cn } from '@/lib/utils'
+import { useCompactViewport, useLeftSidebarDocked } from '@/app-shell/use-compact-viewport'
 
 type ResearchPageHeaderProps = {
   title: string
@@ -15,19 +15,34 @@ export function ResearchPageHeader({
   context,
   actions
 }: ResearchPageHeaderProps): React.JSX.Element {
-  const sidebarOpen = useAppStore((state) => state.sidebarOpen)
+  const sidebarOpen = useLeftSidebarDocked()
+  const compactViewport = useCompactViewport()
 
   return (
     <header
       data-research-page-header=""
       className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-4 gap-y-1.5 border-b border-border bg-background py-2 pl-6"
-      style={{
-        // Why: collapsed, the floating window controls sit over the header's top-left corner.
-        paddingLeft: sidebarOpen ? undefined : 'calc(var(--collapsed-sidebar-header-width) + 1rem)',
-        // Why: keeps actions clear of window controls and the Workbench's right-sidebar toggle.
-        paddingRight: 'calc(var(--window-controls-width, 0px) + 2.5rem)'
-      }}
+      style={
+        compactViewport
+          ? { paddingRight: '1.5rem' }
+          : {
+              // Why: collapsed, the floating window controls sit over the header's top-left corner.
+              paddingLeft: sidebarOpen
+                ? undefined
+                : 'calc(var(--collapsed-sidebar-header-width) + 1rem)',
+              // Why: keeps actions clear of window controls and the Workbench's right-sidebar toggle.
+              paddingRight: 'calc(var(--window-controls-width, 0px) + 2.5rem)'
+            }
+      }
     >
+      {compactViewport ? (
+        // Why: on a phone only the first row clears the floating controls, so wrapped actions get the full width.
+        <div
+          aria-hidden
+          className="h-7 shrink-0"
+          style={{ width: 'calc(var(--collapsed-sidebar-header-width) - 1.5rem)' }}
+        />
+      ) : null}
       <div className="flex min-w-0 flex-[1_1_12rem] items-baseline gap-2">
         <h1 className="max-w-full shrink-0 truncate text-base font-semibold leading-tight">
           {title}

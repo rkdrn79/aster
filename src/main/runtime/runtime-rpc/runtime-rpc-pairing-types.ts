@@ -6,6 +6,7 @@ import type { MobileSocketTransportMetadata } from '../rpc/mobile-socket-wiring'
 import type { PairingRelay } from '../../../shared/mobile-relay-pairing-offer'
 import type { MobilePairingConnectionMode } from '../../../shared/mobile-pairing-connection-mode'
 import type { MobileRelayMintFailure } from '../../../shared/mobile-relay-mint-failure'
+import { withPairingFragment } from '../../../shared/hosted-web-client'
 import type {
   DeviceCredentialInstalled,
   PairingGetEndpointsParams,
@@ -136,9 +137,7 @@ export function createWebClientUrl(endpoint: string, pairingUrl: string): string
   url.protocol = url.protocol === 'wss:' ? 'https:' : 'http:'
   url.pathname = webClientPathForEndpoint(url.pathname)
   url.search = ''
-  // Why: pairing URLs carry full credentials; the fragment keeps them out of proxy logs and Referer headers.
-  url.hash = `pairing=${encodeURIComponent(pairingUrl)}`
-  return url.toString()
+  return withPairingFragment(url.toString(), pairingUrl)
 }
 
 export function webClientPathForEndpoint(pathname: string): string {

@@ -8,6 +8,8 @@ import { FloatingTerminalToggleButton } from '../components/floating-terminal/Fl
 import { TerminalWorkbenchContainer } from '../components/TerminalWorkbenchContainer'
 import type { VirtualizedScrollAnchor } from '../hooks/useVirtualizedScrollAnchor'
 import { TitlebarLeftControls } from './TitlebarLeftControls'
+import { CompactSidebarDrawer } from './CompactSidebarDrawer'
+import { useCompactSidebarDrawer } from './use-compact-sidebar-drawer'
 import { RightSidebarToggle, TitlebarMainStrip } from './TitlebarMainStrip'
 import type { AppChromeLayout } from './use-app-chrome-layout'
 import type { FloatingWorkspacePanelState } from './use-floating-workspace-panel'
@@ -31,12 +33,12 @@ const WorkspaceSpacePage = lazy(() => import('../components/workspace-space/Work
 const MobilePage = lazy(() => import('../components/mobile/MobilePage'))
 const Terminal = lazy(() => import('../components/Terminal'))
 
-type WorktreeSidebarScrollRefs = {
+export type WorktreeSidebarScrollRefs = {
   scrollOffsetRef: React.MutableRefObject<number>
   scrollAnchorRef: React.MutableRefObject<VirtualizedScrollAnchor>
 }
 
-function WorktreeSidebar({
+export function WorktreeSidebar({
   layout,
   scrollRefs
 }: {
@@ -69,7 +71,7 @@ function WorktreeSidebar({
   )
 }
 
-function ActivePage({ layout }: { layout: AppChromeLayout }): React.JSX.Element {
+export function ActivePage({ layout }: { layout: AppChromeLayout }): React.JSX.Element {
   const { activeView, activeWorktreeId, activePendingCreationId, creationLayoutActive } = layout
   return (
     <>
@@ -114,6 +116,15 @@ export function AppWorkspaceShell(props: {
   const scrollAnchorRef = useRef<VirtualizedScrollAnchor>(null)
   const sidebarScrollRefs = { scrollOffsetRef, scrollAnchorRef }
   usePreloadSettingsPage()
+  useCompactSidebarDrawer(layout.compactViewport)
+  const compactSidebarDrawer = layout.compactViewport ? (
+    <CompactSidebarDrawer
+      layout={layout}
+      header={<TitlebarLeftControls layout={layout} inDrawer />}
+    >
+      <WorktreeSidebar layout={layout} scrollRefs={sidebarScrollRefs} />
+    </CompactSidebarDrawer>
+  ) : null
 
   return (
     // Why: workspace activation is a hot path; activeWorktreeId in reset keys would remount whole surfaces during wake.
@@ -167,12 +178,16 @@ export function AppWorkspaceShell(props: {
                     {titlebarLeftControls}
                   </div>
                   {/* Why: flex-1/min-h-0 slot needed under the fixed 36px header, else the sidebar collapses to content height and loses its scroll viewport. */}
-                  <div className="flex min-h-0 flex-1">
-                    <WorktreeSidebar layout={layout} scrollRefs={sidebarScrollRefs} />
-                  </div>
+                  {compactSidebarDrawer ?? (
+                    <div className="flex min-h-0 flex-1">
+                      <WorktreeSidebar layout={layout} scrollRefs={sidebarScrollRefs} />
+                    </div>
+                  )}
                 </div>
               ) : (
-                <WorktreeSidebar layout={layout} scrollRefs={sidebarScrollRefs} />
+                (compactSidebarDrawer ?? (
+                  <WorktreeSidebar layout={layout} scrollRefs={sidebarScrollRefs} />
+                ))
               )
             ) : null}
             <div className="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">

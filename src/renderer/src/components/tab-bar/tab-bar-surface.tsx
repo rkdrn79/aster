@@ -26,6 +26,7 @@ import type { TabBarItemActions } from './use-tab-bar-item-actions'
 import { renderTabBarItems } from './tab-bar-item-surface'
 import { TabBarStaticCreateMenu } from './tab-bar-static-create-menu'
 import ClientHostedBrowserTabRows from './ClientHostedBrowserTabRows'
+import { TabStripSubagentsIndicator } from './TabStripSubagentsIndicator'
 import type { ClientHostedBrowserRow } from '../../../../shared/client-hosted-browser-rows'
 
 const EMPTY_CLIENT_HOSTED_ROWS: readonly ClientHostedBrowserRow[] = []
@@ -298,6 +299,10 @@ export function renderTabBarSurface({
           ) : null}
         </DropdownMenuContent>
       </DropdownMenu>
+      <TabStripSubagentsIndicator
+        stripTabIds={orderedItems.map((item) => item.unifiedTabId)}
+        activeTabId={props.groupActiveTabId ?? null}
+      />
     </div>
   )
 }

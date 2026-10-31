@@ -226,6 +226,8 @@ it('refuses recovery overlap before initializing the browser provider or runtime
 
 it('starts push after RPC identity is available and stops dispatch on shutdown', async () => {
   state.root = mkdtempSync(join(tmpdir(), 'orca-headless-push-'))
+  // The product ships no push gateway, so push starts only when one is configured.
+  vi.stubEnv('ASTER_PUSH_GATEWAY_URL', 'https://push.example.test')
   state.controller = new RuntimeMobileNotificationController()
   state.registry = new DeviceRegistry(state.root)
   const phone = state.registry.addDevice('headless-phone', 'mobile')

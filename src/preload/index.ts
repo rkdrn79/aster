@@ -97,12 +97,12 @@ import { researchProposalsApi } from './api/research-proposals-bridge'
 import { researchRatingsApi } from './api/research-ratings-bridge'
 import { researchOrganizeApi } from './api/research-organize-bridge'
 import { researchMediaApi } from './api/research-media-bridge'
+import { phoneRelaySetupApi } from './api/phone-relay-setup-bridge'
 import { researchAnalysisApi } from './api/research-analysis-bridge'
 import { researchWatchesApi } from './api/research-watches-bridge'
 import { conferenceDeadlinesApi } from './api/conference-deadlines-bridge'
 import { researchLibraryApi } from './api/research-library-bridge'
 import { researchSlackApi } from './api/research-slack-bridge'
-import { researchPaseoApi } from './api/research-paseo-bridge'
 
 installBrowserFindListener()
 
@@ -215,12 +215,12 @@ const api = {
   researchRatings: researchRatingsApi,
   researchOrganize: researchOrganizeApi,
   researchMedia: researchMediaApi,
+  phoneRelaySetup: phoneRelaySetupApi,
   researchAnalysis: researchAnalysisApi,
   researchWatches: researchWatchesApi,
   conferenceDeadlines: conferenceDeadlinesApi,
   researchLibrary: researchLibraryApi,
   researchSlack: researchSlackApi,
-  researchPaseo: researchPaseoApi,
   agentStatus: agentStatusApi,
   speech: speechApi
 } satisfies PreloadApi

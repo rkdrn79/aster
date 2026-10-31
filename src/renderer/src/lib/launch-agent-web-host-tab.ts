@@ -37,6 +37,8 @@ export function launchAgentInWebHostTab(args: {
   viewMode?: Tab['viewMode']
   /** False opens the host's tab without selecting it. */
   activate?: boolean
+  /** False when the caller reports a failed launch itself. */
+  notifyFailure?: false
   onPromptDelivered?: () => void
 }): Promise<{ delivered: boolean; failureNotified: boolean } & AgentTerminalLaunchCompletion> {
   const {
@@ -96,6 +98,9 @@ export function launchAgentInWebHostTab(args: {
     hostTabId?: string
   }): { delivered: boolean; failureNotified: boolean } & AgentTerminalLaunchCompletion => {
     if (outcome.status === 'failed') {
+      if (args.notifyFailure === false) {
+        return { delivered: false, failureNotified: false, outcome }
+      }
       toast.error(
         outcome.message ||
           translate(

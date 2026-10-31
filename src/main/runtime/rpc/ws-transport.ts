@@ -232,10 +232,7 @@ export class WebSocketTransport implements RpcTransport {
    * Serves an already-open socket this host dialed (a relay data socket) exactly like an accepted
    * one: same connection cap, pre-auth timeout, heartbeat and message handler. False if refused.
    */
-  adoptConnection(
-    ws: WebSocket,
-    options: { rewriteFirstInboundText?: (text: string) => string } = {}
-  ): boolean {
+  adoptConnection(ws: WebSocket): boolean {
     const wss = this.wss
     if (!wss) {
       ws.terminate()
@@ -247,7 +244,7 @@ export class WebSocketTransport implements RpcTransport {
     }
     this.adoptedConnections.add(ws)
     ws.once('close', () => this.adoptedConnections.delete(ws))
-    this.handleConnection(ws, options.rewriteFirstInboundText)
+    this.handleConnection(ws)
     return true
   }
 
@@ -268,10 +265,7 @@ export class WebSocketTransport implements RpcTransport {
     })
   }
 
-  private handleConnection(
-    ws: WebSocket,
-    rewriteFirstInboundText?: (text: string) => string
-  ): void {
+  private handleConnection(ws: WebSocket): void {
     attachNodeWebSocketLifecycle({
       ws,
       heartbeat: this.heartbeat,
@@ -280,8 +274,7 @@ export class WebSocketTransport implements RpcTransport {
       clientIds: this.wsClientIds,
       heartbeatConnections: this.heartbeatConnections,
       getMessageHandler: () => this.messageHandler,
-      getConnectionCloseHandler: () => this.connectionCloseHandler,
-      ...(rewriteFirstInboundText ? { rewriteFirstInboundText } : {})
+      getConnectionCloseHandler: () => this.connectionCloseHandler
     })
   }
 }

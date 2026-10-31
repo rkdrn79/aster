@@ -5,13 +5,14 @@ import {
 } from '@/lib/notes-send-agent-targets'
 import { useAppStore } from '@/store'
 import type { Tab } from '../../../../shared/tab-types'
+import { CLI_NAME } from '../../../../shared/product-brand'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import type { ResearchAgentIdentity } from '../../../../shared/research/research-quality-findings'
 import type { AgentReviewSetup } from './research-agent-review-prompt'
 import { researchErrorText } from './research-error-text'
 import { researchHarnessBridge } from './use-research-harness-experiment'
 
-/** Where a review runs and records: a local workspace and one catalog Experiment in it. */
+/** Where a review runs and records: a workspace and one catalog Experiment in it. */
 export type AgentReviewScope = {
   workspaceId: string
   hostId: string
@@ -23,13 +24,33 @@ export type AgentReviewScope = {
 
 export type AgentReviewOutcome = { ok: true } | { ok: false; message: string }
 
-export const LOCAL_CATALOG_ONLY = 'Available for local research/ catalog projects'
+export const CATALOG_ONLY = 'Available for projects with a research catalog.'
 
 // Why: config/scripts/install-aster-research-skill.sh installs the research skills for these two.
 const SKILL_AGENTS = new Set<TuiAgent>(['claude', 'codex'])
 
+/**
+ * An SSH host's agent runs that host's harness and skills, which its own CLI finds there; this
+ * Mac's paths would not exist on it. The brief is read there too.
+ */
+function remoteAgentReviewSetup(scope: AgentReviewScope): AgentReviewSetup {
+  return {
+    projectPath: scope.workspacePath,
+    experiment: scope.experiment,
+    ...(scope.name ? { experimentName: scope.name } : {}),
+    cli: `$(${CLI_NAME} research harness-path)`,
+    trackSkill: `the output of \`${CLI_NAME} skills get aster-research-track\``,
+    verifySkill: `the output of \`${CLI_NAME} skills get aster-research-verify\``,
+    brief: null,
+    briefError: 'it lives on the SSH host'
+  }
+}
+
 /** Harness paths plus the Experiment brief; a brief that cannot be read is named, not hidden. */
 export async function loadAgentReviewSetup(scope: AgentReviewScope): Promise<AgentReviewSetup> {
+  if (scope.hostId !== 'local') {
+    return remoteAgentReviewSetup(scope)
+  }
   const location = researchHarnessBridge().location
   if (!location) {
     throw new Error('This window cannot reach the research harness. Reload Aster.')

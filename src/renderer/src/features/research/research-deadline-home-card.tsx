@@ -54,6 +54,7 @@ export function ResearchHomeDeadlines(): React.JSX.Element {
   const refreshing = useConferenceDeadlines((state) => state.refreshing)
   const error = useConferenceDeadlines((state) => state.error)
   const needsRestart = useConferenceDeadlines((state) => state.needsRestart)
+  const desktopOnly = useConferenceDeadlines((state) => state.desktopOnly)
   const actions = useConferenceTrackingActions()
   const now = useDeadlineClock(60_000)
 
@@ -79,17 +80,19 @@ export function ResearchHomeDeadlines(): React.JSX.Element {
           ),
     [catalog, now, tracking, upcoming.length]
   )
-  const status = needsRestart
-    ? 'Restart Aster to load deadlines.'
-    : !tracking
-      ? loading || !error
-        ? 'Loading deadlines…'
-        : error
-      : !catalog
-        ? refreshing
-          ? 'Loading the conference list…'
-          : 'Conference dates are unavailable. Open Deadlines to refresh.'
-        : null
+  const status = desktopOnly
+    ? 'Available in the desktop app.'
+    : needsRestart
+      ? 'Restart Aster to load deadlines.'
+      : !tracking
+        ? loading || !error
+          ? 'Loading deadlines…'
+          : error
+        : !catalog
+          ? refreshing
+            ? 'Loading the conference list…'
+            : 'Conference dates are unavailable. Open Deadlines to refresh.'
+          : null
 
   return (
     <section

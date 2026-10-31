@@ -168,7 +168,8 @@ function Sidebar({
     <TooltipProvider delayDuration={400}>
       <div
         ref={sidebarRef}
-        className="left-sidebar-tokens relative min-h-0 flex-shrink-0 bg-worktree-sidebar flex flex-col overflow-clip [overflow-clip-margin:6px] scrollbar-sleek-parent"
+        // Why max-w-full: the compact drawer can be narrower than the saved width; docked, the slot is exactly that width.
+        className="left-sidebar-tokens relative min-h-0 max-w-full flex-shrink-0 bg-worktree-sidebar flex flex-col overflow-clip [overflow-clip-margin:6px] scrollbar-sleek-parent"
         style={leftSidebarStyle}
         {...dropHandlers}
       >

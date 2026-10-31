@@ -2,20 +2,14 @@ import { useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { Bot, ChevronDown } from 'lucide-react'
 import { useAppStore } from '@/store'
-import { activateAndRevealWorkspace } from '@/lib/worktree-activation'
-import { useResearchInlineWorkerTabs } from '@/features/research/research-inline-worker-tabs'
 import { cn } from '@/lib/utils'
-import { nativeChatOrchestrationWorkers } from './native-chat-orchestration-workers'
-
-const STATE_LABELS = {
-  pending: 'Pending',
-  dispatched: 'Dispatched',
-  working: 'Working',
-  waiting: 'Waiting',
-  blocked: 'Needs input',
-  completed: 'Completed',
-  failed: 'Failed'
-} as const
+import { openSubagentTab } from '../tab-bar/subagent-tab-open'
+import {
+  ORCHESTRATION_WORKER_STATE_LABELS,
+  nativeChatOrchestrationWorkers,
+  orchestrationWorkerSummaryLabel,
+  summarizeOrchestrationWorkers
+} from './native-chat-orchestration-workers'
 
 /** A parent chat keeps its independently launched workers nearby, with explicit drill-in. */
 export function NativeChatOrchestrationWorkers({
@@ -23,7 +17,8 @@ export function NativeChatOrchestrationWorkers({
 }: {
   paneKey: string
 }): React.JSX.Element | null {
-  const [expanded, setExpanded] = useState(true)
+  // Why: a one-line "2 running" summary until the user asks for the list.
+  const [expanded, setExpanded] = useState(false)
   const sources = useAppStore(
     useShallow((state) => ({
       runtimeAgentOrchestrationByPaneKey: state.runtimeAgentOrchestrationByPaneKey,
@@ -51,7 +46,7 @@ export function NativeChatOrchestrationWorkers({
         >
           <Bot aria-hidden="true" className="size-3.5 shrink-0" />
           <span className="min-w-0 flex-1 font-medium text-foreground">
-            Subagents ({workers.length})
+            Subagents · {orchestrationWorkerSummaryLabel(summarizeOrchestrationWorkers(workers))}
           </span>
           <ChevronDown
             aria-hidden="true"
@@ -79,7 +74,9 @@ export function NativeChatOrchestrationWorkers({
                     )}
                   />
                   <span className="min-w-0 flex-1 truncate text-foreground">{worker.name}</span>
-                  <span className="shrink-0">{STATE_LABELS[worker.state]}</span>
+                  <span className="shrink-0">
+                    {ORCHESTRATION_WORKER_STATE_LABELS[worker.state]}
+                  </span>
                 </>
               )
               return (
@@ -89,19 +86,9 @@ export function NativeChatOrchestrationWorkers({
                       type="button"
                       className="flex min-h-6 w-full items-center gap-2 rounded-md px-1.5 text-left hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                       onClick={() => {
-                        const tab = worker.tab
-                        if (!tab) {
-                          return
+                        if (worker.tab) {
+                          openSubagentTab(worker.tab)
                         }
-                        const activated = activateAndRevealWorkspace(
-                          tab.worktreeId,
-                          tab.executionHostId ? { executionHostId: tab.executionHostId } : undefined
-                        )
-                        if (activated === false) {
-                          return
-                        }
-                        useResearchInlineWorkerTabs.getState().show(tab.id)
-                        useAppStore.getState().activateTab(tab.id, { worktreeId: tab.worktreeId })
                       }}
                     >
                       {contents}

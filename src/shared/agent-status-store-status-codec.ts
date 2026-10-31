@@ -118,6 +118,8 @@ function parseOrchestration(value: unknown): Record<string, unknown> | null {
     'displayName',
     'parentTerminalHandle',
     'parentPaneKey',
+    'parentAgentSessionId',
+    'agentSessionId',
     'coordinatorHandle',
     'orchestrationRunId'
   ]

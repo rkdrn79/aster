@@ -30,6 +30,7 @@ import {
 } from './app-root-surface-settings'
 import type { FloatingWorkspacePanelState } from './use-floating-workspace-panel'
 import type { OnboardingGate } from './use-onboarding-and-feature-tips'
+import { usePhoneShell } from '../phone-shell/use-phone-shell'
 
 const QuickOpen = lazy(() => import('../components/QuickOpen'))
 const WorkspaceCleanupDialog = lazy(
@@ -120,7 +121,9 @@ export function AppRootSurfaces(props: {
   const voiceEnabled = useAppStore(selectAppRootSurfaceVoiceEnabled)
   const petEnabled = useAppStore(selectAppRootSurfacePetEnabled)
   const telemetryOptedIn = useAppStore(selectAppRootSurfaceTelemetryOptedIn)
-  const statusBarVisible = useAppStore((s) => s.statusBarVisible)
+  const phoneShell = usePhoneShell()
+  // Why: the phone layout has a tab bar where the status bar would sit.
+  const statusBarVisible = useAppStore((s) => s.statusBarVisible) && !phoneShell
   const persistedUIReady = useAppStore((s) => s.persistedUIReady)
   const petVisible = useAppStore((s) => s.petVisible)
   const dictationState = useAppStore((s) => s.dictationState)

@@ -290,6 +290,11 @@ export abstract class OrcaRuntimeWithPruneMobileSessionTabGroupLayout extends Or
     }
   }
 
+  /** The lineage the window graph sync returns, for clients that sync no window graph. */
+  getAgentOrchestrationByPaneKey(): Record<string, AgentStatusOrchestrationContext> {
+    return this.agentOrchestrationProjection.buildByPaneKey() ?? {}
+  }
+
   getAgentStatusOrchestrationContextForPaneKey(
     paneKey: string
   ): AgentStatusOrchestrationContext | undefined {

@@ -16,7 +16,18 @@ const researchHarnessResource = { from: 'src/research-harness', to: 'research-ha
 const noticesResource = { from: brand.licenseNoticeFile, to: brand.licenseNoticeFile }
 // Skill packages install from the app itself; the upstream repository has no Aster commits.
 const skillPackagesResource = { from: 'skills', to: 'skills' }
-const asterResources = [researchHarnessResource, noticesResource, skillPackagesResource]
+// The Phone dialog's guided setup deploys the user's own relay from this copy; `relay` is the SSH relay.
+const phoneRelayResource = {
+  from: 'relay',
+  to: 'aster-relay',
+  filter: ['**/*', '!node_modules{,/**/*}', '!.wrangler{,/**/*}', '!.dev.vars', '!**/*.test.ts']
+}
+const asterResources = [
+  researchHarnessResource,
+  noticesResource,
+  skillPackagesResource,
+  phoneRelayResource
+]
 // The feature tour only mounts in the upstream product, and its media records upstream's UI.
 const upstreamOnlyResources = new Set(['resources/onboarding/feature-wall'])
 const baseResources = (resources) =>

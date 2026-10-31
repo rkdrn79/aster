@@ -15,7 +15,7 @@ export type ServeOrcaAppArgs = {
   force?: boolean
   /** Restart the server under a service manager instead of exiting with it; never inferred. */
   supervise?: boolean
-  /** EXPERIMENT(paseo-relay): orcad only; Electron serve refuses it. */
+  /** EXPERIMENT(relay): orcad only; Electron serve refuses it. */
   relay?: string | null
 }
 

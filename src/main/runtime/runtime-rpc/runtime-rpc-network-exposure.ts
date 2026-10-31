@@ -11,10 +11,7 @@ export class RuntimeRpcNetworkExposure extends RuntimeRpcLifecycle {
   }
 
   // Why the live listener: a relay socket gets the direct path's caps, pre-auth timeout and E2EE wiring.
-  adoptRelayWebSocket(
-    ws: WebSocket,
-    options: { rewriteFirstInboundText?: (text: string) => string } = {}
-  ): boolean {
+  adoptRelayWebSocket(ws: WebSocket): boolean {
     const transport = this.activeTransports.find(
       (candidate): candidate is WebSocketTransport => candidate instanceof WebSocketTransport
     )
@@ -22,7 +19,7 @@ export class RuntimeRpcNetworkExposure extends RuntimeRpcLifecycle {
       ws.terminate()
       return false
     }
-    return transport.adoptConnection(ws, options)
+    return transport.adoptConnection(ws)
   }
 
   // Why: STA-2370 — widen the loopback listener to all interfaces so a freshly generated pairing

@@ -38,6 +38,7 @@ import {
 import { ORCA_SIDEBAR_INPUTS_IS_MAIN } from '../../../../shared/sidebar-inputs-switch'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../../../shared/layout-owner-switch'
 import { changedActiveGroups } from './active-group-publication'
+import { publishLocalOrchestrationLineage } from '../agent-orchestration-lineage-sources'
 
 export async function syncRuntimeGraph(): Promise<void> {
   if (!graphState.syncEnabled || !graphState.getStoreState) {
@@ -236,7 +237,10 @@ export async function syncRuntimeGraph(): Promise<void> {
     }
     commitMobileSessionPublication(mobileSessionTabs, result?.mobileSessionResyncWorktrees)
     const currentState = graphState.getStoreState()
-    currentState?.setRuntimeAgentOrchestrationByPaneKey?.(result?.agentOrchestrationByPaneKey ?? {})
+    publishLocalOrchestrationLineage(
+      currentState?.setRuntimeAgentOrchestrationByPaneKey,
+      result?.agentOrchestrationByPaneKey ?? {}
+    )
     for (const resolution of result?.nativeChatLaunchDraftResolutions ?? []) {
       if (currentState) {
         applyNativeChatLaunchDraftResolved(currentState, {

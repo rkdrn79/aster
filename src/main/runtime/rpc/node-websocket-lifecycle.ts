@@ -29,25 +29,15 @@ export function attachNodeWebSocketLifecycle(args: {
   // Why: read lazily so a handler registered after start still reaches sockets accepted earlier.
   getMessageHandler: () => WebSocketMessageHandler | null
   getConnectionCloseHandler: () => WebSocketConnectionCloseHandler | null
-  // Why first frame only: it is the plaintext handshake; every later frame is sealed and must pass untouched.
-  rewriteFirstInboundText?: (text: string) => string
 }): void {
   const { ws } = args
   let finalized = false
-  let rewriteFirstInboundText = args.rewriteFirstInboundText
   const onPong = (): void => args.heartbeat.noteAlive(ws)
   const onMessage = (data: WebSocket.RawData, isBinary: boolean): void => {
     // Why: any inbound frame counts as proof of life, so an actively-talking client isn't reaped mid-request.
     args.heartbeat.noteAlive(ws)
-    let message =
+    const message =
       typeof data === 'string' ? data : isBinary ? toBinaryPayload(data) : data.toString()
-    if (rewriteFirstInboundText) {
-      const rewrite = rewriteFirstInboundText
-      rewriteFirstInboundText = undefined
-      if (typeof message === 'string') {
-        message = rewrite(message)
-      }
-    }
     args.getMessageHandler()?.(
       message,
       (response) => {

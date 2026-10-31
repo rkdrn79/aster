@@ -9,6 +9,7 @@ import type { RetiredTerminalTabSweepState } from '../../store/slices/retired-te
 import { buildRetiredTerminalTabStateSweepPatch } from '../../store/slices/retired-terminal-tab-state-sweep'
 import { isMirroredTerminalSurfaceId } from './terminal-surfaces'
 import { isAgentStatusFresh } from './state-equality-core'
+import { mirrorHostOrchestrationContext } from './mirrored-orchestration-lineage'
 
 export function isMirroredAgentStatusOwnedBy(
   entry: AgentStatusEntry,
@@ -47,12 +48,15 @@ export function remapHostAgentStatus(
     launchAgent: retainedSurface?.launchAgent ?? surface.launchAgent,
     hookAgent: surface.agentStatus.agentType
   })
+  const { orchestration } = surface.agentStatus
   return {
     ...normalizeCompatibleAgentStatusEntryForOwner(surface.agentStatus, ownerRecord?.agent, {
       ownerIsLaunch: ownerRecord?.ownerIsLaunch === true
     }),
     paneKey,
-    tabId: toWebTerminalSurfaceTabId(surface.parentTabId)
+    tabId: toWebTerminalSurfaceTabId(surface.parentTabId),
+    // Why: a desktop host sends lineage on the row; its parent is a host pane key like `paneKey` was.
+    ...(orchestration ? { orchestration: mirrorHostOrchestrationContext(orchestration) } : {})
   }
 }
 

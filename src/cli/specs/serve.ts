@@ -27,7 +27,7 @@ export const SERVE_COMMAND_SPECS: CommandSpec[] = [
       'Use --recipe-json with --project-root from VM recipes to print the recipe result JSON and leave the server running.',
       'Use --mobile-pairing to print a mobile-scoped pairing QR/link instead of the default runtime-environment pairing link.',
       `A paired client cannot drive this machine's desktop (${CLI_NAME} computer) unless the offer was created with --grant-desktop-control.`,
-      'Experimental: --relay <wss-url> also serves clients through a Paseo protocol v2 WebSocket relay, so a phone can reach a server with no inbound port. With --mobile-pairing the QR points to the relay. Requires orcad; Electron serve refuses it.',
+      'Experimental: --relay <wss-url> also serves clients through an Aster relay (see aster-relay), so a phone can reach a server with no inbound port. With --mobile-pairing the QR points to the relay. Requires orcad; Electron serve refuses it.',
       'When the web client bundle is available, the server also prints a browser URL with the pairing data embedded.',
       `Exits with code 3, without starting anything, when another ${PRODUCT_NAME} already serves this profile or cannot be shown to have stopped.`,
       `On macOS, after ${PRODUCT_NAME} serve aborts at startup (it could not register with Launch Services), later runs from the same environment refuse for 30 minutes with exit code 78. Use --force to try anyway.`,
@@ -41,7 +41,7 @@ export const SERVE_COMMAND_SPECS: CommandSpec[] = [
       `${CLI_NAME} serve --project-root /workspace/repo --pairing-address wss://sandbox.example.com --recipe-json`,
       `${CLI_NAME} serve --port 6768 --pairing-address 100.64.1.20`,
       `${CLI_NAME} serve --pairing-address 100.64.1.20 --mobile-pairing`,
-      `${CLI_NAME} serve --relay wss://relay.paseo.sh/ws --mobile-pairing`
+      `${CLI_NAME} serve --relay 'wss://aster-relay.<subdomain>.workers.dev/ws?key=<key>' --mobile-pairing`
     ]
   },
   {

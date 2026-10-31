@@ -22,6 +22,10 @@ import type {
 } from './visibility-resume-types'
 import { isSessionTabsStreamEnd, WEB_SESSION_TABS_VISIBILITY_RESUME_STAGGER_MS } from './state'
 import { subscribeRuntimeEnvironment } from '../runtime-environment-pairing-refresh'
+import {
+  forgetHostOrchestrationLineage,
+  scheduleHostOrchestrationLineageRefresh
+} from './host-orchestration-lineage'
 
 type Ref<T> = { current: T }
 
@@ -78,6 +82,7 @@ export function installGlobalSessionTabsSubscriptions({
       ownerRevisions.get(environmentId) !== previousRevision
     ) {
       clearWebSessionTabsTrackingForEnvironment(environmentId)
+      forgetHostOrchestrationLineage(environmentId)
     }
   }
   refs.ownerRevisions.current = ownerRevisions
@@ -156,6 +161,8 @@ export function installGlobalSessionTabsSubscriptions({
               // Why: an end frame never reaches onClose, and an error response leaves the stream dead.
               if (!response.ok || isSessionTabsStreamEnd(response.result)) {
                 ended()
+              } else {
+                scheduleHostOrchestrationLineageRefresh(environmentId)
               }
               handleGlobalSessionEvent({
                 environmentId,

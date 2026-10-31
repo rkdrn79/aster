@@ -262,6 +262,7 @@
     "**/node_modules",
     "**/dist",
     "**/out",
-    "tests/e2e/.cross-version-checkouts"
+    "tests/e2e/.cross-version-checkouts",
+    "relay"
   ]
 }

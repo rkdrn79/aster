@@ -28,6 +28,7 @@ import {
 } from './TerminalPaneRuntimePortals'
 import type { TerminalPaneController } from './use-terminal-pane-controller'
 import { useAppStore } from '@/store'
+import { usePhoneShell } from '@/phone-shell/use-phone-shell'
 import { getKnownExecutionHostIdForWorktree } from '@/lib/worktree-runtime-owner'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../shared/execution-host'
 
@@ -120,6 +121,7 @@ export function TerminalPaneSurface({
     visibleTerminalError,
     worktreeId
   } = controller
+  const phoneShell = usePhoneShell()
   // Why: an SSH, runtime, or not-yet-known host must not be described with this client's OS/shell.
   const paneOnClient = useAppStore(
     (state) => getKnownExecutionHostIdForWorktree(state, worktreeId) === LOCAL_EXECUTION_HOST_ID
@@ -324,7 +326,8 @@ export function TerminalPaneSurface({
         tabId={tabId}
         worktreeId={worktreeId}
         cwd={cwd ?? ''}
-        showAlwaysOnHeaders={isActive && terminalContentVisible}
+        // Why: a phone shows one pane under its own header, so split and close stay off it.
+        showAlwaysOnHeaders={isActive && terminalContentVisible && !phoneShell}
         showSplitButton={showSplitButton}
         isTabPinned={isTabPinned}
         paneCount={paneCount}

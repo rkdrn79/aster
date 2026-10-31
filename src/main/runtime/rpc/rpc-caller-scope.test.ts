@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { callerScopeOf } from '../device-principal'
 import { OrcaRuntimeService } from '../orca-runtime'
 import type { RpcRequest, RpcResponse } from './core'
 import { RpcDispatcher } from './dispatcher'
@@ -86,6 +87,50 @@ describe('paired runtime clients', () => {
   it('learn an unregistered method is missing rather than forbidden', async () => {
     const response = await dispatchAs(PAIRED, 'computer.methodFromTheFuture', {})
     expect(errorCode(response)).toBe('method_not_found')
+  })
+})
+
+describe('a phone paired through phone access', () => {
+  const link = {
+    deviceId: 'link',
+    name: 'Phone 10/30/2026',
+    token: 'token',
+    scope: 'runtime',
+    pairedAt: 1,
+    lastSeenAt: 2,
+    pairingOrigin: 'phone-access'
+  } as const
+  const installation = {
+    ...link,
+    deviceId: 'installation',
+    token: undefined,
+    credentialKind: 'device-key',
+    forkedFrom: 'link'
+  } as const
+
+  it.each([
+    ['phoneRelay.configure', { relayUrl: 'wss://attacker.example/ws' }],
+    ['phoneRelay.pair', {}],
+    ['phoneRelay.devices', undefined],
+    ['phoneRelay.revoke', { deviceId: 'other-phone' }],
+    ['phoneRelay.status', undefined]
+  ])('cannot manage phone access: %s', async (method, params) => {
+    for (const device of [link, installation]) {
+      const response = await dispatchAs(callerScopeOf(device), method, params)
+      expect(errorCode(response), device.deviceId).toBe('forbidden')
+    }
+  })
+
+  it('keeps its own notifications and the workspace', async () => {
+    const scope = callerScopeOf(installation)
+    expect(errorCode(await dispatchAs(scope, 'phoneNotify.vapidKey'))).not.toBe('forbidden')
+    expect(errorCode(await dispatchAs(scope, 'updater.check', {}))).not.toBe('forbidden')
+  })
+
+  it('leaves the managing desktop able to manage phone access', async () => {
+    const desktop = callerScopeOf({ ...link, name: 'CLI 10/30/2026', pairingOrigin: undefined })
+    const response = await dispatchAs(desktop, 'phoneRelay.status')
+    expect(errorCode(response)).not.toBe('forbidden')
   })
 })
 

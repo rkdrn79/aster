@@ -10,6 +10,7 @@ import { isResearchPage, useResearchHomeAtStartup } from '@/features/research/re
 import { useResearchPaletteShortcut } from '@/components/cmd-j/use-research-palette-shortcut'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import { selectActiveTerminalChromeState } from '../store/active-terminal-chrome-selector'
+import { useCompactViewport, useLeftSidebarDocked } from './use-compact-viewport'
 import { useSystemPrefersDark } from '../components/terminal-pane/use-system-prefers-dark'
 import {
   hasRequestedBackgroundTerminalWorktreeMount,
@@ -24,7 +25,8 @@ export type AppChromeLayout = ReturnType<typeof useAppChromeLayout>
  */
 export function useAppChromeLayout() {
   const activeView = useAppStore((s) => s.activeView)
-  const sidebarOpen = useAppStore((s) => s.sidebarOpen)
+  const compactViewport = useCompactViewport()
+  const sidebarOpen = useLeftSidebarDocked()
   const rightSidebarOpen = useAppStore((s) => s.rightSidebarOpen)
   const rightSidebarTab = useAppStore((s) => s.rightSidebarTab)
   const rightSidebarExplorerView = useAppStore((s) => s.rightSidebarExplorerView)
@@ -146,6 +148,7 @@ export function useAppChromeLayout() {
   return {
     researchUiEnabled,
     activeView,
+    compactViewport,
     activeWorktreeId,
     activePendingCreationId,
     activeTabCanExpand,
@@ -162,7 +165,9 @@ export function useAppChromeLayout() {
     showSidebar,
     // Full-page navigation surfaces own the whole content area, so suppress right-sidebar controls.
     // Aster's project home has no workspace whose files or changes the sidebar could show.
+    // A phone-width page has no room beside it, and its open state is shared with the host's desktop.
     showRightSidebarControls:
+      !compactViewport &&
       !creationLayoutActive &&
       canShowRightSidebarForView(activeView) &&
       !(researchUiEnabled && activeWorktreeId === null),

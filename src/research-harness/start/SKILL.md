@@ -13,6 +13,9 @@ without a manuscript. Do not create a second copy of an existing paper.
 Run `aster research harness-path` on the machine that holds the project. It prints the
 version-matched absolute path to `cli.mjs`; use that path with Node. In a source checkout
 without the Aster CLI, `cli.mjs` is in the parent of this resolved skill directory.
+On an SSH host without a `node` (20 or newer), use the `node` path from
+`aster research harness-path --json`. If it reports no bundled harness, ask the user to update
+Aster and reconnect the host.
 
 1. Inspect the project root for `.aster/project.json`, legacy `research/project.json`, and an
    existing main `.tex`, `.bib`, and papers directory. If it is already set up, read `context`

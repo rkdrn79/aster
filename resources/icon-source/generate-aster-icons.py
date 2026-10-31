@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Generate every Aster brand asset from one six-armed asterisk.
 
-Writes resources/build/aster.{png,icns,ico}, resources/logo.svg, and the macOS
-menu-bar template images. Requires Pillow; the .icns step needs macOS iconutil.
+Writes resources/build/aster.{png,icns,ico}, resources/logo.svg, the macOS menu-bar template
+images, and the web client's home-screen icons. Requires Pillow; the .icns step needs macOS
+iconutil.
 """
 import math
 import shutil
@@ -16,6 +17,7 @@ from PIL import Image, ImageDraw
 RESOURCES = Path(__file__).resolve().parents[1]
 BUILD = RESOURCES / 'build'
 TRAY = RESOURCES / 'tray'
+WEB = RESOURCES.parent / 'src' / 'renderer' / 'web-public'
 
 # Proportions of the approved mark, as fractions of the square it sits on.
 ARM_REACH = 0.295
@@ -94,6 +96,14 @@ def write_icns() -> None:
         )
 
 
+def write_web_icons() -> None:
+    # Why: iOS masks home-screen icons itself and paints transparency black, so those fill the square.
+    render(180, margin=0, corner=0).save(WEB / 'apple-touch-icon.png')
+    render(512, margin=0, corner=0).save(WEB / 'icon-maskable-512.png')
+    for size in (192, 512):
+        render(size, margin=0, corner=0.18).save(WEB / f'icon-{size}.png')
+
+
 def main() -> None:
     mac_icon(1024).save(BUILD / 'aster.png')
     write_icns()
@@ -103,7 +113,8 @@ def main() -> None:
     write_svg()
     render_glyph(18, BLACK).save(TRAY / 'aster-menu-barTemplate.png')
     render_glyph(36, BLACK).save(TRAY / 'aster-menu-barTemplate@2x.png')
-    print('Aster icons written to resources/build, resources/logo.svg, and resources/tray')
+    write_web_icons()
+    print('Aster icons written to resources/build, resources/logo.svg, resources/tray, and the web client')
 
 
 if __name__ == '__main__':

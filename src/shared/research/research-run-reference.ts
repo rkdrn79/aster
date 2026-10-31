@@ -10,20 +10,33 @@ const RUN_ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,63}$/
 
 export type ResearchRunName = { experiment: string; runId: string }
 
+/** Whether the harness accepts `value` as a slug; only such a slug may go into an agent's commands. */
+export function isResearchExperimentSlug(value: string): boolean {
+  return EXPERIMENT_SLUG_PATTERN.test(value)
+}
+
+/** `<experiment-slug>/<run-id>` exactly, or null unless the harness would accept both parts. */
+export function readResearchRunName(value: string): ResearchRunName | null {
+  const parts = value.split('/')
+  const [experiment, runId] = parts
+  return parts.length === 2 &&
+    experiment !== undefined &&
+    runId !== undefined &&
+    isResearchExperimentSlug(experiment) &&
+    RUN_ID_PATTERN.test(runId)
+    ? { experiment, runId }
+    : null
+}
+
 /** `<experiment-slug>/<run-id>` as agents write it on the command line. */
 export function parseResearchRunName(value: string): ResearchRunName {
-  const parts = value.trim().split('/')
-  const [experiment, runId] = parts
-  if (
-    parts.length !== 2 ||
-    !EXPERIMENT_SLUG_PATTERN.test(experiment ?? '') ||
-    !RUN_ID_PATTERN.test(runId ?? '')
-  ) {
+  const name = readResearchRunName(value.trim())
+  if (!name) {
     throw new Error(
       `Use --run <experiment-slug>/<run-id>, e.g. lora-r16/seed-42 (got "${value}"). The slug and ID are the folder names under .aster/experiments/ (research/experiments/ in older projects).`
     )
   }
-  return { experiment, runId }
+  return name
 }
 
 export function formatResearchRunName(run: ResearchRunName): string {

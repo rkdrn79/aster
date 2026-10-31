@@ -21,6 +21,24 @@ inside the project: `--project` defaults to the nearest ancestor containing
 machine-readable object (`{"ok":true,...}`, or `{"ok":false,"error":{"code","message"}}`
 with exit 1). `node H/cli.mjs --help` lists every command.
 
+On an SSH host Aster manages, `aster` in an Aster terminal (also `$ORCA_CLI_COMMAND`) is the CLI
+of Aster's runtime on that host, and it prints a harness path on that host. If the host has no
+`node`, or one older than 20, use the `node` path from `aster research harness-path --json`
+instead. If `harness-path` says this Aster CLI has no bundled research harness, the host's Aster
+runtime predates it: tell the user to update Aster on the desktop and reconnect the host, and do
+not write records by hand meanwhile.
+
+## This conversation and the Experiment
+
+No command attaches a chat to an Experiment, and none is needed; do not treat its absence as a
+blocker. Harness commands record the agent that ran them from the environment Aster gives its
+terminals (`ORCA_AGENT_SESSION_ID`, `ORCA_TERMINAL_HANDLE`, `ORCA_PANE_KEY`), so a Run from
+`run exec` or a `proposal add` names this conversation, Aster delivers proposal decisions here,
+and `aster research watch --notify self` wakes it. Aster lists the chat under an Experiment when
+it starts you from that Experiment; otherwise the user picks **Link to Experiment** in the
+conversation's menu in Aster. Pass `--experiment <slug>` and tell the user which Experiment you
+record into.
+
 ## Before planning
 
 Run `node H/cli.mjs context` and read it. It lists Experiments, recent Runs with state and last/best metrics, loop budgets, and the claims audit summary.

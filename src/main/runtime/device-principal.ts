@@ -31,7 +31,11 @@ export function devicePrincipalOf(device: DeviceEntry): DevicePrincipal {
 export function callerScopeOf(device: DeviceEntry): RpcCallerScope {
   return device.scope === 'mobile'
     ? { kind: 'mobile', delegated: device.parentDeviceId !== undefined }
-    : { kind: 'runtime-paired', grants: device.grants ?? [] }
+    : {
+        kind: 'runtime-paired',
+        grants: device.grants ?? [],
+        ...(device.pairingOrigin === 'phone-access' ? { phoneAccess: true } : {})
+      }
 }
 
 export function fingerprintAuthenticatedPairingCredential(token: string): string {

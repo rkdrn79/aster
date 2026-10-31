@@ -1,13 +1,18 @@
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { expect, it } from 'vitest'
+import { z } from 'zod'
 import { installFakeAppEnvironment } from '../../../config/scripts/vitest-host-ports-setup'
 import { runProcess, spawnProcess } from '@orca/process-host'
 import { sealedChildEnv } from '../runtime/structured-session-child-env.test-support'
 import { resolveBundledOrcadRuntime } from './orcad-bundled-runtime'
-import { ORCAD_NODE_RUNTIME_MARKER_FILENAME } from '../../shared/orcad-artifacts'
+import {
+  ORCAD_NODE_RUNTIME_MARKER_FILENAME,
+  ORCAD_RESEARCH_HARNESS_CLI_FILENAME
+} from '../../shared/orcad-artifacts'
 import { skipForMissingInputs } from './orcad-node-slot-fixture'
+import { CLI_NAME } from '../../shared/product-brand'
 import {
   killChildAndWait,
   killProfileDaemons,
@@ -19,6 +24,7 @@ const slotDir = resolve('out/orcad')
 const runtime = existsSync(join(slotDir, ORCAD_NODE_RUNTIME_MARKER_FILENAME))
   ? resolveBundledOrcadRuntime(slotDir)
   : null
+const researchHarnessLocation = z.object({ cli: z.string(), node: z.string() })
 const skip = skipForMissingInputs('artifact', runtime ? [] : ['a Node orcad slot in out/orcad'])
 
 it.skipIf(skip)(
@@ -91,7 +97,7 @@ it.skipIf(skip)(
         userData,
         'cli',
         'bin',
-        process.platform === 'win32' ? 'orca.exe' : 'orca'
+        process.platform === 'win32' ? `${CLI_NAME}.exe` : CLI_NAME
       )
       expect(existsSync(launcher)).toBe(true)
       installFakeAppEnvironment({
@@ -136,6 +142,26 @@ it.skipIf(skip)(
       })
       expect(version.code, version.stderr).toBe(0)
       expect(version.stdout.trim()).toMatch(/^\d+\.\d+\.\d+/u)
+      // An agent on the host records Runs with the harness its slot ships, run by the slot's Node.
+      const harness = await runProcess({
+        program: childEnv.ORCA_CLI_COMMAND!,
+        args: ['research', 'harness-path', '--json'],
+        env: { ...env, ...childEnv },
+        timeoutMs: 15_000
+      })
+      expect(harness.code, harness.stderr).toBe(0)
+      const located = researchHarnessLocation.parse(JSON.parse(harness.stdout))
+      expect(located.cli).toBe(
+        join(realpathSync(slotDir), ...ORCAD_RESEARCH_HARNESS_CLI_FILENAME.split('/'))
+      )
+      const help = await runProcess({
+        program: located.node,
+        args: [located.cli, '--help'],
+        env,
+        timeoutMs: 15_000
+      })
+      expect(help.code, help.stderr).toBe(0)
+      expect(help.stdout).toContain('run exec')
       // A person's own selector on the server is honoured, as on any machine.
       const person = await runProcess({
         program: launcher,

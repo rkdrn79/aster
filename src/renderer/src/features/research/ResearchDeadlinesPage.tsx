@@ -168,7 +168,8 @@ export function ResearchDeadlinesPage(): React.JSX.Element {
           {catalog ? ' Showing the last downloaded list.' : ''}
         </p>
       ) : null}
-      <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
+      {/* Why: stacked on a phone, the schedule and catalog scroll as one page instead of two short panes. */}
+      <div className="scrollbar-sleek grid min-h-0 flex-1 grid-cols-1 max-md:auto-rows-max max-md:overflow-y-auto md:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
         <div className="flex min-h-0 flex-col">
           <ResearchDeadlineStrip
             entries={entries.filter(isActionableDeadline)}

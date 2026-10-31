@@ -1,5 +1,6 @@
 import type { ResearchComputeSample } from '../../../../shared/research/research-compute-probe'
 import type { ResearchComputeWorkspace } from './research-compute-workspaces'
+import { isWebClientLocation } from '@/lib/web-client-location'
 
 const MAX_PROBED_WORKSPACE_PATHS = 256
 
@@ -55,6 +56,10 @@ export function computeProbeFolders(workspaces: readonly ResearchComputeWorkspac
  * preload, and a paired client can be newer than its host; a missing bridge method hides its UI.
  */
 export function computeBridgeCapabilities(): { jobs: boolean; links: boolean; gpuPolicy: boolean } {
+  // Why: the web client's fallback proxy makes every bridge method look callable.
+  if (isWebClientLocation()) {
+    return { jobs: false, links: false, gpuPolicy: false }
+  }
   const api: Partial<Window['api']['researchCompute']> = window.api.researchCompute ?? {}
   return {
     jobs: typeof api.submitJob === 'function' && typeof api.cancelJob === 'function',

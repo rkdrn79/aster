@@ -80,12 +80,12 @@ import type { ResearchProposalsApi } from './api/research-proposals-bridge'
 import type { ResearchRatingsApi } from './api/research-ratings-bridge'
 import type { ResearchOrganizeApi } from './api/research-organize-bridge'
 import type { ResearchMediaApi } from './api/research-media-bridge'
+import type { PhoneRelaySetupApi } from './api/phone-relay-setup-bridge'
 import type { ResearchAnalysisApi } from './api/research-analysis-bridge'
 import type { ResearchWatchesApi } from './api/research-watches-bridge'
 import type { ConferenceDeadlinesApi } from './api/conference-deadlines-bridge'
 import type { ResearchLibraryApi } from './api/research-library-bridge'
 import type { ResearchSlackApi } from './api/research-slack-bridge'
-import type { ResearchPaseoApi } from './api/research-paseo-bridge'
 
 // Flattens contracts that share one PreloadApi key: an intersection is not type-identical to the flat shape.
 type Merged<T> = { [K in keyof T]: T[K] }
@@ -196,12 +196,12 @@ export type PreloadApi = {
   researchRatings: ResearchRatingsApi
   researchOrganize: ResearchOrganizeApi
   researchMedia: ResearchMediaApi
+  phoneRelaySetup: PhoneRelaySetupApi
   researchAnalysis: ResearchAnalysisApi
   researchWatches: ResearchWatchesApi
   conferenceDeadlines: ConferenceDeadlinesApi
   researchLibrary: ResearchLibraryApi
   researchSlack: ResearchSlackApi
-  researchPaseo: ResearchPaseoApi
   speech: SpeechApi
 }
 

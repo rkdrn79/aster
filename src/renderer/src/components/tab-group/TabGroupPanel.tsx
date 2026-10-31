@@ -14,6 +14,7 @@ import { tabGroupBodyAnchorName } from './tab-group-body-anchor'
 import { registerTabGroupBody } from './tab-group-body-geometry'
 import { observeTabGroupBodyGridSize } from '@/runtime/sync-runtime-graph'
 import { translate } from '@/i18n/i18n'
+import { useTabStripChromeSpacers } from './tab-strip-chrome-spacers'
 import type { TabGroup } from '../../../../shared/tab-types'
 import type { ClientHostedBrowserRow } from '../../../../shared/client-hosted-browser-rows'
 import { useClientHostedBrowserRows } from '@/lib/pane-manager/client-hosted-browser-row-state'
@@ -76,8 +77,10 @@ export default function TabGroupPanel({
   isTabDragActive?: boolean
   hoveredTabInsertion?: HoveredTabInsertion | null
 }): React.JSX.Element {
-  const rightSidebarOpen = useAppStore((state) => state.rightSidebarOpen)
-  const sidebarOpen = useAppStore((state) => state.sidebarOpen)
+  const chromeSpacers = useTabStripChromeSpacers({
+    left: reserveCollapsedSidebarHeaderSpace,
+    right: reserveClosedExplorerToggleSpace
+  })
   const researchUiEnabled = useAppStore((state) => state.settings?.researchUiEnabled === true)
   const activeView = useAppStore((state) => state.activeView)
   const worktreeHostId = useAppStore((state) =>
@@ -310,7 +313,7 @@ export default function TabGroupPanel({
       {/* Why: macOS hiddenInset titleBarStyle makes -webkit-app-region: drag the only way to move the window from this tab row. */}
       {/* Why absent (not hidden) for an 'external' host: the floating panel's titlebar owns the one
           strip, and a mounted second strip would register duplicate sortables in the drag scope. */}
-      {tabStrip !== 'attached' ? null : (
+      {tabStrip !== 'attached' || chromeSpacers.stripHidden ? null : (
         <div
           className="@container/tab-strip h-[32px] shrink-0 border-b border-border bg-card"
           data-tab-group-strip-id={groupId}
@@ -319,7 +322,7 @@ export default function TabGroupPanel({
         >
           <div className="flex h-full items-stretch pr-1.5">
             {/* Why: Electron drag hit-test respects no-drag only on DOM descendants, not z-index siblings, so this no-drag spacer keeps the collapsed left-sidebar's floating toggle clickable. */}
-            {reserveCollapsedSidebarHeaderSpace && !sidebarOpen ? (
+            {chromeSpacers.left ? (
               <div
                 className="shrink-0"
                 style={
@@ -347,7 +350,7 @@ export default function TabGroupPanel({
               ) : null}
             </div>
             {/* Why: Electron drag hit-test respects no-drag only on DOM descendants, not z-index siblings, so this no-drag spacer keeps the floating right-sidebar toggle + window controls clickable. */}
-            {reserveClosedExplorerToggleSpace && !rightSidebarOpen ? (
+            {chromeSpacers.right ? (
               <div
                 className="shrink-0"
                 style={

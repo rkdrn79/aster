@@ -1,6 +1,7 @@
 import type { OrcaRuntimeRpcServer } from '../runtime/runtime-rpc'
 import { resolveAdvertisedPairingEndpoint } from '../runtime/pairing-endpoint'
 import { assertServeProjectRoot, renderServePairingQr } from './serve-pairing-output'
+import { withPairingFragment } from '../../shared/hosted-web-client'
 import type { ServeReadiness, ServeReadinessOutput } from './serve-readiness'
 
 /** Endpoint and pairing-offer fields shared by the Electron serve host and orcad. */
@@ -10,6 +11,8 @@ export async function buildServePairingReadiness(
     noPairing?: boolean
     mobilePairing?: boolean
     grantDesktopControl?: boolean
+    /** EXPERIMENT(relay): a runtime offer's link opens this hosted web client instead. */
+    webClientUrl?: string
   },
   rpc: Pick<OrcaRuntimeRpcServer, 'getWebSocketEndpoint' | 'createPairingOffer'>
 ): Promise<Pick<ServeReadiness, 'boundEndpoint' | 'advertisedEndpoint' | 'pairing'>> {
@@ -30,6 +33,10 @@ export async function buildServePairingReadiness(
         grants: options.grantDesktopControl ? ['desktop-control'] : []
       })
 
+  const hostedWebClientUrl =
+    offer.available && options.webClientUrl && !options.mobilePairing
+      ? withPairingFragment(options.webClientUrl, offer.pairingUrl)
+      : null
   return {
     boundEndpoint,
     advertisedEndpoint: advertised?.ok ? advertised.endpoint : null,
@@ -39,9 +46,14 @@ export async function buildServePairingReadiness(
           url: offer.pairingUrl,
           endpoint: offer.endpoint,
           deviceId: offer.deviceId,
-          webClientUrl: offer.webClientUrl,
+          webClientUrl: hostedWebClientUrl ?? offer.webClientUrl,
           scope: options.mobilePairing ? 'mobile' : 'runtime',
-          qr: options.mobilePairing ? await renderServePairingQr(offer.pairingUrl) : null
+          // Why the hosted link: a phone camera opens it in the browser, which then pairs itself.
+          qr: hostedWebClientUrl
+            ? await renderServePairingQr(hostedWebClientUrl)
+            : options.mobilePairing
+              ? await renderServePairingQr(offer.pairingUrl)
+              : null
         }
       : offer
   }

@@ -57,6 +57,8 @@ import { MOBILE_WEB_BUNDLE_METHODS } from './mobile-web-bundle'
 import { RUNTIME_CLIENT_CAPABILITY_METHODS } from './runtime-client-capabilities'
 import { EMULATOR_METHODS } from './emulator'
 import { PAIRING_METHODS } from './pairing'
+import { PHONE_NOTIFY_METHODS } from './phone-notify'
+import { PHONE_RELAY_METHODS } from './phone-relay'
 import { MOBILE_RELAY_HOSTS_METHODS } from './mobile-relay-hosts'
 import { MOBILE_PROJECT_SECTIONS_METHODS } from './mobile-project-sections'
 import { UPDATER_METHODS } from './updater'
@@ -152,6 +154,8 @@ export const ALL_RPC_METHODS = [
   ...CLIENT_UI_METHODS,
   ...EMULATOR_METHODS,
   ...PAIRING_METHODS,
+  ...PHONE_NOTIFY_METHODS,
+  ...PHONE_RELAY_METHODS,
   ...MOBILE_RELAY_HOSTS_METHODS,
   ...MOBILE_PROJECT_SECTIONS_METHODS,
   // Switch point: a window-fed build publishes no sidebar input.

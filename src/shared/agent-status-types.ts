@@ -67,6 +67,11 @@ export type AgentStatusOrchestrationContext = {
   displayName?: string
   parentTerminalHandle?: string
   parentPaneKey?: string
+  /** Set when the parent is a structured chat: the session its tab shows, for clients whose tab
+   *  id for that chat differs from the host's. */
+  parentAgentSessionId?: string
+  /** Set when this row's pane is a structured chat's, likewise naming the session it shows. */
+  agentSessionId?: string
   coordinatorHandle?: string
   orchestrationRunId?: string
   /** Durable orchestration categories combined with the current push-fed status observation. */

@@ -166,6 +166,48 @@ divider to give the PDF or the agent more room.
 
 <sub>The Library screenshot shows <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a> by Lin et al., licensed <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</sub>
 
+### Phone
+
+Open a server's projects on your phone, even while your Mac is off. The phone runs Aster's web
+client in Safari or from the Home Screen, with no App Store, and reaches the server through a relay
+you deploy yourself on Cloudflare's Workers Free plan.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/phone-dark.jpg" /><img src="docs/assets/readme/phone.jpg" alt="Aster on a phone: Home with a chat that needs you, a chat asking to approve a command, a Run's metrics and log, and a paper PDF open from Files" width="960" /></picture>
+</p>
+
+- **Home** puts agents that need you first, then each project with its newest Run, upcoming
+  deadlines, and the GPU queue.
+- **Agents** lists every chat and terminal on the server, with subagents folded under the agent
+  that launched them. Chats open as the same native chat as on your Mac, with approval cards and the
+  same composer; **New agent** starts one, or a plain shell. Stop an agent from its menu.
+- **Runs** lists every Run, running first; a Run opens its latest metrics and the end of its log.
+  Experiments show their brief and best Run against the baseline.
+- **Files** browses the workspace and opens code, Markdown, and PDFs, including the project's papers.
+- **Notify me** (⋯ menu, Home Screen app, iOS 16.4+) alerts you when an agent needs you or a Run
+  ends, even with the app closed.
+
+To set it up:
+
+1. Deploy your relay from [`relay/`](relay/README.md) with a free Cloudflare account; no payment
+   method is needed. The last command prints your relay URL.
+2. In Aster, open **Research → Home → Phone**, paste the relay URL once, and choose **Turn on** for
+   each SSH server. The server keeps the setting and rejoins the relay after restarts.
+3. Choose **Phone QR**, scan it with the phone camera, and open the link in Safari.
+4. To keep Aster on the Home Screen, tap **Share → Add to Home Screen**, open it there, and paste
+   the link once: copy it from the card on the phone's Home in the browser, or from **Copy link** on
+   your Mac.
+
+The pairing link is a credential: anyone with it can open that server, so keep it and the relay URL
+private. **Phone QR** makes a new link and retires earlier links no phone has opened; each server
+row lists its paired phones, and **Revoke** cuts one off. The
+[setup guide](https://rkdrn79.github.io/aster-site/phone.html) has every step.
+
+Limits: phone access is experimental. It covers SSH servers and hosts running
+`aster serve --relay`; projects that live only on your Mac are not on the phone. Experiment
+notebooks, Compare, and the Library page stay in the desktop app. Past the free
+plan's daily limits, the relay refuses requests until 00:00 UTC instead of charging.
+
 ### Others
 
 The GPUs and deadlines around your projects, the coding workspace, and the CLI your agents use.
@@ -184,7 +226,8 @@ Hugging Face AI deadlines catalogs, in your time zone.
 
 Chats, terminals, the editor, files, and Git for the project. Switching pages never stops an agent
 or terminal. The **Research | Code** switch flips the sidebar to a worktree-first layout for pure
-coding work.
+coding work. Subagents that a coordinator launches fold into one chip beside the tabs, such as
+"2 running · 1 waiting", instead of filling the strip; click it to see each one's state and open it.
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/code-layout-dark.jpg" /><img src="docs/assets/readme/code-layout.jpg" alt="Code layout with worktrees, a terminal, and the editor" width="960" /></picture>
@@ -193,7 +236,8 @@ coding work.
 #### Research harness
 
 One small CLI for every experiment: agents call it to launch Runs and record claims, and the app
-imports the same code, so the agent and the UI agree on what a record means. See
+imports the same code, so the agent and the UI agree on what a record means. Aster also installs it
+on the SSH hosts it manages, so agents there register Runs the same way. See
 [Research harness](#research-harness) for commands.
 
 **Slack:** mention a project's Aster bot in an allowed channel and a coordinator agent in that project
@@ -249,7 +293,9 @@ mismatched, and stale claims. Add that folder as a project and open **Denoiser s
 The harness is a zero-dependency Node CLI in [`src/research-harness/`](src/research-harness/README.md)
 that agents call for every experiment. The app ships the same code as `Resources/research-harness`
 and imports it at runtime, so the agent and the UI always agree on what a record means.
-`aster research harness-path` prints the copy that matches the installed app.
+`aster research harness-path` prints the copy that matches the installed app. On an SSH host Aster
+manages, it prints the copy Aster installed on that host, and `--json` also names a Node to run it
+with when the host has none.
 
 ```bash
 HARNESS=$(aster research harness-path)
@@ -321,8 +367,8 @@ unit tests and headless Electron tests. Known gaps:
 
 - Apple Silicon macOS builds are signed ad hoc and are not notarized. The app checks GitHub Releases
   for updates, but installation still requires downloading and replacing the app manually.
-- Aster is desktop-only. For agent conversations on a phone, use the Paseo app, which runs against
-  its own host.
+- Phone access is experimental and covers SSH servers through each user's own relay; see
+  [Phone](#phone). There is no native phone app.
 - An unsigned Windows x64 preview passed CI packaging, smoke, and research E2E tests; installation
   and research work on a user's Windows PC remain unverified. Linux desktop is not published yet.
 - Writing: the round trip from a selected passage through an agent's edit to a recompiled PDF has not
@@ -375,8 +421,8 @@ from there. Code conventions are in [`AGENTS.md`](AGENTS.md) and
 
 ## Acknowledgements
 
-Aster is built on [Orca](https://github.com/stablyai/orca) and inspired by
-[Paseo](https://github.com/getpaseo/paseo). Thank you to both projects.
+Aster is built on [Orca](https://github.com/stablyai/orca), and its phone relay began as
+[Paseo](https://github.com/getpaseo/paseo)'s Cloudflare relay. Thank you to both projects.
 
 ## License
 

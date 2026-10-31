@@ -24,14 +24,21 @@ import {
 } from '@/features/research/research-history-store'
 import { hasCustomTitleBar, hasMacTrafficLights } from './app-window-chrome'
 import type { AppChromeLayout } from './use-app-chrome-layout'
+import { toggleLeftSidebar } from './compact-drawer-store'
 
 /**
  * The titlebar's left cluster: window chrome padding, app name, sidebar toggle, and the
  * worktree back/forward pair. Shared by the full-width titlebar and the sidebar-width left
  * header so the agent badge popover isn't duplicated.
  */
-export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): React.JSX.Element {
-  const toggleSidebar = useAppStore((s) => s.toggleSidebar)
+export function TitlebarLeftControls({
+  layout,
+  inDrawer = false
+}: {
+  layout: AppChromeLayout
+  /** The compact sidebar drawer's copy: spans the drawer and stays out of the floating-header measure. */
+  inDrawer?: boolean
+}): React.JSX.Element {
   const updateSettings = useAppStore((s) => s.updateSettings)
   // Why: in Research, Back/Forward walk pages and Experiments; in Code, workspaces.
   const researchUi = useAppStore((s) => s.settings?.researchUiEnabled === true)
@@ -49,14 +56,20 @@ export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): R
     researchUi ? 'research.history.forward' : 'worktree.history.forward'
   )
   const appName = PRODUCT_NAME
+  // Why: on a phone the floating copy keeps only the toggle and history; the drawer shows the name.
+  const showAppName =
+    layout.showSidebar &&
+    !hasCustomTitleBar &&
+    layout.showTitlebarAppName &&
+    (inDrawer || !layout.compactViewport)
 
   return (
     // Why: measure the ENTIRE row so TabGroupPanel's collapse spacer reserves enough width; measuring only the inner cluster left back/forward over the first tab.
     // Why: collapsed mode floats in a w-0 wrapper; w-max stops Windows Chromium from shrinking the app name to one glyph.
     <div
-      ref={layout.titlebarLeftControlsRef}
+      ref={inDrawer ? undefined : layout.titlebarLeftControlsRef}
       className={`flex h-full shrink-0 items-center${
-        layout.leftTitlebarChromeLayout.isFloating ? ' w-max' : ' w-full'
+        layout.leftTitlebarChromeLayout.isFloating && !inDrawer ? ' w-max' : ' w-full'
       }`}
     >
       <div className="flex h-full items-center">
@@ -98,7 +111,7 @@ export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): R
         ) : (
           <div className="pl-2" />
         )}
-        {layout.showSidebar && !hasCustomTitleBar && layout.showTitlebarAppName && (
+        {showAppName && (
           <ContextMenu>
             <ContextMenuTrigger asChild>
               <button
@@ -127,7 +140,7 @@ export function TitlebarLeftControls({ layout }: { layout: AppChromeLayout }): R
             <TooltipTrigger asChild>
               <button
                 className="sidebar-toggle"
-                onClick={toggleSidebar}
+                onClick={toggleLeftSidebar}
                 aria-label={translate('auto.App.e4b9e7dff7', 'Toggle sidebar')}
               >
                 <PanelLeft size={16} />

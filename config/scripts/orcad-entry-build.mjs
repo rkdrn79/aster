@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { basename, dirname, join } from 'node:path'
+import { runProcessSync } from '@orca/process-host'
 import { ORCAD_SERVER_ENTRY_FILENAME } from '../../src/shared/orcad-artifacts.ts'
 
 const root = join(import.meta.dirname, '..', '..')
@@ -173,6 +174,31 @@ export function buildOrcadCli(outfile) {
     sourcemap: false,
     logLevel: 'error'
   })
+}
+
+/** One ESM file that imports only Node built-ins, so it runs from a slot without node_modules. */
+export async function buildOrcadResearchHarness(outfile) {
+  await build({
+    entryPoints: [join(root, 'src/research-harness/cli.mjs')],
+    bundle: true,
+    platform: 'node',
+    target: 'node18',
+    format: 'esm',
+    outfile,
+    // Why unminified: a person reading a surprising record can follow the shipped code.
+    minify: false,
+    sourcemap: false,
+    logLevel: 'error'
+  })
+  // A bundle that resolves but throws on load would fail only in an agent's terminal.
+  const help = runProcessSync({
+    program: process.execPath,
+    args: [outfile, '--help'],
+    timeoutMs: 60_000
+  })
+  if (help.code !== 0 || !help.stdout.includes('run exec')) {
+    throw new Error(`[build-orcad] the bundled research harness does not start:\n${help.stderr}`)
+  }
 }
 
 export function buildOrcadLauncher(outfile) {

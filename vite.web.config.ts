@@ -13,6 +13,8 @@ export default defineConfig({
   // Why: pairing URLs may live under a reverse-proxy path prefix like
   // /orca/web-index.html, so built assets must resolve relative to the page.
   base: './',
+  // Why: the home-screen manifest and icons; a folder of its own so the desktop renderer doesn't ship them.
+  publicDir: resolve('src/renderer/web-public'),
   plugins: [
     react(),
     tailwindcss(),

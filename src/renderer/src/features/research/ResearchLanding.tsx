@@ -1,5 +1,7 @@
-import { FolderPlus } from 'lucide-react'
+import { useState } from 'react'
+import { FolderPlus, Smartphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { isWebClientLocation } from '@/lib/web-client-location'
 import { useAppStore } from '@/store'
 import { useResearchHomeProjects } from './research-home-projects'
 import { emptyResearchHomeActivity } from './research-home-activity'
@@ -9,6 +11,7 @@ import { ResearchHomeDeadlines } from './research-deadline-home-card'
 import { useDeadlineClock } from './use-deadline-clock'
 import { useResearchHomeActivity } from './use-research-home-activity'
 import { ResearchEmptyState, ResearchPageBody, ResearchPageHeader } from './ResearchPageLayout'
+import { ResearchPhoneAccessDialog } from './ResearchPhoneAccessDialog'
 
 /** The home page keeps projects, deadlines, and compute in one working overview. */
 export function ResearchLanding(): React.JSX.Element {
@@ -16,22 +19,34 @@ export function ResearchLanding(): React.JSX.Element {
   const activity = useResearchHomeActivity(projects)
   const openModal = useAppStore((state) => state.openModal)
   const now = useDeadlineClock(60_000)
+  const [phoneAccessOpen, setPhoneAccessOpen] = useState(false)
 
   return (
     <div className="absolute inset-0 flex flex-col bg-background text-foreground">
       <ResearchPageHeader
         title="Home"
         actions={
-          <Button
-            size="sm"
-            variant={projects.length > 0 ? 'outline' : 'default'}
-            onClick={() => openModal('add-repo')}
-          >
-            <FolderPlus aria-hidden />
-            Add project
-          </Button>
+          <>
+            {isWebClientLocation() ? null : (
+              <Button size="sm" variant="ghost" onClick={() => setPhoneAccessOpen(true)}>
+                <Smartphone aria-hidden />
+                Phone
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant={projects.length > 0 ? 'outline' : 'default'}
+              onClick={() => openModal('add-repo')}
+            >
+              <FolderPlus aria-hidden />
+              Add project
+            </Button>
+          </>
         }
       />
+      {phoneAccessOpen ? (
+        <ResearchPhoneAccessDialog open onClose={() => setPhoneAccessOpen(false)} />
+      ) : null}
       <ResearchPageBody>
         <div className="mx-auto grid w-full max-w-7xl min-w-0 items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(19rem,0.8fr)]">
           <section aria-label="Projects" className="min-w-0 space-y-3">

@@ -31,6 +31,7 @@ import { normalizeTerminalLineHeight } from '../../../../shared/terminal-line-he
 import { maybePushMode2031Flip } from './terminal-mode-2031-replies'
 import { resolveTerminalMinimumContrastRatio } from '@/lib/terminal-contrast-correction'
 import { resolveTerminalInlineImagesEnabled } from '../../../../shared/terminal-inline-images-settings'
+import { phoneTerminalFontSize } from '@/phone-shell/use-phone-shell'
 
 export function hexToRgba(hex: string, alpha: number): string {
   let clean = hex.replace('#', '')
@@ -188,7 +189,7 @@ export function applyTerminalAppearance(
     setTerminalCursorBlinkOption(pane.terminal, settings.terminalCursorBlink)
     const paneSize = paneFontSizes.get(pane.id)
     const metricOptions = {
-      fontSize: paneSize ?? settings.terminalFontSize,
+      fontSize: paneSize ?? phoneTerminalFontSize(settings.terminalFontSize),
       fontFamily: buildFontFamily(settings.terminalFontFamily),
       fontWeight: terminalFontWeights.fontWeight,
       fontWeightBold: terminalFontWeights.fontWeightBold,

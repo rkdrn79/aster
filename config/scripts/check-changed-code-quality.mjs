@@ -8,6 +8,8 @@ import { resolvePullRequestDiffBase } from './git-pull-request-diff-base.mjs'
 import { resolveOxlintInvocation } from './oxlint-cli-invocation.mjs'
 
 const SOURCE_FILE_PATTERN = /\.(?:[cm]?[jt]sx?)$/
+// Why: relay/ is vendored from Paseo's relay and keeps upstream style; relay/README.md lists our changes.
+const VENDORED_PATH_PATTERN = /^relay\//
 const CASTING_RULE = 'typescript/consistent-type-assertions'
 const CASTING_DISABLE_PATTERN =
   /\/[/*]\s*(?:oxlint|eslint)-disable(?:-next-line|-line)?\s[^\n]*typescript\/consistent-type-assertions/
@@ -147,7 +149,11 @@ export function collectAddedLineRanges(root, requestedBase) {
   const rangesByFile = new Map()
 
   for (const file of changedFiles) {
-    if (!SOURCE_FILE_PATTERN.test(file) || !existsSync(path.join(root, file))) {
+    if (
+      !SOURCE_FILE_PATTERN.test(file) ||
+      VENDORED_PATH_PATTERN.test(file) ||
+      !existsSync(path.join(root, file))
+    ) {
       continue
     }
     const diff = runGit(root, ['diff', '--unified=0', '--no-color', comparisonBase, '--', file])
@@ -159,7 +165,11 @@ export function collectAddedLineRanges(root, requestedBase) {
 
   for (const file of untrackedFiles) {
     const absolutePath = path.join(root, file)
-    if (!SOURCE_FILE_PATTERN.test(file) || !existsSync(absolutePath)) {
+    if (
+      !SOURCE_FILE_PATTERN.test(file) ||
+      VENDORED_PATH_PATTERN.test(file) ||
+      !existsSync(absolutePath)
+    ) {
       continue
     }
     const lineCount = readFileSync(absolutePath, 'utf8').split(/\r?\n/).length

@@ -44,6 +44,20 @@ describe('pairing offer', () => {
     expect(decoded).toEqual(offer)
   })
 
+  it('encodes the same code in browser runtimes without Buffer', () => {
+    const withHostName = { ...offer, endpoint: 'wss://relé.example/ws' }
+    const nodeEncoded = encodePairingOffer(withHostName)
+    const nodeBuffer = Buffer
+    let browserEncoded = ''
+    try {
+      vi.stubGlobal('Buffer', undefined)
+      browserEncoded = encodePairingOffer(withHostName)
+    } finally {
+      vi.stubGlobal('Buffer', nodeBuffer)
+    }
+    expect(browserEncoded).toBe(nodeEncoded)
+  })
+
   it('preserves partial padding consistently across Node and browser runtimes', () => {
     const url = encodePairingOffer(offer)
     const code = new URLSearchParams(url.slice(url.indexOf('?') + 1)).get('code')!

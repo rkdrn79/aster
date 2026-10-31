@@ -16,6 +16,7 @@ import {
 } from './editor-lazy-views'
 import type { EditorConflictNavigation } from './useEditorConflictNavigation'
 import { EditorFileLoadErrorView } from './EditorFileLoadErrorView'
+import { usePhoneShell } from '@/phone-shell/use-phone-shell'
 import { RecoverableRenderErrorBoundary } from '../error-boundaries/RecoverableRenderErrorBoundary'
 import type { FileContent } from './editor-panel-content-types'
 import { ExternalFileChangeBanner } from './ExternalFileChangeBanner'
@@ -93,6 +94,7 @@ export function EditorEditFileSurface({
   handleSave: (content: string) => Promise<boolean>
   reloadContent: (file: OpenFile) => void
 }): React.JSX.Element {
+  const phoneShell = usePhoneShell()
   if (activeFile.conflict?.kind === 'conflict-placeholder') {
     return <ConflictPlaceholderView file={activeFile} />
   }
@@ -197,6 +199,8 @@ export function EditorEditFileSurface({
   }
 
   // Why: without a key React reuses the instance and skips cleanup (scroll snapshot); key forces a remount per pane+path.
+  // Why: a phone reads code; an iOS keyboard over Monaco is an accidental edit, not a workflow.
+  const monacoReadOnly = activeFile.readOnly === true || phoneShell
   const monacoRemountKey = `${viewStateScopeId}\u0000${activeFile.filePath}`
   const monacoEditor = (
     // Why: Monaco's own create effect throws on a broken language/editor init, which would otherwise
@@ -216,17 +220,11 @@ export function EditorEditFileSurface({
         content={currentContent}
         language={monacoLanguage}
         // Why: read-only tabs no-op the change/save callbacks so no draft, dirty state, or write can occur.
-        readOnly={activeFile.readOnly === true}
+        readOnly={monacoReadOnly}
         liveTail={activeFile.liveTail === true}
-        onContentChange={
-          activeFile.readOnly === true ? noopEditorContentChange : handleContentChange
-        }
+        onContentChange={monacoReadOnly ? noopEditorContentChange : handleContentChange}
         onSave={
-          activeFile.readOnly === true
-            ? noopEditorSave
-            : isMarkdown
-              ? markdownDocuments.mdSave
-              : handleSave
+          monacoReadOnly ? noopEditorSave : isMarkdown ? markdownDocuments.mdSave : handleSave
         }
         worktreeId={activeFile.worktreeId}
         markdownAnnotationsEnabled={markdownAnnotationsEnabled && isMarkdown}

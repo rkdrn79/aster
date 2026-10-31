@@ -69,6 +69,7 @@ export function normalizeLoadedDeviceRow(device: DeviceEntry): DeviceEntry {
       typeof device.callerFingerprint === 'string' && device.callerFingerprint.length > 0
         ? device.callerFingerprint
         : undefined,
+    pairingOrigin: device.pairingOrigin === 'phone-access' ? 'phone-access' : undefined,
     ...validDeviceKeyFields(device)
   }
 }

@@ -51,7 +51,7 @@ Support remote execution as well as local. Clients and servers update independen
 
 ## Mobile
 
-Aster has no phone client, so mobile parity is not required.
+Phones use the web client through the user's own relay (`relay/README.md`). Keep the web client usable at phone width; there is no native phone app, so native mobile parity is not required.
 
 ## Folder Workspaces
 

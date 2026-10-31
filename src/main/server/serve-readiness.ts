@@ -120,8 +120,9 @@ function renderHumanReadiness(readiness: ServeReadiness): string {
     if (readiness.pairing.webClientUrl) {
       lines.push(`Web client URL: ${readiness.pairing.webClientUrl}`)
     }
-    if (readiness.pairing.scope === 'mobile' && readiness.pairing.qr) {
-      lines.push(`Mobile pairing QR:\n${readiness.pairing.qr}`)
+    if (readiness.pairing.qr) {
+      const label = readiness.pairing.scope === 'mobile' ? 'Mobile pairing QR' : 'Web client QR'
+      lines.push(`${label}:\n${readiness.pairing.qr}`)
     }
     lines.push(`Pairing URL: ${readiness.pairing.url}`)
   } else {

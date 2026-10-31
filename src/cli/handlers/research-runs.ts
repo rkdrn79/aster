@@ -126,7 +126,9 @@ export const RESEARCH_RUN_HANDLERS: Record<string, CommandHandler> = {
         'This Aster CLI does not have a bundled research harness on this machine.'
       )
     }
-    writeStdoutLine(json ? JSON.stringify({ cli }) : cli)
+    // Why: a host may lack `node`; this CLI's own Node runs the harness, unless it is Electron's.
+    const node = process.versions.electron ? null : process.execPath
+    writeStdoutLine(json ? JSON.stringify({ cli, node }) : cli)
   },
   'research status': async ({ client, flags, json, cwd }) => {
     const result = await client.call<ResearchRunAgentStatus>(

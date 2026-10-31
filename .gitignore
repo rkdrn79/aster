@@ -14,6 +14,8 @@ src/**/*.d.ts
 !src/renderer/src/env.d.ts
 !src/renderer/src/mermaid.d.ts
 !src/types/build-constants.d.ts
+# Hand-written: the web client's service worker, copied verbatim beside web-index.html.
+!src/renderer/web-public/sw.js
 
 # Dependencies
 node_modules/
@@ -98,7 +100,7 @@ design-docs/
 
 # Local-only design/planning docs (not checked in).
 # Durable docs that should be tracked must live in one of the allow-listed
-# locations below (assets, readme, bug reproductions, STYLEGUIDE, reference).
+# locations below (assets, readme, release notes, bug reproductions, STYLEGUIDE, reference).
 docs/**
 !docs/
 !docs/assets/
@@ -107,6 +109,8 @@ docs/**
 !docs/readme/**
 !docs/bug-reproductions/
 !docs/bug-reproductions/**
+!docs/releases/
+!docs/releases/**
 !docs/STYLEGUIDE.md
 !docs/reference/
 !docs/reference/cross-platform-support.md
@@ -178,7 +182,9 @@ ci-shards/
 !/.github/workflows/aster-*.yml
 /.github/CODEOWNERS
 /.github/dependabot.yml
-/.github/ISSUE_TEMPLATE/
+/.github/ISSUE_TEMPLATE/*
+!/.github/ISSUE_TEMPLATE/bug_report.md
+!/.github/ISSUE_TEMPLATE/feature_request.md
 /Casks/
 
 # Aster is desktop-only; leftovers of the removed phone client and relay stay local.

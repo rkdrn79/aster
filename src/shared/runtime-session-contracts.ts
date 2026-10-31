@@ -205,6 +205,11 @@ export type RuntimeSyncWindowGraphResult = RuntimeStatus & {
   mobileSessionResyncWorktrees?: string[]
 }
 
+/** `session.tabs.orchestrationLineage`: the window graph's lineage, keyed by the host's pane keys. */
+export type RuntimeSessionTabsOrchestrationLineage = {
+  agentOrchestrationByPaneKey: Record<string, AgentStatusOrchestrationContext>
+}
+
 export type RuntimeMobileSessionTabGroup = {
   id: string
   activeTabId: string | null

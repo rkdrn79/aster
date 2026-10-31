@@ -164,6 +164,46 @@ missing evidence로 표시합니다. Run이 뒷받침하지 않는 결과 수치
 
 <sub>Library 스크린샷의 논문은 Lin et al.의 <a href="https://arxiv.org/abs/2305.08891">arXiv:2305.08891</a>이며 <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>으로 배포됩니다.</sub>
 
+### 휴대폰 (Phone)
+
+Mac이 꺼져 있어도 휴대폰에서 서버의 프로젝트를 엽니다. 휴대폰은 Safari나 홈 화면에서 Aster 웹
+클라이언트를 쓰므로 App Store가 필요 없고, Cloudflare Workers Free 플랜에 직접 배포한 relay를 거쳐
+서버에 연결합니다.
+
+<p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/phone-dark.jpg" /><img src="../assets/readme/phone.jpg" alt="휴대폰의 Aster: 응답을 기다리는 대화가 있는 Home, 명령 승인을 묻는 대화, Run의 지표와 로그, Files에서 연 논문 PDF" width="960" /></picture>
+</p>
+
+- **Home**은 사용자를 기다리는 에이전트를 먼저 보여주고, 이어서 프로젝트마다 최신 Run, 다가오는
+  마감일, GPU 대기열을 보여줍니다.
+- **Agents**는 서버의 모든 대화와 터미널을 보여주며, 하위 에이전트는 띄운 에이전트 아래에 접혀
+  있습니다. 대화는 Mac과 같은 대화창으로 열리고 승인 카드와 입력창도 같습니다. **New agent**로 대화나
+  셸을 새로 시작하고, 메뉴에서 에이전트를 멈출 수 있습니다.
+- **Runs**는 실행 중인 Run부터 모든 Run을 보여주고, Run을 열면 최신 지표와 로그 끝부분이 나옵니다.
+  Experiment는 브리프와 기준선 대비 최고 Run을 보여줍니다.
+- **Files**는 workspace를 둘러보고 코드, Markdown, PDF(프로젝트의 논문 포함)를 엽니다.
+- **Notify me**(홈 화면 앱의 ⋯ 메뉴, iOS 16.4 이상)를 켜면 에이전트가 기다리거나 Run이 끝났을 때
+  앱을 닫아 두어도 알려 줍니다.
+
+설정 방법:
+
+1. 무료 Cloudflare 계정으로 [`relay/`](../../relay/README.md)의 relay를 배포합니다. 결제 수단은
+   필요 없습니다. 마지막 명령이 relay URL을 출력합니다.
+2. Aster에서 **Research → Home → Phone**을 열고 relay URL을 한 번 붙여 넣은 뒤, SSH 서버마다
+   **Turn on**을 고릅니다. 서버는 이 설정을 기억하고 재시작한 뒤에도 relay에 다시 연결합니다.
+3. **Phone QR**을 골라 휴대폰 카메라로 스캔하고 Safari에서 엽니다.
+4. 홈 화면에 두려면 **공유 → 홈 화면에 추가**를 누르고, 홈 화면에서 연 뒤 링크를 한 번 붙여
+   넣습니다. 링크는 브라우저의 휴대폰 Home에 뜨는 카드나 Mac의 **Copy link**에서 복사합니다.
+
+페어링 링크는 자격 증명입니다. 링크를 가진 사람은 누구나 그 서버를 열 수 있으니 링크와 relay URL을
+공개하지 마세요. **Phone QR**을 다시 누르면 새 링크가 만들어지고, 아직 아무 휴대폰도 열지 않은 이전
+링크는 무효가 됩니다. 서버 줄마다 연결된 휴대폰이 보이고 **Revoke**로 하나씩 끊을 수 있습니다. 전체 단계는 [설정 안내](https://rkdrn79.github.io/aster-site/phone.html)(영문)에 있습니다.
+
+제한: 휴대폰 접속은 실험 단계입니다. SSH 서버와 `aster serve --relay`를 실행한 호스트만 지원하고,
+Mac에만 있는 프로젝트는 휴대폰에 나오지 않습니다. Experiment 노트북, Compare, Library 화면은
+데스크톱 앱에서만 씁니다. 무료 플랜의 일일 한도를 넘으면 relay는 요금을 청구하지 않고
+00:00 UTC까지 요청을 거절합니다.
+
 ### 기타 (Others)
 
 프로젝트 전반의 GPU와 마감일, 코딩 작업 공간, 에이전트가 쓰는 CLI입니다.
@@ -181,7 +221,9 @@ missing evidence로 표시합니다. Run이 뒷받침하지 않는 결과 수치
 #### Workbench와 Code 레이아웃
 
 프로젝트의 채팅, 터미널, 에디터, 파일, Git. 페이지를 옮겨도 에이전트나 터미널은 멈추지 않습니다.
-**Research | Code** 전환으로 순수 코딩 작업용 worktree 중심 레이아웃으로 바꿀 수 있습니다.
+**Research | Code** 전환으로 순수 코딩 작업용 worktree 중심 레이아웃으로 바꿀 수 있습니다. 코디네이터가
+띄운 하위 에이전트는 탭으로 쌓이지 않고 탭 옆의 "2 running · 1 waiting" 같은 칩 하나로 접힙니다. 칩을
+누르면 각 에이전트의 상태를 보고 열 수 있습니다.
 
 <p align="center">
   <picture><source media="(prefers-color-scheme: dark)" srcset="../assets/readme/code-layout-dark.jpg" /><img src="../assets/readme/code-layout.jpg" alt="worktree, 터미널, 에디터가 있는 Code 레이아웃" width="960" /></picture>
@@ -190,7 +232,8 @@ missing evidence로 표시합니다. Run이 뒷받침하지 않는 결과 수치
 #### 리서치 하네스
 
 실험마다 쓰는 작은 CLI입니다. 에이전트는 이것으로 Run을 띄우고 claim을 기록하고, 앱도 같은 코드를
-불러오므로 에이전트와 화면이 기록을 똑같이 해석합니다. 명령은 [리서치 하네스](#리서치-하네스)에 있습니다.
+불러오므로 에이전트와 화면이 기록을 똑같이 해석합니다. Aster가 관리하는 SSH 호스트에도 설치되므로
+그곳의 에이전트도 같은 방식으로 Run을 등록합니다. 명령은 [리서치 하네스](#리서치-하네스)에 있습니다.
 
 **Slack:** 허용한 채널에서 프로젝트의 Aster 봇을 멘션하면 그 프로젝트의 코디네이터 에이전트가 요청을 받아
 스레드에 답합니다. 승인은 Aster 안에서만 합니다. 설정 방법은 [Slack 연결 안내](SLACK.ko.md)에 있습니다.
@@ -242,7 +285,8 @@ SLURM에 연결된 Run, finding, 제안, 샘플 평가, 연구 루프, verified�
 하네스는 [`src/research-harness/`](../../src/research-harness/README.md)에 있는 의존성 없는 Node
 CLI이며, 에이전트가 모든 실험에서 호출합니다. 앱도 같은 코드를 `Resources/research-harness`로 담아
 실행 중에 불러오므로 에이전트와 UI가 기록을 똑같이 해석합니다. `aster research harness-path`는 설치된
-앱과 버전이 맞는 사본의 경로를 출력합니다.
+앱과 버전이 맞는 사본의 경로를 출력합니다. Aster가 관리하는 SSH 호스트에서는 Aster가 그 호스트에 설치한
+사본을 가리키고, 호스트에 쓸 만한 Node가 없으면 `--json`이 실행할 Node도 알려줍니다.
 
 ```bash
 HARNESS=$(aster research harness-path)
@@ -315,8 +359,8 @@ Electron 테스트로 확인했습니다. 아직 남은 부분은 다음과 같�
 - Apple Silicon macOS 빌드는 ad hoc 서명만 되어 있고 공증되지 않았습니다. 새 릴리스 알림은
   제공하지만 앱 교체는 다운로드 후 직접 해야 합니다. Windows x64는 CI에서 빌드·연구 E2E·설치
   파일과 ZIP 스모크 테스트를 통과한 공개 미리보기이며, 코드 서명은 아직 없습니다.
-- Aster는 데스크톱 전용입니다. 휴대폰에서 에이전트와 대화하려면 자체 호스트에서 동작하는 Paseo 앱을
-  쓰세요.
+- 휴대폰 접속은 실험 단계이며, 각 사용자의 relay를 거쳐 SSH 서버에 연결합니다.
+  [휴대폰](#휴대폰-phone)을 보세요. 별도 휴대폰 앱은 없습니다.
 - Windows의 실제 사용자 PC 설치·연구 작업과 Linux 데스크톱은 아직 검증하지 않았습니다.
 - Writing: 선택한 문단 → 에이전트 수정 → PDF 재컴파일 왕복은 실제 에이전트로 검증하지 않았습니다.
   TeX 캐시가 비어 있으면 첫 컴파일 때 패키지를 내려받느라 몇 분 걸릴 수 있습니다.
@@ -367,8 +411,8 @@ pnpm build:aster:mac         # 로컬 macOS 패키지(electron-builder --dir)
 
 ## 감사의 말
 
-Aster는 [Orca](https://github.com/stablyai/orca)를 바탕으로 만들었고 [Paseo](https://github.com/getpaseo/paseo)에서
-영감을 받았습니다. 두 프로젝트에 감사드립니다.
+Aster는 [Orca](https://github.com/stablyai/orca)를 바탕으로 만들었고, 휴대폰 relay는
+[Paseo](https://github.com/getpaseo/paseo)의 Cloudflare relay에서 출발했습니다. 두 프로젝트에 감사드립니다.
 
 ## 라이선스
 

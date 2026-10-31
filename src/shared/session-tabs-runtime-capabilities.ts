@@ -38,6 +38,10 @@ export const SESSION_TABS_TAB_DELTA_RUNTIME_CAPABILITY = 'session-tabs.tab-delta
 // clients would read their last known state as live, so they keep the legacy `done` projection.
 export const AGENT_STATUS_RESTORED_UNCONFIRMED_RUNTIME_CAPABILITY =
   'agent-status.restored-unconfirmed.v1' as const
+// Why: a host with this answers session.tabs.orchestrationLineage; older hosts lack the method, so a
+// client asks only where advertised and otherwise shows workers as ordinary sessions.
+export const SESSION_TABS_ORCHESTRATION_LINEAGE_RUNTIME_CAPABILITY =
+  'session-tabs.orchestration-lineage.v1' as const
 
 export const SESSION_TABS_RUNTIME_CAPABILITIES = [
   QODER_OWNED_TERMINAL_CREATE_CAPABILITY,
@@ -48,5 +52,6 @@ export const SESSION_TABS_RUNTIME_CAPABILITIES = [
   SESSION_TABS_SPLIT_GROUP_PLACEMENT_RUNTIME_CAPABILITY,
   SESSION_TABS_CHAT_FORK_CLI_RUNTIME_CAPABILITY,
   SESSION_TABS_EMPTY_WORKTREE_ANSWER_RUNTIME_CAPABILITY,
-  SESSION_TABS_CREATE_TERMINAL_SHELL_RUNTIME_CAPABILITY
+  SESSION_TABS_CREATE_TERMINAL_SHELL_RUNTIME_CAPABILITY,
+  SESSION_TABS_ORCHESTRATION_LINEAGE_RUNTIME_CAPABILITY
 ] as const

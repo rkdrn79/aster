@@ -1,4 +1,5 @@
-import { useCallback, useEffect } from 'react'
+import { Suspense, useCallback, useEffect } from 'react'
+import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ConfirmationDialogProvider } from './components/confirmation-dialog'
@@ -36,12 +37,18 @@ import { useWindowVisibilityEffects } from './app-shell/use-window-visibility-ef
 import { SpaceWindowStatePublisher } from './components/workspace-space/SpaceWindowStatePublisher'
 import { PlainSshTerminalPanels } from './components/plain-ssh-terminal/PlainSshTerminalPanels'
 import { installActiveWorktreeRemovalSuccessor } from './lib/active-worktree-removal-successor'
+import { RecoverableRenderErrorBoundary } from './components/error-boundaries/RecoverableRenderErrorBoundary'
+import { usePhoneShell } from './phone-shell/use-phone-shell'
+
+// Why lazy: only the web client at phone width loads the phone layout.
+const PhoneShell = lazy(() => import('./phone-shell/PhoneShell'))
 
 function App(): React.JSX.Element {
   const layout = useAppChromeLayout()
   const floatingWorkspace = useFloatingWorkspacePanel()
   const onboardingGate = useOnboardingAndFeatureTips()
   const clearUnreadDockBadge = useUnreadDockBadge(floatingWorkspace.open)
+  const phoneShell = usePhoneShell()
 
   useAppShellServices()
   // Why before the startup chain: its effect runs first, and no startup step can skip the load.
@@ -101,7 +108,21 @@ function App(): React.JSX.Element {
           <LinkRoutingPreferenceDialogProvider>
             <AppBackgroundServices />
             <SpaceWindowStatePublisher />
-            <AppWorkspaceShell layout={layout} floatingWorkspace={floatingWorkspace} />
+            {phoneShell ? (
+              <RecoverableRenderErrorBoundary
+                boundaryId="app.phone-shell"
+                surface="workspace-shell"
+                resetKey={layout.activeView}
+                title="The phone layout hit an error."
+                description="The host keeps running. Retry the layout."
+              >
+                <Suspense fallback={null}>
+                  <PhoneShell layout={layout} />
+                </Suspense>
+              </RecoverableRenderErrorBoundary>
+            ) : (
+              <AppWorkspaceShell layout={layout} floatingWorkspace={floatingWorkspace} />
+            )}
             <AppRootSurfaces
               floatingWorkspace={floatingWorkspace}
               onboardingGate={onboardingGate}

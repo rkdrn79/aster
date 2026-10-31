@@ -72,6 +72,8 @@ export function planDeviceKeyFork(
     devicePublicKeyB64,
     forkedFrom: legacy.deviceId,
     ...(options.ephemeral ? { ephemeral: true as const } : {}),
+    // Why: the installation inherits what its pairing link was for, so phone access still finds it.
+    ...(legacy.pairingOrigin ? { pairingOrigin: legacy.pairingOrigin } : {}),
     // Why: orchestration work owned under the token keeps its owner after migration.
     callerFingerprint: devicePrincipalOf(legacy).callerFingerprint,
     pairedAt: now,

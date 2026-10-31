@@ -272,8 +272,9 @@ export function ResearchExperimentNotebookPlan({
     return (
       <NotebookSection label="Plan">
         <p className="text-sm text-muted-foreground">
-          Plans, quality checks, and the experiment agent are available for local projects with a
-          research catalog.
+          {experiment.hostId !== 'local' && experiment.catalogSlug
+            ? "Plans and quality checks are available for local projects with a research catalog. The experiment agent in Chat works with this server's catalog."
+            : 'Plans, quality checks, and the experiment agent are available for local projects with a research catalog.'}
         </p>
       </NotebookSection>
     )

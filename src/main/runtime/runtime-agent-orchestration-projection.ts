@@ -13,6 +13,13 @@ import {
   projectWorkerAttentionContext
 } from './orchestration/worker-attention-context'
 import { worktreeIdsEqual } from '../../shared/worktree/id'
+import { currentRunCoordinatorOrcaSessionId } from './orchestration/db/runs/run-coordinator-orca-session'
+import {
+  resolveLineageParent,
+  visibleStructuredWorkerChats,
+  type ChatLineageStore,
+  type StructuredWorkerMemo
+} from './runtime-chat-orchestration-lineage'
 
 type RuntimeAgentOrchestrationDependencies = {
   getDb(): OrchestrationDb | null
@@ -26,9 +33,13 @@ type RuntimeAgentOrchestrationDependencies = {
   getPaneKey(handle: string): string | null
   getDispatchAuthority(handle: string): OrchestrationCompatibilityTerminalAuthority | null
   getAgentStatusSnapshot(): readonly FleetAgentStatusEvidence[]
+  /** Null until the structured agent-session host is installed; chats then get no lineage. */
+  getChatStore?(): ChatLineageStore | null
 }
 
 export class RuntimeAgentOrchestrationProjection {
+  private readonly structuredWorkerMemo: StructuredWorkerMemo = new Map()
+
   constructor(private readonly deps: RuntimeAgentOrchestrationDependencies) {}
 
   buildByPaneKey(): Record<string, AgentStatusOrchestrationContext> | undefined {
@@ -75,6 +86,19 @@ export class RuntimeAgentOrchestrationProjection {
       })
       if (context) {
         contexts[pty.paneKey] = context
+      }
+    }
+    const chats = this.deps.getChatStore?.()
+    for (const chat of chats
+      ? visibleStructuredWorkerChats(chats, db, this.structuredWorkerMemo)
+      : []) {
+      const context = this.getForHandle(chat.worker.handle, db, {
+        paneKey: chat.worker.paneKey,
+        evidence: evidenceByPaneKey.get(chat.paneKey),
+        deferAttention: batchAttention
+      })
+      if (context) {
+        contexts[chat.paneKey] = { ...context, agentSessionId: chat.agentSessionId }
       }
     }
     const entries = Object.entries(contexts)
@@ -209,8 +233,14 @@ export class RuntimeAgentOrchestrationProjection {
       (paneKey !== undefined &&
         coordinator.paneKey !== undefined &&
         coordinator.paneKey === paneKey)
-    // Why: a creator whose pane is gone still has a coordinator to nest under.
-    const parent = creator?.handle ? creator : coordinatorIsSelf ? {} : coordinator
+    const parent = resolveLineageParent({
+      store: this.deps.getChatStore?.() ?? null,
+      creator,
+      coordinator,
+      coordinatorIsSelf,
+      dispatch,
+      runCoordinatorSessionId: owningRun ? currentRunCoordinatorOrcaSessionId(owningRun) : null
+    })
     const attention =
       !deferAttention && db && typeof db.getWorkerAttentionFacts === 'function'
         ? buildWorkerAttentionContext({ db, dispatch, task, evidence })
@@ -223,6 +253,7 @@ export class RuntimeAgentOrchestrationProjection {
       ...(display.displayName ? { displayName: display.displayName } : {}),
       ...(parent.handle ? { parentTerminalHandle: parent.handle } : {}),
       ...(parent.paneKey ? { parentPaneKey: parent.paneKey } : {}),
+      ...(parent.agentSessionId ? { parentAgentSessionId: parent.agentSessionId } : {}),
       ...(coordinator.handle ? { coordinatorHandle: coordinator.handle } : {}),
       ...(orchestrationRunId ? { orchestrationRunId } : {}),
       ...(attention ? { attention } : {})

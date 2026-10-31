@@ -19,6 +19,8 @@ import {
 } from './web-runtime-environment'
 import { installWebPreloadApi } from './web-preload-api'
 import { initWebDeviceKeySupport } from './web-device-key-support'
+import { rememberWebPairingOffer } from './web-home-screen-pairing'
+import { captureWebInstallPrompt } from './web-install-prompt'
 import { WebPairingSecurityNotice } from './WebPairingSecurityNotice'
 import { I18nProvider } from '../i18n/I18nProvider'
 import { translate } from '../i18n/i18n'
@@ -29,6 +31,7 @@ import { PRODUCT_NAME } from '../../../shared/product-brand'
 const disposeOsFileDropGuard = installOsFileDropCancellationGuard()
 import.meta.hot?.dispose(disposeOsFileDropGuard)
 installAppKeyboardRouter()
+captureWebInstallPrompt()
 const App = lazy(() => import('../App'))
 
 function WebRoot(): React.JSX.Element {
@@ -50,6 +53,7 @@ function WebRoot(): React.JSX.Element {
   }, [initialPairingInput])
   const [hasEnvironment, setHasEnvironment] = useState(() => {
     if (startupDecision.kind === 'auto-save-runtime-offer') {
+      rememberWebPairingOffer(startupDecision.offer)
       saveStoredWebRuntimeEnvironment(
         createStoredWebRuntimeEnvironment({
           name: DEFAULT_WEB_RUNTIME_ENVIRONMENT_NAME,

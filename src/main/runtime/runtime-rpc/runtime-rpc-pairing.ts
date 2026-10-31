@@ -1,5 +1,6 @@
 import type { RuntimeDeviceGrant } from '../rpc/rpc-caller-scope'
 import type { DeviceRegistry, DeviceScope, TokenDeviceEntry } from '../device-registry'
+import type { DevicePairingOrigin } from '../device-entry'
 import type { E2EEKeypair } from '../e2ee-keypair'
 import type { MobileSocketWiring } from '../rpc/mobile-socket-wiring'
 import type {
@@ -144,6 +145,7 @@ export class RuntimeRpcPairing extends RuntimeRpcNetworkExposure {
     reach?: RuntimePairingReach
     // Why: administrative permissions exist only when granted here, never added to a paired device later.
     grants?: readonly RuntimeDeviceGrant[]
+    origin?: DevicePairingOrigin
   }):
     | PairingOfferUnavailable
     | {
@@ -183,8 +185,14 @@ export class RuntimeRpcPairing extends RuntimeRpcNetworkExposure {
       const reach = args.reach ?? 'network'
       const grants = args.grants ?? []
       device = args.rotate
-        ? this.deviceRegistry.rotatePendingDevice(deviceName, scope, reach, grants)
-        : this.deviceRegistry.getOrCreatePendingDevice(deviceName, scope, reach, grants)
+        ? this.deviceRegistry.rotatePendingDevice(deviceName, scope, reach, grants, args.origin)
+        : this.deviceRegistry.getOrCreatePendingDevice(
+            deviceName,
+            scope,
+            reach,
+            grants,
+            args.origin
+          )
     } catch (error) {
       console.error('[runtime] Failed to persist pairing credential:', error)
       return pairingUnavailable('device_registry_unavailable', DEVICE_REGISTRY_UNAVAILABLE_GUIDANCE)

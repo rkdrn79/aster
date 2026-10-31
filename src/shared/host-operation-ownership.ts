@@ -47,6 +47,8 @@ export const HOST_OPERATION_OWNERSHIP = {
   orcad: 'host',
   orchestration: 'host',
   pairing: 'host',
+  phoneNotify: 'host',
+  phoneRelay: 'host',
   plugins: 'host',
   preflight: 'host',
   project: 'host',

@@ -7,7 +7,6 @@ import { writeDurableSecureJsonFile, writeSecureJsonFile } from '../../shared/se
 import type { DeviceScope } from '../../shared/runtime-types'
 import { removeStaleDurableWriteTempFiles } from '../durable-file-write'
 import { DEVICE_REGISTRY_FILENAME } from './mobile-pairing-files'
-import { mintDeviceCredential } from './device-credential'
 import { planDeviceKeyFork } from './device-key-fork'
 import { planIdleEphemeralPrune, withoutEphemeralRows } from './ephemeral-device-rows'
 import { quarantineCorruptRegistry } from './device-registry-corruption'
@@ -21,16 +20,21 @@ import {
   type DelegatedMobileDeviceEntry
 } from './delegated-mobile-devices'
 import type { RuntimeDeviceGrant } from './rpc/rpc-method-permission'
-import { validGrants } from './device-registry-row-validation'
+import {
+  findReusablePendingRow,
+  mintPendingTokenRow,
+  rowsKeptByRotation,
+  type PendingDeviceRequest
+} from './pending-device-rows'
 import {
   isPendingTokenRow,
   mobilePairingConnectionModeOf,
   isStillAuthenticated,
   type AuthenticatedPrincipalBinding,
   lookupDeviceKeyRow,
-  sameGrants,
   type DeviceEntry,
   type DeviceKeyLookup,
+  type DevicePairingOrigin,
   type TokenDeviceEntry
 } from './device-entry'
 import type { MobilePushRegistration } from '../../shared/mobile-push-contract'
@@ -67,28 +71,17 @@ export class DeviceRegistry {
     name: string,
     scope: DeviceScope = 'mobile',
     pairingReach: RuntimePairingReach = 'network',
-    grants: readonly RuntimeDeviceGrant[] = []
+    grants: readonly RuntimeDeviceGrant[] = [],
+    origin?: DevicePairingOrigin
   ): TokenDeviceEntry {
-    return this.createAndPersistDevice(this.devices, name, scope, pairingReach, grants)
+    return this.createAndPersistDevice(this.devices, { name, scope, pairingReach, grants, origin })
   }
 
   private createAndPersistDevice(
     existingDevices: DeviceEntry[],
-    name: string,
-    scope: DeviceScope,
-    pairingReach: RuntimePairingReach,
-    grants: readonly RuntimeDeviceGrant[]
+    request: PendingDeviceRequest
   ): TokenDeviceEntry {
-    const validatedGrants = validGrants(grants, scope)
-    const entry: TokenDeviceEntry = {
-      ...mintDeviceCredential(),
-      name,
-      scope,
-      pairedAt: Date.now(),
-      lastSeenAt: 0,
-      pairingReach,
-      ...(validatedGrants ? { grants: validatedGrants } : {})
-    }
+    const entry = mintPendingTokenRow(request)
     const nextDevices = [...existingDevices, entry]
     // Why: a credential is not valid until its durable registry write succeeds.
     this.save(nextDevices)
@@ -106,13 +99,11 @@ export class DeviceRegistry {
     name: string,
     scope: DeviceScope = 'mobile',
     pairingReach: RuntimePairingReach = 'network',
-    grants: readonly RuntimeDeviceGrant[] = []
+    grants: readonly RuntimeDeviceGrant[] = [],
+    origin?: DevicePairingOrigin
   ): TokenDeviceEntry {
-    // Why: a pending token is reused only for the same grants, so re-advertising never widens one.
-    const existing = this.devices.find(
-      (d): d is TokenDeviceEntry =>
-        isPendingTokenRow(d) && d.scope === scope && sameGrants(d, validGrants(grants, scope) ?? [])
-    )
+    const request = { name, scope, pairingReach, grants, origin }
+    const existing = findReusablePendingRow(this.devices, request)
     if (existing) {
       // Why: the same pending token can be re-advertised at a broader reach; widen it but never narrow it,
       // or a link already handed out for off-host use would stop being served after the next launch.
@@ -120,7 +111,7 @@ export class DeviceRegistry {
         ? this.setPairingReach(existing, 'network')
         : existing
     }
-    return this.addDevice(name, scope, pairingReach, grants)
+    return this.createAndPersistDevice(this.devices, request)
   }
 
   private setPairingReach(
@@ -142,11 +133,12 @@ export class DeviceRegistry {
     name: string,
     scope: DeviceScope = 'mobile',
     pairingReach: RuntimePairingReach = 'network',
-    grants: readonly RuntimeDeviceGrant[] = []
+    grants: readonly RuntimeDeviceGrant[] = [],
+    origin?: DevicePairingOrigin
   ): TokenDeviceEntry {
+    const request = { name, scope, pairingReach, grants, origin }
     // Why: a pending runtime device has no delegated children — its first auth sets lastSeenAt before any sync.
-    const retainedDevices = this.devices.filter((d) => !isPendingTokenRow(d) || d.scope !== scope)
-    return this.createAndPersistDevice(retainedDevices, name, scope, pairingReach, grants)
+    return this.createAndPersistDevice(rowsKeptByRotation(this.devices, request), request)
   }
 
   listDelegatedMobileDevices(parentDeviceId: string): DeviceEntry[] {

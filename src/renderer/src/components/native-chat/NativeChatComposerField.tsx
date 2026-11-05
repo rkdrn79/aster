@@ -49,6 +49,8 @@ export type NativeChatComposerFieldProps = {
   sendButtonDisabled: boolean
   /** Why the send button is disabled, when the user can do something about it. */
   sendBlockedReason?: string | null
+  /** The agent works and the draft can still go: Send shows beside Stop. */
+  sendWhileWorking?: boolean
   isWorking: boolean
   /** This client's Stop request is in flight: the Stop control is disabled and says so. */
   isStopping?: boolean
@@ -138,6 +140,7 @@ export function NativeChatComposerField({
   attachmentEnvironmentId,
   sendButtonDisabled,
   sendBlockedReason,
+  sendWhileWorking = false,
   isWorking,
   isStopping = false,
   afterStop,
@@ -309,7 +312,10 @@ export function NativeChatComposerField({
                 compositionBaseRef.current = textareaRef.current!.value
                 imeEnterGesture.setComposing(true)
               }}
-              onCompositionEnd={() => {
+              // Why: a Hangul composition's Enter also submits; its text says which script it is.
+              onCompositionUpdate={(event) => imeEnterGesture.noteCompositionText(event.data)}
+              onCompositionEnd={(event) => {
+                imeEnterGesture.noteCompositionText(event.data)
                 const compositionWasActive = imeEnterGesture.isComposing()
                 imeEnterGesture.setComposing(false)
                 if (compositionWasActive) {
@@ -351,6 +357,7 @@ export function NativeChatComposerField({
                 dictationDisabled={dictationDisabled}
                 sendDisabled={sendButtonDisabled}
                 sendBlockedReason={sendBlockedReason}
+                sendWhileWorking={sendWhileWorking}
                 draftNotSaved={draftNotSaved}
                 isWorking={isWorking}
                 isStopping={isStopping}

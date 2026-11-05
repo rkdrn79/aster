@@ -24,6 +24,17 @@ type ImeEnterGestureEvent = Pick<
   'key' | 'keyCode' | 'nativeEvent' | 'preventDefault' | 'shiftKey'
 > & { altKey?: boolean; ctrlKey?: boolean; metaKey?: boolean }
 
+// Why: Hangul has no conversion candidate to confirm, so its Enter both ends the syllable and
+// submits, as in other chat apps. Only Japanese/Chinese confirm-only Enters are swallowed.
+const HANGUL = /[\u1100-\u11ff\u3130-\u318f\uac00-\ud7a3]/
+
+type PendingImeEnter = {
+  /** The composition was Hangul: the unmarked Enter that follows is a submit, never swallowed. */
+  hangul: boolean
+  /** A Hangul Enter was pressed: when no unmarked redispatch submits it, expiry does. */
+  submitIfUnanswered: boolean
+}
+
 /**
  * Why: the confirming Enter of a CJK composition arrives as two keydowns, and the
  * two orderings differ by platform. Windows/Linux redispatch the unmarked
@@ -32,22 +43,36 @@ type ImeEnterGestureEvent = Pick<
  * carry survives until the next animation frame. Identity-scoped so an older
  * gesture's expiry cannot clear a newer one.
  */
-export function useImeEnterGestureOwnership(): {
+export function useImeEnterGestureOwnership(
+  options: {
+    /** Submits a Hangul Enter whose platform sends no unmarked redispatch to submit with. */
+    onHangulEnter?: () => void
+  } = {}
+): {
   isComposing: () => boolean
   ownsKeyDown: (event: ImeEnterGestureEvent) => boolean
   onKeyUp: (event: ImeEnterGestureEvent) => void
   onCompositionEnd: () => void
+  /** The text being composed, from compositionupdate/compositionend `data`. */
+  noteCompositionText: (text: string) => void
   reset: () => void
   setComposing: (active: boolean) => void
 } {
-  const stateRef = useRef<{ composing: boolean; pendingEnter: object | null }>({
-    composing: false,
-    pendingEnter: null
-  })
+  const stateRef = useRef<{
+    composing: boolean
+    pendingEnter: PendingImeEnter | null
+    compositionText: string
+  }>({ composing: false, pendingEnter: null, compositionText: '' })
+  const onHangulEnterRef = useRef(options.onHangulEnter)
+  onHangulEnterRef.current = options.onHangulEnter
 
   return useMemo(() => {
     const reset = (): void => {
-      stateRef.current = { composing: false, pendingEnter: null }
+      stateRef.current = { composing: false, pendingEnter: null, compositionText: '' }
+    }
+    const pendingFor = (enterPressed: boolean): PendingImeEnter => {
+      const hangul = HANGUL.test(stateRef.current.compositionText)
+      return { hangul, submitIfUnanswered: hangul && enterPressed }
     }
     const expirePendingEnter = (): void => {
       const pendingEnter = stateRef.current.pendingEnter
@@ -55,6 +80,10 @@ export function useImeEnterGestureOwnership(): {
         requestAnimationFrame(() => {
           if (stateRef.current.pendingEnter === pendingEnter) {
             stateRef.current.pendingEnter = null
+            // No redispatch came to submit the Hangul Enter, so it submits here, once.
+            if (pendingEnter.submitIfUnanswered) {
+              onHangulEnterRef.current?.()
+            }
           }
         })
       }
@@ -75,7 +104,8 @@ export function useImeEnterGestureOwnership(): {
             (event.key === 'Enter' && event.keyCode === 229) ||
             (event.key === 'Process' && event.keyCode === 229))
         if (markedEnter) {
-          stateRef.current.pendingEnter = {}
+          // Windows reports the confirming key as Process/229, which may not be an Enter.
+          stateRef.current.pendingEnter = pendingFor(event.key === 'Enter')
           return true
         }
         // Continued typing ends the confirmation even when hidden renderers delay the frame.
@@ -92,9 +122,11 @@ export function useImeEnterGestureOwnership(): {
           !event.nativeEvent.isComposing
         ) {
           // The gesture resolves either way, so the carry is spent either way; only a bare
-          // Enter is also swallowed, because a chorded one is the user's own submit.
+          // Enter is also swallowed, because a chorded one is the user's own submit, and so is
+          // a Hangul one: Hangul has no candidate to confirm, so its Enter also submits.
+          const { hangul } = stateRef.current.pendingEnter
           stateRef.current.pendingEnter = null
-          if (hasChordModifier(event)) {
+          if (hasChordModifier(event) || hangul) {
             return false
           }
           event.preventDefault()
@@ -110,14 +142,21 @@ export function useImeEnterGestureOwnership(): {
         const compositionWasActive = stateRef.current.composing
         stateRef.current.composing = false
         if (compositionWasActive && !stateRef.current.pendingEnter) {
-          // IBus can finish composition before its only unmarked confirming Enter.
-          stateRef.current.pendingEnter = {}
+          // IBus can finish composition before its only unmarked confirming Enter. No Enter was
+          // pressed yet, so a Hangul one that follows is the user's submit, never swallowed.
+          stateRef.current.pendingEnter = pendingFor(false)
           expirePendingEnter()
         }
+      },
+      noteCompositionText: (text: string) => {
+        stateRef.current.compositionText = text
       },
       reset,
       setComposing: (active: boolean) => {
         stateRef.current.composing = active
+        if (active) {
+          stateRef.current.compositionText = ''
+        }
       }
     }
   }, [])

@@ -211,6 +211,8 @@ const rehypePlugins: MarkdownPlugins = [rehypeRaw, [rehypeSanitize, commentMarkd
 export type CommentMarkdownExtension = {
   remarkPlugins: RemarkPlugins
   sanitizeAttributes: Record<string, readonly string[]>
+  /** Run after sanitize and word wrapping, so they must emit only markup they trust. */
+  rehypePlugins?: MarkdownPlugins
   components: Components
 }
 
@@ -305,9 +307,16 @@ const CommentMarkdown = React.memo(
       () => ({ ...components, span: CommentMarkdownWords }),
       [components]
     )
-    const activeRehypePlugins = React.useMemo(
+    const sanitizingRehypePlugins = React.useMemo(
       () => (extension ? extensionRehypePlugins(extension) : rehypePlugins),
       [extension]
+    )
+    const activeRehypePlugins = React.useMemo(
+      () =>
+        extension?.rehypePlugins
+          ? [...sanitizingRehypePlugins, ...extension.rehypePlugins]
+          : sanitizingRehypePlugins,
+      [extension, sanitizingRehypePlugins]
     )
     const activeRemarkPlugins = React.useMemo(() => {
       const plugins = fileLinkExists
@@ -322,9 +331,11 @@ const CommentMarkdown = React.memo(
       setHadWordFade(true)
     }
     const wrapsWords = fadeWords || hadWordFade
+    // Why: words are wrapped before the extension's plugins run, so markup they generate (typeset
+    // math) keeps its own text nodes.
     const fadingRehypePlugins = React.useMemo(
-      () => [...activeRehypePlugins, rehypeWordFade],
-      [activeRehypePlugins]
+      () => [...sanitizingRehypePlugins, rehypeWordFade, ...(extension?.rehypePlugins ?? [])],
+      [extension, sanitizingRehypePlugins]
     )
 
     return (

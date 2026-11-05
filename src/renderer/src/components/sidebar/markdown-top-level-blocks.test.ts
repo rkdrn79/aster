@@ -117,4 +117,13 @@ describe('splitMarkdownTopLevelBlocks', () => {
     const first = splitMarkdownTopLevelBlocks('one\n\ntwo\n', null)
     expect(cut('other\n\ntext\n', first)).toEqual(['other\n\n', 'text\n'])
   })
+
+  it.each([1, 3])(
+    'keeps a $$ math block whole across blank lines, streamed %i at a time',
+    (step) => {
+      const source = 'Before.\n\n$$\na = b\n\nc = d\n$$\n\nAfter.\n'
+      expect(cut(source)).toEqual(['Before.\n\n', '$$\na = b\n\nc = d\n$$\n\n', 'After.\n'])
+      expect(streamed(source, step)).toEqual(cut(source))
+    }
+  )
 })

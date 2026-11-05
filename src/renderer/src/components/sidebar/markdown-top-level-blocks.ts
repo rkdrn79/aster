@@ -8,6 +8,7 @@
 
 import type { Nodes } from 'mdast'
 import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
 import remarkParse from 'remark-parse'
 import { unified } from 'unified'
 
@@ -30,7 +31,8 @@ export type MarkdownBlockSplit = {
 /** The last block, which is still growing, and the one it may yet join. */
 const UNSETTLED_BLOCKS = 2
 
-const blockParser = unified().use(remarkParse).use(remarkGfm)
+// Why math: a `$$` block may hold blank lines, and cutting it there would break the math in two.
+const blockParser = unified().use(remarkParse).use(remarkGfm).use(remarkMath)
 
 /** Tags that cannot hold anything, so cannot hold a later block. */
 const VOID_TAG_PATTERN = /^<(?:br|hr|wbr|img)\b[^>]*>$/i

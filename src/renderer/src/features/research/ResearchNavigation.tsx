@@ -26,6 +26,8 @@ import { ResearchSidebarAgentConversations } from './ResearchSidebarAgentConvers
 import { RESEARCH_CONVERSATION_DRAG_TYPE } from './research-conversation-drag'
 import { useResearchSidebarSections } from './research-sidebar-sections'
 import { ResearchProjectRowMenu } from './ResearchProjectRowMenu'
+import { ResearchPageWindowMenu } from './ResearchPageWindowMenu'
+import { researchPageDragProps } from './research-page-window-open'
 
 export function ResearchNavigation(): React.JSX.Element {
   const insideProject = useAppStore(selectResearchInsideProject)
@@ -129,26 +131,31 @@ function ResearchProjectNavigation(): React.JSX.Element {
           {workbenchOpen ? <ResearchWorkspaceChats /> : null}
         </div>
         <div className="flex min-w-0 items-center gap-1">
-          <Button
-            // Why: on an Experiment its row is the current one, unless the list is folded away.
-            variant={
-              activeView === 'research-experiments' || (onExperiment && !experimentsOpen)
-                ? 'secondary'
-                : 'ghost'
-            }
-            size="sm"
-            className="min-w-0 flex-1 justify-start"
-            aria-current={activeView === 'research-experiments' ? 'page' : undefined}
-            onDragEnter={(event) => {
-              if (Array.from(event.dataTransfer.types).includes(RESEARCH_CONVERSATION_DRAG_TYPE)) {
-                setSectionOpen('experiments', true)
+          <ResearchPageWindowMenu page="research-experiments">
+            <Button
+              // Why: on an Experiment its row is the current one, unless the list is folded away.
+              variant={
+                activeView === 'research-experiments' || (onExperiment && !experimentsOpen)
+                  ? 'secondary'
+                  : 'ghost'
               }
-            }}
-            onClick={() => openResearchView('research-experiments')}
-          >
-            <FlaskConical aria-hidden />
-            Experiments
-          </Button>
+              size="sm"
+              className="min-w-0 flex-1 justify-start"
+              aria-current={activeView === 'research-experiments' ? 'page' : undefined}
+              {...researchPageDragProps('research-experiments')}
+              onDragEnter={(event) => {
+                if (
+                  Array.from(event.dataTransfer.types).includes(RESEARCH_CONVERSATION_DRAG_TYPE)
+                ) {
+                  setSectionOpen('experiments', true)
+                }
+              }}
+              onClick={() => openResearchView('research-experiments')}
+            >
+              <FlaskConical aria-hidden />
+              Experiments
+            </Button>
+          </ResearchPageWindowMenu>
           <span ref={setExperimentActionsHost} className="flex shrink-0 items-center" />
           <Button
             size="icon-xs"
@@ -180,16 +187,19 @@ function ResearchProjectNavigation(): React.JSX.Element {
           return (
             <div key={view}>
               <div className="flex min-w-0 items-center gap-1">
-                <Button
-                  variant={activeView === view ? 'secondary' : 'ghost'}
-                  size="sm"
-                  className="min-w-0 flex-1 justify-start"
-                  aria-current={activeView === view ? 'page' : undefined}
-                  onClick={() => openResearchView(view)}
-                >
-                  <Icon aria-hidden />
-                  {label}
-                </Button>
+                <ResearchPageWindowMenu page={view}>
+                  <Button
+                    variant={activeView === view ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className="min-w-0 flex-1 justify-start"
+                    aria-current={activeView === view ? 'page' : undefined}
+                    {...researchPageDragProps(view)}
+                    onClick={() => openResearchView(view)}
+                  >
+                    <Icon aria-hidden />
+                    {label}
+                  </Button>
+                </ResearchPageWindowMenu>
                 <Button
                   size="icon-xs"
                   variant="ghost"

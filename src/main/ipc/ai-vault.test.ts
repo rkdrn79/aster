@@ -117,7 +117,7 @@ describe('listAiVaultSessions host routing', () => {
     expect(timeoutFor('ssh-server')).toEqual({ timeoutMs: 15_000 })
   })
 
-  it('keeps direct runtime host scans on the normal runtime timeout', async () => {
+  it('gives a direct runtime host scan the whole single-host budget', async () => {
     registerAiVaultHandlers({
       getActiveRuntimeAiVaultHostInfos: () => [],
       scanRuntimeAiVaultSessions: mocks.scanRuntimeAiVaultSessions
@@ -134,7 +134,7 @@ describe('listAiVaultSessions host routing', () => {
         executionHostScope: 'runtime:remote-server',
         force: true
       },
-      {}
+      { timeoutMs: 60_000 }
     )
   })
 })

@@ -56,8 +56,8 @@ export const AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY =
 // capable client can render the `queued` result arm. It gates `delivery: 'queue-if-active'` and
 // the client's queueing setting and chord, never the published draft list or its card actions: a
 // host without it still publishes a message it kept unsent across a restart or a close, and both
-// clients show that card and call its actions. DARK ON PURPOSE — not in
-// AGENT_SESSION_RUNTIME_CAPABILITIES: advertising still requires the integrated Codex steer matrix (#21062) in the shipped host.
+// clients show that card and call its actions. Aster advertises it: a message typed while the agent
+// works waits as a card, and Send now hands it over mid-turn exactly as an unqueued send did.
 // v1 includes `submission.queuedMessageId` on every draft hand-off: a client reads that link and
 // never compares a draft id with a submission id. It also publishes the queue's pause once, as
 // `queuePause` beside the list, lifted by `agentSession.queuedMessagesResume` or any turn sent
@@ -149,6 +149,7 @@ export const AGENT_SESSION_RUNTIME_CAPABILITIES = [
   // turn starts, so a client may gate on either.
   AGENT_SESSION_ACCEPTED_SEND_RUNTIME_CAPABILITY,
   AGENT_SESSION_SEND_ANSWERS_PROOF_RUNTIME_CAPABILITY,
+  AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_COMMANDS_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY,
   AGENT_SESSION_QUEUED_MESSAGE_IMAGE_EDIT_RUNTIME_CAPABILITY,

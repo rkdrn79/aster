@@ -12,6 +12,21 @@ type ResearchRecordsState = {
 
 let loadPromise: Promise<void> | null = null
 let saveQueue: Promise<void> = Promise.resolve()
+let followingOtherWindows = false
+
+/** Another window's save replaces this copy, so a later save here is not refused as stale. */
+function followSavesFromOtherWindows(): void {
+  if (followingOtherWindows || !window.api.researchRecords?.onChanged) {
+    return
+  }
+  followingOtherWindows = true
+  window.api.researchRecords.onChanged((document) => {
+    const current = useResearchRecords.getState().document
+    if (!current || document.revision > current.revision) {
+      useResearchRecords.setState({ document })
+    }
+  })
+}
 
 export const useResearchRecords = create<ResearchRecordsState>((set, get) => ({
   document: null,
@@ -19,6 +34,7 @@ export const useResearchRecords = create<ResearchRecordsState>((set, get) => ({
   saving: false,
   error: null,
   load: () => {
+    followSavesFromOtherWindows()
     if (get().document) {
       return Promise.resolve()
     }

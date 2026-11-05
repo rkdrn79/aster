@@ -45,9 +45,9 @@ beforeEach(() => {
 afterEach(clearStructuredHostStub)
 
 describe('queued edit methods', () => {
-  it('the host advertises editing on its own, with mid-turn queueing still dark', () => {
+  it('the host advertises editing and mid-turn queueing', () => {
     expect(RUNTIME_CAPABILITIES).toContain(AGENT_SESSION_QUEUED_MESSAGE_EDIT_RUNTIME_CAPABILITY)
-    expect(RUNTIME_CAPABILITIES).not.toContain(AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY)
+    expect(RUNTIME_CAPABILITIES).toContain(AGENT_SESSION_QUEUED_MESSAGES_RUNTIME_CAPABILITY)
   })
 
   it.each([

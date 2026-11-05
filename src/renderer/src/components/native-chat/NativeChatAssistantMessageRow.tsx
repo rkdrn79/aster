@@ -83,6 +83,7 @@ export function NativeChatAssistantMessageRow({
           linkifyFilePaths={onLinkClick !== undefined}
           {...(isSystem ? {} : NATIVE_CHAT_QUOTE_SOURCE_PROPS)}
           visualMessageId={message.role === 'assistant' ? message.id : undefined}
+          math={!isSystem}
           // Structured text streams in place with no per-row state: only the live turn's frontier
           // row, still ending in prose, can be mid-sentence.
           streaming={messageIsStreaming(message, activeTurnIsWorking, trailingRun)}

@@ -1,6 +1,9 @@
 import type { ResearchLibraryDocument } from '../../../../shared/research/research-library'
 import { libraryScopeKey } from '../../../../shared/research/research-library'
 import type { ResearchDocument } from '../../../../shared/research/research-records'
+import { writingAgentScopeKey } from '../../../../shared/research/research-conversation-context'
+
+export { writingAgentScopeKey }
 
 export type ResearchConversationHome =
   | { kind: 'workbench' }
@@ -22,10 +25,6 @@ export function researchChatAvailableForHome(
     home.kind !== 'experiment' ||
     (placement.kind === 'experiment' && placement.experimentId === home.experimentId)
   )
-}
-
-export function writingAgentScopeKey(scope: { hostId: string; workspaceId: string }): string {
-  return JSON.stringify([scope.hostId, scope.workspaceId])
 }
 
 /** Session IDs are only unique within the workspace and execution host that owns them. */

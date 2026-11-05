@@ -101,6 +101,35 @@ describe('NativeChatComposerActions', () => {
     expect(screen.getByRole('button', { name: 'Stopping…' }).hasAttribute('disabled')).toBe(true)
   })
 
+  it('shows Send beside Stop while the agent works and a draft can go', () => {
+    const onSend = vi.fn()
+    const onStop = vi.fn()
+    const props = {
+      attachDisabled: false,
+      dictationDisabled: false,
+      sendDisabled: false,
+      isWorking: true,
+      isDictating: false,
+      isDictationHoldMode: false,
+      onAttach: vi.fn(),
+      onDictationToggle: vi.fn(),
+      onDictationHoldStart: vi.fn(),
+      onDictationHoldEnd: vi.fn(),
+      onSend,
+      onStop,
+      sessionOptionsSurface: null,
+      sessionOptionsSnapshot: []
+    }
+    const { rerender } = render(<NativeChatComposerActions {...props} />)
+    expect(screen.queryByRole('button', { name: 'Send' })).toBeNull()
+
+    rerender(<NativeChatComposerActions {...props} sendWhileWorking />)
+    fireEvent.click(screen.getByRole('button', { name: 'Send' }))
+    expect(onSend).toHaveBeenCalledTimes(1)
+    expect(onStop).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: 'Stop the agent' })).toBeTruthy()
+  })
+
   it('marks the streaming Stop control as the critical hit target', () => {
     render(
       <NativeChatComposerActions

@@ -17,6 +17,8 @@ import { cn } from '@/lib/utils'
 import { withoutPendingNativeChatVisualDirectiveTail } from '../../../../shared/native-chat-visual-directive'
 import { NativeChatMarkdownRowKeyContext } from './native-chat-disclosure-store'
 import { useNativeChatVisualMarkdownExtension } from './native-chat-visual-markdown-extension'
+import { withNativeChatMath } from './native-chat-math-markdown'
+import { prepareNativeChatMath } from './native-chat-math-source'
 import { useNativeChatFileLinkExists } from './use-native-chat-file-link-existence'
 import {
   NativeChatMarkdownImage,
@@ -45,6 +47,8 @@ type NativeChatMarkdownProps = Omit<ComponentProps<typeof CommentMarkdown>, 'fil
   streaming?: boolean
   /** The transcript row's identity, so reader choices inside the text outlive the row's mount. */
   rowKey?: string
+  /** Typeset the TeX between `$…$`, `$$…$$`, `\(…\)` and `\[…\]`, as agents write it. */
+  math?: boolean
 }
 
 type MarkdownElementProps = { node?: { tagName: string }; children?: ReactNode }
@@ -105,6 +109,7 @@ export function NativeChatMarkdown({
   visualMessageId,
   streaming = false,
   rowKey,
+  math = false,
   content,
   variant,
   onLinkClick,
@@ -112,13 +117,18 @@ export function NativeChatMarkdown({
 }: NativeChatMarkdownProps): React.JSX.Element {
   const wordFadeArmed = useWordFadeArmed(fadeWords)
   const visualExtension = useNativeChatVisualMarkdownExtension(visualMessageId)
-  const extension = useMemo(
-    () =>
+  const extension = useMemo(() => {
+    const surface =
       variant === 'document'
         ? createNativeChatImageExtension(visualExtension, onLinkClick)
-        : visualExtension,
-    [onLinkClick, variant, visualExtension]
-  )
+        : visualExtension
+    return math ? withNativeChatMath(surface) : surface
+  }, [math, onLinkClick, variant, visualExtension])
+  const markdown = useMemo(() => {
+    const shown =
+      visualExtension && streaming ? withoutPendingNativeChatVisualDirectiveTail(content) : content
+    return math ? prepareNativeChatMath(shown, streaming) : shown
+  }, [content, math, streaming, visualExtension])
   const fileLinkExists = useNativeChatFileLinkExists(linkifyFilePaths, streaming)
   return (
     <NativeChatMarkdownRowKeyContext.Provider value={rowKey}>
@@ -126,11 +136,7 @@ export function NativeChatMarkdown({
         {...props}
         variant={variant}
         onLinkClick={onLinkClick}
-        content={
-          visualExtension && streaming
-            ? withoutPendingNativeChatVisualDirectiveTail(content)
-            : content
-        }
+        content={markdown}
         extension={extension}
         fileLinkExists={fileLinkExists}
         fadeWords={fadeWords}

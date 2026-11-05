@@ -36,6 +36,7 @@ export function NativeChatReasoningBody({
         allowFileUriLinks={allowFileUriLinks}
         linkifyFilePaths={onLinkClick !== undefined}
         streaming={streaming}
+        math
       />
     </div>
   )

@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Check, GripVertical, Link2, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
+import {
+  Check,
+  ExternalLink,
+  GripVertical,
+  Link2,
+  MoreHorizontal,
+  Plus,
+  Trash2
+} from 'lucide-react'
 import type { Tab } from '../../../../shared/tab-types'
 import { isStructuredTab } from '../../../../shared/structured-agent-session-tab'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
@@ -38,6 +46,7 @@ import {
   type ResearchConversationHome
 } from './research-conversation-home'
 import { useDeleteResearchConversation } from './research-conversation-delete'
+import { researchWindowSurfaceTarget } from './research-window-surface'
 import { nameResearchChat } from './research-chat-label'
 
 const EMPTY_TABS: readonly Tab[] = []
@@ -97,20 +106,7 @@ export async function launchResearchChat(input: {
   return { sessionId: settled.sessionId }
 }
 
-export function ResearchAgentChatPane({
-  workspaceId,
-  hostId,
-  boundSessionId,
-  home,
-  title,
-  sessionLabel,
-  emptyHint,
-  visible,
-  className,
-  toolbar,
-  onBind,
-  onLaunch
-}: {
+type ResearchAgentChatPaneProps = {
   workspaceId: string
   hostId: string
   boundSessionId: string | undefined
@@ -125,7 +121,22 @@ export function ResearchAgentChatPane({
   onBind: (sessionId: string | null) => Promise<void>
   /** Resolves to an error message, or null once the new chat is bound. */
   onLaunch: (agent: TuiAgent) => Promise<string | null>
-}): React.JSX.Element {
+}
+
+export function ResearchAgentChatPane({
+  workspaceId,
+  hostId,
+  boundSessionId,
+  home,
+  title,
+  sessionLabel,
+  emptyHint,
+  visible,
+  className,
+  toolbar,
+  onBind,
+  onLaunch
+}: ResearchAgentChatPaneProps): React.JSX.Element {
   const [launching, setLaunching] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const deleteConversation = useDeleteResearchConversation()
@@ -178,7 +189,14 @@ export function ResearchAgentChatPane({
     }
   }
 
+  // Why: a research window shows the main window's chats, but tabs are made and closed there.
+  const windowTarget = researchWindowSurfaceTarget()
+
   async function launch(agent: TuiAgent): Promise<void> {
+    if (windowTarget) {
+      await window.api.researchWindow.revealInMain(windowTarget)
+      return
+    }
     if (launching) {
       return
     }
@@ -257,7 +275,9 @@ export function ResearchAgentChatPane({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="max-w-64">
-              <DropdownMenuLabel>Start a new {title.toLowerCase()} chat</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                Start a new {title.toLowerCase()} chat{windowTarget ? ' in the main window' : ''}
+              </DropdownMenuLabel>
               <DropdownMenuItem disabled={launching} onSelect={() => void launch('claude')}>
                 Claude Code
               </DropdownMenuItem>
@@ -311,9 +331,11 @@ export function ResearchAgentChatPane({
                       ))}
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
-                  <DropdownMenuItem className="text-destructive" onSelect={() => void remove()}>
-                    <Trash2 aria-hidden /> Delete conversation…
-                  </DropdownMenuItem>
+                  {windowTarget ? null : (
+                    <DropdownMenuItem className="text-destructive" onSelect={() => void remove()}>
+                      <Trash2 aria-hidden /> Delete conversation…
+                    </DropdownMenuItem>
+                  )}
                 </>
               ) : null}
             </DropdownMenuContent>
@@ -345,24 +367,30 @@ export function ResearchAgentChatPane({
       ) : (
         <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-5 text-center">
           <p className="max-w-xs text-sm text-muted-foreground">{emptyHint}</p>
-          <div className="flex flex-wrap justify-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={launching}
-              onClick={() => void launch('claude')}
-            >
-              <Plus aria-hidden /> Claude
+          {windowTarget ? (
+            <Button size="sm" variant="outline" onClick={() => void launch('claude')}>
+              <ExternalLink aria-hidden /> Start a chat in the main window
             </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={launching}
-              onClick={() => void launch('codex')}
-            >
-              <Plus aria-hidden /> Codex
-            </Button>
-          </div>
+          ) : (
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={launching}
+                onClick={() => void launch('claude')}
+              >
+                <Plus aria-hidden /> Claude
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={launching}
+                onClick={() => void launch('codex')}
+              >
+                <Plus aria-hidden /> Codex
+              </Button>
+            </div>
+          )}
           {launching && (
             <p role="status" className="text-xs text-muted-foreground">
               Starting agent chat…

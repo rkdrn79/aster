@@ -35,7 +35,8 @@ function seedMainWindowOnEditor(): ReturnType<typeof createTestStore> {
   const store = createTestStore()
   storeBox.store = store
   seedStore(store, {
-    settings: getDefaultSettings('/tmp'),
+    // Why: Aster turns native chat on by default; these cases cover the terminal launch surface.
+    settings: { ...getDefaultSettings('/tmp'), experimentalNativeChat: false },
     worktreesByRepo: {
       repo1: [makeWorktree({ id: MAIN_WORKTREE_ID, repoId: 'repo1', path: '/path/wt1' })]
     },

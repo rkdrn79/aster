@@ -13,6 +13,10 @@ export const AI_VAULT_ALL_HOST_TIMEOUT_MS = {
   search: 15_000
 } as const
 
+// Why: opening one server's history waits on that server alone, and a large remote home (a
+// hundred-plus transcripts, some tens of MB) takes longer than the 15s call default to walk.
+export const AI_VAULT_SINGLE_HOST_RUNTIME_SCAN_TIMEOUT_MS = 60_000
+
 export function allHostsRuntimeScanTimeoutMs(
   hostInfo: Pick<RuntimeAiVaultHostInfo, 'connectionDependency'>
 ): number {

@@ -217,4 +217,75 @@ describe('useImeEnterGestureOwnership', () => {
     expect(result.current.ownsKeyDown(redispatch)).toBe(true)
     expect(redispatch.prevented).toBe(true)
   })
+  describe('Hangul', () => {
+    function composeAndPressEnter(
+      result: { current: ReturnType<typeof useImeEnterGestureOwnership> },
+      text: string
+    ): void {
+      result.current.setComposing(true)
+      result.current.noteCompositionText(text)
+      // macOS: the confirming Enter is marked, then composition ends and the key comes up.
+      expect(
+        result.current.ownsKeyDown(gestureEvent({ key: 'Enter', keyCode: 229, isComposing: true }))
+      ).toBe(true)
+      result.current.setComposing(false)
+      result.current.onKeyUp(gestureEvent({ key: 'Enter', keyCode: 13 }))
+    }
+
+    function captureFrames() {
+      const frames: FrameRequestCallback[] = []
+      const raf = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frames.push(callback)
+        return frames.length
+      })
+      return { frames, restore: () => raf.mockRestore() }
+    }
+
+    // Regression: a message ending in a composing Hangul syllable needed a second Enter, because
+    // its Enter was swallowed as a Japanese-style candidate confirm.
+    it('lets the redispatched Enter of a Hangul syllable submit, exactly once', () => {
+      const onHangulEnter = vi.fn()
+      const { result } = renderHook(() => useImeEnterGestureOwnership({ onHangulEnter }))
+      const { frames, restore } = captureFrames()
+      try {
+        composeAndPressEnter(result, '녕')
+        const redispatch = gestureEvent({ key: 'Enter', keyCode: 13 })
+        expect(result.current.ownsKeyDown(redispatch)).toBe(false)
+        expect(redispatch.prevented).toBe(false)
+        frames.forEach((frame) => frame(0))
+        expect(onHangulEnter).not.toHaveBeenCalled()
+      } finally {
+        restore()
+      }
+    })
+
+    it('submits a Hangul Enter itself when the platform sends no redispatch', () => {
+      const onHangulEnter = vi.fn()
+      const { result } = renderHook(() => useImeEnterGestureOwnership({ onHangulEnter }))
+      const { frames, restore } = captureFrames()
+      try {
+        composeAndPressEnter(result, '요')
+        frames.forEach((frame) => frame(0))
+        expect(onHangulEnter).toHaveBeenCalledTimes(1)
+      } finally {
+        restore()
+      }
+    })
+
+    it('still swallows the confirm-only Enter of a Japanese conversion', () => {
+      const onHangulEnter = vi.fn()
+      const { result } = renderHook(() => useImeEnterGestureOwnership({ onHangulEnter }))
+      const { frames, restore } = captureFrames()
+      try {
+        composeAndPressEnter(result, 'かんじ')
+        const redispatch = gestureEvent({ key: 'Enter', keyCode: 13 })
+        expect(result.current.ownsKeyDown(redispatch)).toBe(true)
+        expect(redispatch.prevented).toBe(true)
+        frames.forEach((frame) => frame(0))
+        expect(onHangulEnter).not.toHaveBeenCalled()
+      } finally {
+        restore()
+      }
+    })
+  })
 })

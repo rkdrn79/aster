@@ -1,5 +1,5 @@
 import { lstat, opendir } from 'node:fs/promises'
-import { join, relative, sep } from 'node:path'
+import { join, relative, resolve, sep } from 'node:path'
 import type { z } from 'zod'
 import { layoutRelativePaths } from '../../research-harness/research-layout.mjs'
 import type {
@@ -36,8 +36,19 @@ export async function resolveResearchProjectRoot(
   const target = await runtime.resolveRuntimeFileTarget(worktreeSelector)
   requireLocalRuntimeFileRoute(target)
   const store = runtime.requireStore()
-  const authorize = (path: string): Promise<string> => resolveRuntimeAuthorizedPath(path, store)
-  return { path: await authorize(target.worktree.path), authorize }
+  const registeredPath = resolve(target.worktree.path)
+  const path = await resolveRuntimeAuthorizedPath(registeredPath, store)
+  // Why: the store knows the workspace by its registered path. Through a symlinked parent
+  // (~/data -> /data) that differs from the canonical root, and a path built on the canonical
+  // root lies outside every allowed root as written, so it is authorized as the registered path.
+  const authorize = (absolutePath: string): Promise<string> =>
+    resolveRuntimeAuthorizedPath(
+      path !== registeredPath && isDescendantOrEqual(absolutePath, path)
+        ? join(registeredPath, relative(path, absolutePath))
+        : absolutePath,
+      store
+    )
+  return { path, authorize }
 }
 
 /**

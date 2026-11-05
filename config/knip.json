@@ -46,6 +46,7 @@
     "src/main/ai-vault/session-scanner-opencode-sqlite-process-entry.ts",
     "src/wsl-guest/wsl-browser-network-relay.ts",
     "src/renderer/src/space.tsx",
+    "src/renderer/src/research-window.tsx",
     "src/**/*.bench.ts",
     "src/**/*-electron-fixture.ts",
     "src/**/*-test-fixture.ts",

@@ -26,7 +26,7 @@ import type {
 } from './native-chat-composer-types'
 import { useNativeChatPtyComposerSend } from './use-native-chat-pty-composer-send'
 import { useNativeChatStructuredComposerSend } from './use-native-chat-structured-composer-send'
-import { useImeEnterGestureOwnership } from '@/lib/ime-composition-keyboard-event'
+import { useNativeChatImeEnterGesture } from './use-native-chat-ime-enter-gesture'
 import { useNativeChatComposerAppMenuSelection } from './use-native-chat-composer-app-menu-selection'
 import { useNativeChatComposerSubmit } from './use-native-chat-composer-submit'
 import { useNativeChatComposerCommandPicker } from './use-native-chat-composer-command-picker'
@@ -79,7 +79,7 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
     // images survive both TUI/GUI toggles and PTY replacement on reconnect.
     // Why: local, SSH, and runtime reconnects can replace or temporarily clear
     // the PTY id. Pane (or conversation) identity is the stable owner of unsent input.
-    const imeEnterGesture = useImeEnterGestureOwnership()
+    const { imeEnterGesture, submitHangulEnterWith } = useNativeChatImeEnterGesture()
     const { draft, setDraft, flushDraftAppends } = useNativeChatDraft(
       draftScopeKey,
       imeEnterGesture.isComposing
@@ -178,9 +178,11 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       structuredTransport?.sendOut === true ||
       imageBlock.holdsSend ||
       structuredTransport?.sendBlockedReason !== undefined
-    const sendButtonDisabled = isWorking
-      ? !hasPty || !onStop
-      : sendHeld || (draft.trim() === '' && imageAttachments.length === 0)
+    const draftEmpty = draft.trim() === '' && imageAttachments.length === 0
+    const sendButtonDisabled = isWorking ? !hasPty || !onStop : sendHeld || draftEmpty
+    // Why: a message typed while the agent works still sends (queued where the host queues), so
+    // its Send shows beside Stop instead of hiding behind it.
+    const sendWhileWorking = isWorking && hasPty && !sendHeld && !draftEmpty
 
     const { pickAttachments, attachExternalPaths, captureCopiedFiles, resolveAttachmentOwner } =
       useNativeChatFileDrops({
@@ -303,6 +305,8 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       setDraft,
       setCaret
     })
+    // An open picker takes Enter as a pick, so a Hangul Enter submits only without one.
+    submitHangulEnterWith(() => autocomplete.mode === 'none' && send())
 
     const interrupt = useNativeChatComposerInterrupt({
       inert: inputOwnedByCard,
@@ -373,6 +377,7 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
         attachmentEnvironmentId={structuredTransport?.runtimeEnvironmentId ?? undefined}
         sendButtonDisabled={sendButtonDisabled}
         sendBlockedReason={sendBlockedReason}
+        sendWhileWorking={sendWhileWorking}
         isWorking={isWorking}
         isStopping={isStopping}
         afterStop={afterStop}

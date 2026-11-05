@@ -1,6 +1,38 @@
 import type { ExperimentRecord, ResearchDocument } from './research-records'
 import { selectResearchExperiment } from './research-selection'
 
+/** The key a project's Writing chat is recorded under in `writingAgentSessionByScope`. */
+export function writingAgentScopeKey(scope: { hostId: string; workspaceId: string }): string {
+  return JSON.stringify([scope.hostId, scope.workspaceId])
+}
+
+/**
+ * The Experiment an older per-Experiment Writing chat belonged to. A project's Writing chat is also
+ * stamped on every Experiment of its workspace, so it, or a session several carry, belongs to none.
+ */
+function legacyWritingExperimentId(
+  document: ResearchDocument,
+  workspaceId: string,
+  hostId: string | null,
+  sessionId: string | undefined
+): string | undefined {
+  if (
+    !sessionId ||
+    (hostId !== null &&
+      document.writingAgentSessionByScope[writingAgentScopeKey({ hostId, workspaceId })] ===
+        sessionId)
+  ) {
+    return undefined
+  }
+  const carriers = document.experiments.filter(
+    (experiment) =>
+      experiment.writingAgentSessionId === sessionId &&
+      experiment.workspaceId === workspaceId &&
+      experiment.hostId === hostId
+  )
+  return carriers.length === 1 ? carriers[0]?.id : undefined
+}
+
 export function conversationExperiment(
   document: ResearchDocument,
   tabId: string,
@@ -11,13 +43,7 @@ export function conversationExperiment(
   const hasExplicitLink = Object.hasOwn(document.conversationExperimentIds, tabId)
   const experimentId = hasExplicitLink
     ? document.conversationExperimentIds[tabId]
-    : document.experiments.find(
-        (experiment) =>
-          sessionId &&
-          experiment.writingAgentSessionId === sessionId &&
-          experiment.workspaceId === workspaceId &&
-          experiment.hostId === hostId
-      )?.id
+    : legacyWritingExperimentId(document, workspaceId, hostId, sessionId)
   return (
     document.experiments.find(
       (experiment) =>

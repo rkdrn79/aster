@@ -7,15 +7,18 @@ import {
 import { downloadArxivPdf, importLocalPdf, lookupArxivPaper } from './research-library-files'
 import { lookupDoiPaper } from './research-library-doi'
 import { readResearchLibrary, saveResearchLibrary } from './research-library-repository'
+import { broadcastResearchChange } from './research-change-broadcast'
 
 const workspaceSchema = z.object({ workspacePath: z.string().min(1).max(4096) }).strict()
 const referenceSchema = z.object({ reference: z.string().trim().min(1).max(4096) }).strict()
 
 export function registerResearchLibraryIpcHandlers(): void {
   ipcMain.handle('researchLibrary:read', () => readResearchLibrary())
-  ipcMain.handle('researchLibrary:save', (_event, input: unknown) =>
-    saveResearchLibrary(researchLibraryDocumentSchema.parse(input))
-  )
+  ipcMain.handle('researchLibrary:save', async (event, input: unknown) => {
+    const saved = await saveResearchLibrary(researchLibraryDocumentSchema.parse(input))
+    broadcastResearchChange(event.sender, 'researchLibrary:changed', saved)
+    return saved
+  })
   ipcMain.handle('researchLibrary:lookupArxiv', (_event, input: unknown) =>
     lookupArxivPaper(referenceSchema.parse(input).reference)
   )

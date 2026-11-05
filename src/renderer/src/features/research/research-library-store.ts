@@ -17,6 +17,21 @@ type ResearchLibraryState = {
 
 let loadPromise: Promise<void> | null = null
 let saveQueue: Promise<void> = Promise.resolve()
+let followingOtherWindows = false
+
+/** Another window's save replaces this copy, so a later save here is not refused as stale. */
+function followSavesFromOtherWindows(): void {
+  if (followingOtherWindows || !window.api.researchLibrary?.onChanged) {
+    return
+  }
+  followingOtherWindows = true
+  window.api.researchLibrary.onChanged((document) => {
+    const current = useResearchLibrary.getState().document
+    if (!current || (document.revision ?? 0) > (current.revision ?? 0)) {
+      useResearchLibrary.setState({ document })
+    }
+  })
+}
 
 /** Papers used to belong to an Experiment; each now belongs to that Experiment's workspace. */
 export function libraryPapersFromLegacyRecords(records: ResearchDocument): LibraryPaper[] {
@@ -81,6 +96,7 @@ export const useResearchLibrary = create<ResearchLibraryState>((set, get) => ({
   saving: false,
   error: null,
   load: () => {
+    followSavesFromOtherWindows()
     if (get().document) {
       return Promise.resolve()
     }

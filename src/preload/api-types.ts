@@ -85,6 +85,7 @@ import type { ResearchAnalysisApi } from './api/research-analysis-bridge'
 import type { ResearchWatchesApi } from './api/research-watches-bridge'
 import type { ConferenceDeadlinesApi } from './api/conference-deadlines-bridge'
 import type { ResearchLibraryApi } from './api/research-library-bridge'
+import type { ResearchWindowApi } from './api/research-window-bridge'
 import type { ResearchSlackApi } from './api/research-slack-bridge'
 
 // Flattens contracts that share one PreloadApi key: an intersection is not type-identical to the flat shape.
@@ -201,6 +202,7 @@ export type PreloadApi = {
   researchWatches: ResearchWatchesApi
   conferenceDeadlines: ConferenceDeadlinesApi
   researchLibrary: ResearchLibraryApi
+  researchWindow: ResearchWindowApi
   researchSlack: ResearchSlackApi
   speech: SpeechApi
 }

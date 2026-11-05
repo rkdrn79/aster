@@ -86,4 +86,34 @@ describe('conversation Experiment context', () => {
       conversationExperiment(unlinked, 'chat-a', 'workspace-a', 'local', 'session-a')
     ).toBeNull()
   })
+
+  // Regression: the project's Writing chat, stamped on every Experiment of its workspace, was
+  // listed under the first Experiment once a project had Experiments.
+  it("keeps the project's Writing chat out of every Experiment", () => {
+    const [first] = base.experiments
+    if (!first) {
+      throw new Error('fixture has no Experiment')
+    }
+    const stamped = {
+      ...base,
+      experiments: [first, { ...first, id: otherExperimentId, name: 'Second' }].map(
+        (experiment) => ({ ...experiment, writingAgentSessionId: 'project-writing' })
+      )
+    }
+    expect(
+      conversationExperiment(stamped, 'chat-w', 'workspace-a', 'local', 'project-writing')
+    ).toBeNull()
+
+    const scoped = {
+      ...base,
+      writingAgentSessionByScope: { '["local","workspace-a"]': 'project-writing' },
+      experiments: base.experiments.map((experiment) => ({
+        ...experiment,
+        writingAgentSessionId: 'project-writing'
+      }))
+    }
+    expect(
+      conversationExperiment(scoped, 'chat-w', 'workspace-a', 'local', 'project-writing')
+    ).toBeNull()
+  })
 })

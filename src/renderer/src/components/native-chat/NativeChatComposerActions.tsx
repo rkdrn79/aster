@@ -19,6 +19,8 @@ export type NativeChatComposerActionsProps = {
   sendDisabled: boolean
   /** Shown on the disabled send button: what the user can do to send. */
   sendBlockedReason?: string | null
+  /** The agent works and the draft can still go: Send shows beside Stop. */
+  sendWhileWorking?: boolean
   /** Storage refused this draft; it is held in memory only. */
   draftNotSaved?: boolean
   isWorking: boolean
@@ -49,6 +51,7 @@ export function NativeChatComposerActions({
   dictationDisabled,
   sendDisabled,
   sendBlockedReason,
+  sendWhileWorking = false,
   draftNotSaved,
   isWorking,
   isStopping = false,
@@ -107,6 +110,20 @@ export function NativeChatComposerActions({
       {stops ? <Square className="size-3.5 fill-current" /> : <ArrowUp className="size-4" />}
     </Button>
   )
+  const workingSendButton =
+    stops && sendWhileWorking ? (
+      <Button
+        type="button"
+        aria-label={translate('components.native-chat.composer.send', 'Send')}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={onSend}
+        variant="default"
+        size="icon"
+        className="size-8 rounded-full pointer-coarse:size-10"
+      >
+        <ArrowUp className="size-4" />
+      </Button>
+    ) : null
 
   return (
     <div className="flex w-full items-center justify-between gap-2 text-chat-foreground-faint">
@@ -192,6 +209,7 @@ export function NativeChatComposerActions({
           </TooltipContent>
         </Tooltip>
         <DraftNotSavedIcon shown={draftNotSaved === true} />
+        {workingSendButton}
         {sendReason ? (
           <Tooltip>
             <TooltipTrigger asChild>

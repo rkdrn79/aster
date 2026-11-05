@@ -47,6 +47,24 @@
   font-size: inherit;
 }
 
+/* Typeset math draws in currentColor, so it takes the reply's own color in either theme. Display
+   math keeps its line and scrolls sideways instead of widening the reply. */
+.native-chat-markdown .katex-display {
+  margin: 0.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Room for glyphs that reach past the line box, which the hidden overflow would clip. */
+  padding-block: 0.25rem;
+}
+
+.native-chat-markdown .katex-display:first-child {
+  margin-top: 0;
+}
+
+.native-chat-markdown .katex-display:last-child {
+  margin-bottom: 0;
+}
+
 [data-native-chat-message-tone='faint']
   .native-chat-markdown
   :is(h1, h2, h3, h4, h5, h6, [role='heading'], strong, a, code, pre) {
@@ -56,7 +74,7 @@
 /* A reply being written: each new word, and each block that is not made of words,
    fades in as it is drawn. Opacity only, so the line it joins never shifts. */
 @media (prefers-reduced-motion: no-preference) {
-  .native-chat-markdown[data-word-fade] :is([data-word], a, :not(pre) > code),
+  .native-chat-markdown[data-word-fade] :is([data-word], a, :not(pre) > code, .katex),
   .native-chat-markdown[data-block-fade] > :is(pre, div, table, hr) {
     /* WORD_FADE_MS in use-native-chat-paced-text.ts waits this long for the last words. */
     transition: opacity 300ms ease-out;

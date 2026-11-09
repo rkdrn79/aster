@@ -24,6 +24,7 @@ import { ResearchExperimentAgentSplit } from './ResearchExperimentAgentSplit'
 import { ResearchExperimentPageTabs } from './ResearchExperimentPageTabs'
 import { experimentPage } from './research-experiment-page'
 import { useResearchExperimentPageShortcut } from './use-research-experiment-page-shortcut'
+import { ResearchWandbExperimentLink } from './ResearchWandbLinks'
 
 function StatusChip({ workspace }: { workspace: ExperimentWorkspace }): React.JSX.Element | null {
   const brief = workspace.brief.brief
@@ -128,6 +129,7 @@ export function ResearchExperimentWorkspace({
             experiment ? (
               <>
                 <ResearchExperimentPageTabs />
+                <ResearchWandbExperimentLink experiment={experiment} />
                 <Button
                   variant={chatOpen ? 'secondary' : 'ghost'}
                   size="sm"

@@ -13,6 +13,7 @@ import { RESEARCH_RUN_EXECUTION_STATES } from '../../../../shared/research/resea
 import { useResearchRecords } from './research-records-store'
 import { attachResearchRunRecord } from './research-run-record-links'
 import { researchRunStatusLabel } from './research-run-status-label'
+import { ResearchWandbRunButton } from './ResearchWandbLinks'
 
 function setRecordedStatus(
   run: ResearchRunRecord,
@@ -70,16 +71,20 @@ export function ResearchRunInspectorActions({
   busy,
   onRefresh,
   onDetach,
-  onOpenLog
+  onOpenLog,
+  wandbUrl = null
 }: {
   run: ResearchRunRecord
   busy: boolean
   onRefresh: () => void
   onDetach: (id: string) => void
   onOpenLog: (() => void) | null
+  /** Set when the project mirrors to W&B and this Run has a W&B run. */
+  wandbUrl?: string | null
 }): React.JSX.Element {
   return (
     <div className="flex gap-2">
+      {wandbUrl ? <ResearchWandbRunButton url={wandbUrl} /> : null}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="sm" variant="outline">

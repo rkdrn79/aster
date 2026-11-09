@@ -13,11 +13,11 @@ import {
 
 const WIDTH = 1180
 const HEIGHT = 820
-// One window per page and workspace: dragging Library out twice focuses the first one.
+// One window per project: opening another of its pages brings that window to the page.
 const windows = new Map<string, BrowserWindow>()
 
 function windowKey(target: ResearchWindowTarget): string {
-  return `${target.page}\0${target.hostId ?? ''}\0${target.workspaceId}`
+  return `${target.hostId ?? ''}\0${target.workspaceId}`
 }
 
 function liveWindows(): BrowserWindow[] {
@@ -64,6 +64,7 @@ export function openResearchPageWindow(
     if (!isBackgroundLaunch()) {
       existing.focus()
     }
+    existing.webContents.send('researchWindow:showPage', target.page)
     return existing
   }
 

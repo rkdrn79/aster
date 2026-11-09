@@ -102,7 +102,11 @@ export function ResearchConversationRow({
                   ? 'Experiment'
                   : home.kind === 'library'
                     ? 'Library'
-                    : 'Workbench'
+                    : home.kind === 'rebuttal'
+                      ? 'Rebuttal'
+                      : home.kind === 'figures'
+                        ? 'Figures'
+                        : 'Workbench'
             const name = candidate.customLabel ?? candidate.aiVaultTitle?.title ?? candidate.label
             return `- ${JSON.stringify(name)} · ${role}${experiment ? ` · Experiment ${JSON.stringify(experiment.name)}` : ''} · session ${candidate.entityId}`
           })

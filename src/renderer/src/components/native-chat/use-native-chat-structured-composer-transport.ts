@@ -29,7 +29,10 @@ function nativeChatSessionAttachmentNotReadyNotice(agent: AgentType, starting: b
 
 /** What the composer of a structured chat sends, picks and runs through, from the chat's controller. */
 export function useNativeChatStructuredComposerTransport(args: {
-  props: Pick<NativeChatStructuredViewProps, 'agent' | 'sessionId' | 'target'>
+  props: Pick<
+    NativeChatStructuredViewProps,
+    'agent' | 'sessionId' | 'target' | 'decorateOutgoingText'
+  >
   controller: ReturnType<typeof useStructuredAgentSession>
   /** Sends now, restarts a failed start with the message, or refuses while the chat starts. */
   sendThroughLaunch: (
@@ -65,10 +68,14 @@ export function useNativeChatStructuredComposerTransport(args: {
             ? threadGoal.change({ kind: 'set', objective })
             : Promise.resolve(false)
       : null
+    const decorate = props.decorateOutgoingText
     return {
-      send: (text, attachments, ...request) =>
-        sendBlockedReason === null &&
-        sendThroughLaunch(text, attachments.length > 0, () =>
+      send: (typed, attachments, ...request) => {
+        if (sendBlockedReason !== null) {
+          return false
+        }
+        const text = decorate ? decorate(typed) : typed
+        return sendThroughLaunch(text, attachments.length > 0, () =>
           controller.send(
             text,
             attachments.map(({ path, connectionId }) => ({
@@ -78,7 +85,8 @@ export function useNativeChatStructuredComposerTransport(args: {
             })),
             ...request
           )
-        ),
+        )
+      },
       dispatchCommand: (text: string) =>
         dispatchStructuredAgentSessionComposerCommand(text, {
           agent: props.agent,
@@ -125,6 +133,7 @@ export function useNativeChatStructuredComposerTransport(args: {
     onSubmitted,
     optionPickerRequest,
     props.agent,
+    props.decorateOutgoingText,
     props.sessionId,
     props.target,
     sendBlockedReason,

@@ -7,6 +7,7 @@ import {
 } from '../window/research-page-window'
 import { safelyRevealWindow } from '../window/focus-existing-window'
 import { parseResearchWindowTarget } from '../../shared/research-page-window'
+import { isTuiAgent } from '../../shared/tui-agent-config'
 import type { Store } from '../persistence'
 
 function contains(bounds: Electron.Rectangle, point: Electron.Point): boolean {
@@ -23,7 +24,8 @@ export function registerResearchPageWindowHandlers(store: Store): void {
     'researchWindow:open',
     'researchWindow:publishState',
     'researchWindow:requestState',
-    'researchWindow:revealInMain'
+    'researchWindow:revealInMain',
+    'researchWindow:launchChat'
   ]) {
     ipcMain.removeHandler(channel)
   }
@@ -66,5 +68,13 @@ export function registerResearchPageWindowHandlers(store: Store): void {
       safelyRevealWindow(window)
     }
     main.send('researchWindow:revealInMain', target)
+  })
+  // Why through the main window: it owns the tabs, and starts the chat without leaving its project.
+  ipcMain.handle('researchWindow:launchChat', (event, input: unknown, agent: unknown): void => {
+    const target = parseResearchWindowTarget(input)
+    if (!isResearchPageWindowRenderer(event.sender) || !target || !isTuiAgent(agent)) {
+      return
+    }
+    getTrustedUIRendererWebContents()?.send('researchWindow:launchChat', target, agent)
   })
 }

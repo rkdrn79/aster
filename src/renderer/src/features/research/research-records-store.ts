@@ -16,7 +16,7 @@ let followingOtherWindows = false
 
 /** Another window's save replaces this copy, so a later save here is not refused as stale. */
 function followSavesFromOtherWindows(): void {
-  if (followingOtherWindows || !window.api.researchRecords?.onChanged) {
+  if (followingOtherWindows || !window.api?.researchRecords?.onChanged) {
     return
   }
   followingOtherWindows = true

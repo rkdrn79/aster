@@ -19,6 +19,8 @@ type SavedLocation = Omit<ResearchLocation, 'workspaceId'>
 const PROJECT_VIEWS: readonly ResearchLocation['view'][] = [
   'terminal',
   'research-writing',
+  'research-figures',
+  'research-rebuttal',
   'research-library',
   'research-experiments',
   'research-runs',

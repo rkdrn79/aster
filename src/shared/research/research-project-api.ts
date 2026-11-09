@@ -6,6 +6,7 @@ import type { ResearchRunExecutionState, ResearchRunManifest } from './research-
 import type { ResearchRunMediaItem } from './research-run-media'
 import type { ResearchMetricDirection } from './research-run-metrics'
 import type { ResearchRunSummary } from './research-run-summary'
+import { researchProjectWandbSchema } from './research-wandb'
 
 /**
  * `researchProject.*`: the host that owns a workspace reads its .aster/ or legacy research/ records for any client.
@@ -68,7 +69,9 @@ export const researchProjectCatalogSchema = z.object({
   manuscript: z.object({ source: nullableText, pdf: nullableText }).nullable().catch(null),
   references: z.object({ bibliography: nullableText, papers: nullableText }).nullable().catch(null),
   claims: nullableText,
-  experiments: z.array(researchProjectCatalogExperimentSchema.nullable().catch(null))
+  experiments: z.array(researchProjectCatalogExperimentSchema.nullable().catch(null)),
+  /** Absent in catalogs written before W&B mirroring; off unless `enabled` is true. */
+  wandb: researchProjectWandbSchema.nullable().optional().catch(null)
 })
 
 export type ResearchProjectCatalogRun = z.infer<typeof researchProjectCatalogRunSchema>

@@ -37,6 +37,7 @@ import type { ResearchRunSummary } from '../../../../shared/research/research-ru
 import { ResearchRunNotes } from './ResearchRunNotes'
 import { ResearchRunInspectorActions } from './ResearchRunInspectorActions'
 import { openManuscriptInEditor } from './research-writing-open-editor'
+import { useResearchRunWandb } from './ResearchWandbLinks'
 
 export const ATTACHED_FILE_NOTE = 'Attached file — checks, ratings, and media unavailable'
 
@@ -228,6 +229,7 @@ export function RunInspector({
   const remoteHost = useRemoteHostLabel(run.hostId)
   const reportedBy = REPORTED_BY[run.reportedBy]
   const logPath = run.logPath
+  const wandb = useResearchRunWandb(run, manifest)
 
   return (
     <div className="space-y-5 rounded-xl border border-border bg-card p-5">
@@ -245,6 +247,9 @@ export function RunInspector({
           {attachedFile ? (
             <p className="mt-0.5 text-xs text-muted-foreground">{ATTACHED_FILE_NOTE}</p>
           ) : null}
+          {wandb.warning ? (
+            <p className="mt-0.5 text-xs text-muted-foreground">W&B: {wandb.warning}</p>
+          ) : null}
         </div>
         <ResearchRunInspectorActions
           run={run}
@@ -252,6 +257,7 @@ export function RunInspector({
           onRefresh={() => void refresh()}
           onDetach={onDetach}
           onOpenLog={logPath ? () => openRunFile(run, logPath) : null}
+          wandbUrl={wandb.url}
         />
       </div>
       {error ? (

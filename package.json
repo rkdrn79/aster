@@ -1,6 +1,6 @@
 {
   "name": "orca",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Next-gen IDE for parallel agentic development",
   "homepage": "https://github.com/stablyai/orca",
   "author": "stablyai",
@@ -235,6 +235,7 @@
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@electron/osx-sign": "2.7.0",
     "@electron/rebuild": "^4.2.1",
+    "@excalidraw/excalidraw": "0.18.1",
     "@monaco-editor/react": "^4.7.0",
     "@noble/hashes": "1.8.0",
     "@oxlint/plugins": "1.88.0",

@@ -1,5 +1,5 @@
 import './assets/main.css'
-import { StrictMode, useEffect, useState } from 'react'
+import { StrictMode, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ExternalLink } from 'lucide-react'
 import { Toaster } from '@/components/ui/sonner'
@@ -16,12 +16,15 @@ import { useAppStore } from './store'
 import { PRODUCT_NAME } from '../../shared/product-brand'
 import { normalizeExecutionHostId } from '../../shared/execution-host'
 import {
+  RESEARCH_WINDOW_PAGES,
   RESEARCH_WINDOW_PAGE_LABELS,
   isResearchWindowPage,
   researchWindowTargetFromSearch,
+  type ResearchWindowPage,
   type ResearchWindowTarget
 } from '../../shared/research-page-window'
 import { ResearchPreviewPage } from './features/research/ResearchPreviewPage'
+import { ResearchWindowChats } from './features/research/ResearchWindowChats'
 import { isResearchPage } from './features/research/research-navigation'
 import { isResearchWindowState } from './features/research/research-window-state'
 import { markResearchWindowSurface } from './features/research/research-window-surface'
@@ -37,6 +40,23 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
       selectResearchWorkspaceContext(state).workspaceName
   )
   const [ready, setReady] = useState(false)
+  const [section, setSection] = useState<ResearchWindowPage>(target.page)
+  const showSection = useCallback((page: ResearchWindowPage): void => {
+    setSection(page)
+    if (page !== 'research-chats') {
+      useAppStore.setState({ activeView: page })
+    }
+  }, [])
+
+  useEffect(
+    () =>
+      window.api.researchWindow.onShowPage((page) => {
+        if (isResearchWindowPage(page)) {
+          showSection(page)
+        }
+      }),
+    [showSection]
+  )
 
   useEffect(() => {
     const api = window.api.researchWindow
@@ -45,7 +65,10 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
       activeWorktreeId: target.workspaceId,
       activeWorkspaceExecutionHostId: normalizeExecutionHostId(target.hostId)
     }
-    useAppStore.setState({ ...pinned, activeView: target.page })
+    useAppStore.setState({
+      ...pinned,
+      ...(target.page === 'research-chats' ? {} : { activeView: target.page })
+    })
     const offState = api.onState((value) => {
       if (!isResearchWindowState(value)) {
         return
@@ -73,32 +96,42 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
     return () => media.removeEventListener('change', handleChange)
   }, [settings?.theme, settings?.appFontFamily, settings?.accentColor])
 
-  const pageLabel = RESEARCH_WINDOW_PAGE_LABELS[target.page]
+  // An Experiment opened inside the window keeps the Experiments section current.
+  const currentPage: ResearchWindowPage =
+    section === 'research-chats' ? section : isResearchWindowPage(activeView) ? activeView : section
+  const pageLabel = RESEARCH_WINDOW_PAGE_LABELS[currentPage]
   useEffect(() => {
     document.title = projectName
-      ? `${pageLabel} · ${projectName} — ${PRODUCT_NAME}`
+      ? `${projectName} — ${PRODUCT_NAME}`
       : `${pageLabel} — ${PRODUCT_NAME}`
   }, [pageLabel, projectName])
-
-  // The page the window shows now: an Experiment opened inside it keeps its Experiments label.
-  const currentPage = isResearchWindowPage(activeView) ? activeView : target.page
   return (
     <RecoverableRenderErrorBoundary
       boundaryId="research-window.root"
       surface="app-root"
       title={t('research.window.errorTitle', 'This window hit an error.')}
-      description={t('research.window.errorDescription', 'Close it and drag the page out again.')}
+      description={t('research.window.errorDescription', 'Close it and open the project again.')}
     >
       <TooltipProvider delayDuration={400}>
         <ConfirmationDialogProvider>
           <div className="flex h-screen min-h-0 flex-col bg-background text-foreground">
             <header className="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
-              <span className="min-w-0 truncate text-sm font-semibold">
+              <span className="min-w-0 max-w-64 truncate text-sm font-semibold">
                 {projectName ?? pageLabel}
               </span>
-              {projectName ? (
-                <span className="shrink-0 text-xs text-muted-foreground">{pageLabel}</span>
-              ) : null}
+              <nav aria-label="Project sections" className="flex items-center gap-0.5">
+                {RESEARCH_WINDOW_PAGES.map((page) => (
+                  <Button
+                    key={page}
+                    size="xs"
+                    variant={page === currentPage ? 'secondary' : 'ghost'}
+                    aria-current={page === currentPage ? 'page' : undefined}
+                    onClick={() => showSection(page)}
+                  >
+                    {RESEARCH_WINDOW_PAGE_LABELS[page]}
+                  </Button>
+                ))}
+              </nav>
               <Button
                 variant="ghost"
                 size="xs"
@@ -116,10 +149,12 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
                 <p role="status" className="p-6 text-sm text-muted-foreground">
                   {t('research.window.loading', 'Loading…')}
                 </p>
+              ) : section === 'research-chats' ? (
+                <ResearchWindowChats target={target} />
               ) : isResearchPage(activeView) ? (
                 <ResearchPreviewPage page={activeView} />
               ) : (
-                <ResearchPreviewPage page={target.page} />
+                <ResearchPreviewPage page={section} />
               )}
             </main>
           </div>

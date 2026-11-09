@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import {
+  AppWindow,
+  ChartLine,
   FolderOpen,
   FolderTree,
   Palette,
@@ -32,6 +34,10 @@ import { blockRemovalForUnsavedFiles } from '@/components/sidebar/removal-unsave
 import { isRevealOrEditorOpenBlocked } from '@/lib/local-path-open-guard'
 import { getRevealInFileManagerLabel, revealInFileManager } from '@/lib/reveal-in-file-manager'
 import { useAppStore } from '@/store'
+import {
+  canOpenResearchPageWindows,
+  openResearchProjectInNewWindow
+} from './research-page-window-open'
 import { REPO_COLORS } from '../../../../shared/constants'
 import { getRepoExecutionHostId } from '../../../../shared/execution-host'
 import { getFolderWorkspaceHostId } from '../../../../shared/folder-workspace-execution-host'
@@ -209,11 +215,13 @@ export function ResearchProjectMenuItems({
   project,
   onRename,
   onSlack,
+  onWandb,
   onRemoveFolderProject
 }: {
   project: ResearchHomeProject
   onRename: () => void
   onSlack: () => void
+  onWandb: () => void
   onRemoveFolderProject: () => void
 }): React.JSX.Element {
   const [primary] = project.workspaces
@@ -253,6 +261,12 @@ export function ResearchProjectMenuItems({
         </DropdownMenuSubContent>
       </DropdownMenuSub>
       <DropdownMenuSeparator />
+      {canOpenResearchPageWindows() ? (
+        <DropdownMenuItem onSelect={() => openResearchProjectInNewWindow(primary)}>
+          <AppWindow aria-hidden />
+          Open in New Window
+        </DropdownMenuItem>
+      ) : null}
       <DropdownMenuItem
         disabled={isRevealOrEditorOpenBlocked(owner)}
         onSelect={() => void revealInFileManager(primary.path, owner)}
@@ -280,6 +294,10 @@ export function ResearchProjectMenuItems({
       <DropdownMenuItem onSelect={onSlack}>
         <MessageSquare aria-hidden />
         Slack connection…
+      </DropdownMenuItem>
+      <DropdownMenuItem onSelect={onWandb}>
+        <ChartLine aria-hidden />
+        W&B…
       </DropdownMenuItem>
       {repo || project.projectGroupId ? (
         <>

@@ -5,7 +5,9 @@ import {
   FlaskConical,
   FolderOpen,
   House,
+  MessageSquareReply,
   PenLine,
+  Shapes,
   Server,
   Settings
 } from 'lucide-react'
@@ -100,6 +102,22 @@ export function buildResearchQuickActions(inputs: ResearchPaletteInputs): CmdJQu
       ),
       destination('writing', 'Writing', 'The paper and LaTeX source', PenLine, ['paper'], () =>
         openResearchView('research-writing')
+      ),
+      destination(
+        'figures',
+        'Figures',
+        'Diagrams and plots for the paper, drawn with the Figure agent',
+        Shapes,
+        ['figure', 'diagram', 'excalidraw', 'plot'],
+        () => openResearchView('research-figures')
+      ),
+      destination(
+        'rebuttal',
+        'Rebuttal',
+        'Reviews, responses and the rebuttal PDF',
+        MessageSquareReply,
+        ['reviews', 'openreview'],
+        () => openResearchView('research-rebuttal')
       ),
       destination('library', 'Library', 'Papers and reading', BookOpen, ['papers', 'read'], () =>
         openResearchView('research-library')

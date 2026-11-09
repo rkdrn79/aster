@@ -8,6 +8,8 @@ import { installResearchHistory, resumeResearchLocation } from './research-histo
 
 export type ResearchPage =
   | 'research-writing'
+  | 'research-figures'
+  | 'research-rebuttal'
   | 'research-library'
   | 'research-experiments'
   | 'research-runs'
@@ -18,6 +20,8 @@ export type ResearchPage =
 export function isResearchPage(view: TopLevelView): view is ResearchPage {
   return (
     view === 'research-writing' ||
+    view === 'research-figures' ||
+    view === 'research-rebuttal' ||
     view === 'research-library' ||
     view === 'research-experiments' ||
     view === 'research-runs' ||
@@ -90,6 +94,8 @@ const PROJECT_PAGES = [
   'terminal',
   'research-experiments',
   'research-writing',
+  'research-figures',
+  'research-rebuttal',
   'research-library'
 ] as const
 const HOME_PAGES = ['terminal', 'research-deadlines', 'research-compute'] as const

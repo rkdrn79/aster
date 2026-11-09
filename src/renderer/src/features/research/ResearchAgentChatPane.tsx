@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Check,
   ExternalLink,
@@ -26,6 +26,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import NativeChatView from '@/components/native-chat/NativeChatView'
+import { NativeChatPlaceholderContext } from '@/components/native-chat/native-chat-placeholder-context'
 import { cn } from '@/lib/utils'
 import { useAppStore } from '@/store'
 import type { AppState } from '@/store/types'
@@ -43,11 +44,13 @@ import { useResearchLibrary } from './research-library-store'
 import {
   researchChatAvailableForHome,
   researchConversationHome,
+  researchConversationHomePage,
   type ResearchConversationHome
 } from './research-conversation-home'
 import { useDeleteResearchConversation } from './research-conversation-delete'
 import { researchWindowSurfaceTarget } from './research-window-surface'
 import { nameResearchChat } from './research-chat-label'
+import { ResearchAgentPicker, ResearchAgentPickerMenuItems } from './ResearchAgentPicker'
 
 const EMPTY_TABS: readonly Tab[] = []
 type ChatSessionTab = Tab & {
@@ -113,7 +116,9 @@ type ResearchAgentChatPaneProps = {
   home: Exclude<ResearchConversationHome, { kind: 'workbench' }>
   title: string
   sessionLabel: string
-  emptyHint: string
+  emptyHint: React.ReactNode
+  /** What the composer invites instead of the coding hint, e.g. "Describe a figure…". */
+  composerPlaceholder?: string
   visible: boolean
   className?: string
   /** Shown between the header and the chat, e.g. quick prompts. */
@@ -121,6 +126,8 @@ type ResearchAgentChatPaneProps = {
   onBind: (sessionId: string | null) => Promise<void>
   /** Resolves to an error message, or null once the new chat is bound. */
   onLaunch: (agent: TuiAgent) => Promise<string | null>
+  /** Rewrites what the user types in the bound chat, e.g. to attach the page's context. */
+  decorateMessage?: (sessionId: string, text: string) => string
 }
 
 export function ResearchAgentChatPane({
@@ -131,11 +138,13 @@ export function ResearchAgentChatPane({
   title,
   sessionLabel,
   emptyHint,
+  composerPlaceholder,
   visible,
   className,
   toolbar,
   onBind,
-  onLaunch
+  onLaunch,
+  decorateMessage
 }: ResearchAgentChatPaneProps): React.JSX.Element {
   const [launching, setLaunching] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -151,6 +160,14 @@ export function ResearchAgentChatPane({
     return researchChatAvailableForHome(placement, home)
   })
   const boundSession = sessions.find((tab) => tab.entityId === boundSessionId)
+  const boundEntityId = boundSession?.entityId
+  const decorateOutgoingText = useMemo(
+    () =>
+      decorateMessage && boundEntityId
+        ? (text: string) => decorateMessage(boundEntityId, text)
+        : undefined,
+    [decorateMessage, boundEntityId]
+  )
 
   useEffect(() => {
     void useResearchRecords.getState().load()
@@ -194,7 +211,10 @@ export function ResearchAgentChatPane({
 
   async function launch(agent: TuiAgent): Promise<void> {
     if (windowTarget) {
-      await window.api.researchWindow.revealInMain(windowTarget)
+      await window.api.researchWindow.revealInMain({
+        ...windowTarget,
+        page: researchConversationHomePage(home)
+      })
       return
     }
     if (launching) {
@@ -278,12 +298,11 @@ export function ResearchAgentChatPane({
               <DropdownMenuLabel>
                 Start a new {title.toLowerCase()} chat{windowTarget ? ' in the main window' : ''}
               </DropdownMenuLabel>
-              <DropdownMenuItem disabled={launching} onSelect={() => void launch('claude')}>
-                Claude Code
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled={launching} onSelect={() => void launch('codex')}>
-                Codex
-              </DropdownMenuItem>
+              <ResearchAgentPickerMenuItems
+                workspaceId={workspaceId}
+                disabled={launching}
+                onPick={(agent) => void launch(agent)}
+              />
               {availableSessions.length > 0 ? (
                 <>
                   <DropdownMenuSeparator />
@@ -353,43 +372,40 @@ export function ResearchAgentChatPane({
       {toolbar}
       {boundSession && sessionTarget ? (
         <div className="min-h-0 flex-1">
-          <NativeChatView
-            mode="structured"
-            tabId={boundSession.id}
-            groupId={boundSession.groupId}
-            sessionId={boundSession.entityId}
-            target={sessionTarget}
-            agent={boundSession.agentSessionAgent}
-            isVisible={visible}
-            isFocusedGroup={visible}
-          />
+          <NativeChatPlaceholderContext.Provider value={composerPlaceholder ?? null}>
+            <NativeChatView
+              mode="structured"
+              tabId={boundSession.id}
+              groupId={boundSession.groupId}
+              sessionId={boundSession.entityId}
+              target={sessionTarget}
+              agent={boundSession.agentSessionAgent}
+              isVisible={visible}
+              isFocusedGroup={visible}
+              decorateOutgoingText={decorateOutgoingText}
+            />
+          </NativeChatPlaceholderContext.Provider>
         </div>
       ) : (
         <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-5 text-center">
-          <p className="max-w-xs text-sm text-muted-foreground">{emptyHint}</p>
+          {typeof emptyHint === 'string' ? (
+            <p className="max-w-xs text-sm text-muted-foreground">{emptyHint}</p>
+          ) : (
+            emptyHint
+          )}
           {windowTarget ? (
             <Button size="sm" variant="outline" onClick={() => void launch('claude')}>
               <ExternalLink aria-hidden /> Start a chat in the main window
             </Button>
           ) : (
-            <div className="flex flex-wrap justify-center gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={launching}
-                onClick={() => void launch('claude')}
-              >
-                <Plus aria-hidden /> Claude
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={launching}
-                onClick={() => void launch('codex')}
-              >
-                <Plus aria-hidden /> Codex
-              </Button>
-            </div>
+            <ResearchAgentPicker
+              workspaceId={workspaceId}
+              disabled={launching}
+              label={`Start a ${title.toLowerCase()} chat with`}
+              onPick={(agent) => void launch(agent)}
+            >
+              <Plus aria-hidden /> Start a chat
+            </ResearchAgentPicker>
           )}
           {launching && (
             <p role="status" className="text-xs text-muted-foreground">

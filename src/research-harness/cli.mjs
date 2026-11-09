@@ -25,6 +25,9 @@ import * as proposalCli from './research-proposal-cli.mjs'
 import * as qualityCli from './research-quality-cli.mjs'
 import * as organizeCli from './research-organize-cli.mjs'
 import * as ratingsCli from './research-ratings-cli.mjs'
+import * as rebuttalCli from './research-rebuttal-cli.mjs'
+import * as figuresCli from './research-figures-cli.mjs'
+import * as wandbCli from './research-wandb-cli.mjs'
 import { HarnessError, harnessErrorCode } from './research-harness-error.mjs'
 import { appendLoopNote, readLoopLedger } from './research-loop-ledger.mjs'
 import { parseMetricValue } from './research-metric-events.mjs'
@@ -394,7 +397,17 @@ const commands = {
 }
 
 // Why: each quality lane owns its command module; this file only merges them.
-const laneClis = [briefCli, qualityCli, ratingsCli, proposalCli, organizeCli, analysisCli]
+const laneClis = [
+  briefCli,
+  qualityCli,
+  ratingsCli,
+  proposalCli,
+  organizeCli,
+  analysisCli,
+  wandbCli,
+  rebuttalCli,
+  figuresCli
+]
 const usage = coreUsage + laneClis.map((cli) => cli.usage).join('')
 const allCommands = Object.assign({}, ...laneClis.map((cli) => cli.commands), commands)
 const allTextOutput = Object.assign({}, ...laneClis.map((cli) => cli.textOutput), textOutput)
@@ -409,6 +422,14 @@ async function main(argv) {
       return
     }
     const command = allCommands[name]
+    // Why: `figures` or `figures --help` alone prints that group's commands.
+    const group = laneClis.find((cli) =>
+      Object.keys(cli.commands).some((key) => key.startsWith(`${name} `))
+    )
+    if (!command && group) {
+      process.stdout.write(group.usage)
+      return
+    }
     if (!command) {
       throw new HarnessError('usage', `Unknown command: ${name}. Run with --help for usage.`)
     }

@@ -2,7 +2,7 @@ import type { Tab } from '../../../../shared/tab-types'
 import type { ResearchDocument } from '../../../../shared/research/research-records'
 import { conversationExperiment } from '../../../../shared/research/research-conversation-context'
 
-/** Each Experiment's chats: its docked chat first, then the conversations linked to it. */
+/** Each Experiment's chats, docked and linked, in the tabs' own order. */
 export function groupExperimentConversations(
   document: ResearchDocument | null,
   tabs: readonly Tab[],
@@ -34,16 +34,8 @@ export function groupExperimentConversations(
               entry.hostId === hostId
           ))
     if (experiment) {
-      const tabs = [...(grouped.get(experiment.id) ?? []), tab]
-      // Why: the Experiment's own docked chat leads its list.
-      grouped.set(
-        experiment.id,
-        tabs.toSorted(
-          (left, right) =>
-            Number(right.entityId === experiment.experimentAgentSessionId) -
-            Number(left.entityId === experiment.experimentAgentSessionId)
-        )
-      )
+      // Why tab order: docking a chat by opening it must not move it up the list.
+      grouped.set(experiment.id, [...(grouped.get(experiment.id) ?? []), tab])
     }
   }
   return grouped

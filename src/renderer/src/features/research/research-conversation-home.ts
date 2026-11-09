@@ -2,12 +2,15 @@ import type { ResearchLibraryDocument } from '../../../../shared/research/resear
 import { libraryScopeKey } from '../../../../shared/research/research-library'
 import type { ResearchDocument } from '../../../../shared/research/research-records'
 import { writingAgentScopeKey } from '../../../../shared/research/research-conversation-context'
+import type { ResearchWindowPage } from '../../../../shared/research-page-window'
 
 export { writingAgentScopeKey }
 
 export type ResearchConversationHome =
   | { kind: 'workbench' }
   | { kind: 'library' }
+  | { kind: 'rebuttal' }
+  | { kind: 'figures' }
   | { kind: 'writing'; experimentId: string | null }
   | { kind: 'experiment'; experimentId: string }
 
@@ -45,6 +48,13 @@ export function researchConversationHome(
 ): ResearchConversationHome {
   if (!hostId || !sessionId) {
     return { kind: 'workbench' }
+  }
+  const scopeKey = writingAgentScopeKey({ hostId, workspaceId })
+  if (records?.rebuttalAgentSessionByScope?.[scopeKey] === sessionId) {
+    return { kind: 'rebuttal' }
+  }
+  if (records?.figuresAgentSessionByScope?.[scopeKey] === sessionId) {
+    return { kind: 'figures' }
   }
   const saved =
     records?.conversationHomes[researchConversationHomeKey(hostId, workspaceId, sessionId)]
@@ -89,4 +99,22 @@ export function researchConversationHome(
       entry.experimentAgentSessionId === sessionId
   )
   return docked ? { kind: 'experiment', experimentId: docked.id } : { kind: 'workbench' }
+}
+
+/** The page a dedicated chat lives on. */
+export function researchConversationHomePage(
+  home: Exclude<ResearchConversationHome, { kind: 'workbench' }>
+): ResearchWindowPage {
+  switch (home.kind) {
+    case 'library':
+      return 'research-library'
+    case 'rebuttal':
+      return 'research-rebuttal'
+    case 'figures':
+      return 'research-figures'
+    case 'writing':
+      return 'research-writing'
+    case 'experiment':
+      return 'research-experiments'
+  }
 }

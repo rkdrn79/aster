@@ -8,6 +8,7 @@
     "resources/licenses/**",
     ".anti-slop-plugin/**",
     "src/main/runtime/__fixtures__/*.timing.json",
-    "relay/**"
+    "relay/**",
+    "src/research-harness/vendor/**"
   ]
 }

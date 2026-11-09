@@ -92,6 +92,7 @@ it('shows folder-project removal even though no Git repo row exists', () => {
       project={project('group-1', 'runtime:research')}
       onRename={vi.fn()}
       onSlack={vi.fn()}
+      onWandb={vi.fn()}
       onRemoveFolderProject={removeFolderProject}
     />
   )
@@ -108,6 +109,7 @@ it('targets the owning host when identical repo ids exist locally and remotely',
       project={project(null, 'runtime:research')}
       onRename={vi.fn()}
       onSlack={vi.fn()}
+      onWandb={vi.fn()}
       onRemoveFolderProject={vi.fn()}
     />
   )
@@ -126,6 +128,7 @@ it('keeps project organization available from the project actions menu', () => {
       project={project('group-1', 'runtime:research')}
       onRename={vi.fn()}
       onSlack={vi.fn()}
+      onWandb={vi.fn()}
       onRemoveFolderProject={vi.fn()}
     />
   )
@@ -137,4 +140,20 @@ it('keeps project organization available from the project actions menu', () => {
     workspaceName: 'main',
     projectName: 'ExamplePaper'
   })
+})
+
+it('opens the W&B settings from the project actions menu', () => {
+  const onWandb = vi.fn()
+  render(
+    <ResearchProjectMenuItems
+      project={project('group-1', 'local')}
+      onRename={vi.fn()}
+      onSlack={vi.fn()}
+      onWandb={onWandb}
+      onRemoveFolderProject={vi.fn()}
+    />
+  )
+
+  fireEvent.click(screen.getByRole('button', { name: 'W&B…' }))
+  expect(onWandb).toHaveBeenCalledOnce()
 })

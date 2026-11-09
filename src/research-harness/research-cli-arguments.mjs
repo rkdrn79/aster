@@ -8,7 +8,10 @@ const commandGroups = new Set([
   'quality',
   'proposal',
   'rate',
-  'analysis'
+  'analysis',
+  'wandb',
+  'rebuttal',
+  'figures'
 ])
 const globalValues = new Set(['--project'])
 const globalBooleans = new Set(['--json', '--help'])

@@ -1,7 +1,7 @@
 import { NativeChatPromptEditor } from './NativeChatPromptEditor'
 import type { NativeChatComposerInput } from './native-chat-composer-input'
 import type { ClipboardEventHandler, KeyboardEventHandler, RefObject } from 'react'
-import { useCallback, useLayoutEffect, useMemo, useRef } from 'react'
+import { useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'react'
 import { flushSync } from 'react-dom'
 import type { useImeEnterGestureOwnership } from '@/lib/ime-composition-keyboard-event'
 import { cn } from '@/lib/utils'
@@ -25,6 +25,7 @@ import { NativeChatImageAttachmentPreview } from './NativeChatImageAttachmentPre
 import type { NativeChatComposerGoalMode } from './use-native-chat-composer-submit'
 import { translate } from '@/i18n/i18n'
 import { useNativeChatComposerDraftUnsaved } from './use-native-chat-draft-unsaved'
+import { NativeChatPlaceholderContext } from './native-chat-placeholder-context'
 
 export type NativeChatComposerFieldProps = {
   /** Pane identity published to the drop pipeline so a native file drop lands
@@ -173,6 +174,7 @@ export function NativeChatComposerField({
   agent
 }: NativeChatComposerFieldProps): React.JSX.Element {
   const draftNotSaved = useNativeChatComposerDraftUnsaved(draftScopeKey)
+  const placeholderOverride = useContext(NativeChatPlaceholderContext)
   const optionCount =
     autocomplete.mode === 'slash'
       ? autocomplete.items.length
@@ -337,7 +339,10 @@ export function NativeChatComposerField({
                       'components.native-chat.goal.placeholder',
                       'Describe your goal, define measurable outcomes for best results'
                     )
-                  : (unavailableHint ?? nativeChatComposerPlaceholder(hasPty, canSend, afterStop))
+                  : (unavailableHint ??
+                    (placeholderOverride && hasPty && canSend && !afterStop
+                      ? placeholderOverride
+                      : nativeChatComposerPlaceholder(hasPty, canSend, afterStop)))
               }
               // Why: coarse-pointer min-height follows the app's touch target convention.
               // Editable content grows naturally; the 8lh cap (plus

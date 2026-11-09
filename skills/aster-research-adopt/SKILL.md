@@ -25,7 +25,9 @@ else belongs to the user and stays where it is; the catalog only records where t
     experiments/<slug>/analysis/
     experiments/<slug>/runs/<run-id>/{run.json, metrics.jsonl, train.log, config.json?, artifacts/}
     library/papers/*.pdf              # git-ignored by .aster/.gitignore
+    rebuttal/<slug>/                  # reviews and rebuttal drafts, written by `rebuttal` commands
   <paper folder>/main.tex ...         # where it already is; registered, not moved
+  <paper folder>/figures/            # Figures page scenes (.excalidraw) with their .svg/.pdf
   src/ scripts/ configs/ data/ ...    # untouched
 ```
 
@@ -36,6 +38,7 @@ else belongs to the user and stays where it is; the catalog only records where t
 | Related-work PDFs                                                    | one existing folder: registered; else copy | `init --papers <dir>`, or copy to `.aster/library/papers/` |
 | Past results: metrics, logs, configs of one attempt                  | `.aster/experiments/<slug>/runs/<id>/`     | copy; the original stays                                   |
 | A `research/project.json` from Aster before `.aster/`                | `.aster/` and `paper/`                     | `migrate` (below)                                          |
+| Reviews of the paper being answered                                  | `.aster/rebuttal/<slug>/reviews/`          | `rebuttal new`, then `rebuttal add-review` per reviewer    |
 | Code, notebooks, datasets, checkpoints, environments, sbatch scripts | where they are                             | never moved                                                |
 
 A project with no paper yet gets `paper/main.tex` from `init` without path options.

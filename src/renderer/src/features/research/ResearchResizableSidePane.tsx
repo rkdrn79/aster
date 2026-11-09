@@ -37,6 +37,8 @@ type Props = {
   onResizingChange?: (resizing: boolean) => void
   /** Keeps the pane's content mounted while it is out of the layout. */
   hidden?: boolean
+  /** Extra classes, e.g. to float the pane over its neighbour as a drawer. */
+  className?: string
   children: ReactNode
 }
 
@@ -49,6 +51,7 @@ export function ResearchResizableSidePane({
   onWidthChange,
   onResizingChange,
   hidden = false,
+  className,
   children
 }: Props): React.JSX.Element {
   const towardEnd = side === 'start' ? 1 : -1
@@ -98,7 +101,7 @@ export function ResearchResizableSidePane({
   return (
     <div
       ref={containerRef}
-      className={cn('relative flex min-h-0 shrink-0 flex-col', hidden && 'hidden')}
+      className={cn('relative flex min-h-0 shrink-0 flex-col', className, hidden && 'hidden')}
       style={{ width }}
     >
       {children}

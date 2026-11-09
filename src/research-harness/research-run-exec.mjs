@@ -22,6 +22,7 @@ import {
   updateRunManifest
 } from './research-run-manifest.mjs'
 import { organizeEndedRun } from './research-run-summary.mjs'
+import { prepareRunWandbMirror } from './research-wandb-mirror.mjs'
 
 const forwardedSignals = ['SIGINT', 'SIGTERM', 'SIGHUP']
 
@@ -153,6 +154,21 @@ export async function execRun(projectPath, options, io) {
     }
   )
   const { paths, runId, ref } = created
+  const mirror = await prepareRunWandbMirror(
+    project,
+    {
+      experiment: created.experiment,
+      runId,
+      paths,
+      cwd,
+      config: created.manifest.artifacts?.config ? paths.config : null,
+      meta: { experiment: created.experiment, run: runId, command, commit: captured.code.commit }
+    },
+    io.notice
+  ).catch((error) => {
+    io.notice(`W&B mirroring is off for this Run: ${error.message}`)
+    return null
+  })
   const log = createWriteStream(paths.log, { flags: 'a' })
   const metrics = createWriteStream(paths.metrics, { flags: 'a' })
   // Why: a full disk or a closed reader (`| head`) must not kill the harness before it records the exit.
@@ -196,6 +212,7 @@ export async function execRun(projectPath, options, io) {
     windowsHide: true,
     env: {
       ...process.env,
+      ...mirror?.childEnvironment,
       ASTER_PROJECT: project,
       ASTER_EXPERIMENT: created.experiment,
       ASTER_RUN_ID: runId,
@@ -257,10 +274,12 @@ export async function execRun(projectPath, options, io) {
 
   try {
     if (await spawned) {
+      void mirror?.start()
       await updateRunManifest(paths, (manifest) => ({
         ...manifest,
         execution: { ...manifest.execution, observedAt: new Date().toISOString() },
-        launch: { ...manifest.launch, pid: child.pid }
+        launch: { ...manifest.launch, pid: child.pid },
+        ...(mirror ? { wandb: { ...mirror.record } } : {})
       })).catch((error) => io.notice(`could not record the pid of ${ref}: ${error.message}`))
       io.notice(`started ${ref} (pid ${child.pid}); log: ${paths.log}`)
       heartbeat = setInterval(() => {
@@ -307,6 +326,13 @@ export async function execRun(projectPath, options, io) {
       harness: { ...current.harness, status: 'observed' }
     }))
     await organizeEndedRun(project, ref, io.notice)
+    // Why after the exit is recorded: watchers see the Run end while the upload finishes.
+    const wandb = await mirror?.finish({ state, exitCode: outcome.exitCode })
+    if (wandb) {
+      await updateRunManifest(paths, (current) => ({ ...current, wandb })).catch((error) =>
+        io.notice(`could not record the W&B run of ${ref}: ${error.message}`)
+      )
+    }
     return {
       ref,
       experiment: created.experiment,
@@ -321,9 +347,11 @@ export async function execRun(projectPath, options, io) {
       mediaItems,
       code: manifest.code,
       agent: manifest.agent ?? null,
+      ...(wandb ? { wandb } : {}),
       paths
     }
   } finally {
+    mirror?.release()
     clearInterval(heartbeat)
     io.stdout.off('error', ignoreClosedReader)
     io.stderr.off('error', ignoreClosedReader)

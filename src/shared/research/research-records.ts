@@ -166,6 +166,9 @@ export const researchDocumentSchema = z
       )
       .default({}),
     writingAgentSessionByScope: z.record(z.string(), z.string().trim().min(1).max(256)).default({}),
+    // Why not a conversationHomes kind: an older app would refuse the whole document over one.
+    rebuttalAgentSessionByScope: z.record(z.string(), z.string().trim().min(1).max(256)).optional(),
+    figuresAgentSessionByScope: z.record(z.string(), z.string().trim().min(1).max(256)).optional(),
     selectedExperimentByWorkspace: z.record(z.string(), z.string().uuid()).default({}),
     selectedExperimentId: z.string().uuid().nullable(),
     selectedRunId: z.string().uuid().nullable(),

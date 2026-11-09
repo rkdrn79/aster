@@ -66,7 +66,8 @@ describe('Experiment conversations', () => {
     expect(grouped.get(experiment.id)).toBeUndefined()
   })
 
-  it('lists the docked Experiment chat first, unless the user unlinked it', () => {
+  // Regression: docking a chat by opening it moved it up the list on every click.
+  it('lists the docked Experiment chat in tab order, unless the user unlinked it', () => {
     const docked = { ...experiment, experimentAgentSessionId: 'docked-session' }
     const document = setConversationExperiment(
       { ...emptyResearchDocument(), experiments: [docked] },
@@ -80,7 +81,7 @@ describe('Experiment conversations', () => {
       groupExperimentConversations(document, tabs, 'workspace-a', 'local')
         .get(docked.id)
         ?.map((tab) => tab.id)
-    ).toEqual(['docked-tab', 'reading-tab'])
+    ).toEqual(['reading-tab', 'docked-tab'])
     const unlinked = setConversationExperiment(document, 'docked-tab', null, 'workspace-a', 'local')
     expect(
       groupExperimentConversations(unlinked, tabs, 'workspace-a', 'local')

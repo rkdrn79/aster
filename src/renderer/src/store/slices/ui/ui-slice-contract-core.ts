@@ -124,6 +124,8 @@ export type UiViewHistory =
   | 'artifacts'
   | 'mobile'
   | 'research-writing'
+  | 'research-figures'
+  | 'research-rebuttal'
   | 'research-library'
   | 'research-experiments'
   | 'research-runs'

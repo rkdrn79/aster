@@ -26,6 +26,8 @@ import { registerResearchMediaIpcHandlers } from '../research/research-media-ipc
 import { registerResearchAnalysisIpcHandlers } from '../research/research-analysis-ipc'
 import { registerConferenceDeadlinesIpcHandlers } from '../research/conference-deadlines-ipc'
 import { registerResearchLibraryIpcHandlers } from '../research/research-library-ipc'
+import { registerResearchOpenReviewIpcHandlers } from '../research/research-openreview-ipc'
+import { registerResearchFiguresIpcHandlers } from '../research/research-figures-ipc'
 import { registerResearchSlackIpcHandlers } from '../research/research-slack-ipc'
 import { registerPhoneRelaySetupIpcHandlers } from '../research/phone-relay-setup-ipc'
 
@@ -46,6 +48,8 @@ export function registerMainProcessIpcHandlers(): void {
   registerResearchAnalysisIpcHandlers()
   registerConferenceDeadlinesIpcHandlers()
   registerResearchLibraryIpcHandlers()
+  registerResearchOpenReviewIpcHandlers()
+  registerResearchFiguresIpcHandlers()
   registerResearchSlackIpcHandlers()
   registerPhoneRelaySetupIpcHandlers()
   ipcMain.handle('app:awaitFirstWindowStartupServices', async () => {

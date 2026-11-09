@@ -3,6 +3,8 @@ import type { ResearchPage } from './research-navigation'
 import { ResearchRunsPage } from './ResearchRunsPage'
 import { ResearchComparePage } from './ResearchComparePage'
 import { ResearchWritingPage } from './ResearchWritingPage'
+import { ResearchRebuttalPage } from './ResearchRebuttalPage'
+import { ResearchFiguresPage } from './ResearchFiguresPage'
 import { ResearchLibraryPage } from './ResearchLibraryPage'
 import { ResearchExperimentsPage } from './ResearchExperimentsPage'
 import { ResearchDesktopOnlyPage } from './ResearchDesktopOnlyPage'
@@ -18,6 +20,8 @@ const ResearchDeadlinesPage = lazy(() =>
 // Why: these pages read desktop-only research bridges; Writing reads files and compiles on the host.
 const DESKTOP_ONLY_PAGE_TITLES: Partial<Record<ResearchPage, string>> = {
   'research-library': 'Library',
+  'research-figures': 'Figures',
+  'research-rebuttal': 'Rebuttal',
   'research-experiments': 'Experiments',
   'research-compare': 'Compare',
   'research-runs': 'Runs',
@@ -33,6 +37,10 @@ export function ResearchPreviewPage({ page }: { page: ResearchPage }): React.JSX
   switch (page) {
     case 'research-writing':
       return <ResearchWritingPage />
+    case 'research-figures':
+      return <ResearchFiguresPage />
+    case 'research-rebuttal':
+      return <ResearchRebuttalPage />
     case 'research-library':
       return <ResearchLibraryPage />
     case 'research-experiments':

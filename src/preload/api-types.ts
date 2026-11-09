@@ -85,6 +85,8 @@ import type { ResearchAnalysisApi } from './api/research-analysis-bridge'
 import type { ResearchWatchesApi } from './api/research-watches-bridge'
 import type { ConferenceDeadlinesApi } from './api/conference-deadlines-bridge'
 import type { ResearchLibraryApi } from './api/research-library-bridge'
+import type { ResearchOpenReviewApi } from './api/research-openreview-bridge'
+import type { ResearchFiguresApi } from './api/research-figures-bridge'
 import type { ResearchWindowApi } from './api/research-window-bridge'
 import type { ResearchSlackApi } from './api/research-slack-bridge'
 
@@ -202,6 +204,10 @@ export type PreloadApi = {
   researchWatches: ResearchWatchesApi
   conferenceDeadlines: ConferenceDeadlinesApi
   researchLibrary: ResearchLibraryApi
+  /** Added with the Rebuttal page; older preloads lack it, so renderers feature-detect it. */
+  researchOpenReview?: ResearchOpenReviewApi
+  /** Added with the Figures page; older preloads lack it, so renderers feature-detect it. */
+  researchFigures?: ResearchFiguresApi
   researchWindow: ResearchWindowApi
   researchSlack: ResearchSlackApi
   speech: SpeechApi

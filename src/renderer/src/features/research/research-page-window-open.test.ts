@@ -16,7 +16,9 @@ vi.mock('./research-workspace-context', () => ({
 import {
   RESEARCH_PAGE_DRAG_TYPE,
   openResearchPageInNewWindow,
-  researchPageDragProps
+  openResearchProjectInNewWindow,
+  researchPageDragProps,
+  researchProjectDragProps
 } from './research-page-window-open'
 
 const openWindow = vi.fn(async () => true)
@@ -76,5 +78,22 @@ describe('research page windows from the sidebar', () => {
       expect.objectContaining({ page: 'research-experiments' }),
       { fromDrag: true }
     )
+  })
+
+  it('opens a whole project on its chats, from the menu or a dragged Home row', () => {
+    const workspace = { id: 'repo-2::/data/other', executionHostId: 'runtime:env-2' }
+    openResearchProjectInNewWindow(workspace)
+    expect(openWindow).toHaveBeenLastCalledWith(
+      { page: 'research-chats', workspaceId: 'repo-2::/data/other', hostId: 'runtime:env-2' },
+      {}
+    )
+
+    // @ts-expect-error -- a partial drag event: the handler reads only dataTransfer.
+    researchProjectDragProps(workspace).onDragEnd?.(dragEvent('none'))
+    expect(openWindow).toHaveBeenLastCalledWith(
+      expect.objectContaining({ page: 'research-chats', workspaceId: 'repo-2::/data/other' }),
+      { fromDrag: true }
+    )
+    expect(researchProjectDragProps(undefined)).toEqual({})
   })
 })

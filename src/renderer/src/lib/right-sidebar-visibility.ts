@@ -15,6 +15,8 @@ const RIGHT_SIDEBAR_SUPPRESSED_VIEWS = new Set<ActiveView>([
   'artifacts',
   'mobile',
   'research-writing',
+  'research-figures',
+  'research-rebuttal',
   'research-library',
   'research-experiments',
   'research-runs',

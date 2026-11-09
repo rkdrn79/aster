@@ -13,6 +13,8 @@ const TOP_LEVEL_VIEW_LOOKUP: Record<TopLevelView, true> = {
   artifacts: true,
   mobile: true,
   'research-writing': true,
+  'research-figures': true,
+  'research-rebuttal': true,
   'research-library': true,
   'research-experiments': true,
   'research-runs': true,

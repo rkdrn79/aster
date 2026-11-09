@@ -180,16 +180,16 @@
     {
       "name": "aster-research-adopt",
       "sourcePath": "skills/aster-research-adopt",
-      "packageDigest": "c84bdb91c5e7c91ce551e439fc8083af770daceaeb70234173351025da5b9312",
+      "packageDigest": "049a2df4bae819e8c92c8903ddc61e77bad034b1347d1acc3af9acd7af176b2d",
       "files": [
         {
           "path": "SKILL.md",
-          "size": 13056,
+          "size": 13429,
           "executable": false,
           "classification": "text",
-          "exactSha256": "bdd66a36c5e3ab912fcc5218f4ab3679f39ba9313099d69939205827ffb86b8f",
-          "textNormalizedSha256": "bdd66a36c5e3ab912fcc5218f4ab3679f39ba9313099d69939205827ffb86b8f",
-          "identitySha256": "bdd66a36c5e3ab912fcc5218f4ab3679f39ba9313099d69939205827ffb86b8f"
+          "exactSha256": "fa09e4e06871170693e3afeeec1c465f348a3cf206426352593365878cae36e3",
+          "textNormalizedSha256": "fa09e4e06871170693e3afeeec1c465f348a3cf206426352593365878cae36e3",
+          "identitySha256": "fa09e4e06871170693e3afeeec1c465f348a3cf206426352593365878cae36e3"
         }
       ]
     },
@@ -228,16 +228,16 @@
     {
       "name": "aster-research-track",
       "sourcePath": "skills/aster-research-track",
-      "packageDigest": "31fa4fccc1ea35f2f271aa657a779eb9e81e64a7a8bfae863a6f8dcc461e8fee",
+      "packageDigest": "501ebe186a9103875a8da5296d5b6c9f2ec2e3b7e6cc4200de4697f12c396c51",
       "files": [
         {
           "path": "SKILL.md",
-          "size": 15536,
+          "size": 47649,
           "executable": false,
           "classification": "text",
-          "exactSha256": "36ef997d965d3902d9255d483cdda12d17323af5869038c7b2f9dd82512e1762",
-          "textNormalizedSha256": "36ef997d965d3902d9255d483cdda12d17323af5869038c7b2f9dd82512e1762",
-          "identitySha256": "36ef997d965d3902d9255d483cdda12d17323af5869038c7b2f9dd82512e1762"
+          "exactSha256": "593b84c5910a5e493059c73673436331c73fe8c9199f09ebf96d3dd6f6f45429",
+          "textNormalizedSha256": "593b84c5910a5e493059c73673436331c73fe8c9199f09ebf96d3dd6f6f45429",
+          "identitySha256": "593b84c5910a5e493059c73673436331c73fe8c9199f09ebf96d3dd6f6f45429"
         }
       ]
     },

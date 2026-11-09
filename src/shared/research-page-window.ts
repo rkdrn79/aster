@@ -1,7 +1,13 @@
-/** Research pages that can open alone in their own window, pinned to one workspace. */
+/**
+ * The sections of a project window: one window per project, pinned to its workspace. Chats lists
+ * the project's agent chats; the others are the Research pages of the same names.
+ */
 export const RESEARCH_WINDOW_PAGES = [
+  'research-chats',
   'research-experiments',
   'research-writing',
+  'research-figures',
+  'research-rebuttal',
   'research-library'
 ] as const
 
@@ -15,8 +21,11 @@ export type ResearchWindowTarget = {
 }
 
 export const RESEARCH_WINDOW_PAGE_LABELS: Record<ResearchWindowPage, string> = {
+  'research-chats': 'Chats',
   'research-experiments': 'Experiments',
   'research-writing': 'Writing',
+  'research-figures': 'Figures',
+  'research-rebuttal': 'Rebuttal',
   'research-library': 'Library'
 }
 

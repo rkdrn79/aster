@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron'
 import type { ResearchWindowTarget } from '../../shared/research-page-window'
+import type { TuiAgent } from '../../shared/tui-agent'
 
 export type ResearchWindowApi = {
   /** Main window only. `fromDrag` opens it only when the pointer is outside the main window. */
@@ -10,10 +11,16 @@ export type ResearchWindowApi = {
   requestState: () => Promise<void>
   /** Research window: shows the same page in the main window, for what only that window can do. */
   revealInMain: (target: ResearchWindowTarget) => Promise<void>
+  /** Research window: the main window starts a chat in this project, staying where it is. */
+  launchChat: (target: ResearchWindowTarget, agent: TuiAgent) => Promise<void>
   onState: (callback: (state: unknown) => void) => () => void
   onStateRequested: (callback: () => void) => () => void
   onAllClosed: (callback: () => void) => () => void
   onRevealInMain: (callback: (target: ResearchWindowTarget) => void) => () => void
+  /** Main window: a research window asked for a chat in its project. */
+  onLaunchChat: (callback: (target: ResearchWindowTarget, agent: TuiAgent) => void) => () => void
+  /** Research window: show this section, when the project's window was opened again. */
+  onShowPage: (callback: (page: unknown) => void) => () => void
 }
 
 function subscribe<T extends unknown[]>(
@@ -31,9 +38,13 @@ export const researchWindowApi: ResearchWindowApi = {
   publishState: (state) => ipcRenderer.invoke('researchWindow:publishState', state),
   requestState: () => ipcRenderer.invoke('researchWindow:requestState'),
   revealInMain: (target) => ipcRenderer.invoke('researchWindow:revealInMain', target),
+  launchChat: (target, agent) => ipcRenderer.invoke('researchWindow:launchChat', target, agent),
   onState: (callback) => subscribe<[unknown]>('researchWindow:state', callback),
   onStateRequested: (callback) => subscribe<[]>('researchWindow:stateRequested', callback),
   onAllClosed: (callback) => subscribe<[]>('researchWindow:allClosed', callback),
   onRevealInMain: (callback) =>
-    subscribe<[ResearchWindowTarget]>('researchWindow:revealInMain', callback)
+    subscribe<[ResearchWindowTarget]>('researchWindow:revealInMain', callback),
+  onLaunchChat: (callback) =>
+    subscribe<[ResearchWindowTarget, TuiAgent]>('researchWindow:launchChat', callback),
+  onShowPage: (callback) => subscribe<[unknown]>('researchWindow:showPage', callback)
 }

@@ -19,6 +19,7 @@ import {
 } from './research-home-project-actions'
 import { ResearchComputeProjectDot } from './ResearchComputeProjectDot'
 import { ResearchSlackProjectDialog } from './ResearchSlackProjectDialog'
+import { ResearchWandbProjectDialog } from './ResearchWandbProjectDialog'
 
 const WORKSPACES_SHOWN = 4
 
@@ -70,6 +71,7 @@ export function ResearchProjectCard({
   const rename = useResearchProjectRename(project)
   const removeFolderProject = useResearchFolderProjectRemoval(project)
   const [slackOpen, setSlackOpen] = useState(false)
+  const [wandbOpen, setWandbOpen] = useState(false)
   const [contextPoint, setContextPoint] = useState<{ x: number; y: number } | null>(null)
   const parts = researchHomeActivityParts(activity, now)
 
@@ -140,6 +142,7 @@ export function ResearchProjectCard({
               project={project}
               onRename={rename.open}
               onSlack={() => setSlackOpen(true)}
+              onWandb={() => setWandbOpen(true)}
               onRemoveFolderProject={removeFolderProject.open}
             />
           </DropdownMenuContent>
@@ -167,6 +170,7 @@ export function ResearchProjectCard({
             project={project}
             onRename={rename.open}
             onSlack={() => setSlackOpen(true)}
+            onWandb={() => setWandbOpen(true)}
             onRemoveFolderProject={removeFolderProject.open}
           />
         </DropdownMenuContent>
@@ -194,6 +198,7 @@ export function ResearchProjectCard({
       {rename.dialog}
       {removeFolderProject.dialog}
       <ResearchSlackProjectDialog project={project} open={slackOpen} onOpenChange={setSlackOpen} />
+      <ResearchWandbProjectDialog project={project} open={wandbOpen} onOpenChange={setWandbOpen} />
     </div>
   )
 }

@@ -15,6 +15,7 @@ import { openResearchView } from './research-navigation'
 import { experimentSwitchPage, openResearchExperimentPage } from './research-experiment-page'
 import { useExperimentChatPanel } from './research-experiment-agent-chat'
 import { researchConversationHome } from './research-conversation-home'
+import { openProjectAgentPage } from './research-project-agent-page'
 import { useResearchLibrary } from './research-library-store'
 import { requestWritingAgentFocus } from './research-writing-agent-focus'
 import { projectWritingRecordId } from './research-writing-project'
@@ -298,6 +299,8 @@ export function ExperimentExplorer({
         })
       )
       openResearchView('research-writing')
+    } else if ((home.kind === 'rebuttal' || home.kind === 'figures') && context.hostId) {
+      openProjectAgentPage(home.kind, { hostId: context.hostId, workspaceId: tab.worktreeId })
     } else {
       const state = useAppStore.getState()
       state.setActiveView('terminal')

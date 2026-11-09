@@ -102,6 +102,8 @@ import { researchAnalysisApi } from './api/research-analysis-bridge'
 import { researchWatchesApi } from './api/research-watches-bridge'
 import { conferenceDeadlinesApi } from './api/conference-deadlines-bridge'
 import { researchLibraryApi } from './api/research-library-bridge'
+import { researchOpenReviewApi } from './api/research-openreview-bridge'
+import { researchFiguresApi } from './api/research-figures-bridge'
 import { researchSlackApi } from './api/research-slack-bridge'
 import { researchWindowApi } from './api/research-window-bridge'
 
@@ -221,6 +223,8 @@ const api = {
   researchWatches: researchWatchesApi,
   conferenceDeadlines: conferenceDeadlinesApi,
   researchLibrary: researchLibraryApi,
+  researchOpenReview: researchOpenReviewApi,
+  researchFigures: researchFiguresApi,
   researchSlack: researchSlackApi,
   researchWindow: researchWindowApi,
   agentStatus: agentStatusApi,

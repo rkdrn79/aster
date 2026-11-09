@@ -10,11 +10,20 @@ describe('parseResearchSidebarSections', () => {
       workbench: true,
       experiments: true,
       writing: false,
+      figures: false,
+      rebuttal: false,
       library: false
     })
     expect(parseResearchSidebarSections(null)).toEqual(DEFAULT_RESEARCH_SIDEBAR_SECTIONS)
     expect(
       parseResearchSidebarSections({ experiments: false, writing: true, library: 'yes' })
-    ).toEqual({ workbench: true, experiments: false, writing: true, library: false })
+    ).toEqual({
+      workbench: true,
+      experiments: false,
+      writing: true,
+      figures: false,
+      rebuttal: false,
+      library: false
+    })
   })
 })

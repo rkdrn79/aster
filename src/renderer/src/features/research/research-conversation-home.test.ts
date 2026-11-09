@@ -10,9 +10,12 @@ import {
 import {
   researchChatAvailableForHome,
   researchConversationHome,
-  researchConversationHomeKey
+  researchConversationHomeKey,
+  researchConversationHomePage
 } from './research-conversation-home'
 import { withWritingAgentSession } from './research-writing-agent-session'
+import { withRebuttalAgentSession } from './research-rebuttal-agent-session'
+import { withFiguresAgentSession } from './research-figures-agent-session'
 
 const experiment = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -156,5 +159,45 @@ describe('research conversation home', () => {
         'writing-b'
       )
     ).toEqual({ kind: 'writing', experimentId: null })
+  })
+
+  it('keeps the Rebuttal chat on its page in a document older apps still read', () => {
+    const scope = { hostId: 'local', workspaceId: 'workspace-a' }
+    const saved = {
+      ...emptyResearchDocument(),
+      conversationHomes: {
+        [researchConversationHomeKey('local', 'workspace-a', 'chat-1')]: {
+          kind: 'library' as const
+        }
+      }
+    }
+    const records = withRebuttalAgentSession(saved, scope, 'chat-1')
+    expect(researchConversationHome(records, null, 'local', 'workspace-a', 'chat-1')).toEqual({
+      kind: 'rebuttal'
+    })
+    expect(
+      researchChatAvailableForHome({ kind: 'rebuttal' }, { kind: 'writing', experimentId: null })
+    ).toBe(false)
+    expect(records.conversationHomes).toEqual({})
+    const { rebuttalAgentSessionByScope: _added, ...older } = records
+    expect(researchDocumentSchema.safeParse(older).success).toBe(true)
+    expect(researchDocumentSchema.safeParse(records).success).toBe(true)
+    const unbound = withRebuttalAgentSession(records, scope, null)
+    expect(researchConversationHome(unbound, null, 'local', 'workspace-a', 'chat-1')).toEqual({
+      kind: 'workbench'
+    })
+  })
+  it('moves a chat to Figures when it is bound there, even from Rebuttal', () => {
+    const scope = { hostId: 'local', workspaceId: 'workspace-a' }
+    const rebuttal = withRebuttalAgentSession(emptyResearchDocument(), scope, 'chat-1')
+    const records = withFiguresAgentSession(rebuttal, scope, 'chat-1')
+    expect(researchConversationHome(records, null, 'local', 'workspace-a', 'chat-1')).toEqual({
+      kind: 'figures'
+    })
+    expect(researchConversationHomePage({ kind: 'figures' })).toBe('research-figures')
+    expect(records.rebuttalAgentSessionByScope).toEqual({})
+    const { figuresAgentSessionByScope: _added, ...older } = records
+    expect(researchDocumentSchema.safeParse(older).success).toBe(true)
+    expect(researchDocumentSchema.safeParse(records).success).toBe(true)
   })
 })

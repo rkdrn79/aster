@@ -23,8 +23,9 @@ export function useResearchPaletteShortcut(enabled: boolean): void {
       const target = event.target instanceof Element ? event.target : null
       const paletteOpen = state.activeModal === 'worktree-palette'
       if (
-        // Why: terminals clear and code editors start chords on the same key.
-        target?.closest('.xterm, .monaco-editor') ||
+        // Why: terminals clear and code editors start chords on the same key; on the Figures
+        // canvas it asks about the selection, and that page opens the palette when none is.
+        target?.closest('.xterm, .monaco-editor, [data-research-figure-canvas]') ||
         isEventTargetInsideFloatingWorkspacePanel(event.target) ||
         (state.activeModal !== 'none' && !paletteOpen)
       ) {

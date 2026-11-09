@@ -23,6 +23,7 @@ import { updateResearchDelegation } from './research-delegation-launch'
 import { researchConversationHome } from './research-conversation-home'
 import { libraryScopeKey } from '../../../../shared/research/research-library'
 import { requestLibraryAgentFocus } from './research-library-agent-focus'
+import { openProjectAgentPage } from './research-project-agent-page'
 import { requestWritingAgentFocus } from './research-writing-agent-focus'
 import { projectWritingRecordId } from './research-writing-project'
 import { researchLiveAgentTasks, researchLiveTaskDismissalKey } from './research-live-agent-tasks'
@@ -64,6 +65,10 @@ async function openParentTask(
   if (home.kind === 'writing') {
     requestWritingAgentFocus(projectWritingRecordId({ hostId: hostId ?? 'local', workspaceId }))
     openResearchView('research-writing')
+    return
+  }
+  if ((home.kind === 'rebuttal' || home.kind === 'figures') && hostId) {
+    openProjectAgentPage(home.kind, { hostId, workspaceId })
     return
   }
   if (home.kind === 'library' && hostId) {

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { researchRunWandbSchema } from './research-wandb'
 
 const optionalText = z.string().trim().min(1).nullable().optional()
 const optionalTime = z.iso.datetime({ offset: true }).nullable().optional()
@@ -118,7 +119,8 @@ export const researchRunManifestSchema = z.object({
       split: optionalText,
       evaluatorRevision: optionalText
     })
-    .optional()
+    .optional(),
+  wandb: researchRunWandbSchema.optional().catch(undefined)
 })
 
 export type ResearchRunManifest = z.infer<typeof researchRunManifestSchema>

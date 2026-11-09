@@ -196,6 +196,7 @@ export const ASTER_GITIGNORE = `# Written by Aster. Run evidence (run.json, metr
 local/
 cache/
 latex-build/
+rebuttal/
 library/papers/*
 !library/papers/.gitkeep
 experiments/*/runs/*/train.log

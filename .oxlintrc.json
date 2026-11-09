@@ -263,6 +263,7 @@
     "**/dist",
     "**/out",
     "tests/e2e/.cross-version-checkouts",
-    "relay"
+    "relay",
+    "src/research-harness/vendor/**"
   ]
 }

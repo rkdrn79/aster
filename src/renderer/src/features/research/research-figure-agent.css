@@ -1,0 +1,23 @@
+/* Agent feedback on the figure canvas: a write's flash and the turn's change marks. */
+@keyframes research-figure-flash {
+  0% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.research-figure-flash {
+  animation: research-figure-flash 1.5s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .research-figure-flash {
+    animation-duration: 0.01s;
+    animation-delay: 1.5s;
+  }
+}

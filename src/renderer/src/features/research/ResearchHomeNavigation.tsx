@@ -10,6 +10,7 @@ import { ResearchOptionsMenu } from './ResearchOptionsMenu'
 import { ResearchComputeProjectDot } from './ResearchComputeProjectDot'
 import { ResearchDeadlineNavBadge } from './research-deadline-nav-badge'
 import { ResearchProjectRowMenu } from './ResearchProjectRowMenu'
+import { researchProjectDragProps } from './research-page-window-open'
 
 /** Home sidebar: everything that spans projects, plus a way into each one. */
 export function ResearchHomeNavigation(): React.JSX.Element {
@@ -68,6 +69,7 @@ export function ResearchHomeNavigation(): React.JSX.Element {
                 size="sm"
                 className="min-w-0 flex-1 justify-start"
                 title={project.name}
+                {...researchProjectDragProps(project.workspaces[0])}
                 onClick={() => enterResearchWorkspace(project.workspaces[0])}
               >
                 <ResearchComputeProjectDot color={project.badgeColor} />

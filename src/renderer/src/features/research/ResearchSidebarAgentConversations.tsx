@@ -5,13 +5,7 @@ import type { TuiAgent } from '../../../../shared/tui-agent'
 import type { Tab } from '../../../../shared/tab-types'
 import { libraryScopeKey } from '../../../../shared/research/research-library'
 import { conversationExperiment } from '../../../../shared/research/research-conversation-context'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { ResearchAgentPicker } from './ResearchAgentPicker'
 import { useAppStore } from '@/store'
 import { researchChatSessionTabs } from './ResearchAgentChatPane'
 import { ResearchConversationRow } from './ResearchConversationRow'
@@ -26,13 +20,24 @@ import { requestWritingAgentFocus } from './research-writing-agent-focus'
 import { bindWritingAgentSession, launchWritingAgent } from './research-writing-agent-session'
 import { projectWritingRecordId, selectWritingOwner } from './research-writing-project'
 import { researchConversationHome, writingAgentScopeKey } from './research-conversation-home'
+import {
+  bindRebuttalAgentSession,
+  launchRebuttalAgent,
+  rebuttalAgentSessionId
+} from './research-rebuttal-agent-session'
+import {
+  bindFiguresAgentSession,
+  figuresAgentSessionId,
+  launchFiguresAgent
+} from './research-figures-agent-session'
+import { openProjectAgentPage } from './research-project-agent-page'
 
 const NO_TABS: Tab[] = []
 
 export function ResearchSidebarAgentConversations({
   kind
 }: {
-  kind: 'writing' | 'library'
+  kind: 'writing' | 'figures' | 'rebuttal' | 'library'
 }): React.JSX.Element {
   const context = useAppStore(useShallow(selectResearchWorkspaceContext))
   const tabs = useAppStore((state) =>
@@ -68,25 +73,28 @@ export function ResearchSidebarAgentConversations({
         ? (records?.writingAgentSessionByScope[writingAgentScopeKey(scope)] ??
           experiment?.writingAgentSessionId)
         : undefined
-      : scope
-        ? library?.readingAgentSessionByScope[scopeKey ?? '']
-        : undefined
+      : kind === 'rebuttal' || kind === 'figures'
+        ? scope
+          ? kind === 'rebuttal'
+            ? rebuttalAgentSessionId(records, scope)
+            : figuresAgentSessionId(records, scope)
+          : undefined
+        : scope
+          ? library?.readingAgentSessionByScope[scopeKey ?? '']
+          : undefined
   const dedicatedTabs = context.hostId
-    ? researchChatSessionTabs(useAppStore.getState(), tabs, context.hostId)
-        .filter((entry) => {
-          const home = researchConversationHome(
-            records,
-            library,
-            context.hostId,
-            context.workspaceId ?? '',
-            entry.entityId
-          )
-          return kind === 'library' ? home.kind === 'library' : home.kind === 'writing'
-        })
-        .sort(
-          (first, second) =>
-            Number(second.entityId === sessionId) - Number(first.entityId === sessionId)
+    ? researchChatSessionTabs(useAppStore.getState(), tabs, context.hostId).filter((entry) => {
+        const home = researchConversationHome(
+          records,
+          library,
+          context.hostId,
+          context.workspaceId ?? '',
+          entry.entityId
         )
+        // Why no sort: picking a chat binds it, and moving the bound one up reordered the list
+        // on every click; the list keeps the tabs' own order and marks the bound chat instead.
+        return home.kind === kind
+      })
     : []
   const boundTab = dedicatedTabs.find((entry) => entry.entityId === sessionId)
 
@@ -99,6 +107,8 @@ export function ResearchSidebarAgentConversations({
     if (kind === 'writing' && scope) {
       requestWritingAgentFocus(projectWritingRecordId(scope))
       openResearchView('research-writing')
+    } else if ((kind === 'rebuttal' || kind === 'figures') && scope) {
+      openProjectAgentPage(kind, scope)
     } else if (kind === 'library' && scope) {
       requestLibraryAgentFocus(libraryScopeKey(scope))
       openResearchView('research-library')
@@ -115,9 +125,13 @@ export function ResearchSidebarAgentConversations({
       const failure =
         kind === 'writing' && scope
           ? await launchWritingAgent(scope, agent)
-          : kind === 'library' && scope
-            ? await launchReadingChat(scope, agent)
-            : 'Choose a workspace first.'
+          : kind === 'rebuttal' && scope
+            ? await launchRebuttalAgent(scope, agent)
+            : kind === 'figures' && scope
+              ? await launchFiguresAgent(scope, agent)
+              : kind === 'library' && scope
+                ? await launchReadingChat(scope, agent)
+                : 'Choose a workspace first.'
       if (failure) {
         setError(failure)
       } else {
@@ -134,6 +148,10 @@ export function ResearchSidebarAgentConversations({
     try {
       if (kind === 'writing' && scope) {
         await bindWritingAgentSession(scope, tab.entityId)
+      } else if (kind === 'rebuttal' && scope) {
+        await bindRebuttalAgentSession(scope, tab.entityId)
+      } else if (kind === 'figures' && scope) {
+        await bindFiguresAgentSession(scope, tab.entityId)
       } else if (kind === 'library' && scope) {
         await bindReadingSession(scope, tab.entityId)
       }
@@ -190,21 +208,26 @@ export function ResearchSidebarAgentConversations({
             ? 'Choose a project to start writing.'
             : kind === 'writing'
               ? 'No writing chat yet.'
-              : 'No reading chat yet.'}
+              : kind === 'rebuttal'
+                ? 'No rebuttal chat yet.'
+                : kind === 'figures'
+                  ? 'No figure chat yet.'
+                  : 'No reading chat yet.'}
         </p>
       )}
       {scope ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="xs" variant="ghost" className="w-full justify-start" disabled={launching}>
-              <Plus aria-hidden /> {boundTab ? 'New agent chat' : 'Start agent chat'}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onSelect={() => void launch('claude')}>Claude Code</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => void launch('codex')}>Codex</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ResearchAgentPicker
+          workspaceId={scope.workspaceId}
+          disabled={launching}
+          label="Start a chat with"
+          size="xs"
+          variant="ghost"
+          align="start"
+          className="w-full justify-start"
+          onPick={(agent) => void launch(agent)}
+        >
+          <Plus aria-hidden /> {boundTab ? 'New agent chat' : 'Start agent chat'}
+        </ResearchAgentPicker>
       ) : null}
       {error ? (
         <p role="alert" className="px-2 text-xs text-destructive">

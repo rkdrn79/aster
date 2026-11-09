@@ -1,0 +1,9 @@
+/* Why: the Figures page asks for a visible 2 px focus ring on every control around the canvas;
+   text fields keep their own ring, and Excalidraw's controls keep their styling. */
+[data-figures-shell]
+  :is(button, a, summary, [role='tab'], [role='radio'], [role='separator']):not(
+    .excalidraw *
+  ):focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}

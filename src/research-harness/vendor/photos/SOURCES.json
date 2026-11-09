@@ -1,0 +1,98 @@
+{
+  "cat": {
+    "file": "cat.jpg",
+    "title": "File:Domestic shorthair cat portrait in grass.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Domestic_shorthair_cat_portrait_in_grass.jpg",
+    "author": "&lt;a href=\"https://pixnio.com/media/grey-domestic-cat-nose-mouth-whiskers\"&gt;Photo&lt;/a&gt; by &lt;a href=\"https://pixnio.com/author/milim84\"&gt;Marko Milivojevic&lt;/a&gt; on &lt;a href=\"https://pixnio.com/\"&gt;Pixnio&lt;/a&gt;",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/cat.jpg"
+  },
+  "dog": {
+    "file": "dog.jpg",
+    "title": "File:Mixed-breed dogs in Serles.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Mixed-breed_dogs_in_Serles.jpg",
+    "author": "Wilfredor",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/dog.jpg"
+  },
+  "bird": {
+    "file": "bird.jpg",
+    "title": "File:Eisvogel kingfisher.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Eisvogel_kingfisher.jpg",
+    "author": "Frank-2.0",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/bird.jpg"
+  },
+  "street": {
+    "file": "street.jpg",
+    "title": "File:137th Street – City College northbound elevator structure.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:137th_Street_%E2%80%93_City_College_northbound_elevator_structure.jpg",
+    "author": "Reconrabbit",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/street.jpg"
+  },
+  "landscape": {
+    "file": "landscape.jpg",
+    "title": "File:Mountain landscape in kerala.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Mountain_landscape_in_kerala.jpg",
+    "author": "Karthika Manikandan",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/landscape.jpg"
+  },
+  "beach": {
+    "file": "beach.jpg",
+    "title": "File:Parasols, Evening, Beach, Rincon de la Victoria, Andalusia, Spain.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Parasols,_Evening,_Beach,_Rincon_de_la_Victoria,_Andalusia,_Spain.jpg",
+    "author": "Jebulon",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/beach.jpg"
+  },
+  "kitchen": {
+    "file": "kitchen.jpg",
+    "title": "File:Kitchen in Earthship Brighton.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Kitchen_in_Earthship_Brighton.jpg",
+    "author": "Andy Li",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/kitchen.jpg"
+  },
+  "robot": {
+    "file": "robot.jpg",
+    "title": "File:2024-07-26 Rechenwerk, Halle (Saale), 07.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:2024-07-26_Rechenwerk,_Halle_(Saale),_07.jpg",
+    "author": "Stefan Kühn",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/robot.jpg"
+  },
+  "car": {
+    "file": "car.jpg",
+    "title": "File:Auto op de Place de l'Étoile, in de koplamp is de weerspiegeling van de Arc de T, Bestanddeelnr 191-0354.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Auto_op_de_Place_de_l%27%C3%89toile,_in_de_koplamp_is_de_weerspiegeling_van_de_Arc_de_T,_Bestanddeelnr_191-0354.jpg",
+    "author": "Willem van de Poll",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/car.jpg"
+  },
+  "food": {
+    "file": "food.jpg",
+    "title": "File:Food at Tokyu Plaza Célavi.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Food_at_Tokyu_Plaza_C%C3%A9lavi.jpg",
+    "author": "Syced",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/food.jpg"
+  },
+  "flower": {
+    "file": "flower.jpg",
+    "title": "File:Catopsilia pomona 3 by kadavoor.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Catopsilia_pomona_3_by_kadavoor.jpg",
+    "author": "Jeevan Jose, Kerala, India",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/flower.jpg"
+  },
+  "building": {
+    "file": "building.jpg",
+    "title": "File:Facade of the Conjunto Nacional cropped version.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Facade_of_the_Conjunto_Nacional_cropped_version.jpg",
+    "author": "Wilfredor",
+    "licence": "CC0 1.0 (public domain dedication)",
+    "hd": "hd/building.jpg"
+  }
+}

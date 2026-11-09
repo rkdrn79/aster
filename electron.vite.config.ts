@@ -6,7 +6,7 @@ import type { Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { createBootstrapFatalExitBanner } from './config/build-plugins/bootstrap-fatal-exit-banner'
-import { createPdfjsViewerAssetsPlugin } from './config/build-plugins/pdfjs-viewer-assets'
+import { createRendererAssetPlugins } from './config/build-plugins/renderer-asset-plugins'
 import { createProcessHostDevRebuildPlugin } from './config/build-plugins/process-host-dev-rebuild'
 import { createViteCacheRetentionPlugin } from './config/build-plugins/vite-cache-retention'
 import { MAIN_BUILD_ENTRY_POINTS } from './config/build-plugins/main-build-entry-points'
@@ -308,7 +308,7 @@ export const electronViteConfig: UserConfig = {
     plugins: [
       react(),
       tailwindcss(),
-      createPdfjsViewerAssetsPlugin(),
+      ...createRendererAssetPlugins(),
       createViteCacheRetentionPlugin(),
       createProductNameHtmlPlugin()
     ],

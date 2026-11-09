@@ -56,3 +56,38 @@ describe('the structured composer image gate', () => {
     expect(composerAcceptsImages(undefined)).toBe(true)
   })
 })
+
+describe('the structured composer send', () => {
+  it('sends what the page decorates the typed text into', () => {
+    const sent: string[] = []
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: the send path reads only send and acceptsImages.
+    const controller = {
+      acceptsImages: true,
+      send: (text: string) => {
+        sent.push(text)
+        return true
+      }
+    } as unknown as ReturnType<typeof useStructuredAgentSession>
+    const { result } = renderHook(() =>
+      useNativeChatStructuredComposerTransport({
+        props: {
+          agent: 'grok',
+          sessionId: 'session-1',
+          target: { kind: 'local' },
+          decorateOutgoingText: (text) => `${text} [with context]`
+        },
+        controller,
+        sendThroughLaunch: (_text, _images, send) => send(),
+        starting: false,
+        transportEnabled: true,
+        worktreeId: undefined,
+        optionPickerRequest: null,
+        setOptionPickerRequest: () => {},
+        onError: () => {},
+        onSubmitted: () => {}
+      })
+    )
+    result.current.send('make it wider', [])
+    expect(sent).toEqual(['make it wider [with context]'])
+  })
+})

@@ -59,6 +59,8 @@ const PAGE_TITLES: Record<Exclude<TopLevelView, 'terminal'>, string> = {
   artifacts: 'Artifacts',
   mobile: 'Phone',
   'research-writing': 'Writing',
+  'research-figures': 'Figures',
+  'research-rebuttal': 'Rebuttal',
   'research-library': 'Library',
   'research-experiments': 'Experiments',
   'research-runs': 'Runs',

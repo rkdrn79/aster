@@ -15,6 +15,23 @@ its license in its own folder.
 2025-present Mohamed Boudra, used under the Apache License, Version 2.0. The full license text is
 in `relay/LICENSE`, and `relay/README.md` lists the changes.
 
+## Figure kit assets
+
+The Figure kit in `src/research-harness/vendor/` bundles:
+
+- **MathJax 3.2.2** (`vendor/mathjax/`), copyright The MathJax Consortium, under the Apache
+  License, Version 2.0 (full text in `vendor/mathjax/LICENSE`). Only the TeX input and SVG output
+  are bundled, by `config/scripts/vendor-figure-mathjax.mjs`.
+- **Noto Emoji** images (`vendor/icons/noto/`), copyright Google LLC, under the Apache License,
+  Version 2.0 (full text in `vendor/icons/noto/LICENSE`), taken from googlefonts/noto-emoji at
+  commit 41e31b1, the last whose images were released under that license.
+- **Lucide** icons (`vendor/icons/lucide/`), copyright Lucide Contributors, ISC License, with
+  portions copyright Cole Bemis (Feather, MIT License); both texts are in
+  `vendor/icons/lucide/LICENSE`.
+- **Photographs** from Wikimedia Commons (`vendor/photos/`), each dedicated to the public domain
+  under CC0 1.0 by its author; titles, authors and source pages are in
+  `vendor/photos/SOURCES.json`.
+
 ## Orca
 
 ```

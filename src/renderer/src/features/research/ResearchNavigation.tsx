@@ -5,6 +5,8 @@ import {
   ChevronRight,
   FilePenLine,
   FlaskConical,
+  MessageSquareReply,
+  Shapes,
   PanelsTopLeft
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -44,8 +46,6 @@ function ResearchProjectNavigation(): React.JSX.Element {
   const [sections, setSectionOpen] = useResearchSidebarSections(project?.key ?? activeWorkspaceId)
   const workbenchOpen = sections.workbench
   const experimentsOpen = sections.experiments
-  const writingOpen = sections.writing
-  const libraryOpen = sections.library
   const onExperiment = activeView === 'research-runs' || activeView === 'research-compare'
   const openSection = useRef(setSectionOpen)
   useEffect(() => {
@@ -60,11 +60,15 @@ function ResearchProjectNavigation(): React.JSX.Element {
   const items = [
     {
       view: 'research-writing',
+      section: 'writing',
       label: translate('research.navigation.writing', 'Writing'),
       Icon: FilePenLine
     },
+    { view: 'research-figures', section: 'figures', label: 'Figures', Icon: Shapes },
+    { view: 'research-rebuttal', section: 'rebuttal', label: 'Rebuttal', Icon: MessageSquareReply },
     {
       view: 'research-library',
+      section: 'library',
       label: translate('research.navigation.library', 'Library'),
       Icon: BookOpen
     }
@@ -180,10 +184,9 @@ function ResearchProjectNavigation(): React.JSX.Element {
             onExpand={() => setSectionOpen('experiments', true)}
           />
         </div>
-        {items.map(({ view, label, Icon }) => {
-          const isWriting = view === 'research-writing'
-          const open = isWriting ? writingOpen : libraryOpen
-          const id = isWriting ? 'research-writing-agent-list' : 'research-library-agent-list'
+        {items.map(({ view, section, label, Icon }) => {
+          const open = sections[section]
+          const id = `research-${section}-agent-list`
           return (
             <div key={view}>
               <div className="flex min-w-0 items-center gap-1">
@@ -206,7 +209,7 @@ function ResearchProjectNavigation(): React.JSX.Element {
                   aria-label={`${open ? 'Collapse' : 'Expand'} ${label} agents`}
                   aria-expanded={open}
                   aria-controls={id}
-                  onClick={() => setSectionOpen(isWriting ? 'writing' : 'library', !open)}
+                  onClick={() => setSectionOpen(section, !open)}
                 >
                   <ChevronRight className={open ? 'rotate-90' : ''} aria-hidden />
                 </Button>
@@ -215,9 +218,7 @@ function ResearchProjectNavigation(): React.JSX.Element {
                 id={id}
                 className={open ? 'ml-4 border-l border-worktree-sidebar-border pl-2' : 'hidden'}
               >
-                {open ? (
-                  <ResearchSidebarAgentConversations kind={isWriting ? 'writing' : 'library'} />
-                ) : null}
+                {open ? <ResearchSidebarAgentConversations kind={section} /> : null}
               </div>
             </div>
           )

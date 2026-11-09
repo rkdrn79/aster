@@ -128,6 +128,8 @@ export type TopLevelView =
   | 'artifacts'
   | 'mobile'
   | 'research-writing'
+  | 'research-figures'
+  | 'research-rebuttal'
   | 'research-library'
   | 'research-experiments'
   | 'research-runs'

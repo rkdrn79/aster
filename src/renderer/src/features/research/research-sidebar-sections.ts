@@ -1,12 +1,20 @@
 import { useCallback, useMemo, useState } from 'react'
 
-export type ResearchSidebarSection = 'workbench' | 'experiments' | 'writing' | 'library'
+export type ResearchSidebarSection =
+  | 'workbench'
+  | 'experiments'
+  | 'writing'
+  | 'figures'
+  | 'rebuttal'
+  | 'library'
 export type ResearchSidebarSections = Record<ResearchSidebarSection, boolean>
 
 const SECTIONS: readonly ResearchSidebarSection[] = [
   'workbench',
   'experiments',
   'writing',
+  'figures',
+  'rebuttal',
   'library'
 ]
 const STORAGE_KEY = 'aster.research-sidebar-sections.v1'
@@ -16,6 +24,8 @@ export const DEFAULT_RESEARCH_SIDEBAR_SECTIONS: ResearchSidebarSections = {
   workbench: true,
   experiments: true,
   writing: false,
+  figures: false,
+  rebuttal: false,
   library: false
 }
 

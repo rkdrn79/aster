@@ -1,0 +1,70 @@
+/* Why: Excalidraw's chrome is violet; the app keeps a monochrome ink look with its own tokens. */
+[data-research-figure-canvas] .excalidraw,
+[data-research-figure-canvas] .excalidraw.theme--dark {
+  --color-primary: var(--foreground);
+  --color-primary-darker: var(--foreground);
+  --color-primary-darkest: var(--foreground);
+  --color-primary-hover: var(--foreground);
+  --color-primary-light: var(--accent);
+  --color-primary-light-darker: var(--accent);
+  --color-surface-primary-container: var(--accent);
+  --color-on-primary-container: var(--foreground);
+  --color-brand-hover: var(--foreground);
+  --color-brand-active: var(--foreground);
+  --color-selection: var(--foreground);
+}
+
+/* Why: the toolbar's ML parts button opens the same library, and the trigger clips in narrow panes. */
+[data-research-figure-canvas] .excalidraw .default-sidebar-trigger {
+  display: none;
+}
+
+/*
+ * Why: the Inspector beside the canvas holds what these floating islands held (roles, place and
+ * size, line); they covered the page. Excalidraw's hints and sloppiness/hand-drawn controls go too.
+ */
+[data-research-figure-canvas] .excalidraw .App-menu__left,
+[data-research-figure-canvas] .excalidraw .HintViewer {
+  display: none;
+}
+
+/* Why: Excalidraw's range track is violet; keep it ink like the rest of the app. */
+[data-research-figure-canvas] .excalidraw input[type='range'] {
+  --color-slider-track: var(--border);
+  accent-color: var(--foreground);
+}
+
+/* Why: Excalidraw's bars stay in the part of the canvas the Inspector leaves visible. */
+[data-research-figure-canvas][data-inspector-open] .excalidraw .layer-ui__wrapper {
+  width: calc(100% - 248px);
+}
+
+/*
+ * Why: a paper figure needs boxes, lines, arrows, text and pictures. Lock, hand (Space-drag
+ * pans), eraser (Delete) and the extra-tools menu (laser, embeds, AI) are dropped so the toolbar
+ * fits beside the Inspector; their keyboard shortcuts still work.
+ */
+[data-research-figure-canvas] .excalidraw .ToolIcon__lock,
+[data-research-figure-canvas] .excalidraw .ToolIcon:has(> input[data-testid='toolbar-hand']),
+[data-research-figure-canvas] .excalidraw .ToolIcon:has(> input[data-testid='toolbar-eraser']),
+[data-research-figure-canvas] .excalidraw .App-toolbar__extra-tools-trigger,
+[data-research-figure-canvas] .excalidraw .App-toolbar__divider {
+  display: none;
+}
+
+/* Why: the Insert panel is the parts library; Excalidraw's public-library link does not apply. */
+[data-research-figure-canvas] .excalidraw .library-menu-browse-button {
+  display: none;
+}
+
+/* Why only the drawing: the preview shows the figure as gray print or a deuteranope sees it. */
+[data-research-figure-canvas][data-figure-vision='grayscale']
+  .excalidraw
+  canvas.excalidraw__canvas {
+  filter: grayscale(1);
+}
+[data-research-figure-canvas][data-figure-vision='deuteranopia']
+  .excalidraw
+  canvas.excalidraw__canvas {
+  filter: url('#aster-figure-deuteranopia');
+}

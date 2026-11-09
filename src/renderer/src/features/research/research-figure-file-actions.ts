@@ -6,16 +6,28 @@ import {
   figureFilePaths,
   isFigureSlug
 } from '../../../../research-harness/research-figures-model.mjs'
+import {
+  figurePublicationPath,
+  paperCopyPath,
+  publicationRecord
+} from '../../../../research-harness/research-figures-locations.mjs'
+import { bytesSha256, sceneSha256 } from './research-figure-document'
 import { moveFigureHistory } from './research-figure-history'
 import { figureTrashFolder, figureSceneMeta, withFigureTitle } from './research-figure-list-model'
+import { ensureFigureWorkFolder } from './research-figure-listing'
 import { renameFigureIncludes } from './research-figure-paper-block'
+import { keepPublicationCurrent, renamePublishedCopy } from './research-figure-publish'
 import { openResearchView } from './research-navigation'
 import {
+  base64ToBytes,
+  deleteProjectPath,
   listProjectDirectory,
   moveProjectPath,
   projectAbsolutePath,
   projectRecordRoot,
+  readProjectFile,
   readProjectText,
+  writeProjectBinary,
   writeProjectText,
   type ProjectFileOwner
 } from './research-project-files'
@@ -69,7 +81,13 @@ function renamedPath(path: string, files: FigureFiles, slug: string): string {
 export async function renameFigure(
   owner: ProjectFileOwner,
   files: FigureFiles,
-  next: { slug: string; title: string | null; manuscript: string | null }
+  next: {
+    slug: string
+    title: string | null
+    manuscript: string | null
+    /** The published figure's manuscript, when it has a copy in the paper. */
+    published: string | null
+  }
 ): Promise<number> {
   if (!isFigureSlug(next.slug)) {
     throw new Error('Use letters, digits and dashes for the file name.')
@@ -79,6 +97,15 @@ export async function renameFigure(
     const taken = await listProjectDirectory(owner, files.folder)
     if (taken?.some((entry) => entry.name === target.slice(files.folder.length + 1))) {
       throw new Error(`${target} already exists.`)
+    }
+    if (next.published) {
+      // Why first: a name taken in the paper stops the rename before anything moves.
+      await renamePublishedCopy(owner, {
+        from: files.slug,
+        to: next.slug,
+        manuscript: next.published,
+        follow: next.manuscript !== null
+      })
     }
     const moved = await existingFigureFiles(owner, files)
     for (const path of moved) {
@@ -98,7 +125,11 @@ export async function renameFigure(
   }
   const text = await readProjectText(owner, target)
   if (figureSceneMeta(text).title !== next.title) {
-    await writeProjectText(owner, target, withFigureTitle(text, next.title), text)
+    const retitled = withFigureTitle(text, next.title)
+    await writeProjectText(owner, target, retitled, text)
+    if (next.published) {
+      await keepPublicationCurrent(owner, next.slug, text, retitled)
+    }
   }
   if (!next.manuscript || next.slug === files.slug) {
     return 0
@@ -111,29 +142,56 @@ export async function renameFigure(
   return renamed.count
 }
 
-/** Copies the scene under `slug` (exports follow when it is opened); the title gets "copy". */
+/**
+ * Copies the scene under `slug` in the working folder (exports follow when it is opened); the
+ * title gets "copy".
+ */
 export async function duplicateFigure(
   owner: ProjectFileOwner,
   files: FigureFiles,
-  slug: string
+  slug: string,
+  workFolder: string
 ): Promise<void> {
   const text = await readProjectText(owner, figureFilePaths(files.folder, files.slug).scene)
   const title = figureSceneMeta(text).title
+  await ensureFigureWorkFolder(owner, workFolder)
   await writeProjectText(
     owner,
-    figureFilePaths(files.folder, slug).scene,
+    figureFilePaths(workFolder, slug).scene,
     title ? withFigureTitle(text, `${title} copy`) : text,
     null
   )
 }
 
-/** Moves a figure's files into the project's trash; the moves undo the delete. */
-export async function trashFigure(owner: ProjectFileOwner, files: FigureFiles): Promise<Move[]> {
-  const trash = figureTrashFolder(await projectRecordRoot(owner), files.slug, new Date())
+/**
+ * Moves a figure's files into the project's trash; the moves undo the delete. The paper's copy
+ * stays unless `paperCopy` names it to go too.
+ */
+export async function trashFigure(
+  owner: ProjectFileOwner,
+  files: FigureFiles,
+  paperCopy: string | null = null
+): Promise<Move[]> {
+  const root = await projectRecordRoot(owner)
+  const trash = figureTrashFolder(root, files.slug, new Date())
   const moves = (await existingFigureFiles(owner, files)).map((from) => ({
     from,
     to: `${trash}/${from.slice(files.folder.length + 1)}`
   }))
+  const record = figurePublicationPath(root, files.slug)
+  const published = await readProjectText(owner, record).then(
+    () => true,
+    () => false
+  )
+  if (published) {
+    moves.push({ from: record, to: `${trash}/published.json` })
+  }
+  if (paperCopy) {
+    moves.push({
+      from: paperCopy,
+      to: `${trash}/paper/${paperCopy.split('/').pop() ?? 'copy.pdf'}`
+    })
+  }
   for (const move of moves) {
     await moveProjectPath(owner, move.from, move.to)
   }
@@ -143,6 +201,86 @@ export async function trashFigure(owner: ProjectFileOwner, files: FigureFiles): 
 export async function restoreFigure(owner: ProjectFileOwner, moves: readonly Move[]) {
   for (const move of moves) {
     await moveProjectPath(owner, move.to, move.from)
+  }
+}
+
+/**
+ * Moves an older figure from beside the manuscript into the working folder. Its PDF stays where
+ * the paper reads it and is recorded as the published copy, so later edits stay out of the paper
+ * until they are published. Returns what undoes it.
+ */
+export async function adoptFigure(
+  owner: ProjectFileOwner,
+  files: FigureFiles,
+  input: { workFolder: string; manuscript: string }
+): Promise<() => Promise<void>> {
+  const paths = figureFilePaths(files.folder, files.slug)
+  const target = figureFilePaths(input.workFolder, files.slug)
+  const taken = await listProjectDirectory(owner, input.workFolder)
+  if (taken?.some((entry) => entry.name === `${files.slug}.excalidraw`)) {
+    throw new Error(`${target.scene} already exists.`)
+  }
+  await ensureFigureWorkFolder(owner, input.workFolder)
+  const root = await projectRecordRoot(owner)
+  const existing = await existingFigureFiles(owner, files)
+  const moves: Move[] = existing
+    .filter((path) => path !== paths.pdf)
+    .map((from) => ({
+      from,
+      to: from === paths.script ? target.script : `${input.workFolder}/${from.split('/').pop()}`
+    }))
+  for (const move of moves) {
+    await moveProjectPath(owner, move.from, move.to)
+  }
+  // Why: a script that names its scene by path must keep drawing into the moved file.
+  const repoint = async (from: string, to: string): Promise<void> => {
+    if (!existing.includes(paths.script)) {
+      return
+    }
+    const script = from === files.folder ? target.script : paths.script
+    const moved = await readProjectText(owner, script)
+    const updated = moved.replaceAll(
+      `${from}/${files.slug}.excalidraw`,
+      `${to}/${files.slug}.excalidraw`
+    )
+    if (updated !== moved) {
+      await writeProjectText(owner, script, updated, moved)
+    }
+  }
+  await repoint(files.folder, input.workFolder)
+  const copied = existing.includes(paths.pdf)
+  const record = figurePublicationPath(root, files.slug)
+  if (copied) {
+    const paperPdf = paperCopyPath(input.manuscript, files.slug)
+    const scene = await readProjectText(owner, target.scene)
+    const file = await readProjectFile(owner, paths.pdf)
+    const bytes = file.isBinary
+      ? base64ToBytes(file.content)
+      : new TextEncoder().encode(file.content)
+    await writeProjectBinary(owner, target.pdf, bytes)
+    await writeProjectText(
+      owner,
+      record,
+      `${JSON.stringify(
+        publicationRecord({
+          slug: files.slug,
+          pdf: paperPdf,
+          pdfSha256: await bytesSha256(bytes),
+          sceneSha256: await sceneSha256(scene),
+          publishedAt: new Date().toISOString()
+        }),
+        null,
+        2
+      )}\n`
+    )
+  }
+  return async () => {
+    await restoreFigure(owner, moves)
+    await repoint(input.workFolder, files.folder)
+    if (copied) {
+      await deleteProjectPath(owner, target.pdf).catch(() => undefined)
+      await deleteProjectPath(owner, record).catch(() => undefined)
+    }
   }
 }
 

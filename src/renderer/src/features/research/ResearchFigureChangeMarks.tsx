@@ -5,7 +5,7 @@ import type { FigureElement } from '../../../../research-harness/research-figure
 import { cn } from '@/lib/utils'
 import { parseFigureText } from './research-figure-document'
 import { figureElementBox } from './research-figure-selection-items'
-import { sameFigureTarget, useFigureTurn } from './research-figure-turn'
+import { useFigureTurnEntry } from './research-figure-turn'
 import type { FigureTarget } from './research-figures-export'
 import { viewportBox, type CanvasViewport, type SceneBox } from './ResearchFigureCanvasOverlays'
 
@@ -33,11 +33,10 @@ export function ResearchFigureChangeMarks({
   api: ExcalidrawImperativeAPI | null
   viewport: CanvasViewport
 }): React.JSX.Element | null {
-  const turn = useFigureTurn((state) =>
-    sameFigureTarget(state.turn?.target ?? null, target) ? state.turn : null
-  )
-  const showChanges = useFigureTurn((state) => state.showChanges)
-  const flash = useFigureTurn((state) => state.flash)
+  const entry = useFigureTurnEntry(target)
+  const turn = entry?.turn
+  const showChanges = entry?.showChanges ?? false
+  const flash = entry?.flash ?? null
   const before = useMemo(
     () => (turn?.beforeText ? parseFigureText(turn.beforeText).elements : []),
     [turn?.beforeText]

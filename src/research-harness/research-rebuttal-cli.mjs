@@ -3,17 +3,26 @@ import path from 'node:path'
 import { integerOption } from './research-cli-arguments.mjs'
 import { HarnessError } from './research-harness-error.mjs'
 import {
+  addFollowUp,
   addPromise,
   addReview,
   assembleRebuttal,
   createRebuttal,
+  historyOf,
   listClusters,
+  listPaperChanges,
   listPoints,
+  listPredictions,
   listPromises,
+  listProposals,
   listRebuttals,
+  proposePaperChange,
   resolveRebuttalSlug,
+  reviewerContext,
+  reviseResponse,
   setClusters,
   setPoints,
+  setPredictions,
   setPromiseDone,
   setResponse,
   showRebuttal
@@ -125,18 +134,102 @@ export const commands = {
   },
   'rebuttal response': {
     spec: {
-      values: ['--rebuttal', '--file', '--cluster', '--opening', '--general', '--status'],
+      values: [
+        '--rebuttal',
+        '--file',
+        '--cluster',
+        '--opening',
+        '--general',
+        '--status',
+        '--turn',
+        '--request'
+      ],
       positionals: 1
     },
     run: async ({ project, options, positionals }) => {
-      action(positionals, ['set'], 'response')
-      requireOptions(options, ['--file'], 'rebuttal response set')
-      return setResponse(project, await slugOf(project, options), {
+      const name = action(positionals, ['set', 'revise'], 'response')
+      requireOptions(options, ['--file'], `rebuttal response ${name}`)
+      const slug = await slugOf(project, options)
+      const target = {
         cluster: options['--cluster'],
         opening: options['--opening'],
         general: options['--general'],
+        turn: options['--turn'],
+        request: options['--request']
+      }
+      if (name === 'revise') {
+        return reviseResponse(project, slug, { ...target, ...(await inputJson(options)) })
+      }
+      return setResponse(project, slug, {
+        ...target,
         status: options['--status'],
         text: (await inputText(options)).trim()
+      })
+    }
+  },
+  'rebuttal proposals': {
+    spec: { values: ['--rebuttal'], positionals: 1 },
+    run: async ({ project, options, positionals }) => {
+      action(positionals, ['list'], 'proposals')
+      return listProposals(project, await slugOf(project, options))
+    }
+  },
+  'rebuttal history': {
+    spec: { values: ['--rebuttal', '--cluster', '--opening', '--general'] },
+    run: async ({ project, options }) => {
+      const slot =
+        options['--cluster'] ??
+        (options['--opening']
+          ? `opening:${options['--opening']}`
+          : `general:${options['--general']}`)
+      return historyOf(project, await slugOf(project, options), slot)
+    }
+  },
+  'rebuttal followup': {
+    spec: {
+      values: ['--rebuttal', '--reviewer', '--file'],
+      positionals: 1,
+      required: ['--reviewer']
+    },
+    run: async ({ project, options, positionals }) => {
+      action(positionals, ['add'], 'followup')
+      requireOptions(options, ['--file'], 'rebuttal followup add')
+      return addFollowUp(project, await slugOf(project, options), {
+        reviewer: options['--reviewer'],
+        text: await inputText(options)
+      })
+    }
+  },
+  'rebuttal reviewer-context': {
+    spec: { values: ['--rebuttal', '--reviewer'], required: ['--reviewer'] },
+    run: async ({ project, options }) =>
+      reviewerContext(project, await slugOf(project, options), { reviewer: options['--reviewer'] })
+  },
+  'rebuttal predictions': {
+    spec: { values: ['--rebuttal', '--reviewer', '--file'], positionals: 1 },
+    run: async ({ project, options, positionals }) => {
+      const slug = await slugOf(project, options)
+      if (action(positionals, ['set', 'list'], 'predictions') === 'list') {
+        return listPredictions(project, slug, { reviewer: options['--reviewer'] })
+      }
+      requireOptions(options, ['--reviewer', '--file'], 'rebuttal predictions set')
+      return setPredictions(project, slug, {
+        reviewer: options['--reviewer'],
+        input: await inputJson(options)
+      })
+    }
+  },
+  'rebuttal paper': {
+    spec: { values: ['--rebuttal', '--cluster', '--file'], positionals: 1 },
+    run: async ({ project, options, positionals }) => {
+      const slug = await slugOf(project, options)
+      if (action(positionals, ['propose', 'list'], 'paper') === 'list') {
+        return listPaperChanges(project, slug)
+      }
+      requireOptions(options, ['--cluster', '--file'], 'rebuttal paper propose')
+      return proposePaperChange(project, slug, {
+        cluster: options['--cluster'],
+        input: await inputJson(options)
       })
     }
   },
@@ -238,7 +331,35 @@ export const textOutput = {
       .filter(Boolean)
       .join('\n'),
   'rebuttal response': (result) =>
-    result.cluster ? clusterLine(result.cluster) : `Saved the ${result.updated}.`,
+    result.unchanged
+      ? `No change to ${result.slot}.`
+      : result.applied
+        ? `Drafted ${result.slot}: the reply was empty. ${result.cluster ? clusterLine(result.cluster) : ''}`.trim()
+        : `Proposed ${result.proposal} for ${result.slot}: the reply already has text, so the person accepts or discards this in Aster.`,
+  'rebuttal proposals': (result) =>
+    result.proposals.length
+      ? result.proposals
+          .map(
+            (p) =>
+              `${p.id} ${p.slot}${p.applied ? ' (applied draft)' : ' (waiting)'} ${clip(p.request)}`
+          )
+          .join('\n')
+      : 'No proposals.',
+  'rebuttal history': (result) =>
+    result.versions.map((v) => `${v.id} ${v.by} ${v.what} (${v.at})`).join('\n') || 'No versions.',
+  'rebuttal followup': (result) =>
+    `Added round ${result.followUp.round} for ${result.followUp.reviewer}.`,
+  'rebuttal reviewer-context': (result) => JSON.stringify(result, null, 2),
+  'rebuttal predictions': (result) =>
+    result.predictions.length
+      ? result.predictions.map((p) => `${p.id} [${p.likelihood}] ${clip(p.concern)}`).join('\n')
+      : 'No predictions.',
+  'rebuttal paper': (result) =>
+    result.change
+      ? `Proposed ${result.change.id} for ${result.change.cluster}: the person approves it in Aster before it is applied.`
+      : result.changes.length
+        ? result.changes.map((c) => `${c.id} ${c.cluster} ${c.status} ${c.file}`).join('\n')
+        : 'No paper changes.',
   'rebuttal assemble': (result) => result.outputs.map(outputLine).join('\n'),
   'rebuttal promises': (result) =>
     result.promise
@@ -277,7 +398,26 @@ promises.json, responses/). --rebuttal may be left out when the project has one 
                                          A point is in at most one cluster; drafts keep by cluster ID
   rebuttal clusters list [--rebuttal SLUG]
   rebuttal response set [--rebuttal SLUG] (--cluster C1 | --opening R1 | --general intro|closing)
-                        --file PATH|- [--status todo|drafting|done]
+                        --file PATH|- [--status todo|drafting] [--turn ID] [--request TEXT]
+                                         An empty reply takes the draft; a reply with text stays as
+                                         written and this becomes a proposal the person accepts
+  rebuttal response revise [--rebuttal SLUG] (--cluster C1 | ...) --file -  (JSON {"find","replace"})
+  rebuttal followup add [--rebuttal SLUG] --reviewer R1 --file PATH|-
+                                         A reviewer's later reply, kept as a new round; points of it
+                                         use "round":2 and quote the follow-up text
+  rebuttal reviewer-context [--rebuttal SLUG] --reviewer R1
+                                         What that reviewer's simulated agent reads (read-only)
+  rebuttal predictions set [--rebuttal SLUG] --reviewer R1 --file PATH|-
+                                         {"predictions":[{"concern","why","likelihood":"low|medium|high",
+                                         "trigger":{"cluster":"C1","point":"R1-W1","quote":"…"},"preempt":"…"}],
+                                         "outlook":{"direction":"up|same|down","note":"…"}}
+  rebuttal predictions list [--rebuttal SLUG] [--reviewer R1]
+  rebuttal proposals list [--rebuttal SLUG]
+  rebuttal history [--rebuttal SLUG] (--cluster C1 | --opening R1 | --general intro|closing)
+  rebuttal paper propose [--rebuttal SLUG] --cluster C1 --file PATH|-
+                                         {"file":"paper/main.tex","find":"exact passage","replace":"…",
+                                         "why":"…","promise":"…"?}; applied only after the person approves
+  rebuttal paper list [--rebuttal SLUG]
   rebuttal assemble [--rebuttal SLUG] [--format reviewer|general|pdf|all] [--shared reviewer|general|repeat]
                                          Writes responses/reviewer-<R>.md, general.md, rebuttal.tex
                                          with character counts; exit 1 when a reply is over its limit

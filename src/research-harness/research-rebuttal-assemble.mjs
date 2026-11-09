@@ -34,7 +34,7 @@ export function clusterReviewers(bundle) {
  * Each reviewer's answers in review order: points of one cluster share an answer (A1, A2…), and
  * a cluster's full answer lives with the first reviewer who raised it.
  */
-export function planReviewerReplies(bundle) {
+export function planReviewerReplies(bundle, { round = 1 } = {}) {
   const clusterOf = new Map()
   for (const cluster of bundle.clusters) {
     for (const pointId of cluster.points) {
@@ -44,7 +44,9 @@ export function planReviewerReplies(bundle) {
   const replies = bundle.meta.reviewers.map((reviewer) => {
     const answers = []
     const byCluster = new Map()
-    for (const point of bundle.points.filter((entry) => entry.reviewer === reviewer.id)) {
+    for (const point of bundle.points.filter(
+      (entry) => entry.reviewer === reviewer.id && (entry.round ?? 1) === round
+    )) {
       const cluster = clusterOf.get(point.id) ?? null
       const existing = cluster ? byCluster.get(cluster.id) : undefined
       if (existing) {
@@ -96,15 +98,20 @@ function answerBody(answer, reviewer, { home, general, shared, missing }) {
  * `shared`: where an answer several reviewers share is written in full — with the first
  * reviewer who raised it ("reviewer"), in the general response ("general"), or everywhere ("repeat").
  */
-export function assembleReviewerReplies(bundle, { shared = bundle.meta.assembly?.shared } = {}) {
+export function assembleReviewerReplies(
+  bundle,
+  { shared = bundle.meta.assembly?.shared, round = 1 } = {}
+) {
   const mode = shared === 'general' || shared === 'repeat' ? shared : 'reviewer'
-  const { replies, home } = planReviewerReplies(bundle)
+  const { replies, home } = planReviewerReplies(bundle, { round })
   const general = new Map(sharedClusters(bundle).map(({ cluster, label }) => [cluster.id, label]))
   const limit = bundle.meta.limits.replyChars
   return replies.map(({ reviewer, answers }) => {
     const missing = []
     const blocks = answers.map((answer) => {
-      const labels = answer.points.map((point) => localPointLabel(point.id)).join(', ')
+      const labels = answer.points
+        .map((point) => (point.origin === 'prediction' ? 'anticipated' : localPointLabel(point.id)))
+        .join(', ')
       const title = answer.cluster ? `: ${answer.cluster.title}` : ''
       const body = answerBody(answer, reviewer, { home, general, shared: mode, missing })
       return `**${answer.label} (${labels})${title}**\n${body}`
@@ -115,6 +122,7 @@ export function assembleReviewerReplies(bundle, { shared = bundle.meta.assembly?
     return {
       reviewer: reviewer.id,
       name: reviewerDisplayName(reviewer),
+      round,
       text,
       chars,
       limit,
@@ -127,6 +135,27 @@ export function assembleReviewerReplies(bundle, { shared = bundle.meta.assembly?
       }))
     }
   })
+}
+
+/** Every reply to send: round 1 to each reviewer, then one per later round with concerns. */
+export function assembleAllReplies(bundle, options) {
+  const later = [
+    ...new Set(bundle.points.map((point) => point.round ?? 1).filter((r) => r > 1))
+  ].sort((left, right) => left - right)
+  const first = assembleReviewerReplies(bundle, { ...options, round: 1 })
+  const hasRound = (reply) => reply.answers.length > 0
+  return [
+    ...first,
+    ...later.flatMap((round) =>
+      assembleReviewerReplies(bundle, { ...options, round }).filter(hasRound)
+    )
+  ]
+}
+
+export function reviewerReplyFileName(reply) {
+  return reply.round > 1
+    ? `reviewer-${reply.reviewer}-round-${reply.round}.md`
+    : `reviewer-${reply.reviewer}.md`
 }
 
 export function assembleGeneralResponse(bundle) {
@@ -157,7 +186,7 @@ export function assembleGeneralResponse(bundle) {
 /** What still blocks posting: points without a cluster, empty drafts, and replies over the limit. */
 export function rebuttalReadiness(bundle) {
   const clustered = new Set(bundle.clusters.flatMap((cluster) => cluster.points))
-  const replies = assembleReviewerReplies(bundle)
+  const replies = assembleAllReplies(bundle)
   const general = assembleGeneralResponse(bundle)
   return {
     unclustered: bundle.points.filter((point) => !clustered.has(point.id)).map((point) => point.id),
@@ -166,7 +195,13 @@ export function rebuttalReadiness(bundle) {
       ...replies.filter((reply) => reply.over).map((reply) => reply.reviewer),
       ...(general.over ? ['general'] : [])
     ],
-    replies: replies.map(({ reviewer, chars, limit, over }) => ({ reviewer, chars, limit, over })),
+    replies: replies.map(({ reviewer, round, chars, limit, over }) => ({
+      reviewer,
+      round,
+      chars,
+      limit,
+      over
+    })),
     general: { chars: general.chars, limit: general.limit, over: general.over }
   }
 }

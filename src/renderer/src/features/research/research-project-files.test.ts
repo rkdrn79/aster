@@ -12,6 +12,8 @@ const callRuntimeFileMutation = vi.hoisted(() =>
   }))
 )
 const writeRuntimeFile = vi.hoisted(() => vi.fn(async () => ({ ok: true })))
+const deleteRuntimePath = vi.hoisted(() => vi.fn(async () => undefined))
+const renameRuntimePath = vi.hoisted(() => vi.fn(async () => undefined))
 
 vi.mock('@/lib/workspace-file-host-routing', () => ({
   buildWorkspaceFileContext: () => context.current
@@ -20,6 +22,8 @@ vi.mock('@/runtime/runtime-file-mutation-rpc', () => ({ callRuntimeFileMutation 
 vi.mock('@/runtime/runtime-file-mutation-client', () => ({
   readRuntimeDirectory: vi.fn(async () => []),
   createRuntimePath: vi.fn(),
+  deleteRuntimePath,
+  renameRuntimePath,
   writeRuntimeFile
 }))
 
@@ -58,12 +62,52 @@ describe('writeProjectBinary', () => {
       'files.writeBase64',
       expect.objectContaining({
         worktree: 'id:wt-1',
-        relativePath: 'paper/figures/method.pdf',
+        relativePath: expect.stringMatching(/^paper\/figures\/\.method\.pdf\..+\.tmp$/),
         contentBase64: 'JVBERg=='
       }),
       30_000
     )
     expect(writeFile).not.toHaveBeenCalled()
+  })
+
+  it('replaces an export that already exists: the temporary file takes its place', async () => {
+    context.current = remote()
+    const order: string[] = []
+    callRuntimeFileMutation.mockImplementationOnce(async () => {
+      order.push('write')
+      return { ok: true }
+    })
+    deleteRuntimePath.mockImplementationOnce(async () => {
+      order.push('delete')
+    })
+    renameRuntimePath.mockImplementationOnce(async () => {
+      order.push('rename')
+    })
+    await writeProjectBinary(owner, 'paper/figures/method.pdf', new Uint8Array([1]))
+    expect(order).toEqual(['write', 'delete', 'rename'])
+    expect(deleteRuntimePath).toHaveBeenCalledWith(
+      expect.anything(),
+      '/srv/proj/paper/figures/method.pdf'
+    )
+    expect(renameRuntimePath).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringMatching(/^\/srv\/proj\/paper\/figures\/\.method\.pdf\..+\.tmp$/),
+      '/srv/proj/paper/figures/method.pdf'
+    )
+  })
+
+  it('keeps the old export when the upload fails, and removes the temporary file', async () => {
+    context.current = remote()
+    callRuntimeFileMutation.mockRejectedValueOnce(new Error('offline'))
+    await expect(
+      writeProjectBinary(owner, 'paper/figures/method.pdf', new Uint8Array([1]))
+    ).rejects.toThrow('offline')
+    expect(deleteRuntimePath).toHaveBeenCalledTimes(1)
+    expect(deleteRuntimePath).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringMatching(/\.method\.pdf\..+\.tmp$/)
+    )
+    expect(renameRuntimePath).not.toHaveBeenCalled()
   })
 
   it('slices a large export and appends after the first slice', async () => {

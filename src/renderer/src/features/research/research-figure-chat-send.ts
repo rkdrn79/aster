@@ -12,15 +12,15 @@ import {
   type FigurePromptContext
 } from './research-figures-agent-prompts'
 import {
-  figuresAgentSessionId,
-  sendFiguresPrompt,
+  openFigureChatSession,
+  sendFigurePrompt,
   withFigureMessageContext,
   type FiguresAgentScope
 } from './research-figures-agent-session'
-import { beginFigureTurn, failFigureTurn } from './research-figure-turn'
+import { attachFigureTurnSession, beginFigureTurn, failFigureTurn } from './research-figure-turn'
 import type { FigureTarget } from './research-figures-export'
+import { openFigureSlug } from './research-figures-store'
 import { projectAbsolutePath, type ProjectFileOwner } from './research-project-files'
-import { useResearchRecords } from './research-records-store'
 
 /** How a new figure starts; everything but Blank asks the Figure agent right after creating it. */
 export type FigureStart = 'blank' | 'describe' | 'method' | 'template' | 'image' | 'plot'
@@ -49,6 +49,7 @@ export function newFigurePromptContext(input: {
   const { owner, folder, slug } = input
   return {
     folderPath: projectAbsolutePath(owner, folder),
+    workFolderPath: projectAbsolutePath(owner, folder),
     manuscriptPath: input.manuscript ? projectAbsolutePath(owner, input.manuscript) : null,
     figure: {
       slug,
@@ -62,13 +63,14 @@ export function newFigurePromptContext(input: {
 export type FigureSendTrack = { target: FigureTarget; beforeText: string | null }
 
 /**
- * Sends a request as one tracked turn, like the quick actions: "before send" goes to History and
- * the canvas and the figure list follow the agent until the turn ends.
+ * Sends a request as one tracked turn to its figure's own chat, like the quick actions: "before
+ * send" goes to that figure's History and its list entry follows the agent until the turn ends.
  */
 async function sendTracked(
   scope: FiguresAgentScope,
   input: { request: string; prompt: string; key?: string },
-  track: FigureSendTrack | null
+  track: FigureSendTrack | null,
+  slug: string | null
 ): Promise<string | null> {
   const id = beginFigureTurn({
     target: track?.target ?? null,
@@ -77,26 +79,31 @@ async function sendTracked(
     scope,
     beforeText: track?.beforeText ?? null
   })
-  const failure = await sendFiguresPrompt(scope, input.prompt, input.key)
+  const failure = await sendFigurePrompt(scope, slug, input.prompt, {
+    contextKey: input.key,
+    onSession: (sessionId) => attachFigureTurnSession(id, sessionId)
+  })
   if (failure) {
     failFigureTurn(id, failure)
   }
   return failure
 }
 
-/** Sends what the person typed, with the figure's context when this chat has not seen it. */
-export function sendFigureChatText(
+/** Sends what the person typed to its figure's chat, with context when that chat has not seen it. */
+export async function sendFigureChatText(
   scope: FiguresAgentScope,
   context: FigurePromptContext,
   text: string,
   track: FigureSendTrack | null = null
 ): Promise<string | null> {
   const message = buildFigureMessageContext(context)
-  const sessionId = figuresAgentSessionId(useResearchRecords.getState().document, scope)
+  // Why the open figure last: its canvas may not be ready yet, and the chat is still its own.
+  const slug = track?.target.slug ?? context.figure?.slug ?? openFigureSlug(scope)
+  const sessionId = await openFigureChatSession(scope, slug)
   const prompt = sessionId
     ? withFigureMessageContext(sessionId, text, message)
     : withAsterContext(text, { label: message.label, body: message.body })
-  return sendTracked(scope, { request: text, prompt, key: message.key }, track)
+  return sendTracked(scope, { request: text, prompt, key: message.key }, track, slug)
 }
 
 function templatePrompt(context: FigurePromptContext, template: string): string {
@@ -133,7 +140,8 @@ export function sendFigureStart(
           prompt: buildFigureQuickPrompt(context, 'draw-method'),
           key
         },
-        track
+        track,
+        context.figure?.slug ?? null
       )
     case 'template':
       return sendTracked(
@@ -143,7 +151,8 @@ export function sendFigureStart(
           prompt: templatePrompt(context, start.template),
           key
         },
-        track
+        track,
+        context.figure?.slug ?? null
       )
     case 'plot': {
       const slug = context.figure?.slug
@@ -159,6 +168,7 @@ export function sendFigureStart(
               )
             : prompt
         },
+        null,
         null
       )
     }

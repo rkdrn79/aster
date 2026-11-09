@@ -216,12 +216,26 @@ export function projectRecordRoot(owner: ProjectFileOwner): Promise<'.aster' | '
   return root
 }
 
+export function base64ToBytes(content: string): Uint8Array {
+  return Uint8Array.from(window.atob(content), (char) => char.charCodeAt(0))
+}
+
 export function bytesToBase64(bytes: Uint8Array): string {
   let binary = ''
   for (let offset = 0; offset < bytes.length; offset += 0x8000) {
     binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000))
   }
   return window.btoa(binary)
+}
+
+/** A hidden sibling of `relativePath`, unique to one write. */
+function temporaryBinaryPath(relativePath: string): string {
+  const folder = parentFolder(relativePath)
+  const name = relativePath.slice(folder.length ? folder.length + 1 : 0)
+  // Why not crypto.randomUUID: it exists only in secure contexts.
+  const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`
+  const hidden = `.${name}.${id}.tmp`
+  return folder ? `${folder}/${hidden}` : hidden
 }
 
 /**
@@ -241,28 +255,40 @@ export async function writeProjectBinary(
   const absolutePath = projectAbsolutePath(owner, relativePath)
   const remote = getRemoteFileArgs(context, absolutePath)
   if (remote) {
-    const address = { worktree: remote.worktreeSelector, relativePath: remote.relativePath }
-    if (bytes.length <= BINARY_SLICE_BYTES) {
-      await callRuntimeFileMutation(
-        remote.target,
-        'files.writeBase64',
-        withSshMutationExpectation(context, { ...address, contentBase64: bytesToBase64(bytes) }),
-        30_000
-      )
-      return
-    }
-    for (let offset = 0; offset < bytes.length; offset += BINARY_SLICE_BYTES) {
-      const slice = bytes.subarray(offset, offset + BINARY_SLICE_BYTES)
-      await callRuntimeFileMutation(
-        remote.target,
-        'files.writeBase64Chunk',
-        withSshMutationExpectation(context, {
-          ...address,
-          contentBase64: bytesToBase64(slice),
-          append: offset > 0
-        }),
-        30_000
-      )
+    // Why a temporary file: the server's base64 write only creates new files (uploads must not
+    // clobber), so replacing an export is write, delete, rename. A failed upload keeps the old one.
+    const tempPath = temporaryBinaryPath(relativePath)
+    const tempAbsolute = projectAbsolutePath(owner, tempPath)
+    const tempRemote = getRemoteFileArgs(context, tempAbsolute) ?? remote
+    const address = { worktree: tempRemote.worktreeSelector, relativePath: tempRemote.relativePath }
+    try {
+      if (bytes.length <= BINARY_SLICE_BYTES) {
+        await callRuntimeFileMutation(
+          remote.target,
+          'files.writeBase64',
+          withSshMutationExpectation(context, { ...address, contentBase64: bytesToBase64(bytes) }),
+          30_000
+        )
+      } else {
+        for (let offset = 0; offset < bytes.length; offset += BINARY_SLICE_BYTES) {
+          const slice = bytes.subarray(offset, offset + BINARY_SLICE_BYTES)
+          await callRuntimeFileMutation(
+            remote.target,
+            'files.writeBase64Chunk',
+            withSshMutationExpectation(context, {
+              ...address,
+              contentBase64: bytesToBase64(slice),
+              append: offset > 0
+            }),
+            30_000
+          )
+        }
+      }
+      await deleteRuntimePath(context, absolutePath)
+      await renameRuntimePath(context, tempAbsolute, absolutePath)
+    } catch (cause) {
+      await deleteRuntimePath(context, tempAbsolute).catch(() => undefined)
+      throw cause
     }
     return
   }

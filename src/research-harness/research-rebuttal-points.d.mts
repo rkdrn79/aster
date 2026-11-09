@@ -14,7 +14,11 @@ export function locateQuote(
 /** Throws a HarnessError on an invalid point; quotes get exact offsets in their review. */
 export function parsePoints(
   value: unknown,
-  context: { reviewers: readonly RebuttalReviewer[]; reviews: Readonly<Record<string, string>> }
+  context: {
+    reviewers: readonly RebuttalReviewer[]
+    reviews: Readonly<Record<string, string>>
+    followUps?: readonly { reviewer: string; round: number; text: string }[]
+  }
 ): RebuttalPoint[]
 
 export function parseClusters(

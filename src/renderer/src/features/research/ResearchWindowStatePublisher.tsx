@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
-import { toast } from 'sonner'
 import { useAppStore } from '@/store'
 import { normalizeExecutionHostId } from '../../../../shared/execution-host'
 import { formatAgentTypeLabel } from '../../../../shared/agent-type-label'
-import type { ResearchWindowTarget } from '../../../../shared/research-page-window'
+import type {
+  ResearchWindowLaunchResult,
+  ResearchWindowTarget
+} from '../../../../shared/research-page-window'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import { enterResearchWorkspace, openResearchView } from './research-navigation'
 import { pickResearchWindowState, researchWindowStateChanged } from './research-window-state'
@@ -20,22 +22,27 @@ export function revealResearchPageInMain(target: ResearchWindowTarget): void {
 async function launchChatForResearchWindow(
   target: ResearchWindowTarget,
   agent: TuiAgent
-): Promise<void> {
+): Promise<ResearchWindowLaunchResult> {
   if (!target.hostId) {
-    toast.error('This project has no host to start a chat on yet.')
-    return
+    return { error: 'This project has no host to start a chat on yet.' }
   }
   const { launchResearchChat } = await import('./ResearchAgentChatPane')
-  const result = await launchResearchChat({
+  return launchResearchChat({
     hostId: target.hostId,
     workspaceId: target.workspaceId,
     agent,
     label: formatAgentTypeLabel(agent),
     activate: false
+  }).catch((cause: unknown) => ({ error: `The chat could not start. ${String(cause)}` }))
+}
+
+/** Calls `onChange` whenever a slice the research windows read changes. */
+function followResearchWindowState(onChange: () => void): () => void {
+  return useAppStore.subscribe((next, previous) => {
+    if (researchWindowStateChanged(previous, next)) {
+      onChange()
+    }
   })
-  if ('error' in result) {
-    toast.error(result.error)
-  }
 }
 
 /** Main window: keeps open research windows supplied with the projects and workspaces they read. */
@@ -59,14 +66,17 @@ export function ResearchWindowStatePublisher(): null {
         timer = setTimeout(publish, 100)
       }
     }
-    const offRequest = api.onStateRequested(() => {
+    const startPublishing = (): void => {
       windowsOpen = true
-      offStore ??= useAppStore.subscribe((next, previous) => {
-        if (researchWindowStateChanged(previous, next)) {
-          queuePublish()
-        }
-      })
+      offStore ??= followResearchWindowState(queuePublish)
       publish()
+    }
+    const offRequest = api.onStateRequested(startPublishing)
+    // Why: this window can reload while research windows stay open; they would go stale otherwise.
+    void api.hasOpenWindows?.().then((open) => {
+      if (open) {
+        startPublishing()
+      }
     })
     const offClosed = api.onAllClosed(() => {
       windowsOpen = false
@@ -78,8 +88,10 @@ export function ResearchWindowStatePublisher(): null {
       }
     })
     const offReveal = api.onRevealInMain(revealResearchPageInMain)
-    const offLaunch = api.onLaunchChat((target, agent) => {
-      void launchChatForResearchWindow(target, agent)
+    const offLaunch = api.onLaunchChat((target, agent, requestId) => {
+      void launchChatForResearchWindow(target, agent).then((result) =>
+        api.reportLaunchChatResult(requestId, result)
+      )
     })
     return () => {
       if (timer !== null) {

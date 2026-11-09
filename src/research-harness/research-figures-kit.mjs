@@ -31,6 +31,7 @@ import {
   userLibraryDirectory,
   writeLibraryPart
 } from './research-figures-library.mjs'
+import { figureLibraryFolders } from './research-figures-folders.mjs'
 import { TEMPLATES, relabelTemplate } from './research-figures-templates.mjs'
 import { oneOf } from './research-figures-options.mjs'
 import { elementBounds } from './research-figures-geometry.mjs'
@@ -326,8 +327,11 @@ export async function openFigure(file) {
   }
   const glyphs = glyphMethods(core)
   const measures = measureMethods(core)
+  const projectLibraries = await figureLibraryFolders(project, path.dirname(target))
   const library = [
-    ...(await readLibraryFolder(path.join(path.dirname(target), 'library'), 'project')),
+    ...(
+      await Promise.all(projectLibraries.map((folder) => readLibraryFolder(folder, 'project')))
+    ).flat(),
     ...(await readLibraryFolder(userLibraryDirectory(), 'user'))
   ]
   const fig = {

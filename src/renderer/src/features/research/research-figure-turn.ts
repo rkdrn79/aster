@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { FigureElementDiff } from './research-figure-diff'
+import { useFigureEditorHandle } from './research-figure-editor-handle'
 import { snapshotFigure } from './research-figure-history'
 import type { FiguresAgentScope } from './research-figures-agent-session'
 import type { FigureTarget } from './research-figures-export'
@@ -18,8 +19,10 @@ export type FigureTurnPhase =
 
 export type FigureTurn = {
   id: number
-  /** The figure the request is about; null when none was open. */
-  target: FigureTarget | null
+  /** The chat doing it; null until the send has it (a new chat is still starting). */
+  sessionId: string | null
+  /** The figure the request is about. */
+  target: FigureTarget
   /** What the person asked, as the turn bar names it. */
   request: string
   /** The prompt Retry sends again. */
@@ -40,23 +43,28 @@ export type FigureTurn = {
   error: string | null
 }
 
-type TurnState = {
-  turn: FigureTurn | null
+/** One figure's latest agent turn and what the canvas shows about it. */
+export type FigureTurnEntry = {
+  turn: FigureTurn
   /** The turn bar was closed with ×. */
   barDismissed: boolean
   showChanges: boolean
   /** What the agent's latest write added or changed, flashed on the canvas for 1.5 s. */
   flash: { ids: string[]; at: number } | null
-  /** The Figure chat is running a turn (tracked or not). */
-  agentWorking: boolean
+  /** The file when its figure opened during the turn: what the agent's next write builds on. */
+  openedAt: string | null
+}
+
+type TurnState = {
+  /** Each figure's latest turn, by `figureTurnKey`; agents on different figures run side by side. */
+  figures: Readonly<Record<string, FigureTurnEntry>>
+  /** The Figure chats running a turn now (tracked or not). */
+  workingSessions: Readonly<Record<string, true>>
 }
 
 export const useFigureTurn = create<TurnState>(() => ({
-  turn: null,
-  barDismissed: false,
-  showChanges: false,
-  flash: null,
-  agentWorking: false
+  figures: {},
+  workingSessions: {}
 }))
 
 export const FIGURE_TURN_ACTIVE: ReadonlySet<FigureTurnPhase> = new Set([
@@ -81,15 +89,37 @@ export function sameFigureTarget(a: FigureTarget | null, b: FigureTarget | null)
   )
 }
 
-function update(id: number, patch: Partial<FigureTurn>): void {
-  useFigureTurn.setState((state) =>
-    state.turn?.id === id ? { turn: { ...state.turn, ...patch } } : state
-  )
+export function figureTurnKey(target: {
+  owner: Pick<FigureTarget['owner'], 'hostId' | 'workspaceId'>
+  slug: string
+}): string {
+  return JSON.stringify([target.owner.hostId, target.owner.workspaceId, target.slug])
+}
+
+function patchEntry(key: string, patch: Partial<FigureTurnEntry>): void {
+  useFigureTurn.setState((state) => {
+    const entry = state.figures[key]
+    return entry ? { figures: { ...state.figures, [key]: { ...entry, ...patch } } } : state
+  })
+}
+
+export function updateFigureTurn(id: number, patch: Partial<FigureTurn>): void {
+  useFigureTurn.setState((state) => {
+    const found = Object.entries(state.figures).find(([, entry]) => entry.turn.id === id)
+    if (!found) {
+      return state
+    }
+    const [key, entry] = found
+    return {
+      figures: { ...state.figures, [key]: { ...entry, turn: { ...entry.turn, ...patch } } }
+    }
+  })
 }
 
 /**
- * Starts tracking a request: keeps the figure's "before send" version in its History and shows
- * `Sending…` on the canvas. Returns the turn id.
+ * Starts tracking a request on its figure: keeps the figure's "before send" version in its History
+ * and shows `Sending…` on that figure. Without a figure (a plot) nothing is tracked. Returns the
+ * turn id.
  */
 export function beginFigureTurn(input: {
   target: FigureTarget | null
@@ -97,105 +127,79 @@ export function beginFigureTurn(input: {
   prompt: string
   scope: FiguresAgentScope
   beforeText: string | null
+  sessionId?: string | null
 }): number {
   const id = nextTurnId++
-  useFigureTurn.setState({
-    barDismissed: false,
-    showChanges: false,
-    turn: {
-      id,
-      target: input.target,
-      request: input.request.replace(/\s+/g, ' ').trim(),
-      prompt: input.prompt,
-      scope: input.scope,
-      startedAt: Date.now(),
-      beforeText: input.beforeText,
-      beforeId: null,
-      phase: 'sending',
-      round: 0,
-      checks: 0,
-      sawWorking: false,
-      lastTool: null,
-      diff: null,
-      error: null
+  const { target } = input
+  if (!target) {
+    return id
+  }
+  useFigureTurn.setState((state) => ({
+    figures: {
+      ...state.figures,
+      [figureTurnKey(target)]: {
+        barDismissed: false,
+        showChanges: false,
+        flash: null,
+        openedAt: null,
+        turn: {
+          id,
+          sessionId: input.sessionId ?? null,
+          target,
+          request: input.request.replace(/\s+/g, ' ').trim(),
+          prompt: input.prompt,
+          scope: input.scope,
+          startedAt: Date.now(),
+          beforeText: input.beforeText,
+          beforeId: null,
+          phase: 'sending',
+          round: 0,
+          checks: 0,
+          // Why: a typed message's turn starts after the send, so its chat may already be working;
+          // that chat's next idle must end this turn rather than leave it Sending… for good.
+          sawWorking: Boolean(input.sessionId && state.workingSessions[input.sessionId]),
+          lastTool: null,
+          diff: null,
+          error: null
+        }
+      }
     }
-  })
-  if (input.target && input.beforeText) {
-    void snapshotFigure(input.target, {
+  }))
+  if (input.beforeText) {
+    void snapshotFigure(target, {
       kind: 'before-send',
       what: input.request,
       text: input.beforeText
-    }).then((entry) => entry && update(id, { beforeId: entry.id }))
+    }).then((entry) => entry && updateFigureTurn(id, { beforeId: entry.id }))
   }
   return id
 }
 
+/** Names the chat a turn runs in, once the send knows it. */
+export function attachFigureTurnSession(id: number, sessionId: string): void {
+  // Why: the chat can report that it is working before the send learns which chat it is.
+  const working = Boolean(useFigureTurn.getState().workingSessions[sessionId])
+  updateFigureTurn(id, working ? { sessionId, sawWorking: true } : { sessionId })
+}
+
 /** The request never reached the agent. */
 export function failFigureTurn(id: number, error: string): void {
-  update(id, { phase: 'failed', error })
+  updateFigureTurn(id, { phase: 'failed', error })
 }
 
-export type FigureAgentStatus = {
-  status: 'working' | 'attention' | 'idle' | null
-  toolName?: string
-  toolInput?: string
-  turnOutcome?: string
+/** The figure's turn entry, when its latest turn is about exactly this figure. */
+function figureEntry(state: TurnState, target: FigureTarget): FigureTurnEntry | null {
+  const entry = state.figures[figureTurnKey(target)]
+  return entry && sameFigureTarget(entry.turn.target, target) ? entry : null
 }
 
-function toolPhase(name: string, input: string): 'drawing' | 'checking' | 'reading' {
-  if (/figures\s+(preview|check|lint)\b/.test(input)) {
-    return 'checking'
-  }
-  if (/^(Bash|Write|Edit|MultiEdit|NotebookEdit|apply_patch|shell)$/i.test(name)) {
-    return /\.(excalidraw|figure\.mjs|mjs|py)\b|node\b|python/.test(input) || name !== 'Bash'
-      ? 'drawing'
-      : 'reading'
-  }
-  return 'reading'
+/** The figure's latest turn and what the canvas shows about it, or null. */
+export function useFigureTurnEntry(target: FigureTarget): FigureTurnEntry | null {
+  return useFigureTurn((state) => figureEntry(state, target))
 }
 
-/** Follows the Figure chat's status: tool calls move the phase, the turn's end settles it. */
-export function noteFigureAgentStatus(status: FigureAgentStatus): void {
-  const working = status.status === 'working'
-  if (useFigureTurn.getState().agentWorking !== working) {
-    useFigureTurn.setState({ agentWorking: working })
-  }
-  const turn = useFigureTurn.getState().turn
-  if (!turn || !FIGURE_TURN_ACTIVE.has(turn.phase)) {
-    return
-  }
-  if (status.status === 'working') {
-    const key = status.toolName ? `${status.toolName}|${status.toolInput ?? ''}` : null
-    if (!key || key === turn.lastTool) {
-      update(turn.id, {
-        sawWorking: true,
-        phase: turn.phase === 'sending' || turn.phase === 'waiting' ? 'reading' : turn.phase
-      })
-      return
-    }
-    const next = toolPhase(status.toolName ?? '', status.toolInput ?? '')
-    // Why: reading the preview PNG is part of checking it, and a read after drawing is a check too.
-    const phase = next === 'reading' && turn.round > 0 ? turn.phase : next
-    update(turn.id, {
-      sawWorking: true,
-      lastTool: key,
-      phase,
-      round: phase === 'drawing' && turn.phase !== 'drawing' ? turn.round + 1 : turn.round,
-      checks: phase === 'checking' && turn.phase !== 'checking' ? turn.checks + 1 : turn.checks
-    })
-    return
-  }
-  if (status.status === 'attention') {
-    update(turn.id, { phase: 'waiting', sawWorking: true })
-    return
-  }
-  if (status.status === 'idle' && turn.sawWorking) {
-    const stopped =
-      status.turnOutcome === 'cancellation' ||
-      status.turnOutcome === 'interruption' ||
-      status.turnOutcome === 'failure'
-    update(turn.id, { phase: stopped ? 'stopped' : 'done' })
-  }
+export function figureTurnEntry(target: FigureTarget): FigureTurnEntry | null {
+  return figureEntry(useFigureTurn.getState(), target)
 }
 
 /**
@@ -203,8 +207,8 @@ export function noteFigureAgentStatus(status: FigureAgentStatus): void {
  * after it ends until the canvas has caught up with its last write.
  */
 export function figureAgentWriting(target: FigureTarget): boolean {
-  const { turn } = useFigureTurn.getState()
-  if (!turn || !sameFigureTarget(turn.target, target)) {
+  const turn = figureTurnEntry(target)?.turn
+  if (!turn) {
     return false
   }
   return (
@@ -213,38 +217,84 @@ export function figureAgentWriting(target: FigureTarget): boolean {
   )
 }
 
-/** The figure as it was when the tracked turn on it began, or null. */
+/**
+ * What the agent's next write builds on: the figure when its tracked turn began, or the file when
+ * the figure was opened during the turn (see `noteFigureOpenedDuringTurn`). Null without a turn.
+ */
 export function figureTurnBeforeText(target: FigureTarget): string | null {
-  const { turn } = useFigureTurn.getState()
-  return turn && sameFigureTarget(turn.target, target) ? turn.beforeText : null
+  const entry = figureTurnEntry(target)
+  return entry ? (entry.openedAt ?? entry.turn.beforeText) : null
 }
 
+/**
+ * A figure opened while its agent works: the agent's next write builds on the file as it is now.
+ * Merging that write from the older "before send" text would flag the agent's own edits as conflicts.
+ */
+export function noteFigureOpenedDuringTurn(target: FigureTarget, text: string): void {
+  if (figureAgentWriting(target)) {
+    patchEntry(figureTurnKey(target), { openedAt: text })
+  }
+}
+
+/** What the open figure's latest agent write changed, flashed on its canvas. */
 export function noteFigureAgentWrite(ids: readonly string[]): void {
-  if (ids.length) {
-    useFigureTurn.setState({ flash: { ids: [...ids], at: Date.now() } })
+  const target = useFigureEditorHandle.getState().handle?.target
+  if (ids.length && target) {
+    patchEntry(figureTurnKey(target), { flash: { ids: [...ids], at: Date.now() } })
   }
 }
 
 export function setFigureTurnDiff(id: number, diff: FigureElementDiff): void {
-  update(id, { diff })
+  updateFigureTurn(id, { diff })
 }
 
-export function dismissFigureTurnBar(): void {
-  useFigureTurn.setState({ barDismissed: true, showChanges: false })
+export function dismissFigureTurnBar(target: FigureTarget): void {
+  patchEntry(figureTurnKey(target), { barDismissed: true, showChanges: false })
 }
 
-export function setFigureTurnChangesShown(showChanges: boolean): void {
-  useFigureTurn.setState({ showChanges })
+export function setFigureTurnChangesShown(target: FigureTarget, showChanges: boolean): void {
+  patchEntry(figureTurnKey(target), { showChanges })
+}
+
+/** A renamed figure keeps its running or finished turn. */
+export function moveFigureTurn(target: FigureTarget, toSlug: string): void {
+  useFigureTurn.setState((state) => {
+    const key = figureTurnKey(target)
+    const entry = state.figures[key]
+    if (!entry || target.slug === toSlug) {
+      return state
+    }
+    const { [key]: _moved, ...others } = state.figures
+    const moved = { ...entry.turn.target, slug: toSlug }
+    return {
+      figures: {
+        ...others,
+        [figureTurnKey(moved)]: { ...entry, turn: { ...entry.turn, target: moved } }
+      }
+    }
+  })
+}
+
+/** A deleted figure has no turn to show any more. */
+export function forgetFigureTurn(target: FigureTarget): void {
+  useFigureTurn.setState((state) => {
+    const { [figureTurnKey(target)]: _gone, ...others } = state.figures
+    return Object.keys(others).length === Object.keys(state.figures).length
+      ? state
+      : { figures: others }
+  })
 }
 
 /** Whether the Figure agent is working on this figure now (for the figure list's marker). */
-export function useFigureAgentEditing(slug: string): boolean {
-  return useFigureTurn(
-    (state) =>
-      state.turn !== null &&
-      state.turn.target?.slug === slug &&
-      FIGURE_TURN_ACTIVE.has(state.turn.phase)
-  )
+export function useFigureAgentEditing(
+  owner: Pick<FigureTarget['owner'], 'hostId' | 'workspaceId'>,
+  slug: string
+): boolean {
+  const key = figureTurnKey({ owner, slug })
+  return useFigureTurn((state) => {
+    const phase = state.figures[key]?.turn.phase
+    return phase !== undefined && FIGURE_TURN_ACTIVE.has(phase)
+  })
 }
 
 /** The canvas chip's words for a phase. */

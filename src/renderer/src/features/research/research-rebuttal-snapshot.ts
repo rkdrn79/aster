@@ -9,6 +9,17 @@ import {
   parsePromises
 } from '../../../../research-harness/research-rebuttal-points.mjs'
 import {
+  parseFollowUps,
+  parsePaperChanges,
+  parsePredictions,
+  parseProposals,
+  type RebuttalFollowUp,
+  type RebuttalOutlook,
+  type RebuttalPaperChange,
+  type RebuttalPrediction,
+  type RebuttalReplyProposal
+} from '../../../../research-harness/research-rebuttal-records.mjs'
+import {
   REBUTTAL_JSON_FILES,
   listRebuttalDirectory,
   readRebuttalText,
@@ -27,6 +38,12 @@ export type RebuttalSnapshot = {
   directory: string
   bundle: RebuttalBundle
   reviews: Record<string, string>
+  followUps: RebuttalFollowUp[]
+  /** Agent changes the person has not decided yet. */
+  proposals: RebuttalReplyProposal[]
+  predictions: RebuttalPrediction[]
+  outlooks: RebuttalOutlook[]
+  paperChanges: RebuttalPaperChange[]
   texts: Record<RebuttalJsonFile, string | null>
   /** Files that did not validate; the page is read-only until they do. */
   issues: string[]
@@ -92,13 +109,18 @@ async function readJsonFiles(
     names.has(REBUTTAL_JSON_FILES[key])
       ? readRebuttalText(owner, `${directory}/${REBUTTAL_JSON_FILES[key]}`)
       : null
-  const [meta, points, clusters, promises] = await Promise.all([
-    read('meta'),
-    read('points'),
-    read('clusters'),
-    read('promises')
-  ])
-  return { meta, points, clusters, promises }
+  const [meta, points, clusters, promises, followUps, proposals, predictions, paperChanges] =
+    await Promise.all([
+      read('meta'),
+      read('points'),
+      read('clusters'),
+      read('promises'),
+      read('followUps'),
+      read('proposals'),
+      read('predictions'),
+      read('paperChanges')
+    ])
+  return { meta, points, clusters, promises, followUps, proposals, predictions, paperChanges }
 }
 
 async function readReviews(
@@ -145,9 +167,14 @@ export async function loadRebuttalSnapshot(
       return fallback
     }
   }
+  const followUps = attempt(
+    'followups.json',
+    () => parseFollowUps(parseJson(texts.followUps), { reviewers: meta.reviewers }),
+    []
+  )
   const points = attempt(
     'points.json',
-    () => parsePoints(parseJson(texts.points), { reviewers: meta.reviewers, reviews }),
+    () => parsePoints(parseJson(texts.points), { reviewers: meta.reviewers, reviews, followUps }),
     []
   )
   const clusters = attempt(
@@ -155,12 +182,25 @@ export async function loadRebuttalSnapshot(
     () => parseClusters(parseJson(texts.clusters), { pointIds: points.map((point) => point.id) }),
     []
   )
+  const clusterIds = clusters.map((cluster) => cluster.id)
   const promises = attempt(
     'promises.json',
+    () => parsePromises(parseJson(texts.promises), { clusterIds }),
+    []
+  )
+  const proposals = attempt('proposals.json', () => parseProposals(parseJson(texts.proposals)), [])
+  const { predictions, outlooks } = attempt(
+    'predictions.json',
     () =>
-      parsePromises(parseJson(texts.promises), {
-        clusterIds: clusters.map((cluster) => cluster.id)
+      parsePredictions(texts.predictions === null ? [] : JSON.parse(texts.predictions), {
+        reviewers: meta.reviewers,
+        clusterIds
       }),
+    { predictions: [], outlooks: [] }
+  )
+  const paperChanges = attempt(
+    'paper-changes.json',
+    () => parsePaperChanges(parseJson(texts.paperChanges), { clusterIds }),
     []
   )
   return {
@@ -168,6 +208,11 @@ export async function loadRebuttalSnapshot(
     directory,
     bundle: { meta, points, clusters, promises },
     reviews,
+    followUps,
+    proposals,
+    predictions,
+    outlooks,
+    paperChanges,
     texts,
     issues,
     version

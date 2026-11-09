@@ -2,12 +2,15 @@ import { toast } from 'sonner'
 import { useFigureEditorHandle } from './research-figure-editor-handle'
 import { restoreFigureText } from './research-figure-history'
 import {
+  attachFigureTurnSession,
   beginFigureTurn,
   dismissFigureTurnBar,
   failFigureTurn,
-  useFigureTurn
+  figureTurnEntry,
+  sameFigureTarget
 } from './research-figure-turn'
-import { sendFiguresPrompt, type FiguresAgentScope } from './research-figures-agent-session'
+import { sendFigurePrompt, type FiguresAgentScope } from './research-figures-agent-session'
+import type { FigureTarget } from './research-figures-export'
 
 /** The open figure's scene text, without loading the editor's chunk here. */
 async function openFigureText(): Promise<{
@@ -22,8 +25,12 @@ async function openFigureText(): Promise<{
   return { text: figureSceneText(handle.api), handle }
 }
 
-/** A message typed in the Figure chat is a request too: keep "before send" and track the turn. */
-export function noteTypedFigureMessage(scope: FiguresAgentScope, text: string): void {
+/** A message typed in a figure's chat is a request too: keep "before send" and track the turn. */
+export function noteTypedFigureMessage(
+  scope: FiguresAgentScope,
+  sessionId: string,
+  text: string
+): void {
   if (!text.trim() || text.startsWith('/')) {
     return
   }
@@ -33,7 +40,8 @@ export function noteTypedFigureMessage(scope: FiguresAgentScope, text: string): 
       request: text,
       prompt: text,
       scope,
-      beforeText: before
+      beforeText: before,
+      sessionId
     })
   )
 }
@@ -54,30 +62,32 @@ export function stopFigureAgent(): boolean {
   return true
 }
 
-/** Sends the last request again as a new turn. */
-export async function retryFigureTurn(): Promise<void> {
-  const turn = useFigureTurn.getState().turn
+/** Sends the figure's last request again as a new turn. */
+export async function retryFigureTurn(target: FigureTarget): Promise<void> {
+  const turn = figureTurnEntry(target)?.turn
   if (!turn) {
     return
   }
-  const { text } = await openFigureText()
+  const { text, handle } = await openFigureText()
   const id = beginFigureTurn({
     target: turn.target,
     request: turn.request,
     prompt: turn.prompt,
     scope: turn.scope,
-    beforeText: text
+    beforeText: handle && sameFigureTarget(handle.target, turn.target) ? text : null
   })
-  const failure = await sendFiguresPrompt(turn.scope, turn.prompt)
+  const failure = await sendFigurePrompt(turn.scope, turn.target.slug, turn.prompt, {
+    onSession: (sessionId) => attachFigureTurnSession(id, sessionId)
+  })
   if (failure) {
     failFigureTurn(id, failure)
   }
 }
 
 /** Puts the figure back to its "before send" version in one step; the agent's stays in History. */
-export async function undoFigureTurn(): Promise<void> {
-  const turn = useFigureTurn.getState().turn
-  if (!turn?.target || turn.beforeText === null) {
+export async function undoFigureTurn(target: FigureTarget): Promise<void> {
+  const turn = figureTurnEntry(target)?.turn
+  if (!turn || turn.beforeText === null) {
     return
   }
   const failure = await restoreFigureText(
@@ -89,7 +99,7 @@ export async function undoFigureTurn(): Promise<void> {
     toast.error(failure)
     return
   }
-  dismissFigureTurnBar()
+  dismissFigureTurnBar(turn.target)
   toast.success('Undid the agent turn.', {
     description: "The agent's version is still in History."
   })

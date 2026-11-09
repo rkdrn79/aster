@@ -154,7 +154,7 @@ export function ResearchFigureHistoryPanel(): React.JSX.Element {
     setWorking(true)
     try {
       const text = await readFigureSnapshot(target.owner, target.slug, entry.id)
-      const slug = await createFigureFromText(target.owner, target.folder, target.slug, text)
+      const slug = await createFigureFromText(target.owner, target.slug, text)
       toast.success(`Opened the version as ${slug}.`)
     } catch (cause) {
       toast.error(`Not duplicated. ${cause instanceof Error ? cause.message : String(cause)}`)

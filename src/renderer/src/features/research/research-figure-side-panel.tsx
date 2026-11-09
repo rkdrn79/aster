@@ -8,7 +8,7 @@ import type { ProjectFileOwner } from './research-project-files'
 /** What a side-panel tab gets to work with: the project and the figure on the canvas. */
 export type FigureSidePanelContext = {
   owner: ProjectFileOwner
-  /** Project-relative figures folder, e.g. `paper/figures`; null while it loads. */
+  /** Project-relative working folder, e.g. `.aster/figures`; null while it loads. */
   folder: string | null
   /** The open editable figure; null for none or a read-only plot. */
   slug: string | null

@@ -46,26 +46,24 @@ export function InspectorPhotoSection({
     setError(null)
     work.catch((cause: unknown) => setError(cause instanceof Error ? cause.message : String(cause)))
   }
-  const fromProject = (name: string): void => {
+  const fromProject = (name: string, path: string): void => {
     const api = context.api()
     if (!api) {
       return
     }
     run(
-      readProjectFile(context.project.owner, `${context.project.folder}/${name}`).then(
-        async (file) => {
-          const mimeType = imageMimeType(file.mimeType ?? '')
-          if (!file.isBinary || !mimeType) {
-            throw new Error(`${name} is not a picture Aster can place.`)
-          }
-          await replacePhoto(
-            api,
-            photo.id,
-            { dataURL: `data:${mimeType};base64,${file.content}`, mimeType },
-            context.commit
-          )
+      readProjectFile(context.project.owner, path).then(async (file) => {
+        const mimeType = imageMimeType(file.mimeType ?? '')
+        if (!file.isBinary || !mimeType) {
+          throw new Error(`${name} is not a picture Aster can place.`)
         }
-      )
+        await replacePhoto(
+          api,
+          photo.id,
+          { dataURL: `data:${mimeType};base64,${file.content}`, mimeType },
+          context.commit
+        )
+      })
     )
   }
   const pictures = useResearchFigures
@@ -95,7 +93,10 @@ export function InspectorPhotoSection({
             <DropdownMenuLabel>Pictures beside the figures</DropdownMenuLabel>
             {pictures.length ? (
               pictures.map((entry) => (
-                <DropdownMenuItem key={entry.name} onSelect={() => fromProject(entry.name)}>
+                <DropdownMenuItem
+                  key={entry.name}
+                  onSelect={() => fromProject(entry.name, `${entry.folder}/${entry.name}`)}
+                >
                   {entry.name}
                 </DropdownMenuItem>
               ))

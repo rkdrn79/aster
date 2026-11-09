@@ -15,7 +15,7 @@ import {
 } from './research-conversation-home'
 import { withWritingAgentSession } from './research-writing-agent-session'
 import { withRebuttalAgentSession } from './research-rebuttal-agent-session'
-import { withFiguresAgentSession } from './research-figures-agent-session'
+import { withFigureAgentSession } from './research-figure-chat-slots'
 
 const experiment = {
   id: '11111111-1111-4111-8111-111111111111',
@@ -190,7 +190,7 @@ describe('research conversation home', () => {
   it('moves a chat to Figures when it is bound there, even from Rebuttal', () => {
     const scope = { hostId: 'local', workspaceId: 'workspace-a' }
     const rebuttal = withRebuttalAgentSession(emptyResearchDocument(), scope, 'chat-1')
-    const records = withFiguresAgentSession(rebuttal, scope, 'chat-1')
+    const records = withFigureAgentSession(rebuttal, scope, null, 'chat-1')
     expect(researchConversationHome(records, null, 'local', 'workspace-a', 'chat-1')).toEqual({
       kind: 'figures'
     })

@@ -70,6 +70,7 @@ function destinationOf(relative, paperDirectory, bibliographyName) {
     [`${LEGACY}/references/papers`, `${ASTER_DIRECTORY}/library/papers`],
     [`${LEGACY}/references/${bibliographyName}`, `${paperDirectory}/${bibliographyName}`],
     [`${LEGACY}/experiments`, `${ASTER_DIRECTORY}/experiments`],
+    [`${LEGACY}/figures`, `${ASTER_DIRECTORY}/figures`],
     [`${LEGACY}/claims.json`, `${ASTER_DIRECTORY}/claims.json`]
   ]
   for (const [from, to] of map) {
@@ -177,6 +178,7 @@ export async function migrateProjectLayout(projectPath, options = {}) {
   )
   const moves = [
     [`${LEGACY}/experiments`, `${ASTER_DIRECTORY}/experiments`],
+    [`${LEGACY}/figures`, `${ASTER_DIRECTORY}/figures`],
     [`${LEGACY}/claims.json`, `${ASTER_DIRECTORY}/claims.json`],
     [`${LEGACY}/manuscript`, paperDirectory],
     [`${LEGACY}/references/${bibliographyName}`, `${paperDirectory}/${bibliographyName}`],

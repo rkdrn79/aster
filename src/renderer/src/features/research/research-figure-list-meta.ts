@@ -4,10 +4,15 @@ import {
   PAGE_FRAME_ID,
   figureFilePaths
 } from '../../../../research-harness/research-figures-model.mjs'
+import { sceneSha256 } from './research-figure-document'
 import { figureSceneMeta, type FigureSceneMeta } from './research-figure-list-model'
 import { readProjectText, type ProjectFileOwner } from './research-project-files'
 
-export type FigureListMeta = FigureSceneMeta & { thumbnail: string | null }
+export type FigureListMeta = FigureSceneMeta & {
+  thumbnail: string | null
+  /** The scene's hash, which the paper's copy is compared with. */
+  sceneSha256: string | null
+}
 
 const cache = new Map<string, Promise<FigureListMeta>>()
 const settled = new Map<string, FigureListMeta>()
@@ -65,9 +70,10 @@ function loadMeta(
   const loading = readProjectText(owner, figureFilePaths(folder, slug).scene).then(
     async (text) => ({
       ...figureSceneMeta(text),
-      thumbnail: await sceneThumbnail(text).catch(() => null)
+      thumbnail: await sceneThumbnail(text).catch(() => null),
+      sceneSha256: await sceneSha256(text)
     }),
-    () => ({ title: null, caption: null, thumbnail: null })
+    () => ({ title: null, caption: null, thumbnail: null, sceneSha256: null })
   )
   cache.set(key, loading)
   void loading.then((meta) => settled.set(key, meta))

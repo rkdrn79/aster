@@ -25,11 +25,14 @@ import {
   launchRebuttalAgent,
   rebuttalAgentSessionId
 } from './research-rebuttal-agent-session'
+import { rebuttalReviewerSessionIds } from './research-rebuttal-reviewer-session'
 import {
-  bindFiguresAgentSession,
-  figuresAgentSessionId,
-  launchFiguresAgent
+  bindFigureAgentSession,
+  figureAgentSessionId,
+  figureOfChat,
+  launchFigureAgent
 } from './research-figures-agent-session'
+import { openFigureSlug, useResearchFigures } from './research-figures-store'
 import { openProjectAgentPage } from './research-project-agent-page'
 
 const NO_TABS: Tab[] = []
@@ -45,6 +48,8 @@ export function ResearchSidebarAgentConversations({
   )
   const records = useResearchRecords((state) => state.document)
   const library = useResearchLibrary((state) => state.document)
+  // Why subscribe: the Figures section's "New agent chat" depends on the open figure.
+  useResearchFigures((state) => state.selected)
   const [launching, setLaunching] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // Why the owner: Writing is project-wide, so its chat never follows the selected Experiment.
@@ -67,6 +72,7 @@ export function ResearchSidebarAgentConversations({
         }
       : null
   const scopeKey = scope ? libraryScopeKey(scope) : null
+  const figureSlug = kind === 'figures' && scope ? openFigureSlug(scope) : null
   const sessionId =
     kind === 'writing'
       ? scope
@@ -77,11 +83,14 @@ export function ResearchSidebarAgentConversations({
         ? scope
           ? kind === 'rebuttal'
             ? rebuttalAgentSessionId(records, scope)
-            : figuresAgentSessionId(records, scope)
+            : figureAgentSessionId(records, scope, figureSlug)
           : undefined
         : scope
           ? library?.readingAgentSessionByScope[scopeKey ?? '']
           : undefined
+  const reviewerSessions = new Set(
+    kind === 'rebuttal' && scope ? rebuttalReviewerSessionIds(records, scope) : []
+  )
   const dedicatedTabs = context.hostId
     ? researchChatSessionTabs(useAppStore.getState(), tabs, context.hostId).filter((entry) => {
         const home = researchConversationHome(
@@ -93,7 +102,8 @@ export function ResearchSidebarAgentConversations({
         )
         // Why no sort: picking a chat binds it, and moving the bound one up reordered the list
         // on every click; the list keeps the tabs' own order and marks the bound chat instead.
-        return home.kind === kind
+        // Why exclude reviewer chats: picking one here would make a simulation the author agent.
+        return home.kind === kind && !reviewerSessions.has(entry.entityId)
       })
     : []
   const boundTab = dedicatedTabs.find((entry) => entry.entityId === sessionId)
@@ -103,12 +113,12 @@ export function ResearchSidebarAgentConversations({
     void useResearchLibrary.getState().load()
   }, [])
 
-  function openAgent(): void {
+  function openAgent(sessionToShow?: string): void {
     if (kind === 'writing' && scope) {
       requestWritingAgentFocus(projectWritingRecordId(scope))
       openResearchView('research-writing')
     } else if ((kind === 'rebuttal' || kind === 'figures') && scope) {
-      openProjectAgentPage(kind, scope)
+      openProjectAgentPage(kind, scope, sessionToShow)
     } else if (kind === 'library' && scope) {
       requestLibraryAgentFocus(libraryScopeKey(scope))
       openResearchView('research-library')
@@ -128,7 +138,7 @@ export function ResearchSidebarAgentConversations({
           : kind === 'rebuttal' && scope
             ? await launchRebuttalAgent(scope, agent)
             : kind === 'figures' && scope
-              ? await launchFiguresAgent(scope, agent)
+              ? await launchFigureAgent(scope, openFigureSlug(scope), agent)
               : kind === 'library' && scope
                 ? await launchReadingChat(scope, agent)
                 : 'Choose a workspace first.'
@@ -151,12 +161,15 @@ export function ResearchSidebarAgentConversations({
       } else if (kind === 'rebuttal' && scope) {
         await bindRebuttalAgentSession(scope, tab.entityId)
       } else if (kind === 'figures' && scope) {
-        await bindFiguresAgentSession(scope, tab.entityId)
+        // Why: a figure's chat opens on that figure; a chat no figure holds joins the open one.
+        if (!figureOfChat(records, scope, tab.entityId)) {
+          await bindFigureAgentSession(scope, openFigureSlug(scope), tab.entityId)
+        }
       } else if (kind === 'library' && scope) {
         await bindReadingSession(scope, tab.entityId)
       }
       setError(null)
-      openAgent()
+      openAgent(kind === 'figures' ? tab.entityId : undefined)
     } catch (cause) {
       setError(`Conversation was not selected. ${String(cause)}`)
     }

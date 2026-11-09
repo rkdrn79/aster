@@ -18,6 +18,10 @@ export function pickResearchWindowState(state: AppState) {
     lastVisitedAtByWorktreeId: state.lastVisitedAtByWorktreeId,
     runtimeEnvironments: state.runtimeEnvironments,
     runtimeEnvironmentCatalogHydrated: state.runtimeEnvironmentCatalogHydrated,
+    // Why: every host-dependent surface reads connection state from here; without it a healthy
+    // remote host reads as "not known yet", so chats say reconnecting and agents can't start.
+    runtimeStatusByEnvironmentId: state.runtimeStatusByEnvironmentId,
+    sshStateByEnvironment: state.sshStateByEnvironment,
     removedRuntimeEnvironmentIds: state.removedRuntimeEnvironmentIds,
     restoredRuntimeHostIdByWorkspaceSessionKey: state.restoredRuntimeHostIdByWorkspaceSessionKey,
     settings: state.settings,

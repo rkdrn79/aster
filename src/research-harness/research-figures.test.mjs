@@ -158,7 +158,7 @@ test('the CLI creates, lists, checks, and prints parts', async () => {
       'double'
     ])
     assert.equal(created.code, 0)
-    assert.equal(created.result.scene, 'docs/paper/figures/method.excalidraw')
+    assert.equal(created.result.scene, '.aster/figures/method.excalidraw')
     const scene = JSON.parse(await readFile(path.join(project, created.result.scene), 'utf8'))
     assert.equal(figurePage(scene.elements).widthIn, 6.75)
     assert.equal((await harness(project, ['figures', 'new', '--name', 'Method'])).code, 1)
@@ -194,7 +194,7 @@ test('a figure script imports the kit through a portable shim, and figures run r
       JSON.stringify({ schemaVersion: 2, manuscript: { source: 'paper/main.tex', pdf: null } })
     )
     const created = await harness(project, ['figures', 'new', '--name', 'Method'])
-    assert.equal(created.result.shim, 'paper/figures/src/aster-figures-kit.mjs')
+    assert.equal(created.result.shim, '.aster/figures/src/aster-figures-kit.mjs')
     const shimFile = path.join(project, created.result.shim)
     assert.ok(
       !(await readFile(shimFile, 'utf8')).includes(import.meta.dirname),

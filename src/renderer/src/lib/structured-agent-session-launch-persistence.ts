@@ -25,12 +25,25 @@ const tombstones = new Map<string, ExecutionHostId>()
 const remoteTombstoneCancelledAt = new Map<string, number>()
 const REMOTE_TOMBSTONE_TTL_MS = 30 * 24 * 60 * 60 * 1000
 let loaded = false
+let persistenceDisabled = false
+
+/**
+ * A research window shows launches the main window owns, so this renderer must neither read nor
+ * write the records. They share localStorage, and a read here would freeze the main window's
+ * in-flight launch as of this moment, reporting a chat still starting as unconfirmed.
+ */
+export function disableStructuredAgentLaunchPersistence(): void {
+  persistenceDisabled = true
+}
 
 function load(): void {
   if (loaded) {
     return
   }
   loaded = true
+  if (persistenceDisabled) {
+    return
+  }
   if (typeof localStorage === 'undefined') {
     return
   }
@@ -112,7 +125,7 @@ function serializeTombstone(sessionId: string, executionHostId: ExecutionHostId)
 }
 
 function writeRecords(): void {
-  if (typeof localStorage === 'undefined') {
+  if (typeof localStorage === 'undefined' || persistenceDisabled) {
     return
   }
   try {
@@ -128,7 +141,7 @@ function writeRecords(): void {
 }
 
 function writeTombstones(): void {
-  if (typeof localStorage === 'undefined') {
+  if (typeof localStorage === 'undefined' || persistenceDisabled) {
     return
   }
   try {
@@ -258,4 +271,5 @@ export function resetStructuredAgentLaunchPersistenceForTests(): void {
   tombstones.clear()
   remoteTombstoneCancelledAt.clear()
   loaded = false
+  persistenceDisabled = false
 }

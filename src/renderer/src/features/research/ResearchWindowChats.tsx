@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { MessageSquare, Plus } from 'lucide-react'
+import { toast } from 'sonner'
 import type { Tab } from '../../../../shared/tab-types'
 import { formatAgentTypeLabel } from '../../../../shared/agent-type-label'
 import { Button } from '@/components/ui/button'
@@ -16,6 +17,8 @@ import { researchChatSessionTabs } from './ResearchAgentChatPane'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
 
 const EMPTY_TABS: readonly Tab[] = []
+// How long a started chat may take to show up in this window's list before the spinner gives up.
+const NEW_CHAT_APPEAR_TIMEOUT_MS = 20_000
 
 function chatLabel(tab: ReturnType<typeof researchChatSessionTabs>[number]): string {
   return (
@@ -48,6 +51,18 @@ export function ResearchWindowChats({
   const [launchBaseline, setLaunchBaseline] = useState<ReadonlySet<string> | null>(null)
   const created = launchBaseline ? (chats.find((tab) => !launchBaseline.has(tab.id)) ?? null) : null
   const starting = launchBaseline !== null && created === null
+  // The main window answered, but the new chat has not shown up yet; don't wait on it forever.
+  const [awaitingNewChat, setAwaitingNewChat] = useState(false)
+  useEffect(() => {
+    if (!awaitingNewChat || created) {
+      return
+    }
+    const timer = setTimeout(() => {
+      setLaunchBaseline(null)
+      setAwaitingNewChat(false)
+    }, NEW_CHAT_APPEAR_TIMEOUT_MS)
+    return () => clearTimeout(timer)
+  }, [awaitingNewChat, created])
 
   const selected = created ?? chats.find((tab) => tab.id === selectedId) ?? chats[0] ?? null
   const owner = selected
@@ -61,8 +76,18 @@ export function ResearchWindowChats({
   }
   const start = (agent: TuiAgent): void => {
     setLaunchBaseline(new Set(chats.map((tab) => tab.id)))
+    setAwaitingNewChat(false)
     // The window's own resolution of its host, for a project opened before its host was stamped.
-    void window.api.researchWindow.launchChat({ ...target, hostId: hostId ?? target.hostId }, agent)
+    void window.api.researchWindow
+      .launchChat({ ...target, hostId: hostId ?? target.hostId }, agent)
+      .then((result) => {
+        if ('error' in result) {
+          setLaunchBaseline(null)
+          toast.error(result.error)
+        } else {
+          setAwaitingNewChat(true)
+        }
+      })
   }
 
   return (

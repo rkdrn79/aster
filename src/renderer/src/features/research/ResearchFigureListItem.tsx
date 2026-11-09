@@ -3,6 +3,7 @@ import {
   Check,
   Copy,
   FileCode2,
+  FolderInput,
   FolderOpen,
   Loader2,
   MoreHorizontal,
@@ -30,10 +31,23 @@ import { cn } from '@/lib/utils'
 import { figureScriptExists } from './research-figure-file-actions'
 import type { FigureListMeta } from './research-figure-list-meta'
 import type { FigureExportState } from './research-figure-list-model'
+import {
+  FIGURE_MOVE_BLOCKED_LABEL,
+  FIGURE_RENAME_BLOCKED_LABEL,
+  useFigureRenameBlocked
+} from './research-figure-rename-guard'
+import type { FigurePaperState } from '../../../../research-harness/research-figures-locations.mjs'
 import { useFigureAgentEditing } from './research-figure-turn'
 import type { ProjectFileOwner } from './research-project-files'
 
-export type FigureItemAction = 'rename' | 'duplicate' | 'delete' | 'reveal' | 'include' | 'script'
+export type FigureItemAction =
+  | 'rename'
+  | 'duplicate'
+  | 'delete'
+  | 'reveal'
+  | 'include'
+  | 'script'
+  | 'adopt'
 
 type MenuParts = {
   Item: ComponentType<{
@@ -49,15 +63,19 @@ function FigureMenuItems({
   Item,
   Separator,
   hasScript,
+  renameBlocked,
+  canAdopt,
   onAction
 }: MenuParts & {
   hasScript: boolean | null
+  renameBlocked: boolean
+  canAdopt: boolean
   onAction: (action: FigureItemAction) => void
 }): React.JSX.Element {
   return (
     <>
-      <Item onSelect={() => onAction('rename')}>
-        <Pencil aria-hidden /> Rename…
+      <Item disabled={renameBlocked} onSelect={() => onAction('rename')}>
+        <Pencil aria-hidden /> {renameBlocked ? FIGURE_RENAME_BLOCKED_LABEL : 'Rename…'}
       </Item>
       <Item onSelect={() => onAction('duplicate')}>
         <Copy aria-hidden /> Duplicate
@@ -76,6 +94,12 @@ function FigureMenuItems({
         <FileCode2 aria-hidden />
         {hasScript === false ? 'No script yet' : 'Open script'}
       </Item>
+      {canAdopt ? (
+        <Item disabled={renameBlocked} onSelect={() => onAction('adopt')}>
+          <FolderInput aria-hidden />{' '}
+          {renameBlocked ? FIGURE_MOVE_BLOCKED_LABEL : "Move to Aster's figures folder"}
+        </Item>
+      ) : null}
     </>
   )
 }
@@ -127,8 +151,11 @@ export function ResearchFigureListItem({
   active,
   usages,
   exportState,
+  paperState,
+  updatingPaper,
   onSelect,
-  onAction
+  onAction,
+  onUpdatePaper
 }: {
   owner: ProjectFileOwner
   folder: string | null
@@ -138,12 +165,22 @@ export function ResearchFigureListItem({
   /** Manuscript lines that include it. */
   usages: readonly number[]
   exportState: FigureExportState
+  paperState: FigurePaperState
+  updatingPaper: boolean
   onSelect: () => void
   onAction: (action: FigureItemAction) => void
+  onUpdatePaper: () => void
 }): React.JSX.Element {
-  const editing = useFigureAgentEditing(slug)
+  const editing = useFigureAgentEditing(owner, slug)
+  const renameBlocked = useFigureRenameBlocked(owner, slug)
   const [hasScript, setHasScript] = useState<boolean | null>(null)
   const title = meta?.title ?? slug
+  const paperIssue =
+    paperState === 'outdated'
+      ? 'Paper copy outdated'
+      : paperState === 'missing'
+        ? 'Paper copy missing'
+        : null
   const checkScript = (open: boolean): void => {
     if (open && folder) {
       void figureScriptExists(owner, { folder, slug }).then(setHasScript)
@@ -175,7 +212,7 @@ export function ResearchFigureListItem({
               ) : null}
             </span>
           </button>
-          {usages.length || editing || exportState !== 'fresh' ? (
+          {usages.length || editing || exportState !== 'fresh' || paperIssue ? (
             <span className="flex flex-wrap gap-1">
               {usages.length ? (
                 <Badge tone="ok">
@@ -189,7 +226,20 @@ export function ResearchFigureListItem({
               ) : null}
               {exportState === 'outdated' ? <Badge tone="warn">Export outdated</Badge> : null}
               {exportState === 'missing' ? <Badge tone="warn">Not exported</Badge> : null}
+              {paperIssue ? <Badge tone="warn">{paperIssue}</Badge> : null}
             </span>
+          ) : null}
+          {paperIssue ? (
+            <Button
+              size="xs"
+              variant="outline"
+              className="self-start"
+              aria-label={`Update ${title} in paper`}
+              disabled={updatingPaper}
+              onClick={onUpdatePaper}
+            >
+              {updatingPaper ? 'Updating…' : 'Update in paper'}
+            </Button>
           ) : null}
           <span className="absolute top-2.5 right-2.5 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 has-[[data-state=open]]:opacity-100">
             <DropdownMenu onOpenChange={checkScript}>
@@ -208,6 +258,8 @@ export function ResearchFigureListItem({
                   Item={DropdownMenuItem}
                   Separator={DropdownMenuSeparator}
                   hasScript={hasScript}
+                  renameBlocked={renameBlocked}
+                  canAdopt={paperState === 'beside'}
                   onAction={onAction}
                 />
               </DropdownMenuContent>
@@ -220,6 +272,8 @@ export function ResearchFigureListItem({
           Item={ContextMenuItem}
           Separator={ContextMenuSeparator}
           hasScript={hasScript}
+          renameBlocked={renameBlocked}
+          canAdopt={paperState === 'beside'}
           onAction={onAction}
         />
       </ContextMenuContent>

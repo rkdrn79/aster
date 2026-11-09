@@ -7,6 +7,7 @@ import {
   newFigureScene
 } from '../../../../research-harness/research-figures-model.mjs'
 import { figureFileText } from './research-figure-document'
+import { ensureFigureWorkFolder } from './research-figure-listing'
 import { useFigureEditorHandle, type FigureEditorHandle } from './research-figure-editor-handle'
 import type { FigureRequestHost } from './research-figure-prompt-context'
 import { refreshFigureList, selectFigure, useResearchFigures } from './research-figures-store'
@@ -55,14 +56,18 @@ export function freeFigureSlug(base: string, taken: ReadonlySet<string>): string
   }
 }
 
-/** Writes a new figure file with this text and opens it; returns its slug. */
+/** Writes a new figure file with this text in the working folder and opens it; returns its slug. */
 export async function createFigureFromText(
   owner: ProjectFileOwner,
-  folder: string,
   baseSlug: string,
   text: string
 ): Promise<string> {
-  const taken = new Set(useResearchFigures.getState().listing.figures.map((entry) => entry.slug))
+  const { folder, listing } = useResearchFigures.getState()
+  if (!folder) {
+    throw new Error('The figures folder is not known yet.')
+  }
+  const taken = new Set(listing.figures.map((entry) => entry.slug))
+  await ensureFigureWorkFolder(owner, folder)
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const slug = freeFigureSlug(baseSlug, taken)
     try {
@@ -81,7 +86,7 @@ export async function createFigureFromText(
 }
 
 /** Resolves once the editor shows `slug`, or null after a few seconds. */
-function editorFor(slug: string): Promise<FigureEditorHandle | null> {
+export function editorFor(slug: string): Promise<FigureEditorHandle | null> {
   const current = useFigureEditorHandle.getState().handle
   if (current?.target.slug === slug) {
     return Promise.resolve(current)
@@ -124,7 +129,7 @@ export async function openRedrawFigure(
           page?.style ?? null
         )
       )
-  const slug = await createFigureFromText(target.owner, target.folder, target.slug, text)
+  const slug = await createFigureFromText(target.owner, target.slug, text)
   const handle = await editorFor(slug)
   return handle ? { ...host, api: handle.api, target: handle.target, save: handle.save } : null
 }

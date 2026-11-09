@@ -4,9 +4,8 @@ import { undoFigureTurn } from './research-figure-agent-actions'
 import { figureDiffCount, figureDiffText } from './research-figure-diff'
 import {
   dismissFigureTurnBar,
-  sameFigureTarget,
   setFigureTurnChangesShown,
-  useFigureTurn
+  useFigureTurnEntry
 } from './research-figure-turn'
 import type { FigureTarget } from './research-figures-export'
 
@@ -19,14 +18,17 @@ export function ResearchFigureTurnBar({
 }: {
   target: FigureTarget
 }): React.JSX.Element | null {
-  const turn = useFigureTurn((state) =>
-    sameFigureTarget(state.turn?.target ?? null, target) ? state.turn : null
-  )
-  const dismissed = useFigureTurn((state) => state.barDismissed)
-  const showChanges = useFigureTurn((state) => state.showChanges)
-  if (!turn?.diff || dismissed || (turn.phase !== 'done' && turn.phase !== 'stopped')) {
+  const entry = useFigureTurnEntry(target)
+  const turn = entry?.turn
+  if (
+    !entry ||
+    !turn?.diff ||
+    entry.barDismissed ||
+    (turn.phase !== 'done' && turn.phase !== 'stopped')
+  ) {
     return null
   }
+  const { showChanges } = entry
   const changed = figureDiffCount(turn.diff) > 0
   return (
     <div
@@ -50,7 +52,7 @@ export function ResearchFigureTurnBar({
               size="xs"
               variant={showChanges ? 'secondary' : 'ghost'}
               aria-pressed={showChanges}
-              onClick={() => setFigureTurnChangesShown(!showChanges)}
+              onClick={() => setFigureTurnChangesShown(target, !showChanges)}
             >
               <Eye aria-hidden /> Show changes
             </Button>
@@ -59,7 +61,7 @@ export function ResearchFigureTurnBar({
               variant="ghost"
               disabled={turn.beforeText === null}
               title="Put the figure back as it was before this request"
-              onClick={() => void undoFigureTurn()}
+              onClick={() => void undoFigureTurn(target)}
             >
               <Undo2 aria-hidden /> Undo turn
             </Button>
@@ -69,7 +71,7 @@ export function ResearchFigureTurnBar({
           size="icon-xs"
           variant="ghost"
           aria-label="Close the turn summary"
-          onClick={dismissFigureTurnBar}
+          onClick={() => dismissFigureTurnBar(target)}
         >
           <X aria-hidden />
         </Button>

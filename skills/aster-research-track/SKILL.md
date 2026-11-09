@@ -188,20 +188,28 @@ rebuttal file with `rebuttal` commands; never hand-edit them. Aster shows each c
 as soon as it is saved. A rebuttal lives in `.aster/rebuttal/<slug>/` (`research/rebuttal/` in
 older projects); `--rebuttal <slug>` may be left out when the project has only one.
 
-| File            | Holds                                                                                                                                                                                                                                                                                    |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `rebuttal.json` | name, venue, OpenReview forum, limits (`replyChars`, default 5000; `generalChars`; `pdfPages`), reviewers `R1`… with label, rating, confidence and opening, the general response intro and closing                                                                                       |
-| `reviews/R1.md` | one reviewer's text, as pasted or imported                                                                                                                                                                                                                                               |
-| `points.json`   | atomic points: `id` (`R1-W2` weakness, `R1-Q1` question, `R1-M1` minor; numbered in review order), `kind`, `type` (experiment-request, clarity, related-work, novelty, soundness, reproducibility, presentation, typo, other), `summary`, and `quote` copied verbatim from the review    |
-| `clusters.json` | one answer each: `id` (`C1`), `title`, `points`, `action` (`experiment` new run, `text` paper change, `clarify` reply only), `plan`, `status` (`todo`, `drafting`, `done`), `experiment` (catalog slug), `manuscript` (`file`, `line`, `anchor`), `response` (Markdown draft), `general` |
-| `promises.json` | what the rebuttal promises for the final version: `P1`, `text`, `clusters`, `done`                                                                                                                                                                                                       |
-| `responses/`    | assembled outputs: `reviewer-R1.md`, `general.md`, `rebuttal.tex`                                                                                                                                                                                                                        |
+| File                 | Holds                                                                                                                                                                                                                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rebuttal.json`      | name, venue, OpenReview forum, limits (`replyChars`, default 5000; `generalChars`; `pdfPages`), reviewers `R1`… with label, rating, confidence and opening, the general response intro and closing                                                                                       |
+| `reviews/R1.md`      | one reviewer's text, as pasted or imported                                                                                                                                                                                                                                               |
+| `points.json`        | atomic points: `id` (`R1-W2` weakness, `R1-Q1` question, `R1-M1` minor; numbered in review order), `kind`, `type` (experiment-request, clarity, related-work, novelty, soundness, reproducibility, presentation, typo, other), `summary`, and `quote` copied verbatim from the review    |
+| `clusters.json`      | one answer each: `id` (`C1`), `title`, `points`, `action` (`experiment` new run, `text` paper change, `clarify` reply only), `plan`, `status` (`todo`, `drafting`, `done`), `experiment` (catalog slug), `manuscript` (`file`, `line`, `anchor`), `response` (Markdown draft), `general` |
+| `promises.json`      | what the rebuttal promises for the final version: `P1`, `text`, `clusters`, `done`                                                                                                                                                                                                       |
+| `responses/`         | assembled outputs: `reviewer-R1.md` (`reviewer-R1-round-2.md` for a later round), `general.md`, `rebuttal.tex`                                                                                                                                                                           |
+| `followups.json`     | a reviewer's later replies as rounds: `reviewer`, `round` (2, 3…), `text`, `receivedAt`; points of a round carry `round` and quote its text                                                                                                                                              |
+| `proposals.json`     | agent changes the person has not decided yet: `slot` (`C3`, `opening:R1`, `general:intro`), `text`, `base`, `turn`, `request`                                                                                                                                                            |
+| `predictions.json`   | a simulated reviewer's next-concern predictions (`R1-N1`, `concern`, `why`, `likelihood`, `trigger`, `preempt`, `status`)                                                                                                                                                                |
+| `paper-changes.json` | tracked manuscript changes: `E1`, `cluster`, `promise`, `file`, `find`, `replace`, `why`, `status` (`pending`, `applied`, `rejected`)                                                                                                                                                    |
+| `history/`           | kept versions of each reply (`C3.json`, `opening-R1.json`, …)                                                                                                                                                                                                                            |
 
 ```bash
 node H/cli.mjs rebuttal show --rebuttal <slug>
 node H/cli.mjs rebuttal points set --rebuttal <slug> --file - [--reviewer R2] < points.json
 node H/cli.mjs rebuttal clusters set --rebuttal <slug> --file - < clusters.json
 node H/cli.mjs rebuttal response set --rebuttal <slug> --cluster C3 --file - < answer.md
+node H/cli.mjs rebuttal response revise --rebuttal <slug> --cluster C3 --file - < '{"find":"exact passage","replace":"new passage"}'
+node H/cli.mjs rebuttal followup add --rebuttal <slug> --reviewer R1 --file - < followup.txt
+node H/cli.mjs rebuttal paper propose --rebuttal <slug> --cluster C5 --file - < '{"file":"paper/main.tex","find":"…","replace":"…","why":"…","promise":"…"}'
 node H/cli.mjs rebuttal promises add --rebuttal <slug> --text "Add X to Table 2" --cluster C3
 node H/cli.mjs rebuttal assemble --rebuttal <slug> [--format reviewer|general|pdf|all]
 ```
@@ -214,23 +222,55 @@ node H/cli.mjs rebuttal assemble --rebuttal <slug> [--format reviewer|general|pd
 - **Draft.** Answer first, then evidence with real numbers from Runs (`context`, `run show`), then
   the paper change. Never invent results: write `[TBD: …]` and propose the Experiment that would
   produce it. Record each promise with `promises add` as you make it.
+- **Never overwrite written text.** `response set` fills an empty reply and leaves a reply that has
+  text untouched: your text becomes a proposal the person accepts or discards on the Rebuttal page.
+  `clusters set` keeps every reply as written; a `response` field in it is ignored on a reply that
+  has text. Pass the `--turn` and `--request` Aster gives you. Only the person marks a reply Ready
+  (`--status done` is refused).
+- **Revise.** To change part of a reply, send `response revise` with the exact passage; a whole-reply
+  revision goes through `response set`. Keep every number and citation unless the request says
+  otherwise, and never add one.
+- **Follow-ups.** A reviewer's later reply is a new round: `followup add`, then `points set` with
+  `"round": 2` and a quote from the follow-up. Answers go into clusters as usual; each round
+  assembles into its own reply.
+- **Manuscript.** Never edit the paper from a rebuttal request. When a concern needs a paper change,
+  record it with `paper propose` (an exact passage, its replacement, why, and the promise); the
+  person approves it in Aster, which applies it.
 - **Assemble.** Each reviewer's reply answers their points in review order as A1, A2…; an answer
   an earlier reviewer already got becomes "Please see our response to R1 (A2)" (`assemble
   --shared general|repeat` moves it to the general response or repeats it). `assemble` exits 1
   when a reply is over its limit: shorten the wording, keep the facts.
-- Do not edit the manuscript, launch runs, or post to OpenReview from a rebuttal request unless
-  the user asks.
+- Do not launch runs or post to OpenReview from a rebuttal request unless the user asks.
+- **Simulated reviewers.** A chat Aster starts as a reviewer simulation is not the author: it may
+  run only `rebuttal reviewer-context --reviewer R<n>` and
+  `rebuttal predictions set --reviewer R<n> --file -` (JSON `{"predictions":[{concern, why,
+  likelihood, trigger:{cluster, point, quote}, preempt}]}`). It never
+  writes replies, clusters, points, promises or paper changes, and it never edits the manuscript.
 
 ## Figures
 
 When the user asks for a paper figure (Aster's Figures page and its Figure agent), draw it as an
-Excalidraw scene of editable shapes, never as a flat image. Figures live next to the manuscript:
-`<manuscript folder>/figures/<slug>.excalidraw` (`paper/figures/` for `paper/main.tex`). While
-the figure is open in Figures, Aster reloads every change you save and writes `<slug>.svg`, the
-vector `<slug>.pdf` and a PNG preview of exactly what the PDF shows; never write those yourself.
-Keep the drawing script at `<figures>/src/<slug>.figure.mjs` and commit it with the figure, so
-the figure can be regenerated. A plot is a matplotlib script in the same folder that saves its
-own `.pdf` and `.png`.
+Excalidraw scene of editable shapes, never as a flat image. Figures are worked on in the project's
+record folder: `<record root>/figures/<slug>.excalidraw` (`.aster/figures/`, or `research/figures/`
+in an older project); `figures new` puts them there. While the figure is open in Figures, Aster
+reloads every change you save and writes `<slug>.svg`, the vector `<slug>.pdf` and a PNG preview of
+exactly what the PDF shows; never write those yourself. Keep the drawing script at
+`<figures>/src/<slug>.figure.mjs` and commit it with the figure, so the figure can be regenerated.
+A plot is a matplotlib script in the same folder that saves its own `.pdf` and `.png`. An older
+figure still next to the manuscript (`paper/figures/<slug>.excalidraw`) stays there and is edited
+in place; `figures list` shows where each one lives.
+
+**The paper receives a figure only when the person asks.** Working files stay in the record
+folder, and neither you nor any script copies them next to the manuscript. When the person says
+to put a figure in the paper or use it there (not when you merely finish one), run `figures publish
+--figure <slug>`: it waits for Aster's render of the current scene, copies only the vector PDF to
+`<manuscript folder>/figures/<slug>.pdf` (`--manuscript <tex>` picks another manuscript) and records
+what it was made from, so `\includegraphics{figures/<slug>.pdf}` works as before. Later edits
+never change the paper by themselves: `figures list` reports the paper copy as outdated, and
+`figures publish` again updates it when the person asks. Refused with a PDF already there that this
+figure did not write, `--replace` overwrites it only if the person says so; a figure beside the
+manuscript needs no publishing. Do not add the `\includegraphics` line to the manuscript unless
+they ask for that too.
 
 ```bash
 node H/cli.mjs figures kit [topic|name,…] # an index of the kit; a topic or names give options, defaults, bind targets
@@ -241,6 +281,7 @@ node H/cli.mjs figures list | figures show [--figure <slug>]     # page, style, 
 node H/cli.mjs figures new --name "Method overview" [--size single|double|WxH] [--style graphite]
 node H/cli.mjs figures check [--figure <slug>] [--area <frame id>]  # layout lint; ERRORs must go
 node H/cli.mjs figures preview [--figure <slug>] [--wait 90]       # waits for Aster's PNG, prints it
+node H/cli.mjs figures publish --figure <slug> [--replace]          # only when the person asks: copies the PDF to the paper
 ```
 
 **Design before drawing.** For a new figure, from a method section or a typed request, first

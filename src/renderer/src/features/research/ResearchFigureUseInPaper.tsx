@@ -27,6 +27,14 @@ import {
   type PaperStatus
 } from './research-figure-paper-insert'
 import { pageSizeText } from './research-figure-page-size'
+import {
+  FigurePublishConflict,
+  publishOpenFigure,
+  refreshFigureExports,
+  toastPublishConflict,
+  toastPublished,
+  type FigurePublishResult
+} from './research-figure-publish'
 
 function errorText(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause)
@@ -69,6 +77,7 @@ function UseInPaperForm({
   const [after, setAfter] = useState<number | null>(null)
   const [busy, setBusy] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
+  const [revision, setRevision] = useState(0)
   const target = handle?.target
   useEffect(() => {
     if (!target) {
@@ -79,7 +88,7 @@ function UseInPaperForm({
     return () => {
       live = false
     }
-  }, [target, manuscript, dirty, regenerating])
+  }, [target, manuscript, dirty, regenerating, revision])
   if (!handle || !target) {
     return null
   }
@@ -93,12 +102,33 @@ function UseInPaperForm({
   const block = figureBlock({ slug: target.slug, widthIn: page?.widthIn, caption, label })
   const pdfPath = figureFilePaths(target.folder, target.slug).pdf
   const { owner } = target
-  const save = handle.save
+  const copyState = status?.copyState ?? 'none'
+  const beside = copyState === 'beside'
+  const copyStale = copyState === 'outdated' || copyState === 'missing'
 
   const regenerate = async (): Promise<void> => {
     setRegenerating(true)
-    await save()
+    await refreshFigureExports(handle)
     setRegenerating(false)
+  }
+
+  /** Copies the PDF to the paper (never for a figure already beside it); null when it could not. */
+  const publish = async (replace = false): Promise<FigurePublishResult | 'beside' | null> => {
+    if (beside || !manuscript) {
+      return 'beside'
+    }
+    try {
+      const result = await publishOpenFigure(handle, manuscript, replace)
+      setRevision((value) => value + 1)
+      return result
+    } catch (cause) {
+      if (cause instanceof FigurePublishConflict) {
+        toastPublishConflict(cause, () => publish(true))
+      } else {
+        toast.error(`The PDF was not copied to the paper. ${errorText(cause)}`)
+      }
+      return null
+    }
   }
 
   const insert = async (): Promise<void> => {
@@ -107,10 +137,33 @@ function UseInPaperForm({
     }
     setBusy(true)
     try {
-      await insertFigureInPaper({ owner, manuscript, text, block, afterLine })
+      const published = await publish()
+      if (published === null) {
+        return
+      }
+      await insertFigureInPaper({
+        owner,
+        manuscript,
+        text,
+        block,
+        afterLine,
+        published: published === 'beside' ? null : published
+      })
       onClose()
     } catch (cause) {
       toast.error(`The figure was not inserted. ${errorText(cause)}`)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const updateInPaper = async (): Promise<void> => {
+    setBusy(true)
+    try {
+      const published = await publish()
+      if (published && published !== 'beside') {
+        toastPublished(published, 'Updated')
+      }
     } finally {
       setBusy(false)
     }
@@ -155,6 +208,32 @@ function UseInPaperForm({
             </>
           )}
         </div>
+        {status?.copyPath && !beside ? (
+          <div
+            role="status"
+            aria-label="Paper copy"
+            className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
+          >
+            {copyState === 'outdated'
+              ? 'Paper copy outdated'
+              : copyState === 'missing'
+                ? 'Paper copy missing'
+                : copyState === 'current'
+                  ? `Paper copy up to date · ${status.copyPath}`
+                  : `Not in the paper yet · Insert copies the PDF to ${status.copyPath}`}
+            {copyStale ? (
+              <Button
+                size="xs"
+                variant="outline"
+                aria-label="Update in paper"
+                disabled={busy}
+                onClick={() => void updateInPaper()}
+              >
+                Update in paper
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </DialogHeader>
       <div className="space-y-3">
         {usages.length && manuscript ? (
@@ -219,9 +298,20 @@ function UseInPaperForm({
           variant="ghost"
           aria-label="Copy the figure block"
           onClick={() =>
-            void window.api.ui
-              .writeClipboardText(block)
-              .then(() => toast.success('Figure block copied.'))
+            void publish().then((published) => {
+              if (published === null) {
+                return
+              }
+              void window.api.ui
+                .writeClipboardText(block)
+                .then(() =>
+                  toast.success(
+                    published === 'beside'
+                      ? 'Figure block copied.'
+                      : `Figure block copied; the PDF is at ${published.pdf}.`
+                  )
+                )
+            })
           }
         >
           Copy block

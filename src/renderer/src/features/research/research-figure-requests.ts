@@ -15,12 +15,12 @@ import {
   figureContextKey,
   type FigureQuickRequest
 } from './research-figures-agent-prompts'
-import { sendFiguresPrompt } from './research-figures-agent-session'
+import { sendFigurePrompt } from './research-figures-agent-session'
 import { figureSceneText, writeFigureSketches } from './research-figures-export'
 import { confirmRedraw } from './research-figure-overwrite'
 import { prepareFigureVariants, useFigureVariantsMode } from './research-figure-variants'
 import { figurePromptContext, type FigureRequestHost } from './research-figure-prompt-context'
-import { beginFigureTurn, failFigureTurn } from './research-figure-turn'
+import { attachFigureTurnSession, beginFigureTurn, failFigureTurn } from './research-figure-turn'
 
 export { figurePromptContext, type FigureRequestHost } from './research-figure-prompt-context'
 
@@ -44,18 +44,18 @@ export async function sendTrackedFigurePrompt(
   host: FigureRequestHost,
   input: { request: string; prompt: string; before: string | null }
 ): Promise<string | null> {
+  const target = host.api ? host.target : null
   const id = beginFigureTurn({
-    target: host.api ? host.target : null,
+    target,
     request: input.request,
     prompt: input.prompt,
     scope: host.scope,
     beforeText: input.before
   })
-  const failure = await sendFiguresPrompt(
-    host.scope,
-    input.prompt,
-    figureContextKey(figurePromptContext(host))
-  )
+  const failure = await sendFigurePrompt(host.scope, target?.slug ?? null, input.prompt, {
+    contextKey: figureContextKey(figurePromptContext(host)),
+    onSession: (sessionId) => attachFigureTurnSession(id, sessionId)
+  })
   if (failure) {
     failFigureTurn(id, failure)
   }

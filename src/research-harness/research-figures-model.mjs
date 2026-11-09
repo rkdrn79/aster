@@ -61,7 +61,7 @@ export function isFigureSlug(value) {
   return typeof value === 'string' && /^[a-z0-9][a-z0-9_-]{0,63}$/.test(value)
 }
 
-function cleanRelative(path) {
+export function cleanRelative(path) {
   const normalized = String(path).replaceAll('\\', '/').replace(/^\.\//, '')
   if (
     !normalized ||

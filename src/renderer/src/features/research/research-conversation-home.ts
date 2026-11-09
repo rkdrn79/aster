@@ -39,6 +39,19 @@ export function researchConversationHomeKey(
   return JSON.stringify([hostId, workspaceId, sessionId])
 }
 
+/** Whether a chat plays a reviewer of one of this workspace's rebuttals. */
+function isRebuttalReviewerSession(
+  records: ResearchDocument | null,
+  hostId: string,
+  workspaceId: string,
+  sessionId: string
+): boolean {
+  const prefix = JSON.stringify([hostId, workspaceId]).slice(0, -1)
+  return Object.entries(records?.rebuttalReviewerSessions ?? {}).some(
+    ([key, value]) => value === sessionId && key.startsWith(prefix)
+  )
+}
+
 export function researchConversationHome(
   records: ResearchDocument | null,
   library: ResearchLibraryDocument | null,
@@ -50,10 +63,17 @@ export function researchConversationHome(
     return { kind: 'workbench' }
   }
   const scopeKey = writingAgentScopeKey({ hostId, workspaceId })
-  if (records?.rebuttalAgentSessionByScope?.[scopeKey] === sessionId) {
+  if (
+    records?.rebuttalAgentSessionByScope?.[scopeKey] === sessionId ||
+    isRebuttalReviewerSession(records, hostId, workspaceId, sessionId)
+  ) {
     return { kind: 'rebuttal' }
   }
-  if (records?.figuresAgentSessionByScope?.[scopeKey] === sessionId) {
+  if (
+    records?.figuresAgentSessionByScope?.[scopeKey] === sessionId ||
+    Object.values(records?.figureAgentSessionsByScope?.[scopeKey] ?? {}).includes(sessionId) ||
+    records?.figureAgentPastSessionsByScope?.[scopeKey]?.includes(sessionId)
+  ) {
     return { kind: 'figures' }
   }
   const saved =

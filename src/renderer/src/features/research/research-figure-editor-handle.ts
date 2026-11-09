@@ -7,6 +7,8 @@ export type FigureEditorHandle = {
   api: ExcalidrawImperativeAPI
   target: FigureTarget
   save: () => Promise<boolean>
+  /** Writes the exports again from the file as last saved. */
+  exportNow: () => Promise<void>
   /** A person is editing from outside the canvas (a side panel tab): their changes autosave. */
   noteUserInput: () => void
 }

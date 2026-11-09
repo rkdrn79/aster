@@ -12,6 +12,40 @@ import { useResearchLibrary } from './research-library-store'
 import { useResearchRecords } from './research-records-store'
 import { researchConversationHomeKey, writingAgentScopeKey } from './research-conversation-home'
 
+/** A deleted chat leaves its figure (which then starts over) and the list of old Figure chats. */
+function withoutFigureChat(
+  document: ResearchDocument,
+  tab: Tab,
+  hostId: string | null
+): ResearchDocument {
+  if (!hostId || tab.contentType !== 'agent-session') {
+    return document
+  }
+  const scopeKey = writingAgentScopeKey({ hostId, workspaceId: tab.worktreeId })
+  const figures = Object.entries(document.figureAgentSessionsByScope?.[scopeKey] ?? {}).filter(
+    ([, sessionId]) => sessionId !== tab.entityId
+  )
+  const past = (document.figureAgentPastSessionsByScope?.[scopeKey] ?? []).filter(
+    (sessionId) => sessionId !== tab.entityId
+  )
+  const projectChats = { ...document.figuresAgentSessionByScope }
+  if (projectChats[scopeKey] === tab.entityId) {
+    delete projectChats[scopeKey]
+  }
+  return {
+    ...document,
+    figuresAgentSessionByScope: projectChats,
+    figureAgentSessionsByScope: {
+      ...document.figureAgentSessionsByScope,
+      [scopeKey]: Object.fromEntries(figures)
+    },
+    figureAgentPastSessionsByScope: {
+      ...document.figureAgentPastSessionsByScope,
+      [scopeKey]: past
+    }
+  }
+}
+
 export function withoutResearchConversation(
   document: ResearchDocument,
   tab: Tab,
@@ -31,7 +65,7 @@ export function withoutResearchConversation(
     }
   }
   return {
-    ...document,
+    ...withoutFigureChat(document, tab, hostId),
     conversationExperimentIds,
     conversationHomes,
     writingAgentSessionByScope,

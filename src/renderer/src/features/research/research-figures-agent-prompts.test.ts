@@ -9,11 +9,12 @@ import {
 } from './research-figures-agent-prompts'
 
 const context: FigurePromptContext = {
-  folderPath: '/home/me/proj/paper/figures',
+  folderPath: '/home/me/proj/.aster/figures',
+  workFolderPath: '/home/me/proj/.aster/figures',
   manuscriptPath: '/home/me/proj/paper/main.tex',
   figure: {
     slug: 'method',
-    scenePath: '/home/me/proj/paper/figures/method.excalidraw',
+    scenePath: '/home/me/proj/.aster/figures/method.excalidraw',
     page: {
       id: 'figure-page',
       widthIn: 3.25,
@@ -55,12 +56,12 @@ describe('Figure agent prompts', () => {
           { id: 'in-x', type: 'rectangle', label: 'Input X', x: 20, y: 60, width: 80, height: 56 }
         ],
         sketches: [
-          { elementId: 'img-1', path: '/home/me/proj/paper/figures/sketches/method-img-1.png' }
+          { elementId: 'img-1', path: '/home/me/proj/.aster/figures/sketches/method-img-1.png' }
         ]
       })
     )
     expect(prompt.request).toBe('Fill the area "an attention block": an attention block')
-    expect(prompt.context).toContain('"/home/me/proj/paper/figures/method.excalidraw"')
+    expect(prompt.context).toContain('"/home/me/proj/.aster/figures/method.excalidraw"')
     expect(prompt.context).toContain('frame id "area-7", x=120 y=40 width=200 height=96')
     expect(prompt.context).toContain('box-1 rectangle "Encoder"')
     expect(prompt.context).toContain('sketches/method-img-1.png" (image element img-1)')
@@ -110,7 +111,7 @@ describe('Figure agent prompts', () => {
   it('names the manuscript and figure files in quick actions', () => {
     const draw = body(buildFigureQuickPrompt(context, 'draw-method'))
     expect(draw.context).toContain('Read "/home/me/proj/paper/main.tex"')
-    expect(draw.context).toContain('into "/home/me/proj/paper/figures/method.excalidraw"')
+    expect(draw.context).toContain('into "/home/me/proj/.aster/figures/method.excalidraw"')
     expect(draw.context).toContain('three-line design brief')
     expect(draw.context).toContain('the data is shown, not named')
     expect(draw.context).toContain('every term of the objective')
@@ -121,16 +122,30 @@ describe('Figure agent prompts', () => {
     expect(draw.context).toContain("fig.style('illustrative')")
     expect(draw.context).toContain('figures kit')
     expect(draw.context).not.toContain('one box per stage')
-    expect(draw.context).toContain('"/home/me/proj/paper/figures/src/method.figure.mjs"')
+    expect(draw.context).toContain('"/home/me/proj/.aster/figures/src/method.figure.mjs"')
     const plot = body(buildFigureQuickPrompt({ ...context, figure: null }, 'plot'))
-    expect(plot.context).toContain('"/home/me/proj/paper/figures/<name>.py"')
-    expect(plot.context).toContain('"/home/me/proj/paper/figures/<name>.pdf"')
+    expect(plot.context).toContain('"/home/me/proj/.aster/figures/<name>.py"')
+    expect(plot.context).toContain('"/home/me/proj/.aster/figures/<name>.pdf"')
     const fresh = body(buildFigureQuickPrompt({ ...context, figure: null }, 'draw-method'))
     expect(fresh.context).toContain('figures new --name')
     const sketch = body(
       buildFigureQuickPrompt(context, 'sketch', [{ elementId: 'i', path: '/p/sketch.png' }])
     )
     expect(sketch.context).toContain('"/p/sketch.png" (image element i)')
+  })
+
+  it('tells the agent the paper only gets a figure when the person asks', () => {
+    const draw = body(buildFigureQuickPrompt(context, 'draw-method'))
+    expect(draw.context).toContain('the paper only gets a figure when I ask')
+    expect(draw.context).toContain('figures publish --figure method')
+    expect(draw.context).toContain('do not run it on your own')
+    const plot = body(buildFigureQuickPrompt({ ...context, figure: null }, 'plot'))
+    expect(plot.context).toContain('figures publish --figure <name>')
+    expect(plot.context).not.toContain('Reply with the \\includegraphics line for the manuscript')
+    const figure = { ...context.figure!, besideManuscript: true }
+    const beside = body(buildFigureQuickPrompt({ ...context, figure }, 'clean-up'))
+    expect(beside.context).toContain('lives beside the manuscript')
+    expect(beside.context).not.toContain('figures publish')
   })
 
   it('lists the selected elements and their common box', () => {
@@ -152,7 +167,7 @@ describe('Figure agent prompts', () => {
   it('recreates a reference at its scale, with its colours, comparing previews to it', () => {
     const prompt = body(
       buildFigureRecreatePrompt(context, {
-        referencePath: '/home/me/proj/paper/figures/references/method.png',
+        referencePath: '/home/me/proj/.aster/figures/references/method.png',
         pixels: { width: 936, height: 576 }
       })
     )
@@ -170,7 +185,7 @@ describe('Figure agent prompts', () => {
     // A 468-unit page over a 307 px reference: 1.52443… units per pixel.
     const prompt = body(
       buildFigureRecreatePrompt(context, {
-        referencePath: '/home/me/proj/paper/figures/references/dit.png',
+        referencePath: '/home/me/proj/.aster/figures/references/dit.png',
         pixels: { width: 307, height: 497 }
       })
     )

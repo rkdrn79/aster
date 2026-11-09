@@ -12,6 +12,8 @@ import {
 export const REBUTTAL_SCHEMA_VERSION = 1
 export const DEFAULT_REPLY_CHAR_LIMIT = 5000
 export const POINT_KINDS = ['weakness', 'question', 'minor']
+/** review: from the review text; prediction: a simulated next concern the person chose to address. */
+export const POINT_ORIGINS = ['review', 'prediction']
 export const POINT_TYPES = [
   'experiment-request',
   'clarity',
@@ -75,6 +77,15 @@ export function pointLetter(kind) {
 /** R1-W2 → "W2": a point's label inside its own reviewer's reply. */
 export function localPointLabel(pointId) {
   return pointId.replace(/^R[0-9]+-/, '')
+}
+
+export function nextPointId(points, reviewerId, kind) {
+  const letter = KIND_LETTER[kind]
+  const prefix = `${reviewerId}-${letter}`
+  const highest = points
+    .filter((point) => point.id.startsWith(prefix))
+    .reduce((max, point) => Math.max(max, Number(point.id.slice(prefix.length)) || 0), 0)
+  return `${prefix}${highest + 1}`
 }
 
 export function reviewerSortKey(reviewerId) {

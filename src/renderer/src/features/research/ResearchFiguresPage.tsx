@@ -11,11 +11,7 @@ import { ResearchFigureAgentPill } from './ResearchFigureAgentPill'
 import './research-figure-history-tab'
 import './research-figure-parts-tab'
 import { ResearchFigureHelpSection } from './ResearchFigureHelpSection'
-import {
-  ResearchFigureNewDialog,
-  type NewFigureDraft,
-  type NewFigureRequest
-} from './ResearchFigureNewDialog'
+import { ResearchFigureNewDialog, type NewFigureDraft } from './ResearchFigureNewDialog'
 import { ResearchFigureRecreateDialog } from './ResearchFigureRecreateDialog'
 import type { FigureReference } from './research-figure-recreate'
 import { ResearchFigurePreview } from './ResearchFigurePreview'
@@ -24,21 +20,11 @@ import { ResearchFiguresLayout, useFiguresLayoutMode } from './ResearchFiguresLa
 import { ResearchFiguresList } from './ResearchFiguresList'
 import { ResearchFiguresStrip } from './ResearchFiguresStrip'
 import {
-  buildFigureMessageContext,
-  type FigureQuickRequest
-} from './research-figures-agent-prompts'
-import {
   consumeFiguresAgentFocus,
-  subscribeFiguresAgentFocus,
-  type FigureMessageContext
+  subscribeFiguresAgentFocus
 } from './research-figures-agent-session'
 import { figurePromptContext } from './research-figure-prompt-context'
-import { useFigureEditorHandle } from './research-figure-editor-handle'
-import {
-  newFigurePromptContext,
-  sendFigureChatText,
-  sendFigureStart
-} from './research-figure-chat-send'
+import { sendFigureChatText } from './research-figure-chat-send'
 import {
   AGENT_TAB_ID,
   ResearchFigureSidePanel,
@@ -59,13 +45,13 @@ import {
 import {
   canvasSelectionCount,
   manuscriptSource,
-  newFigureSendTrack,
   openFigureSendTrack,
   selectedCanvasImage
 } from './research-figures-page-helpers'
+import { useFiguresPageRequests } from './use-figures-page-requests'
 import { useFigureCanvasState } from './use-figure-canvas-state'
 import {
-  createFigure,
+  listedFigure,
   openFiguresProject,
   selectFigure,
   useFigureListAutoRefresh,
@@ -77,10 +63,6 @@ import { selectResearchWorkspaceContext } from './research-workspace-context'
 import { writingOwnerExperiment, type WritingProjectScope } from './research-writing-project'
 
 const ResearchFigureEditor = lazy(() => import('./ResearchFigureEditor'))
-
-function errorText(cause: unknown): string {
-  return cause instanceof Error ? cause.message : String(cause)
-}
 
 function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.Element {
   const owner = useMemo<ProjectFileOwner>(
@@ -106,6 +88,7 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
       manuscript: state.manuscript,
       listing: state.listing,
       signatures: state.signatures,
+      publications: state.publications,
       manuscriptSignature: state.manuscriptSignature,
       selected: state.selected,
       loading: state.loading,
@@ -113,6 +96,11 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
     }))
   )
   const { folder, manuscript, listing, signatures, selected, loading, error } = figures
+  const openFigure = selected?.kind === 'figure' ? listedFigure(listing, selected.slug) : null
+  const openFile =
+    selected?.kind === 'file'
+      ? (listing.others.find((entry) => entry.name === selected.name) ?? null)
+      : null
   const mode = useFiguresLayoutMode()
   const focus = useFiguresLayout((state) => state.focus)
   const sideTab = useActiveFigureSidePanelTab()
@@ -154,99 +142,15 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
   }, [])
   useFigureShortcuts({ run: runShortcut, canvasSelection: canvasSelectionCount })
 
-  function requestHost() {
-    const handle = useFigureEditorHandle.getState().handle
-    const open = handle && openSlug !== null && handle.target.slug === openSlug
-    return {
-      api: open ? handle.api : null,
-      target: open ? handle.target : null,
-      folder: folder ?? '',
-      owner,
-      manuscript,
-      scope: agentScope,
-      save: open ? handle.save : async () => true
-    }
-  }
-
-  const messageContext = useCallback((): FigureMessageContext | null => {
-    if (!folder) {
-      return null
-    }
-    const handle = useFigureEditorHandle.getState().handle
-    const open = handle && openSlug !== null && handle.target.slug === openSlug
-    return buildFigureMessageContext(
-      figurePromptContext({
-        api: open ? handle.api : null,
-        target: open ? handle.target : null,
-        folder,
-        owner,
-        manuscript
-      })
-    )
-  }, [folder, owner, manuscript, openSlug])
-
-  async function quickRequest(request: FigureQuickRequest): Promise<string | null> {
-    if (!folder) {
-      return 'The figures folder is not known yet.'
-    }
-    const { sendFigureQuickRequest } = await import('./research-figure-requests')
-    return sendFigureQuickRequest(requestHost(), request)
-  }
-
-  async function sendRecreate(
-    reference: FigureReference,
-    matchPage: boolean,
-    maxHeightIn: number | null
-  ) {
-    const { sendFigureRecreateRequest } = await import('./research-figure-recreate')
-    const failure = await sendFigureRecreateRequest(
-      requestHost(),
-      reference,
-      matchPage,
-      maxHeightIn
-    )
-    if (!failure) {
-      openFiguresSidePanel()
-    }
-    return failure
-  }
-
-  async function createFromDialog(request: NewFigureRequest): Promise<string | null> {
-    if (!folder) {
-      return 'The figures folder is not known yet.'
-    }
-    try {
-      if (request.start !== 'plot') {
-        await createFigure(owner, request.slug, request.size, request.name)
-      }
-    } catch (cause) {
-      return errorText(cause)
-    }
-    if (request.start === 'image') {
-      setRecreate({ selected: null })
-      return null
-    }
-    const context = newFigurePromptContext({
+  const { requestHost, messageContext, quickRequest, sendRecreate, createFromDialog } =
+    useFiguresPageRequests({
       owner,
       folder,
       manuscript,
-      slug: request.slug,
-      size: request.size
-    })
-    const failure = await sendFigureStart(
       agentScope,
-      context,
-      { kind: request.start, description: request.description, template: request.template },
-      request.start === 'plot' || request.start === 'blank'
-        ? null
-        : await newFigureSendTrack(owner, folder, request.slug)
-    )
-    if (request.start !== 'blank') {
-      openFigureSidePanelTab(AGENT_TAB_ID)
-      openFiguresSidePanel()
-    }
-    return failure
-  }
+      openSlug,
+      onRecreate: () => setRecreate({ selected: null })
+    })
 
   function openNew(draft: NewFigureDraft | null): void {
     setNewDraft(draft)
@@ -269,9 +173,9 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
           }
         >
           <ResearchFigureEditor
-            key={`${projectOwnerKey(owner)}:${folder}:${selected.slug}`}
+            key={`${projectOwnerKey(owner)}:${openFigure?.folder ?? folder}:${selected.slug}`}
             owner={owner}
-            folder={folder}
+            folder={openFigure?.folder ?? folder}
             slug={selected.slug}
             manuscript={manuscript}
             scope={agentScope}
@@ -282,12 +186,13 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
           />
         </Suspense>
       </RecoverableRenderErrorBoundary>
-    ) : selected?.kind === 'file' && folder ? (
+    ) : selected?.kind === 'file' && openFile ? (
       <ResearchFigurePreview
         owner={owner}
-        folder={folder}
-        name={selected.name}
-        signature={signatures[selected.name] ?? ''}
+        file={openFile}
+        workFolder={folder}
+        manuscript={manuscript}
+        signature={signatures[`${openFile.folder}/${openFile.name}`] ?? ''}
       />
     ) : (
       <ResearchPageBody>
@@ -350,6 +255,7 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
             manuscriptSignature={figures.manuscriptSignature}
             listing={listing}
             signatures={signatures}
+            publications={figures.publications}
             selected={selected}
             onSelect={(selection) => selectFigure(owner, selection)}
             onNew={() => openNew(null)}
@@ -358,7 +264,6 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
         strip={
           <ResearchFiguresStrip
             owner={owner}
-            folder={folder}
             listing={listing}
             signatures={signatures}
             selected={selected}
@@ -423,7 +328,7 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
   )
 }
 
-/** Figures is the project's: diagrams and plots beside the manuscript, with their agent. */
+/** Figures is the project's: diagrams and plots in its record tree, with their agent. */
 export function ResearchFiguresPage(): React.JSX.Element {
   const context = useAppStore(useShallow(selectResearchWorkspaceContext))
   const { hostId, workspaceId, workspacePath, projectId } = context

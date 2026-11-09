@@ -20,6 +20,21 @@ export type ResearchWindowTarget = {
   hostId: string | null
 }
 
+/** What became of a chat start the main window ran for a research window. */
+export type ResearchWindowLaunchResult = { sessionId: string } | { error: string }
+
+export function parseResearchWindowLaunchResult(value: unknown): ResearchWindowLaunchResult | null {
+  if (!value || typeof value !== 'object') {
+    return null
+  }
+  const sessionId: unknown = Reflect.get(value, 'sessionId')
+  if (typeof sessionId === 'string') {
+    return { sessionId }
+  }
+  const error: unknown = Reflect.get(value, 'error')
+  return typeof error === 'string' ? { error } : null
+}
+
 export const RESEARCH_WINDOW_PAGE_LABELS: Record<ResearchWindowPage, string> = {
   'research-chats': 'Chats',
   'research-experiments': 'Experiments',

@@ -26,6 +26,7 @@ import {
   listRebuttalDirectory,
   readRebuttalText,
   writeRebuttalText,
+  type RebuttalJsonFileName,
   type RebuttalOwner
 } from './research-rebuttal-files'
 import { rebuttalsFolder, type RebuttalSnapshot } from './research-rebuttal-snapshot'
@@ -35,7 +36,7 @@ import { openRebuttalProject, reloadRebuttal } from './research-rebuttal-store'
  * Applies `change` to what is on disk now and saves it; when the agent wrote in between, the
  * change is applied once more to its version instead of overwriting it.
  */
-async function withFreshSnapshot(
+export async function withFreshSnapshot(
   owner: RebuttalOwner,
   change: (snapshot: RebuttalSnapshot) => Promise<void>
 ): Promise<void> {
@@ -57,9 +58,9 @@ async function withFreshSnapshot(
   }
 }
 
-function writeJson(
+export function writeJson(
   snapshot: RebuttalSnapshot,
-  name: 'rebuttal.json' | 'points.json' | 'clusters.json' | 'promises.json',
+  name: RebuttalJsonFileName,
   previous: string | null,
   value: unknown
 ): Promise<void> {
@@ -145,7 +146,11 @@ export function pointsLostByReviewEdit(
       return false
     }
     try {
-      parsePoints([point], { reviewers, reviews: { ...snapshot.reviews, [reviewerId]: text } })
+      parsePoints([point], {
+        reviewers,
+        reviews: { ...snapshot.reviews, [reviewerId]: text },
+        followUps: snapshot.followUps
+      })
       return false
     } catch {
       return true
@@ -205,8 +210,9 @@ export async function saveRebuttalReview(
       {
         id,
         label: input.label.trim(),
-        rating: input.rating ?? existing?.rating ?? null,
-        confidence: input.confidence ?? existing?.confidence ?? null,
+        rating: input.rating === undefined ? (existing?.rating ?? null) : input.rating,
+        confidence:
+          input.confidence === undefined ? (existing?.confidence ?? null) : input.confidence,
         source: input.source ?? existing?.source ?? 'paste',
         noteId: input.noteId ?? existing?.noteId ?? null,
         opening: existing?.opening ?? ''

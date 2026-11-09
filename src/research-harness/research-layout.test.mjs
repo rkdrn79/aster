@@ -154,15 +154,21 @@ test('migrate moves research/ to .aster/ and paper/, fixing TeX and claim paths'
       manuscript: { line: 3 }
     })
     const before = await readCatalog(project)
+    await mkdir(path.join(project, 'research', 'figures'), { recursive: true })
+    await writeFile(path.join(project, 'research', 'figures', 'method.excalidraw'), '{}\n')
 
     const plan = await migrateProjectLayout(project, { dryRun: true })
     assert(plan.moved.some((move) => move.from === 'research/manuscript' && move.to === 'paper'))
+    assert(
+      plan.moved.some((move) => move.from === 'research/figures' && move.to === '.aster/figures')
+    )
     assert(await exists(path.join(project, 'research', 'project.json')))
 
     const result = await migrateProjectLayout(project)
     assert.deepEqual(result.leftovers, [])
     assert.equal(await exists(path.join(project, 'research')), false)
     assert.equal(projectLayout(project).kind, 'aster')
+    assert(await exists(path.join(project, '.aster', 'figures', 'method.excalidraw')))
     assert(await exists(path.join(project, '.aster', 'local', 'research-project.v1.json')))
     const tex = await readFile(path.join(project, 'paper', 'main.tex'), 'utf8')
     assert.match(tex, /\\bibliography\{library\}/u)

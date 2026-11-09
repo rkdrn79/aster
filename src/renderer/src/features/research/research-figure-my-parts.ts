@@ -4,6 +4,7 @@ import type { InsertItem } from './research-figure-insert-catalog'
 import {
   figurePartItems,
   figurePartLibraryText,
+  projectLibraryFolders,
   saveFigurePart,
   type FigurePartScope
 } from './research-figure-saved-parts'
@@ -17,32 +18,45 @@ import {
 
 export type PartsProject = { owner: ProjectFileOwner; folder: string }
 
-function items(text: string, scope: FigurePartScope, file: string): InsertItem[] {
+function items(
+  text: string,
+  scope: FigurePartScope,
+  file: string,
+  directory?: string
+): InsertItem[] {
   return figurePartItems(text, scope, file).map((item, index) => ({
-    key: `mine:${scope}:${file}:${index}`,
+    key: `mine:${scope}:${directory ?? ''}:${file}:${index}`,
     name: item.name ?? file.replace(/\.excalidrawlib$/, ''),
     category: 'mine',
     description: scope === 'project' ? `Saved in ${file}` : 'Saved for every project',
-    saved: { scope, file, elements: item.elements }
+    saved: { scope, file, directory, elements: item.elements }
   }))
 }
 
 /** The project's saved parts (`<figures>/library/`) and the person's own, as insert items. */
 export async function loadMyParts(project: PartsProject): Promise<InsertItem[]> {
-  const directory = `${project.folder}/library`
-  const entries = (await listProjectDirectory(project.owner, directory).catch(() => null)) ?? []
   const own: InsertItem[] = []
-  for (const entry of entries.filter((item) => item.name.endsWith('.excalidrawlib'))) {
-    const text = await readProjectText(project.owner, `${directory}/${entry.name}`).catch(() => '')
-    own.push(...items(text, 'project', entry.name))
+  for (const directory of projectLibraryFolders(project.folder)) {
+    const entries = (await listProjectDirectory(project.owner, directory).catch(() => null)) ?? []
+    for (const entry of entries.filter((item) => item.name.endsWith('.excalidrawlib'))) {
+      const text = await readProjectText(project.owner, `${directory}/${entry.name}`).catch(
+        () => ''
+      )
+      own.push(...items(text, 'project', entry.name, directory))
+    }
   }
   const user = (await window.api.researchFigures?.listUserParts().catch(() => [])) ?? []
   return [...own, ...user.flatMap((part) => items(part.text, 'user', part.file))]
 }
 
-async function removeFile(project: PartsProject, scope: FigurePartScope, file: string) {
+async function removeFile(
+  project: PartsProject,
+  scope: FigurePartScope,
+  file: string,
+  directory: string = `${project.folder}/library`
+) {
   if (scope === 'project') {
-    await deleteProjectPath(project.owner, `${project.folder}/library/${file}`)
+    await deleteProjectPath(project.owner, `${directory}/${file}`)
     return
   }
   const remove = window.api.researchFigures?.deleteUserPart
@@ -54,7 +68,7 @@ async function removeFile(project: PartsProject, scope: FigurePartScope, file: s
 
 export async function deleteMyPart(project: PartsProject, item: InsertItem): Promise<void> {
   if (item.saved) {
-    await removeFile(project, item.saved.scope, item.saved.file)
+    await removeFile(project, item.saved.scope, item.saved.file, item.saved.directory)
   }
 }
 
@@ -71,9 +85,10 @@ export async function renameMyPart(
   const text = figurePartLibraryText(name.trim(), saved.elements)
   if (saved.scope === 'project') {
     const file = `${figureSlug(name)}.excalidrawlib`
-    await writeProjectText(project.owner, `${project.folder}/library/${file}`, text)
+    const directory = saved.directory ?? `${project.folder}/library`
+    await writeProjectText(project.owner, `${directory}/${file}`, text)
     if (file !== saved.file) {
-      await removeFile(project, 'project', saved.file)
+      await removeFile(project, 'project', saved.file, directory)
     }
     return
   }

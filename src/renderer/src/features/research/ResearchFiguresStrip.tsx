@@ -1,7 +1,8 @@
 import { FileText, PanelLeftOpen, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import type { FigureFolderListing } from '../../../../research-harness/research-figures-model.mjs'
+import type { FigureListing } from '../../../../research-harness/research-figures-locations.mjs'
+import { figureFilePaths } from '../../../../research-harness/research-figures-model.mjs'
 import { FigureThumbnailImage } from './ResearchFigureListItem'
 import { useFigureListMeta } from './research-figure-list-meta'
 import { setFiguresListMode } from './research-figures-layout-mode'
@@ -45,7 +46,6 @@ function StripFigure({
 /** The figure list folded to a 56 px column of thumbnails (narrow windows and focus mode). */
 export function ResearchFiguresStrip({
   owner,
-  folder,
   listing,
   signatures,
   selected,
@@ -53,8 +53,7 @@ export function ResearchFiguresStrip({
   onNew
 }: {
   owner: ProjectFileOwner
-  folder: string | null
-  listing: FigureFolderListing
+  listing: FigureListing
   signatures: Record<string, string>
   selected: FigureSelection | null
   onSelect: (selection: FigureSelection) => void
@@ -85,9 +84,9 @@ export function ResearchFiguresStrip({
           <StripFigure
             key={figure.slug}
             owner={owner}
-            folder={folder}
+            folder={figure.folder}
             slug={figure.slug}
-            signature={signatures[`${figure.slug}.excalidraw`] ?? ''}
+            signature={signatures[figureFilePaths(figure.folder, figure.slug).scene] ?? ''}
             active={selected?.kind === 'figure' && selected.slug === figure.slug}
             onSelect={() => onSelect({ kind: 'figure', slug: figure.slug })}
           />

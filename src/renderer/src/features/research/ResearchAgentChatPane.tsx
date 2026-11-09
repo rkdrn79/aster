@@ -128,6 +128,8 @@ type ResearchAgentChatPaneProps = {
   onLaunch: (agent: TuiAgent) => Promise<string | null>
   /** Rewrites what the user types in the bound chat, e.g. to attach the page's context. */
   decorateMessage?: (sessionId: string, text: string) => string
+  /** Chats that belong to another pane on this page, so they are not offered here. */
+  excludeSessionIds?: ReadonlySet<string>
 }
 
 export function ResearchAgentChatPane({
@@ -144,7 +146,8 @@ export function ResearchAgentChatPane({
   toolbar,
   onBind,
   onLaunch,
-  decorateMessage
+  decorateMessage,
+  excludeSessionIds
 }: ResearchAgentChatPaneProps): React.JSX.Element {
   const [launching, setLaunching] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -157,7 +160,7 @@ export function ResearchAgentChatPane({
   const sessions = researchChatSessionTabs(useAppStore.getState(), workspaceTabs, hostId)
   const availableSessions = sessions.filter((tab) => {
     const placement = researchConversationHome(records, library, hostId, workspaceId, tab.entityId)
-    return researchChatAvailableForHome(placement, home)
+    return researchChatAvailableForHome(placement, home) && !excludeSessionIds?.has(tab.entityId)
   })
   const boundSession = sessions.find((tab) => tab.entityId === boundSessionId)
   const boundEntityId = boundSession?.entityId

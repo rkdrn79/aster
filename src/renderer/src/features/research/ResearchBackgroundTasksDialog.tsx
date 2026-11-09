@@ -68,7 +68,7 @@ async function openParentTask(
     return
   }
   if ((home.kind === 'rebuttal' || home.kind === 'figures') && hostId) {
-    openProjectAgentPage(home.kind, { hostId, workspaceId })
+    openProjectAgentPage(home.kind, { hostId, workspaceId }, tab.entityId)
     return
   }
   if (home.kind === 'library' && hostId) {

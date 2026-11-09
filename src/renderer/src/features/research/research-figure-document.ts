@@ -141,8 +141,13 @@ export function sketchFilePath(
   return `${folder}/sketches/${slug}-${safeId}.${extension}`
 }
 
-/** The hash `figures preview` compares: SHA-256 of the scene file's UTF-8 bytes. */
-export async function sceneSha256(text: string): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+/** SHA-256 of some bytes, in hex: what the harness computes for the same file. */
+export async function bytesSha256(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', bytes.slice())
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+/** The hash `figures preview` compares: SHA-256 of the scene file's UTF-8 bytes. */
+export function sceneSha256(text: string): Promise<string> {
+  return bytesSha256(new TextEncoder().encode(text))
 }

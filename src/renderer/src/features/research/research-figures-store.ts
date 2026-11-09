@@ -4,18 +4,22 @@ import {
   figureFilePaths,
   figuresFolderFor,
   isFigureSlug,
-  listFigureFolder,
   newFigureScene,
-  type FigureFolderListing,
   type FigureSize
 } from '../../../../research-harness/research-figures-model.mjs'
+import {
+  figureWorkFolder,
+  type FigureListing,
+  type FigurePublication,
+  type ListedFigure
+} from '../../../../research-harness/research-figures-locations.mjs'
 import { figureFileText } from './research-figure-document'
 import { withFigureTitle } from './research-figure-list-model'
+import { ensureFigureWorkFolder, readFigureListing } from './research-figure-listing'
 import {
   ProjectWriteConflict,
-  listProjectDirectory,
-  projectFileSignature,
   projectOwnerKey,
+  projectRecordRoot,
   writeProjectText,
   type ProjectFileOwner
 } from './research-project-files'
@@ -24,12 +28,18 @@ export type FigureSelection = { kind: 'figure'; slug: string } | { kind: 'file';
 
 type FiguresState = {
   ownerKey: string | null
-  /** Project-relative, e.g. `paper/figures`. */
+  /** The project whose figures these are, for reading a figure outside the editor. */
+  owner: ProjectFileOwner | null
+  /** Project-relative working folder, `<record root>/figures`: where new figures go. */
   folder: string | null
+  /** The manuscript's figures folder, e.g. `paper/figures`: what the paper reads. */
+  paperFolder: string | null
   manuscript: string | null
-  listing: FigureFolderListing
-  /** name → size:mtime of every listed file, so thumbnails follow rewrites. */
+  listing: FigureListing
+  /** Project-relative path → size:mtime of every listed file, so thumbnails follow rewrites. */
   signatures: Record<string, string>
+  /** slug → the record of what the paper's copy of that figure was made from. */
+  publications: Record<string, FigurePublication>
   /** size:mtime of the manuscript, so "In paper" badges follow edits to it. */
   manuscriptSignature: string
   selected: FigureSelection | null
@@ -37,13 +47,16 @@ type FiguresState = {
   error: string | null
 }
 
-const EMPTY_LISTING: FigureFolderListing = { figures: [], others: [] }
+const EMPTY_LISTING: FigureListing = { figures: [], others: [], shadowed: [] }
 const INITIAL: FiguresState = {
   ownerKey: null,
+  owner: null,
   folder: null,
+  paperFolder: null,
   manuscript: null,
   listing: EMPTY_LISTING,
   signatures: {},
+  publications: {},
   manuscriptSignature: '',
   selected: null,
   loading: false,
@@ -93,7 +106,7 @@ function remember(ownerKey: string, selection: FigureSelection): void {
   }
 }
 
-function stillListed(listing: FigureFolderListing, selection: FigureSelection | null) {
+function stillListed(listing: FigureListing, selection: FigureSelection | null) {
   if (!selection) {
     return false
   }
@@ -102,7 +115,7 @@ function stillListed(listing: FigureFolderListing, selection: FigureSelection | 
     : listing.others.some((entry) => entry.name === selection.name)
 }
 
-function firstSelection(listing: FigureFolderListing): FigureSelection | null {
+function firstSelection(listing: FigureListing): FigureSelection | null {
   return listing.figures[0]
     ? { kind: 'figure', slug: listing.figures[0].slug }
     : listing.others[0]
@@ -110,34 +123,12 @@ function firstSelection(listing: FigureFolderListing): FigureSelection | null {
       : null
 }
 
-async function readListing(owner: ProjectFileOwner, folder: string, manuscript: string) {
-  const entries = (await listProjectDirectory(owner, folder)) ?? []
-  const listing = listFigureFolder(entries)
-  const names = [
-    ...listing.figures.flatMap((figure) => [
-      `${figure.slug}.excalidraw`,
-      ...(figure.svg ? [`${figure.slug}.svg`] : []),
-      ...(figure.pdf ? [`${figure.slug}.pdf`] : [])
-    ]),
-    ...listing.others.map((entry) => entry.name)
-  ]
-  const signatures: Record<string, string> = {}
-  await Promise.all(
-    names.map(async (name) => {
-      signatures[name] = await projectFileSignature(owner, `${folder}/${name}`).then(
-        (stat) => stat.signature,
-        () => ''
-      )
-    })
-  )
-  const manuscriptSignature = await projectFileSignature(owner, manuscript).then(
-    (stat) => stat.signature,
-    () => ''
-  )
-  return { listing, signatures, manuscriptSignature }
+/** The listed figure with this name: where it lives and what files it has. */
+export function listedFigure(listing: FigureListing, slug: string): ListedFigure | null {
+  return listing.figures.find((figure) => figure.slug === slug) ?? null
 }
 
-/** Lists `<manuscript folder>/figures` and opens the figure picked last time (or the first). */
+/** Lists the project's figures (working folder and manuscript's) and opens the last or the first. */
 export async function openFiguresProject(
   owner: ProjectFileOwner,
   manuscript: string | null,
@@ -146,11 +137,19 @@ export async function openFiguresProject(
   const token = ++loadToken
   const ownerKey = projectOwnerKey(owner)
   const same = useResearchFigures.getState().ownerKey === ownerKey
-  useResearchFigures.setState({ ...(same ? {} : INITIAL), ownerKey, loading: true, error: null })
+  useResearchFigures.setState({
+    ...(same ? {} : INITIAL),
+    ownerKey,
+    owner,
+    loading: true,
+    error: null
+  })
   try {
     const source = manuscript ?? DEFAULT_MANUSCRIPT
-    const folder = figuresFolderFor(source)
-    const { listing, signatures, manuscriptSignature } = await readListing(owner, folder, source)
+    const folder = figureWorkFolder(await projectRecordRoot(owner))
+    const paperFolder = figuresFolderFor(source)
+    const snapshot = await readFigureListing(owner, { work: folder, paper: paperFolder }, source)
+    const { listing, signatures, publications, manuscriptSignature } = snapshot
     if (token !== loadToken) {
       return
     }
@@ -163,9 +162,11 @@ export async function openFiguresProject(
       candidates.find((entry) => stillListed(listing, entry)) ?? firstSelection(listing)
     useResearchFigures.setState({
       folder,
+      paperFolder,
       manuscript: source,
       listing,
       signatures,
+      publications,
       manuscriptSignature,
       selected,
       loading: false
@@ -177,19 +178,41 @@ export async function openFiguresProject(
   }
 }
 
-export function selectFigure(owner: ProjectFileOwner, selection: FigureSelection): void {
-  remember(projectOwnerKey(owner), selection)
-  useResearchFigures.setState({ selected: selection })
+export function selectFigure(
+  owner: Pick<ProjectFileOwner, 'hostId' | 'workspaceId'>,
+  selection: FigureSelection
+): void {
+  const ownerKey = projectOwnerKey(owner)
+  remember(ownerKey, selection)
+  const current = useResearchFigures.getState().ownerKey
+  // Why: another project's page must not switch; this project's opens on it from `remember`.
+  if (current === null || current === ownerKey) {
+    useResearchFigures.setState({ selected: selection })
+  }
+}
+
+/** The figure a project shows, or remembers from last time; null when it has none open. */
+export function openFigureSlug(
+  owner: Pick<ProjectFileOwner, 'hostId' | 'workspaceId'>
+): string | null {
+  const ownerKey = projectOwnerKey(owner)
+  const state = useResearchFigures.getState()
+  const selection = state.ownerKey === ownerKey ? state.selected : readRemembered(ownerKey)
+  return selection?.kind === 'figure' ? selection.slug : null
 }
 
 /** Picks up figures an agent or a plot script added, renamed or rewrote. */
 export async function refreshFigureList(owner: ProjectFileOwner): Promise<void> {
-  const { folder, ownerKey, loading, listing, signatures, selected, manuscript } =
+  const { folder, paperFolder, ownerKey, loading, listing, signatures, selected, manuscript } =
     useResearchFigures.getState()
-  if (!folder || loading || ownerKey !== projectOwnerKey(owner)) {
+  if (!folder || !paperFolder || loading || ownerKey !== projectOwnerKey(owner)) {
     return
   }
-  const next = await readListing(owner, folder, manuscript ?? DEFAULT_MANUSCRIPT)
+  const next = await readFigureListing(
+    owner,
+    { work: folder, paper: paperFolder },
+    manuscript ?? DEFAULT_MANUSCRIPT
+  )
   const current = useResearchFigures.getState()
   if (current.ownerKey !== ownerKey || current.folder !== folder) {
     return
@@ -197,6 +220,7 @@ export async function refreshFigureList(owner: ProjectFileOwner): Promise<void> 
   if (
     JSON.stringify(next.listing) === JSON.stringify(listing) &&
     JSON.stringify(next.signatures) === JSON.stringify(signatures) &&
+    JSON.stringify(next.publications) === JSON.stringify(current.publications) &&
     next.manuscriptSignature === current.manuscriptSignature
   ) {
     return
@@ -246,6 +270,7 @@ export async function createFigure(
   }
   const path = figureFilePaths(folder, slug).scene
   try {
+    await ensureFigureWorkFolder(owner, folder)
     const text = figureFileText(newFigureScene(size))
     const named =
       title?.trim() && title.trim() !== slug ? withFigureTitle(text, title.trim()) : text

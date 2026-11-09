@@ -7,9 +7,8 @@ import {
   FIGURE_TURN_ACTIVE,
   dismissFigureTurnBar,
   figureTurnPhaseText,
-  sameFigureTarget,
   setFigureTurnChangesShown,
-  useFigureTurn
+  useFigureTurnEntry
 } from './research-figure-turn'
 import type { FigureTarget } from './research-figures-export'
 
@@ -22,16 +21,14 @@ export function ResearchFigureAgentStatus({
 }: {
   target: FigureTarget
 }): React.JSX.Element | null {
-  const turn = useFigureTurn((state) =>
-    sameFigureTarget(state.turn?.target ?? null, target) ? state.turn : null
-  )
-  const dismissed = useFigureTurn((state) => state.barDismissed)
-  const showChanges = useFigureTurn((state) => state.showChanges)
+  const entry = useFigureTurnEntry(target)
+  const turn = entry?.turn
   if (!turn) {
     return null
   }
+  const { showChanges } = entry
   const active = FIGURE_TURN_ACTIVE.has(turn.phase)
-  if (!active && dismissed) {
+  if (!active && entry.barDismissed) {
     return null
   }
   const changes = turn.diff ? figureDiffCount(turn.diff) : null
@@ -75,17 +72,17 @@ export function ResearchFigureAgentStatus({
             size="xs"
             variant={showChanges ? 'secondary' : 'ghost'}
             aria-pressed={showChanges}
-            onClick={() => setFigureTurnChangesShown(!showChanges)}
+            onClick={() => setFigureTurnChangesShown(target, !showChanges)}
           >
             Show
           </Button>
-          <Button size="xs" variant="ghost" onClick={() => void undoFigureTurn()}>
+          <Button size="xs" variant="ghost" onClick={() => void undoFigureTurn(target)}>
             Undo
           </Button>
         </>
       ) : null}
       {turn.phase === 'stopped' || turn.phase === 'failed' ? (
-        <Button size="xs" variant="ghost" onClick={() => void retryFigureTurn()}>
+        <Button size="xs" variant="ghost" onClick={() => void retryFigureTurn(target)}>
           <RotateCcw aria-hidden /> Retry
         </Button>
       ) : null}
@@ -94,7 +91,7 @@ export function ResearchFigureAgentStatus({
           size="icon-xs"
           variant="ghost"
           aria-label="Dismiss agent status"
-          onClick={dismissFigureTurnBar}
+          onClick={() => dismissFigureTurnBar(target)}
         >
           <X aria-hidden />
         </Button>

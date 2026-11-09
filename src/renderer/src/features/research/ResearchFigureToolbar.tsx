@@ -127,8 +127,19 @@ export function ResearchFigureToolbar(props: Props): React.JSX.Element {
       }),
     []
   )
-  // Why the frame: a popover opened while the More menu closes would lose focus to its trigger.
-  const later = (open: () => void) => () => window.requestAnimationFrame(open)
+  // Why the ref: a menu hands focus back to its button when it finishes closing, a beat after the
+  // popover it opened appears; focus landing there counts as leaving the popover and closes it.
+  const handingOff = useRef(false)
+  const later = (open: () => void) => () => {
+    handingOff.current = true
+    window.requestAnimationFrame(open)
+  }
+  const keepHandoffFocus = (event: Event): void => {
+    if (handingOff.current) {
+      handingOff.current = false
+      event.preventDefault()
+    }
+  }
 
   const save = (
     <ResearchFigureSaveButton
@@ -175,7 +186,7 @@ export function ResearchFigureToolbar(props: Props): React.JSX.Element {
           <ChevronDown aria-hidden />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-56">
+      <DropdownMenuContent align="start" className="min-w-56" onCloseAutoFocus={keepHandoffFocus}>
         {items}
       </DropdownMenuContent>
     </DropdownMenu>
@@ -272,7 +283,11 @@ export function ResearchFigureToolbar(props: Props): React.JSX.Element {
                 <MoreHorizontal aria-hidden />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-52">
+            <DropdownMenuContent
+              align="end"
+              className="min-w-52"
+              onCloseAutoFocus={keepHandoffFocus}
+            >
               {layout.overflow.map((slot) => {
                 switch (slot) {
                   case 'save':

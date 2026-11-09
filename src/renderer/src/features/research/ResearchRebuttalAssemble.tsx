@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import {
+  assembleAllReplies,
   assembleGeneralResponse,
-  assembleReviewerReplies
+  reviewerReplyFileName
 } from '../../../../research-harness/research-rebuttal-assemble.mjs'
 import type {
   RebuttalMeta,
@@ -30,6 +31,8 @@ type Props = {
   readOnly: boolean
   /** Resolves to an error message, or null once saved. */
   onUpdateMeta: (change: (meta: RebuttalMeta) => RebuttalMeta) => Promise<string | null>
+  /** Fixes the view to one output and hides the switch. */
+  only?: Output
 }
 
 export function CharMeter({ chars, limit }: { chars: number; limit: number }): React.JSX.Element {
@@ -120,20 +123,22 @@ function OutputCard({
 export function ResearchRebuttalAssemble({
   snapshot,
   readOnly,
-  onUpdateMeta
+  onUpdateMeta,
+  only
 }: Props): React.JSX.Element {
-  const [output, setOutput] = useState<Output>('replies')
+  const [chosenOutput, setOutput] = useState<Output>('replies')
+  const output = only ?? chosenOutput
   const [savedAt, setSavedAt] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const { bundle } = snapshot
   const { meta } = bundle
-  const replies = assembleReviewerReplies(bundle)
+  const replies = assembleAllReplies(bundle)
   const general = assembleGeneralResponse(bundle)
 
   async function saveOutputs(): Promise<void> {
     try {
       for (const reply of replies) {
-        await writeRebuttalOutput(snapshot, `reviewer-${reply.reviewer}.md`, reply.text)
+        await writeRebuttalOutput(snapshot, reviewerReplyFileName(reply), reply.text)
       }
       await writeRebuttalOutput(snapshot, 'general.md', general.text)
       setSavedAt(new Date().toLocaleTimeString())
@@ -146,22 +151,24 @@ export function ResearchRebuttalAssemble({
   return (
     <div className="space-y-3 p-4">
       <div className="flex flex-wrap items-end gap-3">
-        <ToggleGroup
-          type="single"
-          variant="outline"
-          size="xs"
-          value={output}
-          aria-label="Output"
-          onValueChange={(value) => {
-            if (value === 'replies' || value === 'general' || value === 'pdf') {
-              setOutput(value)
-            }
-          }}
-        >
-          <ToggleGroupItem value="replies">Reviewer replies</ToggleGroupItem>
-          <ToggleGroupItem value="general">General response</ToggleGroupItem>
-          <ToggleGroupItem value="pdf">One-page PDF</ToggleGroupItem>
-        </ToggleGroup>
+        {only ? null : (
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="xs"
+            value={output}
+            aria-label="Output"
+            onValueChange={(value) => {
+              if (value === 'replies' || value === 'general' || value === 'pdf') {
+                setOutput(value)
+              }
+            }}
+          >
+            <ToggleGroupItem value="replies">Reviewer replies</ToggleGroupItem>
+            <ToggleGroupItem value="general">General response</ToggleGroupItem>
+            <ToggleGroupItem value="pdf">One-page PDF</ToggleGroupItem>
+          </ToggleGroup>
+        )}
         {output === 'pdf' ? null : (
           <>
             <div className="space-y-1">
@@ -249,34 +256,36 @@ export function ResearchRebuttalAssemble({
             const reviewer = meta.reviewers.find((entry) => entry.id === reply.reviewer)
             return (
               <OutputCard
-                key={reply.reviewer}
-                title={`Reply to ${reply.name}${reply.name === reply.reviewer ? '' : ` (${reply.reviewer})`}`}
+                key={`${reply.reviewer}-${reply.round}`}
+                title={`Reply to ${reply.name}${reply.name === reply.reviewer ? '' : ` (${reply.reviewer})`}${reply.round > 1 ? ` · round ${reply.round}` : ''}`}
                 text={reply.text}
                 chars={reply.chars}
                 limit={reply.limit}
                 missing={reply.missing}
               >
-                <details className="border-b border-border px-3 py-2">
-                  <summary className="cursor-pointer text-xs text-muted-foreground select-none">
-                    Opening{reviewer?.opening ? '' : ' (none)'}
-                  </summary>
-                  <ResearchRebuttalDraftField
-                    className="mt-2"
-                    label={`Opening for ${reply.reviewer}`}
-                    value={reviewer?.opening ?? ''}
-                    readOnly={readOnly}
-                    rows={3}
-                    placeholder="One or two sentences before the answers, e.g. thanks and the main change."
-                    onSave={(opening) =>
-                      onUpdateMeta((current) => ({
-                        ...current,
-                        reviewers: current.reviewers.map((entry) =>
-                          entry.id === reply.reviewer ? { ...entry, opening } : entry
-                        )
-                      }))
-                    }
-                  />
-                </details>
+                {reply.round > 1 ? null : (
+                  <details className="border-b border-border px-3 py-2">
+                    <summary className="cursor-pointer text-xs text-muted-foreground select-none">
+                      Opening{reviewer?.opening ? '' : ' (none)'}
+                    </summary>
+                    <ResearchRebuttalDraftField
+                      className="mt-2"
+                      label={`Opening for ${reply.reviewer}`}
+                      value={reviewer?.opening ?? ''}
+                      readOnly={readOnly}
+                      rows={3}
+                      placeholder="One or two sentences before the answers, e.g. thanks and the main change."
+                      onSave={(opening) =>
+                        onUpdateMeta((current) => ({
+                          ...current,
+                          reviewers: current.reviewers.map((entry) =>
+                            entry.id === reply.reviewer ? { ...entry, opening } : entry
+                          )
+                        }))
+                      }
+                    />
+                  </details>
+                )}
               </OutputCard>
             )
           })

@@ -33,14 +33,11 @@ const EMPTY: FigureElementDiff = { added: [], changed: [], removed: [] }
 
 /**
  * Ends a turn: what it changed (for the turn bar), and its "agent result" version in History when
- * it changed the figure. Uses the open canvas when it shows the figure, the file otherwise.
+ * it changed the figure. Uses the open canvas when it shows the figure, the file otherwise (the
+ * figure may not be the one on screen).
  */
 export async function settleFigureTurn(turn: FigureTurn): Promise<void> {
   const { target } = turn
-  if (!target) {
-    setFigureTurnDiff(turn.id, EMPTY)
-    return
-  }
   const open = editor && sameFigureTarget(editor.target, target) ? editor : null
   const after = open
     ? await open.settle(turn).catch(() => null)
@@ -66,17 +63,17 @@ export async function settleFigureTurn(turn: FigureTurn): Promise<void> {
   }
 }
 
-/** Settles each tracked turn once, when it stops being active. */
+/** Settles each figure's tracked turn once, when it stops being active. */
 export function watchFigureTurnEnds(): () => void {
   return useFigureTurn.subscribe((state, previous) => {
-    const turn = state.turn
-    const before = previous.turn
-    const ended =
-      turn !== null &&
-      (turn.phase === 'done' || turn.phase === 'stopped') &&
-      (before?.id !== turn.id || (before.phase !== 'done' && before.phase !== 'stopped'))
-    if (ended) {
-      void settleFigureTurn(turn)
+    for (const [key, { turn }] of Object.entries(state.figures)) {
+      const before = previous.figures[key]?.turn
+      const ended =
+        (turn.phase === 'done' || turn.phase === 'stopped') &&
+        (before?.id !== turn.id || (before.phase !== 'done' && before.phase !== 'stopped'))
+      if (ended) {
+        void settleFigureTurn(turn)
+      }
     }
   })
 }

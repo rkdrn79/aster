@@ -222,7 +222,7 @@ test('figures context reads the manuscript named, lists run-in headings, and fin
     const named = context('--manuscript', path.join(project, 'paper/mae.tex'))
     assert.match(
       named,
-      /^paper\/mae\.tex · figures in paper\/figures\n {2}The \$\\mathcal\{L\}\$ approach {2}\(mae\.tex:2\)\n {4}¶ Masking\. {2}\(mae\.tex:5\)\n {4}¶ MAE encoder\. {2}\(mae\.tex:9\)\n {4}¶ Reconstruction target\. {2}\(mae\.tex:11\)\n {4}Details {2}\(mae\.tex:13\)\n/
+      /^paper\/mae\.tex · figures in \.aster\/figures\n {2}The \$\\mathcal\{L\}\$ approach {2}\(mae\.tex:2\)\n {4}¶ Masking\. {2}\(mae\.tex:5\)\n {4}¶ MAE encoder\. {2}\(mae\.tex:9\)\n {4}¶ Reconstruction target\. {2}\(mae\.tex:11\)\n {4}Details {2}\(mae\.tex:13\)\n/
     )
     assert.doesNotMatch(named, /We sample|Other manuscripts/)
     assert.match(context('--manuscript', 'paper/mae.tex'), /^paper\/mae\.tex/)

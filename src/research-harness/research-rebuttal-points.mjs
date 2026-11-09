@@ -13,10 +13,12 @@ import {
   CLUSTER_STATUSES,
   KIND_LETTER,
   POINT_KINDS,
+  POINT_ORIGINS,
   POINT_TYPES,
   reviewerSortKey
 } from './research-rebuttal-model.mjs'
 
+const POINT_ID_COLLATOR = new Intl.Collator('en', { numeric: true })
 const POINT_ID = /^(R[1-9][0-9]?)-([WQM])([1-9][0-9]{0,2})$/
 const CLUSTER_ID = /^C[1-9][0-9]{0,2}$/
 const PROMISE_ID = /^P[1-9][0-9]{0,2}$/
@@ -77,8 +79,18 @@ export function locateQuote(review, quote, hint = {}) {
   )
 }
 
-/** Validates points against the reviewers and their review texts; quotes get exact offsets. */
-export function parsePoints(value, { reviewers, reviews }) {
+function quoteSource({ reviews, followUps }, reviewer, round) {
+  if (round === 1) {
+    return reviews[reviewer] ?? ''
+  }
+  return followUps.find((entry) => entry.reviewer === reviewer && entry.round === round)?.text ?? ''
+}
+
+/**
+ * Validates points against the reviewers and their texts; quotes get exact offsets. A point of a
+ * later round quotes that follow-up; a concern turned from a prediction quotes nothing.
+ */
+export function parsePoints(value, { reviewers, reviews, followUps = [] }) {
   const known = new Set(reviewers.map((reviewer) => reviewer.id))
   const points = list(value, 'points', 'points').map((entry, index) => {
     if (!isObject(entry)) {
@@ -96,10 +108,32 @@ export function parsePoints(value, { reviewers, reviews }) {
     if (KIND_LETTER[kind] !== match[2]) {
       throw invalid(`${entry.id}: a ${kind} point ID uses the letter ${KIND_LETTER[kind]}`)
     }
+    const origin = oneOf(entry.origin, `${entry.id} origin`, POINT_ORIGINS, 'review')
+    const round = integer(entry.round, `${entry.id} round`, { min: 1, max: 20, fallback: 1 })
+    const fromPrediction = nullableText(entry.fromPrediction, `${entry.id} fromPrediction`, 24)
+    if (origin === 'prediction') {
+      return {
+        ...entry,
+        id: entry.id,
+        reviewer,
+        kind,
+        type: oneOf(entry.type, `${entry.id} type`, POINT_TYPES, 'other'),
+        summary: text(entry.summary, `${entry.id} summary`, { max: 400, required: true }),
+        quote: text(entry.quote, `${entry.id} quote`, { max: 4000 }),
+        start: 0,
+        end: 0,
+        round,
+        origin,
+        fromPrediction
+      }
+    }
     const quote = text(entry.quote, `${entry.id} quote`, { max: 4000, required: true })
-    const located = locateQuote(reviews[reviewer] ?? '', quote, entry)
+    const source = quoteSource({ reviews, followUps }, reviewer, round)
+    const located = locateQuote(source, quote, entry)
     if (!located) {
-      throw invalid(`${entry.id}: the quote was not found in ${reviewer}'s review text`)
+      throw invalid(
+        `${entry.id}: the quote was not found in ${reviewer}'s ${round === 1 ? 'review text' : `round ${round} follow-up`}`
+      )
     }
     return {
       ...entry,
@@ -108,15 +142,22 @@ export function parsePoints(value, { reviewers, reviews }) {
       kind,
       type: oneOf(entry.type, `${entry.id} type`, POINT_TYPES, 'other'),
       summary: text(entry.summary, `${entry.id} summary`, { max: 400 }),
-      quote: (reviews[reviewer] ?? '').slice(located.start, located.end),
+      quote: source.slice(located.start, located.end),
       start: located.start,
-      end: located.end
+      end: located.end,
+      round,
+      origin,
+      fromPrediction
     }
   })
   uniqueIds(points, 'point')
   return points.sort(
     (left, right) =>
-      reviewerSortKey(left.reviewer) - reviewerSortKey(right.reviewer) || left.start - right.start
+      reviewerSortKey(left.reviewer) - reviewerSortKey(right.reviewer) ||
+      left.round - right.round ||
+      Number(left.origin === 'prediction') - Number(right.origin === 'prediction') ||
+      left.start - right.start ||
+      POINT_ID_COLLATOR.compare(left.id, right.id)
   )
 }
 
@@ -136,6 +177,12 @@ function manuscriptLocation(value, label) {
     line: integer(value.line, `${label}.line`, { min: 1, max: 1_000_000, fallback: null }),
     anchor: nullableText(value.anchor, `${label}.anchor`, 400)
   }
+}
+
+function replyAuthor(value, id) {
+  return value === undefined || value === null
+    ? null
+    : oneOf(value, `${id} author`, ['human', 'agent', 'both'])
 }
 
 /** Each point belongs to at most one cluster; previous drafts survive a regroup by cluster ID. */
@@ -187,6 +234,7 @@ export function parseClusters(value, { pointIds, previous = [] }) {
         `${entry.id} manuscript`
       ),
       response: text(entry.response ?? earlier?.response, `${entry.id} response`, { max: 30_000 }),
+      author: replyAuthor(entry.author === undefined ? earlier?.author : entry.author, entry.id),
       general: entry.general === undefined ? Boolean(earlier?.general) : entry.general === true
     }
   })

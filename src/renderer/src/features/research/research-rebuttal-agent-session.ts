@@ -67,7 +67,7 @@ export async function bindRebuttalAgentSession(
     .update((current) => withRebuttalAgentSession(current, scope, sessionId))
 }
 
-/** Starts the project's Rebuttal chat and binds it; an optional first prompt is sent once ready. */
+/** Starts the project's Rebuttal (author-side) chat and binds it; an optional first prompt is sent once ready. */
 export async function launchRebuttalAgent(
   scope: RebuttalAgentScope,
   agent: TuiAgent,

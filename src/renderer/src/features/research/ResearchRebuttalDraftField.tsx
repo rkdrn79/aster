@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -15,8 +15,18 @@ type Props = {
   className?: string
   /** Visible lines before the field scrolls; the user can drag it taller. */
   rows?: number
-  /** Resolves to an error message, or null once saved. */
-  onSave: (text: string) => Promise<string | null>
+  /** Resolves to an error message, or null once saved; `base` is the text editing started from. */
+  onSave: (text: string, base: string) => Promise<string | null>
+  /** Shown to the right of the label, e.g. who wrote this text. */
+  labelExtra?: ReactNode
+  /** Actions on the save-state row, to the left of the character count. */
+  footerExtra?: ReactNode
+  /** Reports the selected text, or null when nothing is selected. */
+  onSelectionChange?: (selection: string | null) => void
+  /** Hides the label row (the surrounding row names the field). */
+  hideLabel?: boolean
+  /** Grow with the text instead of scrolling. */
+  autoGrow?: boolean
 }
 
 type Draft = { base: string; text: string }
@@ -33,7 +43,12 @@ export function ResearchRebuttalDraftField({
   readOnly = false,
   className,
   rows = 6,
-  onSave
+  onSave,
+  labelExtra,
+  footerExtra,
+  onSelectionChange,
+  hideLabel = false,
+  autoGrow = false
 }: Props): React.JSX.Element {
   const id = useId()
   const [draft, setDraft] = useState<Draft>({ base: value, text: value })
@@ -61,7 +76,7 @@ export function ResearchRebuttalDraftField({
       return
     }
     setState('saving')
-    const error = await saveRef.current(text)
+    const error = await saveRef.current(text, base)
     if (error) {
       setState({ error })
       return
@@ -79,7 +94,7 @@ export function ResearchRebuttalDraftField({
         window.clearTimeout(timer.current)
         const { text, base } = latest.current
         if (text !== base) {
-          void saveRef.current(text)
+          void saveRef.current(text, base)
         }
       }
     },
@@ -88,8 +103,11 @@ export function ResearchRebuttalDraftField({
 
   return (
     <div className={cn('flex min-h-0 flex-col gap-1.5', className)}>
-      <div className="flex items-center justify-between gap-2">
-        <Label htmlFor={id}>{label}</Label>
+      <div className={cn('flex items-center justify-between gap-2', hideLabel && 'sr-only')}>
+        <div className="flex min-w-0 items-center gap-2">
+          <Label htmlFor={id}>{label}</Label>
+          {labelExtra}
+        </div>
         {agentChanged ? (
           <span className="flex items-center gap-1 text-2xs text-status-warning">
             Changed on disk
@@ -110,7 +128,12 @@ export function ResearchRebuttalDraftField({
         readOnly={readOnly}
         placeholder={placeholder}
         rows={rows}
-        className="resize-y"
+        className={autoGrow ? 'field-sizing-content max-h-[60vh] resize-none' : 'resize-y'}
+        onSelect={(event) => {
+          const field = event.currentTarget
+          const { selectionStart: start, selectionEnd: end, value: current } = field
+          onSelectionChange?.(start !== end ? current.slice(start, end) : null)
+        }}
         onChange={(event) => {
           const text = event.target.value
           latest.current = { ...latest.current, text }
@@ -123,8 +146,8 @@ export function ResearchRebuttalDraftField({
         }}
         onBlur={() => void save()}
       />
-      <div className="flex items-center justify-between gap-2 text-2xs text-muted-foreground">
-        <span role={typeof state === 'object' ? 'alert' : 'status'}>
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-2xs text-muted-foreground">
+        <span role={typeof state === 'object' ? 'alert' : 'status'} className="min-w-0 flex-1">
           {typeof state === 'object' ? (
             <span className="text-destructive">{state.error}</span>
           ) : state === 'saving' ? (
@@ -135,6 +158,7 @@ export function ResearchRebuttalDraftField({
             'Unsaved'
           ) : null}
         </span>
+        {footerExtra}
         <span className="tabular-nums">
           {replyCharCount(draft.text).toLocaleString()} characters
         </span>

@@ -2,6 +2,13 @@ import { Suspense, lazy, useEffect, useState } from 'react'
 import { Copy } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import type { ListedFigureFile } from '../../../../research-harness/research-figures-locations.mjs'
+import {
+  FigurePublishConflict,
+  publishFigureCopy,
+  toastPublishConflict,
+  toastPublished
+} from './research-figure-publish'
 import { readProjectFile, type ProjectFileOwner } from './research-project-files'
 
 const PdfViewer = lazy(() => import('@/components/editor/PdfViewer'))
@@ -11,16 +18,19 @@ type Loaded = { key: string; base64: string | null; url: string | null; error: s
 /** A figure Aster did not draw (a matplotlib PDF, a PNG): shown as it is, with its LaTeX line. */
 export function ResearchFigurePreview({
   owner,
-  folder,
-  name,
+  file,
+  workFolder,
+  manuscript,
   signature
 }: {
   owner: ProjectFileOwner
-  folder: string
-  name: string
+  file: ListedFigureFile
+  workFolder: string | null
+  manuscript: string | null
   signature: string
 }): React.JSX.Element {
-  const path = `${folder}/${name}`
+  const { name } = file
+  const path = `${file.folder}/${name}`
   const key = `${path}|${signature}`
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   useEffect(() => {
@@ -51,16 +61,50 @@ export function ResearchFigurePreview({
   const current = loaded?.key === key ? loaded : null
   const stem = name.replace(/\.[^.]+$/, '')
   const line = `\\includegraphics[width=\\columnwidth]{figures/${name}}`
+  // Why only working PDFs: a file already beside the manuscript is what the paper reads.
+  const canCopy = file.kind === 'pdf' && file.folder === workFolder && manuscript !== null
+  const copyToPaper = async (replace = false): Promise<void> => {
+    if (!manuscript) {
+      return
+    }
+    try {
+      const result = await publishFigureCopy({
+        owner,
+        slug: stem,
+        from: path,
+        manuscript,
+        sceneSha256: null,
+        replace
+      })
+      toastPublished(result, 'Copied to')
+    } catch (cause) {
+      if (cause instanceof FigurePublishConflict) {
+        toastPublishConflict(cause, () => copyToPaper(true))
+      } else {
+        toast.error(`Not copied. ${cause instanceof Error ? cause.message : String(cause)}`)
+      }
+    }
+  }
 
   return (
     <section aria-label={`Figure ${name}`} className="flex min-h-0 min-w-0 flex-1 flex-col">
       <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-1.5 text-xs">
         <span className="font-medium">{name}</span>
         <span className="text-muted-foreground">Read-only · made outside Figures</span>
+        {canCopy ? (
+          <Button
+            size="xs"
+            variant="outline"
+            className="ml-auto"
+            onClick={() => void copyToPaper()}
+          >
+            Copy to paper
+          </Button>
+        ) : null}
         <Button
           size="xs"
           variant="outline"
-          className="ml-auto"
+          className={canCopy ? undefined : 'ml-auto'}
           onClick={() =>
             void window.api.ui
               .writeClipboardText(line)

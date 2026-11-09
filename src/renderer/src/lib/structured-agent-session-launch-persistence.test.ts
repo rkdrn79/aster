@@ -2,6 +2,8 @@
 
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
+  deleteStructuredAgentLaunchRecord,
+  disableStructuredAgentLaunchPersistence,
   hasStructuredAgentLaunchCancellationTombstonePersisted,
   readStructuredAgentLaunchRecord,
   resetStructuredAgentLaunchPersistenceForTests,
@@ -260,5 +262,53 @@ describe('structured agent launch persistence', () => {
 
     expect(hasStructuredAgentLaunchCancellationTombstonePersisted('stale_remote')).toBe(false)
     expect(hasStructuredAgentLaunchCancellationTombstonePersisted('fresh_remote')).toBe(true)
+  })
+})
+
+describe('structured launch persistence in a research window', () => {
+  const pendingRecord = {
+    sessionId: 'session-from-main-window',
+    surfaceAddress: {
+      worktreeId: 'repo::/workspace',
+      targetGroupId: 'original',
+      precedingTabIds: ['source']
+    },
+    agent: 'claude',
+    executionHostId: 'runtime:env-1',
+    lifecycle: 'pending',
+    clientOperationId: 'operation-1',
+    payloadFingerprint: 'fingerprint-1',
+    expectedRuntimeFence: null
+  }
+
+  beforeEach(() => {
+    localStorage.clear()
+    resetStructuredAgentLaunchPersistenceForTests()
+  })
+
+  it('does not read a launch the main window still has pending', () => {
+    localStorage.setItem('orca:structuredAgentLaunches:v1', JSON.stringify([pendingRecord]))
+    disableStructuredAgentLaunchPersistence()
+
+    expect(readStructuredAgentLaunchRecord(pendingRecord.sessionId)).toBeUndefined()
+  })
+
+  it('reads it in the window that owns launches', () => {
+    localStorage.setItem('orca:structuredAgentLaunches:v1', JSON.stringify([pendingRecord]))
+
+    expect(readStructuredAgentLaunchRecord(pendingRecord.sessionId)?.lifecycle).toBe(
+      'visibility-unknown'
+    )
+  })
+
+  it('writes nothing to the store it shares with the main window', () => {
+    localStorage.setItem('orca:structuredAgentLaunches:v1', JSON.stringify([pendingRecord]))
+    disableStructuredAgentLaunchPersistence()
+
+    deleteStructuredAgentLaunchRecord('other-session')
+
+    expect(localStorage.getItem('orca:structuredAgentLaunches:v1')).toContain(
+      pendingRecord.sessionId
+    )
   })
 })

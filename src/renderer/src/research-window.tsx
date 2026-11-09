@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { ConfirmationDialogProvider } from './components/confirmation-dialog'
+import EditorAutosaveController from './components/editor/EditorAutosaveController'
 import { RecoverableRenderErrorBoundary } from './components/error-boundaries/RecoverableRenderErrorBoundary'
 import { applyDocumentAccentColor } from './lib/document-accent-color'
 import { applyDocumentTheme } from './lib/document-theme'
@@ -14,7 +15,7 @@ import { getOrCreateRendererRoot } from './lib/react-renderer-root'
 import { I18nProvider } from './i18n/I18nProvider'
 import { useAppStore } from './store'
 import { PRODUCT_NAME } from '../../shared/product-brand'
-import { normalizeExecutionHostId } from '../../shared/execution-host'
+import { normalizeExecutionHostId, parseExecutionHostId } from '../../shared/execution-host'
 import {
   RESEARCH_WINDOW_PAGES,
   RESEARCH_WINDOW_PAGE_LABELS,
@@ -28,7 +29,11 @@ import { ResearchWindowChats } from './features/research/ResearchWindowChats'
 import { isResearchPage } from './features/research/research-navigation'
 import { isResearchWindowState } from './features/research/research-window-state'
 import { markResearchWindowSurface } from './features/research/research-window-surface'
+import { ResearchWindowHostBanner } from './features/research/ResearchWindowHostBanner'
+import { ResearchWindowRemoteServices } from './features/research/ResearchWindowRemoteServices'
 import { selectResearchWorkspaceContext } from './features/research/research-workspace-context'
+import { replaceRuntimeEnvironmentRevisions } from './runtime/runtime-environment-revision'
+import { disableStructuredAgentLaunchPersistence } from './lib/structured-agent-session-launch-persistence'
 
 function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React.JSX.Element {
   const { t } = useTranslation()
@@ -39,7 +44,12 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
       selectResearchWorkspaceContext(state).projectName ??
       selectResearchWorkspaceContext(state).workspaceName
   )
+  const onRemoteHost = useAppStore(
+    (state) =>
+      parseExecutionHostId(selectResearchWorkspaceContext(state).hostId)?.kind === 'runtime'
+  )
   const [ready, setReady] = useState(false)
+  const [waitingForMain, setWaitingForMain] = useState(false)
   const [section, setSection] = useState<ResearchWindowPage>(target.page)
   const showSection = useCallback((page: ResearchWindowPage): void => {
     setSection(page)
@@ -73,12 +83,27 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
       if (!isResearchWindowState(value)) {
         return
       }
+      // Why: this renderer's own record of each host's pairing, which its host requests carry.
+      replaceRuntimeEnvironmentRevisions(value.runtimeEnvironments)
       useAppStore.setState({ ...value, ...pinned })
       setReady(true)
     })
     void api.requestState()
     return offState
   }, [target])
+
+  // Why: the main window can be reloading when this opens or reopens; keep asking until it answers.
+  useEffect(() => {
+    if (ready) {
+      return
+    }
+    const retry = setInterval(() => void window.api.researchWindow.requestState(), 2000)
+    const stillWaiting = setTimeout(() => setWaitingForMain(true), 8000)
+    return () => {
+      clearInterval(retry)
+      clearTimeout(stillWaiting)
+    }
+  }, [ready])
 
   useEffect(() => {
     applyDocumentTheme(settings?.theme ?? 'system', { disableTransitions: false })
@@ -113,6 +138,9 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
       description={t('research.window.errorDescription', 'Close it and open the project again.')}
     >
       <TooltipProvider delayDuration={400}>
+        {onRemoteHost ? <ResearchWindowRemoteServices /> : null}
+        {/* Why: the Writing editor saves through this; the main window's lives in its terminal view. */}
+        <EditorAutosaveController />
         <ConfirmationDialogProvider>
           <div className="flex h-screen min-h-0 flex-col bg-background text-foreground">
             <header className="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
@@ -144,10 +172,13 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
                 {t('research.window.openInMain', 'Open in main window')}
               </Button>
             </header>
+            {ready ? <ResearchWindowHostBanner /> : null}
             <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
               {!ready ? (
                 <p role="status" className="p-6 text-sm text-muted-foreground">
-                  {t('research.window.loading', 'Loading…')}
+                  {waitingForMain
+                    ? t('research.window.waitingForMain', 'Waiting for the main window…')
+                    : t('research.window.loading', 'Loading…')}
                 </p>
               ) : section === 'research-chats' ? (
                 <ResearchWindowChats target={target} />
@@ -174,6 +205,8 @@ if (!target) {
   throw new Error('Research window opened without a page.')
 }
 markResearchWindowSurface(target)
+// Why: launches started here go through the main window, whose records would read as stale here.
+disableStructuredAgentLaunchPersistence()
 document.title = `${RESEARCH_WINDOW_PAGE_LABELS[target.page]} — ${PRODUCT_NAME}`
 getOrCreateRendererRoot(root, import.meta.hot?.data).render(
   <StrictMode>

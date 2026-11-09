@@ -6,6 +6,7 @@ import { FIGURE_PARTS, buildFigurePart } from './research-figures-parts.mjs'
 import { kitIndexText, kitReferenceText } from './research-figures-kit-index.mjs'
 import { iconListText } from './research-figures-icons.mjs'
 import { templateListText, templateText } from './research-figures-templates.mjs'
+import { PUBLISH_WAIT_SECONDS, publishFigure } from './research-figures-publish.mjs'
 import {
   checkFigures,
   createFigure,
@@ -70,6 +71,20 @@ export const commands = {
   'figures reference': {
     spec: { values: ['--figure'] },
     run: ({ project, options }) => referenceFigure(project, options['--figure'])
+  },
+  'figures publish': {
+    spec: {
+      values: ['--figure', '--manuscript', '--wait'],
+      booleans: ['--replace'],
+      required: ['--figure']
+    },
+    run: ({ project, options }) =>
+      publishFigure(project, {
+        slug: options['--figure'],
+        manuscript: options['--manuscript'],
+        replace: Boolean(options['--replace']),
+        waitSeconds: numberOption(options, '--wait') ?? PUBLISH_WAIT_SECONDS
+      })
   },
   'figures parts': { spec: {}, run: () => ({ parts: FIGURE_PARTS }) },
   'figures context': {
@@ -167,15 +182,19 @@ export const textOutput = {
       `Figures folder: ${result.folder}`,
       ...result.figures.map(
         (figure) =>
-          `${figure.slug}  ${figure.scene}${figure.pdf ? '' : ' (not exported yet; open it in Aster Figures)'}`
+          `${figure.slug}  ${figure.scene}${figure.pdf ? '' : ' (not exported yet; open it in Aster Figures)'}${paperNote(figure)}`
       ),
       ...result.others.map((entry) => `${entry.path}  (${entry.kind}, read-only)`),
+      ...result.shadowed.map(
+        (entry) =>
+          `${entry.scene}  (same name as the figure in ${result.folder}, which is the one used; left untouched)`
+      ),
       result.figures.length || result.others.length ? '' : 'No figures yet.'
     ]
       .filter(Boolean)
       .join('\n'),
   'figures new': (result) =>
-    `Created ${result.scene} (${result.page.widthIn} × ${result.page.heightIn} in). Aster writes ${result.slug}.svg and ${result.slug}.pdf when it is open in Figures. Draw it with ${result.script}, starting with ${result.import} (${result.shim}, portable), and run it with figures run --figure ${result.slug}.`,
+    `Created ${result.scene} (${result.page.widthIn} × ${result.page.heightIn} in). Aster writes ${result.slug}.svg and ${result.slug}.pdf when it is open in Figures. Draw it with ${result.script}, starting with ${result.import} (${result.shim}, portable), and run it with figures run --figure ${result.slug}. It stays out of the paper until the person asks for it there (figures publish).`,
   'figures run': (result) =>
     [
       `${result.script} exited ${result.exitCode} (kit through ${result.shim})`,
@@ -264,7 +283,31 @@ export const textOutput = {
       .join('\n'),
   'figures part': (result) => JSON.stringify(result.elements, null, 2),
   'figures kit': (result) => result.text,
-  'figures context': contextText
+  'figures context': contextText,
+  'figures publish': publishText
+}
+
+function paperNote(figure) {
+  const note = {
+    beside: ' (beside the manuscript; edits reach the paper directly)',
+    current: ` (in the paper as ${figure.paperPdf}, up to date)`,
+    outdated: ` (paper copy outdated: changed since it was published; figures publish updates it when the person asks)`,
+    missing: ` (paper copy missing: ${figure.paperPdf}; figures publish restores it when the person asks)`
+  }[figure.paper]
+  return note ?? ''
+}
+
+function publishText(result) {
+  if (result.beside) {
+    return `${result.figure} already lives beside the manuscript; ${result.pdf} is what the paper shows, so there is nothing to publish.`
+  }
+  const includes = result.usedIn.length
+    ? `${result.usedIn.join(', ')} ${result.usedIn.length === 1 ? 'includes' : 'include'} it.`
+    : `No manuscript includes it yet: \\includegraphics{figures/${result.figure}.pdf}. Add the line only if the person asked for that too.`
+  return [
+    `Copied ${result.from} to ${result.pdf}${result.replaced ? ', replacing the older copy' : ''}.`,
+    includes
+  ].join(' ')
 }
 
 /** Headings past this many are counted, not listed: the agent needs the outline, not a dump. */
@@ -302,10 +345,13 @@ function contextText(result) {
 }
 
 export const usage = `
-Figures (<manuscript folder>/figures/<slug>.excalidraw; Aster writes <slug>.svg, <slug>.pdf and a
-PNG preview while the figure is open in its Figures page). --figure may be left out when there is
-one figure. A figure's script imports { openFigure } from './aster-figures-kit.mjs', a portable
-shim beside it that finds H on any computer (figures new writes it; figures run too).
+Figures live in <record root>/figures (.aster/figures), each <slug>.excalidraw with its <slug>.svg,
+<slug>.pdf and PNG preview, which Aster writes while the figure is open in its Figures page; an older
+figure still beside the manuscript stays there and works the same. --figure may be left out when
+there is one figure. A figure's script imports { openFigure } from './aster-figures-kit.mjs', a
+portable shim beside it that finds H on any computer (figures new writes it; figures run too).
+The paper only receives a figure when the person asks: figures publish copies its vector PDF to
+the manuscript's figures folder; never copy it there by hand.
   figures context [--manuscript PATH] [--figure SLUG]
                                          The manuscript's sections, subsections and run-in
                                          paragraph headings: is the method there yet? Without
@@ -325,6 +371,11 @@ shim beside it that finds H on any computer (figures new writes it; figures run 
                                          then prints its path, the print-size PNG, the PNG with lint
                                          findings boxed (when there are any), and for a recreation
                                          the reference beside it and under it; open them and look
+  figures publish --figure SLUG [--manuscript PATH] [--replace] [--wait SECONDS]
+                                         Copies the figure's PDF to the manuscript's figures folder
+                                         (only when the person asks for the figure in the paper).
+                                         Refuses a PDF there that did not come from this figure
+                                         unless --replace; prints the \\includegraphics line
   figures reference [--figure SLUG]      A recreation's reference: size, units per pixel, and its
                                          colour regions (boxes, outlines, lines) in scene units
   figures new --name NAME [--slug SLUG] [--size single|double|WIDTHxHEIGHT] [--style graphite|slate|outline|…]

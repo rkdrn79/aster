@@ -300,7 +300,11 @@ export function ExperimentExplorer({
       )
       openResearchView('research-writing')
     } else if ((home.kind === 'rebuttal' || home.kind === 'figures') && context.hostId) {
-      openProjectAgentPage(home.kind, { hostId: context.hostId, workspaceId: tab.worktreeId })
+      openProjectAgentPage(
+        home.kind,
+        { hostId: context.hostId, workspaceId: tab.worktreeId },
+        tab.entityId
+      )
     } else {
       const state = useAppStore.getState()
       state.setActiveView('terminal')

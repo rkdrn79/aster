@@ -15,10 +15,21 @@ project/
       runs/<id>/run.json
       runs/<id>/metrics.jsonl
       runs/<id>/train.log
+    figures/                     working figures: <slug>.excalidraw and src/ (committed), exports ignored
+      published/<slug>.json      what each figure's copy in the paper was made from
     library/
     local/                       device-bound state; git-ignored
     cache/                       generated state; git-ignored
 ```
+
+Figures are worked on in `<record root>/figures/` (`.aster/figures/`, or `research/figures/` in a
+project that has not migrated). The paper only receives a figure's vector PDF, in the manuscript's
+figures folder, when the person publishes it with **Use in paper** or `figures publish`; a record
+in `figures/published/` keeps what it was made from, so edits never change the paper silently and
+Aster shows the copy as outdated. A figure already in the manuscript's folder stays there and is
+edited in place until the person moves it with its own "Move to Aster's figures folder" action,
+which keeps the PDF the paper reads; no file moves on its own. When the same name exists in both
+folders, the one in the record tree is used and the other is left untouched and reported.
 
 `readCatalog` derives the Experiment and Run list from those folders. A Run created in another
 worktree can appear after its files are brought into the project without rewriting one central Run

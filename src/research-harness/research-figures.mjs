@@ -1,8 +1,6 @@
-import { createHash } from 'node:crypto'
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { readCatalog } from './research-catalog.mjs'
 import { HarnessError } from './research-harness-error.mjs'
 import { projectLayout } from './research-layout.mjs'
 import { elementBounds } from './research-figures-geometry.mjs'
@@ -13,6 +11,16 @@ import { lintFigureScene } from './research-figures-lint.mjs'
 import { FIGURE_STYLES } from './research-figures-style.mjs'
 import { PRESET_ALIASES } from './research-figures-palette.mjs'
 import { readLibraryFolder, userLibraryDirectory } from './research-figures-library.mjs'
+import {
+  catalogManuscript,
+  ensureWorkFolder,
+  figureLibraryFolders,
+  figuresFolder,
+  folderEntries,
+  listFigures,
+  sha256,
+  workFiguresFolder
+} from './research-figures-folders.mjs'
 import {
   KIT_SHIM,
   KIT_SHIM_IMPORT,
@@ -28,58 +36,12 @@ import {
   figurePage,
   figurePreviewPaths,
   figureSlug,
-  figuresFolderFor,
   isFigureSlug,
-  listFigureFolder,
   newFigureScene,
   referenceRegionsPath
 } from './research-figures-model.mjs'
 
-const DEFAULT_MANUSCRIPT = 'paper/main.tex'
-
-/** The catalog's manuscript (paper/main.tex without one), project-relative. */
-async function catalogManuscript(project) {
-  try {
-    return (await readCatalog(project)).manuscript?.source ?? DEFAULT_MANUSCRIPT
-  } catch (error) {
-    if (!(error instanceof HarnessError) && error?.code !== 'ENOENT') {
-      throw error
-    }
-    return DEFAULT_MANUSCRIPT
-  }
-}
-
-/** `<manuscript folder>/figures`, from the catalog's manuscript (paper/main.tex without one). */
-export async function figuresFolder(project) {
-  return figuresFolderFor(await catalogManuscript(project))
-}
-
-async function folderEntries(directory) {
-  try {
-    return (await readdir(directory, { withFileTypes: true })).map((entry) => ({
-      name: entry.name,
-      isDirectory: entry.isDirectory()
-    }))
-  } catch (error) {
-    if (error?.code === 'ENOENT') {
-      return []
-    }
-    throw error
-  }
-}
-
-export async function listFigures(project) {
-  const folder = await figuresFolder(project)
-  const listing = listFigureFolder(await folderEntries(path.join(project, folder)))
-  return {
-    folder,
-    figures: listing.figures.map((figure) => ({
-      ...figure,
-      ...figureFilePaths(folder, figure.slug)
-    })),
-    others: listing.others.map((entry) => ({ ...entry, path: `${folder}/${entry.name}` }))
-  }
-}
+export { figuresFolder, listFigures }
 
 /** `single`, `double`, or `<width>x<height>` in inches. */
 export function parseFigureSize(value) {
@@ -109,10 +71,20 @@ export async function createFigure(project, { name, slug, size, style }) {
       `Unknown style ${style}; styles: ${Object.keys(FIGURE_STYLES).join(', ')}`
     )
   }
-  const folder = await figuresFolder(project)
+  const folder = workFiguresFolder(project)
   const files = figureFilePaths(folder, chosen)
+  // Why both folders: an older figure beside the manuscript has this name too.
+  const paper = figureFilePaths(await figuresFolder(project), chosen).scene
+  if (
+    await readFile(path.join(project, paper)).then(
+      () => true,
+      () => false
+    )
+  ) {
+    throw new HarnessError('exists', `${paper} already exists`)
+  }
   const page = parseFigureSize(size)
-  await mkdir(path.join(project, folder), { recursive: true })
+  await ensureWorkFolder(project)
   const preset = style ? (PRESET_ALIASES[style] ?? style) : null
   const scene = newFigureScene(page, Math.random, preset)
   if (preset) {
@@ -334,9 +306,9 @@ export async function previewFigure(
   let sidecar = null
   for (;;) {
     const text = await readFile(path.join(project, figure.scene))
-    const sha256 = createHash('sha256').update(text).digest('hex')
+    const hash = sha256(text)
     sidecar = await readSidecar(path.join(project, files.sidecar))
-    if (sidecar?.sceneSha256 === sha256) {
+    if (sidecar?.sceneSha256 === hash) {
       const inProject = (relative) =>
         typeof relative === 'string' ? path.join(project, relative) : null
       const png = path.join(project, files.png)
@@ -350,7 +322,7 @@ export async function previewFigure(
         figure: figure.slug,
         png,
         ...sidecar,
-        sceneSha256: sha256,
+        sceneSha256: hash,
         compare: inProject(sidecar.compare),
         overlay: inProject(sidecar.overlay),
         print: inProject(sidecar.print),
@@ -415,14 +387,17 @@ export async function referenceFigure(project, slug) {
 
 /** Saved parts for `figures kit library`: the project's, then the person's on this computer. */
 export async function libraryListText(project) {
-  const folder = path.join(project, await figuresFolder(project), 'library')
+  const folders = await figureLibraryFolders(
+    project,
+    path.join(project, workFiguresFolder(project))
+  )
   const parts = [
-    ...(await readLibraryFolder(folder, 'project')),
+    ...(await Promise.all(folders.map((entry) => readLibraryFolder(entry, 'project')))).flat(),
     ...(await readLibraryFolder(userLibraryDirectory(), 'user'))
   ]
   return [
     "fig.part(name, { id, x, y }) places a saved part with fresh ids; fig.savePart(name, ids, { scope: 'project' | 'user' }) saves one.",
-    `project parts: ${path.relative(project, folder)}/; your parts: ${userLibraryDirectory()}`,
+    `project parts: ${path.relative(project, folders[0])}/; your parts: ${userLibraryDirectory()}`,
     '',
     ...(parts.length
       ? parts.map(
@@ -483,7 +458,8 @@ async function manuscriptsShowing(project, folder, slug) {
  * catalog's. The other .tex files beside it are listed, to pick from when it is the wrong one.
  */
 export async function figureContext(project, { manuscript = null, figure = null } = {}) {
-  const figures = await figuresFolder(project)
+  const figures = workFiguresFolder(project)
+  const paperFigures = await figuresFolder(project)
   const catalog = await catalogManuscript(project)
   let source = catalog
   let chosenBy = 'catalog'
@@ -524,6 +500,7 @@ export async function figureContext(project, { manuscript = null, figure = null 
     exists: text !== null,
     sections: headings,
     others,
-    figures
+    figures,
+    paperFigures
   }
 }

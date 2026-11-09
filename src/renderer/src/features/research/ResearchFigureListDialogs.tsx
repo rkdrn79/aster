@@ -16,6 +16,10 @@ import { figureSlug, isFigureSlug } from '../../../../research-harness/research-
 export type RenameRequest = {
   slug: string
   title: string | null
+  /** The figure's own folder. */
+  folder: string
+  /** Whether the paper holds a published copy, which the rename carries along. */
+  published: boolean
   /** Manuscript lines that include it, and the manuscript's file name for the message. */
   usages: readonly number[]
   manuscript: string | null
@@ -100,7 +104,8 @@ export function ResearchFigureRenameDialog({
               className={problem ? 'text-xs text-destructive' : 'text-xs text-muted-foreground'}
               role={problem ? 'alert' : undefined}
             >
-              {problem ?? `${slug}.excalidraw, with its .svg, .pdf and script`}
+              {problem ??
+                `${slug}.excalidraw, with its .svg, .pdf and script, and the paper's copy`}
             </p>
           </div>
           {request.usages.length && slug !== request.slug ? (
@@ -135,36 +140,55 @@ export function ResearchFigureRenameDialog({
   )
 }
 
-/** Delete asks only when the paper uses the figure; otherwise the Undo toast is enough. */
+/** Delete asks when the paper uses the figure or holds a copy; otherwise Undo is enough. */
 export function ResearchFigureDeleteDialog({
   title,
   usages,
   manuscript,
+  paperCopy,
   onClose,
   onDelete
 }: {
   title: string
   usages: readonly number[]
   manuscript: string | null
+  /** The paper's published copy, or null when the figure's own PDF is what the paper reads. */
+  paperCopy: string | null
   onClose: () => void
-  onDelete: () => void
+  onDelete: (removePaperCopy: boolean) => void
 }): React.JSX.Element {
+  const [removeCopy, setRemoveCopy] = useState(false)
+  const file = manuscript?.split('/').pop() ?? 'The manuscript'
+  const included = usages.length ? `${file} includes it on line ${usages.join(', ')}. ` : ''
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Delete “{title}”?</DialogTitle>
           <DialogDescription>
-            {manuscript?.split('/').pop() ?? 'The manuscript'} includes it on line{' '}
-            {usages.join(', ')}; the paper will not build until you remove those lines. Its files
-            move to the project trash, and you can undo right after.
+            {paperCopy
+              ? `${included}Its working files move to the project trash; the paper keeps ${paperCopy}, so it still builds.`
+              : `${included}The paper will not build until you remove those lines. Its files move to the project trash, and you can undo right after.`}
           </DialogDescription>
         </DialogHeader>
+        {paperCopy ? (
+          <div className="flex items-start gap-2">
+            <Checkbox
+              id="figure-delete-paper-copy"
+              checked={removeCopy}
+              onCheckedChange={(value) => setRemoveCopy(value === true)}
+            />
+            <label htmlFor="figure-delete-paper-copy" className="text-sm leading-snug">
+              Also delete {paperCopy}
+              {usages.length ? ' (the paper will not build until those lines go)' : ''}
+            </label>
+          </div>
+        ) : null}
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="destructive" autoFocus onClick={onDelete}>
+          <Button variant="destructive" autoFocus onClick={() => onDelete(removeCopy)}>
             Delete
           </Button>
         </DialogFooter>

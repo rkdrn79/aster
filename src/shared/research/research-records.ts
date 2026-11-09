@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { researchAgentSessionFields } from './research-agent-session-fields'
 import { researchDelegationSchema } from './research-delegation-record'
 import { isManuscriptPathInsideWorkspace } from './research-manuscript-path'
 
@@ -165,10 +166,7 @@ export const researchDocumentSchema = z
         ])
       )
       .default({}),
-    writingAgentSessionByScope: z.record(z.string(), z.string().trim().min(1).max(256)).default({}),
-    // Why not a conversationHomes kind: an older app would refuse the whole document over one.
-    rebuttalAgentSessionByScope: z.record(z.string(), z.string().trim().min(1).max(256)).optional(),
-    figuresAgentSessionByScope: z.record(z.string(), z.string().trim().min(1).max(256)).optional(),
+    ...researchAgentSessionFields,
     selectedExperimentByWorkspace: z.record(z.string(), z.string().uuid()).default({}),
     selectedExperimentId: z.string().uuid().nullable(),
     selectedRunId: z.string().uuid().nullable(),

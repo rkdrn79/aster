@@ -1,7 +1,4 @@
-import type {
-  RebuttalBundle,
-  RebuttalPoint
-} from '../../../../research-harness/research-rebuttal-model.mjs'
+import type { RebuttalPoint } from '../../../../research-harness/research-rebuttal-model.mjs'
 
 export type ReviewSegment = {
   start: number
@@ -38,13 +35,6 @@ export function reviewSegments(text: string, points: readonly RebuttalPoint[]): 
     })
   }
   return segments
-}
-
-/** Which cluster each point is answered in. */
-export function clusterIdByPoint(bundle: Pick<RebuttalBundle, 'clusters'>): Map<string, string> {
-  return new Map(
-    bundle.clusters.flatMap((cluster) => cluster.points.map((id) => [id, cluster.id] as const))
-  )
 }
 
 export const POINT_KIND_LABELS = {

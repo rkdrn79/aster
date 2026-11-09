@@ -36,7 +36,21 @@ const snapshot: RebuttalSnapshot = {
     promises: []
   },
   reviews: { R1: 'Old text.' },
-  texts: { meta: null, points: null, clusters: null, promises: null },
+  followUps: [],
+  proposals: [],
+  predictions: [],
+  outlooks: [],
+  paperChanges: [],
+  texts: {
+    meta: null,
+    points: null,
+    clusters: null,
+    promises: null,
+    followUps: null,
+    proposals: null,
+    predictions: null,
+    paperChanges: null
+  },
   issues: [],
   version: ''
 }
@@ -107,5 +121,5 @@ it('imports the new reviews of a forum and keeps already imported ones unchecked
 it('explains that author-only reviews need to be pasted', async () => {
   open(async () => ({ ...forum, title: null, reviews: [] }))
   expect(await screen.findByText(/No reviews are public on this forum/)).toBeTruthy()
-  expect(screen.getByRole('button', { name: /^Import/ }).hasAttribute('disabled')).toBe(true)
+  expect(screen.queryByRole('button', { name: /^Import/ })).toBeNull()
 })

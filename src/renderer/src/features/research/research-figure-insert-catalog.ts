@@ -20,7 +20,13 @@ export type InsertItem = {
   category: InsertCategory
   description: string
   /** For my parts: where it is saved and its file. */
-  saved?: { scope: 'project' | 'user'; file: string; elements: readonly unknown[] }
+  saved?: {
+    scope: 'project' | 'user'
+    file: string
+    /** The project library folder it came from; absent for the person's own parts. */
+    directory?: string
+    elements: readonly unknown[]
+  }
 }
 export type BuiltItem = { elements: ExcalidrawElement[]; files: BinaryFileData[] }
 

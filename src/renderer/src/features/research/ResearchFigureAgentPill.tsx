@@ -1,17 +1,25 @@
 import { useState } from 'react'
 import { ArrowUp, PanelRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useResearchFigures } from './research-figures-store'
 import { FIGURE_COMPOSER_PLACEHOLDER } from './ResearchFigureAgentPane'
 
-/** The Figure agent folded under the canvas (focus mode, narrow windows): one line to ask. */
-export function ResearchFigureAgentPill({
-  onSend,
-  onExpand
-}: {
+type PillProps = {
   /** Resolves to an error message, or null once the agent has it. */
   onSend: ((text: string) => Promise<string | null>) | null
   onExpand: () => void
-}): React.JSX.Element {
+}
+
+/** The Figure agent folded under the canvas; each figure starts with its own empty line. */
+export function ResearchFigureAgentPill(props: PillProps): React.JSX.Element {
+  const figure = useResearchFigures((state) =>
+    state.selected?.kind === 'figure' ? state.selected.slug : ''
+  )
+  return <FigurePill key={figure} {...props} />
+}
+
+/** One line to ask this figure's agent (focus mode, narrow windows). */
+function FigurePill({ onSend, onExpand }: PillProps): React.JSX.Element {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [note, setNote] = useState<{ error: boolean; text: string } | null>(null)

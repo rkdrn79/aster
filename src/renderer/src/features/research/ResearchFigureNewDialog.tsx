@@ -104,7 +104,9 @@ function NewFigureForm({
     : customSize.width && customSize.height
       ? { widthIn: customSize.width, heightIn: customSize.height }
       : null
-  const missing = !named || !size || duplicate || (start === 'describe' && !description.trim())
+  // Why: with nothing described there is nothing to ask, so it makes a blank figure and no agent.
+  const effectiveStart: FigureStart = start === 'describe' && !description.trim() ? 'blank' : start
+  const missing = !named || !size || duplicate
 
   async function submit(event: React.FormEvent): Promise<void> {
     event.preventDefault()
@@ -112,7 +114,14 @@ function NewFigureForm({
       return
     }
     setCreating(true)
-    const failure = await onCreate({ name: name.trim(), slug, size, start, description, template })
+    const failure = await onCreate({
+      name: name.trim(),
+      slug,
+      size,
+      start: effectiveStart,
+      description,
+      template
+    })
     setCreating(false)
     setError(failure)
     if (!failure) {
@@ -159,11 +168,11 @@ function NewFigureForm({
               </span>
             ) : named && folder && start !== 'plot' ? (
               <span className="text-muted-foreground">
-                {folder}/{slug}.excalidraw, with .svg and .pdf beside it
+                {folder}/{slug}.excalidraw; it goes to the paper when you use it there
               </span>
             ) : named && folder ? (
               <span className="text-muted-foreground">
-                {folder}/{slug}.py and {slug}.pdf
+                {folder}/{slug}.py and {slug}.pdf; it goes to the paper when you use it there
               </span>
             ) : null}
           </div>
@@ -204,9 +213,12 @@ function NewFigureForm({
               id="figure-description"
               rows={3}
               value={description}
-              placeholder="e.g. a student and an EMA teacher meeting at a red loss, image patches on the left"
+              placeholder="e.g. a student and an EMA teacher meeting at a loss, image patches on the left"
               onChange={(event) => setDescription(event.target.value)}
             />
+            <p className="text-xs text-muted-foreground">
+              Leave this empty to start from a blank page without the agent.
+            </p>
           </div>
         ) : null}
         {start === 'template' ? (
@@ -286,7 +298,7 @@ function NewFigureForm({
             Cancel
           </Button>
           <Button type="submit" disabled={missing || creating}>
-            {creating ? 'Creating…' : SUBMIT[start]}
+            {creating ? 'Creating…' : SUBMIT[effectiveStart]}
           </Button>
         </DialogFooter>
       </form>

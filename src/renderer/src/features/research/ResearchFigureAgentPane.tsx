@@ -14,7 +14,7 @@ import { ResearchFigureChatScope } from './ResearchFigureChatScope'
 import { ResearchFigureOverwriteDialog } from './ResearchFigureOverwriteDialog'
 import { noteTypedFigureMessage } from './research-figure-agent-actions'
 import { useFigureHistoryShortcut } from './research-figure-history-tab'
-import { useFigureTurn } from './research-figure-turn'
+import { figureSessionWorking } from './research-figure-turn-status'
 import { setFigureVariantsMode, useFigureVariantsMode } from './research-figure-variants'
 import type { FigureQuickRequest } from './research-figures-agent-prompts'
 import {
@@ -24,9 +24,9 @@ import {
   type FigureQuickActionId
 } from './research-figure-quick-actions'
 import {
-  bindFiguresAgentSession,
-  figuresAgentSessionId,
-  launchFiguresAgent,
+  bindFigureAgentSession,
+  figureAgentSessionId,
+  launchFigureAgent,
   withFigureMessageContext,
   type FigureMessageContext,
   type FiguresAgentScope
@@ -47,7 +47,7 @@ type Props = {
   messageContext: () => FigureMessageContext | null
   /** What is on the canvas, so only actions that can run are offered. */
   canvas: FigureCanvasState
-  /** The open figure; an error from one figure is not shown on the next. */
+  /** The open figure, whose chat this shows; null is the project's chat for no open figure. */
   figureKey: string | null
 }
 
@@ -95,7 +95,7 @@ function isTyping(target: EventTarget | null): boolean {
   )
 }
 
-/** The project's Figure chat, with requests that send a full prompt naming the exact files. */
+/** The open figure's own chat, with requests that send a full prompt naming the exact files. */
 export function ResearchFigureAgentPane({
   scope,
   visible,
@@ -106,8 +106,12 @@ export function ResearchFigureAgentPane({
   canvas,
   figureKey
 }: Props): React.JSX.Element {
-  const boundSessionId = useResearchRecords((state) => figuresAgentSessionId(state.document, scope))
-  const [sending, setSending] = useState<string | null>(null)
+  const boundSessionId = useResearchRecords((state) =>
+    figureAgentSessionId(state.document, scope, figureKey)
+  )
+  // Why by figure: a request still sending on one figure must not hold up the next figure's.
+  const [sendingBy, setSendingBy] = useState<Record<string, string>>({})
+  const sending = sendingBy[figureKey ?? ''] ?? null
   const [error, setError] = useState<{ figure: string | null; text: string } | null>(null)
   const [escArmed, setEscArmed] = useState(false)
   const variants = useFigureVariantsMode((state) => state.on)
@@ -115,7 +119,7 @@ export function ResearchFigureAgentPane({
   useFigureHistoryShortcut()
   const decorateMessage = useCallback(
     (sessionId: string, text: string) => {
-      noteTypedFigureMessage(scope, text)
+      noteTypedFigureMessage(scope, sessionId, text)
       return withFigureMessageContext(sessionId, text, messageContext())
     },
     [messageContext, scope]
@@ -131,10 +135,14 @@ export function ResearchFigureAgentPane({
     if (!onRequest) {
       return
     }
-    setSending(id)
+    const figure = figureKey ?? ''
+    setSendingBy((current) => ({ ...current, [figure]: id }))
     setError(null)
     const failure = await onRequest(id)
-    setSending(null)
+    setSendingBy((current) => {
+      const { [figure]: _done, ...others } = current
+      return others
+    })
     setError(failure ? { figure: figureKey, text: failure } : null)
   }
 
@@ -159,7 +167,7 @@ export function ResearchFigureAgentPane({
     if (event.key !== 'Escape' || !isTyping(event.target)) {
       return
     }
-    if (!useFigureTurn.getState().agentWorking) {
+    if (!boundSessionId || !figureSessionWorking(boundSessionId)) {
       return
     }
     if (Date.now() - escAtRef.current < ESC_AGAIN_MS) {
@@ -184,6 +192,7 @@ export function ResearchFigureAgentPane({
       <ResearchFigureAgentWatcher scope={scope} />
       <ResearchFigureOverwriteDialog />
       <ResearchAgentChatPane
+        key={figureKey ?? ''}
         workspaceId={scope.workspaceId}
         hostId={scope.hostId}
         boundSessionId={boundSessionId}
@@ -226,8 +235,8 @@ export function ResearchFigureAgentPane({
         }
         visible={visible}
         className="flex-1"
-        onBind={(sessionId) => bindFiguresAgentSession(scope, sessionId)}
-        onLaunch={(agent) => launchFiguresAgent(scope, agent)}
+        onBind={(sessionId) => bindFigureAgentSession(scope, figureKey, sessionId)}
+        onLaunch={(agent) => launchFigureAgent(scope, figureKey, agent)}
         decorateMessage={decorateMessage}
         toolbar={
           <>
@@ -282,11 +291,7 @@ export function ResearchFigureAgentPane({
                 ) : null}
               </div>
             ) : null}
-            <ResearchFigureChatScope
-              scope={scope}
-              sessionId={boundSessionId ?? null}
-              escArmed={escArmed}
-            />
+            <ResearchFigureChatScope scope={scope} escArmed={escArmed} />
           </>
         }
       />

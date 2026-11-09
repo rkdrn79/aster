@@ -12,6 +12,12 @@ import {
   safeRebuttalSlug
 } from './research-rebuttal-model.mjs'
 import { parseClusters, parsePoints, parsePromises } from './research-rebuttal-points.mjs'
+import {
+  parseFollowUps,
+  parsePaperChanges,
+  parsePredictions,
+  parseProposals
+} from './research-rebuttal-records.mjs'
 
 export function rebuttalRoot(project) {
   return path.join(researchPaths(project).root, 'rebuttal')
@@ -26,6 +32,11 @@ export function rebuttalFiles(project, slug) {
     points: path.join(directory, 'points.json'),
     clusters: path.join(directory, 'clusters.json'),
     promises: path.join(directory, 'promises.json'),
+    followUps: path.join(directory, 'followups.json'),
+    proposals: path.join(directory, 'proposals.json'),
+    predictions: path.join(directory, 'predictions.json'),
+    paperChanges: path.join(directory, 'paper-changes.json'),
+    history: path.join(directory, 'history'),
     responses: path.join(directory, 'responses'),
     lock: path.join(directory, '.rebuttal.lock')
   }
@@ -88,17 +99,40 @@ export async function loadRebuttal(project, slug) {
   for (const reviewer of meta.reviewers) {
     reviews[reviewer.id] = await readTextIfPresent(path.join(files.reviews, `${reviewer.id}.md`))
   }
+  const followUps = parseFollowUps((await readJsonIfPresent(files.followUps)) ?? [], {
+    reviewers: meta.reviewers
+  })
   const points = parsePoints((await readJsonIfPresent(files.points)) ?? [], {
     reviewers: meta.reviewers,
-    reviews
+    reviews,
+    followUps
   })
   const clusters = parseClusters((await readJsonIfPresent(files.clusters)) ?? [], {
     pointIds: points.map((point) => point.id)
   })
-  const promises = parsePromises((await readJsonIfPresent(files.promises)) ?? [], {
-    clusterIds: clusters.map((cluster) => cluster.id)
+  const clusterIds = clusters.map((cluster) => cluster.id)
+  const promises = parsePromises((await readJsonIfPresent(files.promises)) ?? [], { clusterIds })
+  const proposals = parseProposals((await readJsonIfPresent(files.proposals)) ?? [])
+  const { predictions, outlooks } = parsePredictions(
+    (await readJsonIfPresent(files.predictions)) ?? { predictions: [], outlooks: [] },
+    { reviewers: meta.reviewers, clusterIds }
+  )
+  const paperChanges = parsePaperChanges((await readJsonIfPresent(files.paperChanges)) ?? [], {
+    clusterIds
   })
-  return { files, meta, reviews, points, clusters, promises }
+  return {
+    files,
+    meta,
+    reviews,
+    points,
+    clusters,
+    promises,
+    followUps,
+    proposals,
+    predictions,
+    outlooks,
+    paperChanges
+  }
 }
 
 export async function listRebuttals(project) {

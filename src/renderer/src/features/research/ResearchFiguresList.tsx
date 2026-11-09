@@ -3,7 +3,14 @@ import { FileText, PanelLeftClose, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import type { FigureFolderListing } from '../../../../research-harness/research-figures-model.mjs'
+import {
+  figurePaperState,
+  paperCopyPath,
+  type FigureListing,
+  type FigurePublication,
+  type ListedFigure
+} from '../../../../research-harness/research-figures-locations.mjs'
+import { figureFilePaths } from '../../../../research-harness/research-figures-model.mjs'
 import { ResearchFigureDeleteDialog, ResearchFigureRenameDialog } from './ResearchFigureListDialogs'
 import { FigureThumbnailImage, ResearchFigureListItem } from './ResearchFigureListItem'
 import { useFigureListMeta, useManuscriptText } from './research-figure-list-meta'
@@ -69,8 +76,9 @@ type Props = {
   folder: string | null
   manuscript: string | null
   manuscriptSignature: string
-  listing: FigureFolderListing
+  listing: FigureListing
   signatures: Record<string, string>
+  publications: Record<string, FigurePublication>
   selected: FigureSelection | null
   onSelect: (selection: FigureSelection) => void
   onNew: () => void
@@ -85,21 +93,39 @@ type Actions = ReturnType<typeof useFigureListActions>
 /** One figure, filtered by title once its scene is read (the title lives in the scene). */
 function FigureEntry({
   props,
-  slug,
+  figure,
   manuscriptText,
   query,
-  onAction
+  actions
 }: {
   props: Props
-  slug: string
+  figure: ListedFigure
   manuscriptText: string | null
   query: string
-  onAction: Actions['run']
+  actions: Actions
 }): React.JSX.Element | null {
-  const { owner, folder, signatures, selected } = props
-  const signature = signatures[`${slug}.excalidraw`] ?? ''
-  const meta = useFigureListMeta(owner, folder, slug, signature)
+  const { owner, signatures, selected, manuscript, publications } = props
+  const { slug } = figure
+  const files = figureFilePaths(figure.folder, slug)
+  const signature = signatures[files.scene] ?? ''
+  const meta = useFigureListMeta(owner, figure.folder, slug, signature)
   const usages = manuscriptText ? figureUsageLines(manuscriptText, slug) : []
+  const expectedPdf = manuscript ? paperCopyPath(manuscript, slug) : ''
+  const record = publications[slug] ?? null
+  const paperState = figurePaperState({
+    location: figure.location,
+    record,
+    paperCopy: Boolean(signatures[expectedPdf]),
+    expectedPdf,
+    sceneSha256: meta?.sceneSha256 ?? null
+  })
+  const target = {
+    slug,
+    title: meta?.title ?? null,
+    usages,
+    folder: figure.folder,
+    paperCopy: figure.location === 'work' && record ? expectedPdf : null
+  }
   const needle = query.trim().toLowerCase()
   if (needle && !slug.includes(needle) && !(meta?.title?.toLowerCase().includes(needle) ?? false)) {
     return null
@@ -107,14 +133,17 @@ function FigureEntry({
   return (
     <ResearchFigureListItem
       owner={owner}
-      folder={folder}
+      folder={figure.folder}
       slug={slug}
       meta={meta}
       active={selected?.kind === 'figure' && selected.slug === slug}
       usages={usages}
-      exportState={figureExportState(signature, signatures[`${slug}.pdf`])}
+      exportState={figureExportState(signature, signatures[files.pdf])}
+      paperState={paperState}
+      updatingPaper={actions.updating === slug}
       onSelect={() => props.onSelect({ kind: 'figure', slug })}
-      onAction={(action) => onAction(action, { slug, title: meta?.title ?? null, usages })}
+      onAction={(action) => actions.run(action, target)}
+      onUpdatePaper={() => actions.updateInPaper(target)}
     />
   )
 }
@@ -129,9 +158,10 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
   const actions = useFigureListActions({ owner, folder, manuscript, taken })
   const searchable = listing.figures.length >= FIGURE_SEARCH_FROM
   const entries = listing.figures.map((figure) => ({
+    figure,
     slug: figure.slug,
     title: null,
-    modified: mtime(signatures[`${figure.slug}.excalidraw`])
+    modified: mtime(signatures[figureFilePaths(figure.folder, figure.slug).scene])
   }))
   const shown = searchable ? filterFigures(entries, '', sort) : entries
   return (
@@ -181,10 +211,10 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
           <FigureEntry
             key={entry.slug}
             props={props}
-            slug={entry.slug}
+            figure={entry.figure}
             query={query}
             manuscriptText={text}
-            onAction={actions.run}
+            actions={actions}
           />
         ))}
         {listing.others.length ? (
@@ -213,14 +243,20 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
               ) : (
                 <FileThumbnail
                   owner={owner}
-                  path={folder ? `${folder}/${entry.name}` : null}
-                  signature={signatures[entry.name] ?? ''}
+                  path={`${entry.folder}/${entry.name}`}
+                  signature={signatures[`${entry.folder}/${entry.name}`] ?? ''}
                 />
               )}
               <span className="truncate">{entry.name}</span>
             </button>
           )
         })}
+        {listing.shadowed.map((entry) => (
+          <p key={entry.slug} className="px-1.5 py-1 text-2xs text-muted-foreground">
+            {entry.folder}/{entry.slug}.excalidraw is left as it is:{' '}
+            {folder ?? 'the figures folder'} has a figure with the same name.
+          </p>
+        ))}
         {!listing.figures.length && !listing.others.length ? (
           <p className="px-1.5 py-2 text-xs text-muted-foreground">
             No figures in {folder ?? 'the figures folder'} yet.
@@ -240,6 +276,7 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
           title={actions.confirmDelete.title ?? actions.confirmDelete.slug}
           usages={actions.confirmDelete.usages}
           manuscript={manuscript}
+          paperCopy={actions.confirmDelete.paperCopy}
           onClose={actions.closeDelete}
           onDelete={actions.deleteConfirmed}
         />

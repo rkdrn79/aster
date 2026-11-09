@@ -13,10 +13,18 @@ import {
 
 /** Everything a prompt names: the files on the host that holds the project, and the page. */
 export type FigurePromptContext = {
-  /** Absolute paths on the project's host. */
+  /** Absolute paths on the project's host. `folderPath` is the open figure's own folder. */
   folderPath: string
+  /** The working folder (`<record root>/figures`): where new figures and plots go. */
+  workFolderPath: string
   manuscriptPath: string | null
-  figure: { slug: string; scenePath: string; page: FigurePage | null } | null
+  figure: {
+    slug: string
+    scenePath: string
+    page: FigurePage | null
+    /** The figure still lives beside the manuscript, an older figure Aster did not move. */
+    besideManuscript?: boolean
+  } | null
 }
 
 export type FigureQuickRequest = 'draw-method' | 'clean-up' | 'sketch' | 'plot'
@@ -86,12 +94,22 @@ export function paperStyleLines(page: FigurePage | null = null): string[] {
   ]
 }
 
+/** The one rule about the paper: it receives a figure only when the person asks for that. */
+function paperRule(context: FigurePromptContext): string {
+  const figure = context.figure
+  if (figure?.besideManuscript) {
+    return `This figure lives beside the manuscript in ${JSON.stringify(context.folderPath)}, where the paper reads it; there is nothing to publish.`
+  }
+  const slug = figure?.slug ?? '<slug>'
+  return `Working files stay in ${JSON.stringify(context.workFolderPath)}; the paper only gets a figure when I ask. Never copy anything into the manuscript's folder and never edit the manuscript for this yourself. When I say to put the figure in the paper or use it there, run \`node H/cli.mjs figures publish --figure ${slug}\` (it copies the vector PDF next to the manuscript, and updates that copy when I ask you to refresh it); do not run it on your own, not even when a figure is finished.`
+}
+
 function header(context: FigurePromptContext, recreating = false): string[] {
   const { figure } = context
   const page = figure?.page
   return [
     'You are the Figure agent of this research project. Figures are Excalidraw JSON files in',
-    `${JSON.stringify(context.folderPath)}; Aster shows each change on its Figures page as soon as the file is saved and writes <slug>.svg and <slug>.pdf next to it.`,
+    `${JSON.stringify(context.workFolderPath)}; Aster shows each change on its Figures page as soon as the file is saved and writes <slug>.svg and <slug>.pdf next to it.`,
     ...(figure
       ? [
           `Figure "${figure.slug}": ${JSON.stringify(figure.scenePath)}.`,
@@ -111,6 +129,7 @@ function header(context: FigurePromptContext, recreating = false): string[] {
           'This figure recreates a reference: keep its colours (as hex), line weights and text sizes; the paper palette does not apply and `figures check` knows it. Use editable shapes, never the reference pasted as one image.'
         ]
       : paperStyleLines(page)),
+    paperRule(context),
     'Keep the ids of elements you keep; give new elements new unique ids. Write the whole file back as valid JSON.',
     `After every edit: \`node H/cli.mjs figures check${figure ? ` --figure ${figure.slug}` : ''}\` (fix every ERROR), then \`node H/cli.mjs figures preview${figure ? ` --figure ${figure.slug}` : ''}\`, open the PNG it prints and look at it (and the copy with lint findings boxed in red, when it prints one). Before you finish, open the print-size PNG it prints too and check every label is still easy to read at that size. Fix what looks wrong and repeat, at most three rounds.`,
     ''
@@ -148,9 +167,9 @@ function quickBody(context: FigurePromptContext, request: FigureQuickRequest): s
     case 'plot':
       return [
         `1. Find the Runs and metrics to plot with \`node H/cli.mjs context --json\` and \`node H/cli.mjs run show\` (metrics.jsonl in each Run folder). Ask me which Runs and metric if it is not clear.`,
-        `2. Write ${JSON.stringify(`${context.folderPath}/<name>.py`)}: matplotlib, 3.25 in wide, 8 pt fonts, neutral grays plus the figure's accent for the method's own curve, no title (the caption goes in LaTeX), labelled axes with units.`,
-        `3. Run it so it saves ${JSON.stringify(`${context.folderPath}/<name>.pdf`)} and a .png beside it; they appear on the Figures page.`,
-        '4. Reply with the \\includegraphics line for the manuscript.'
+        `2. Write ${JSON.stringify(`${context.workFolderPath}/<name>.py`)}: matplotlib, 3.25 in wide, 8 pt fonts, neutral grays plus the figure's accent for the method's own curve, no title (the caption goes in LaTeX), labelled axes with units.`,
+        `3. Run it so it saves ${JSON.stringify(`${context.workFolderPath}/<name>.pdf`)} and a .png beside it; they appear on the Figures page.`,
+        '4. Tell me what it shows. When I ask to put it in the paper, run `node H/cli.mjs figures publish --figure <name>` and reply with its \\includegraphics line.'
       ]
   }
 }

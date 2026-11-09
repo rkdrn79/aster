@@ -23,7 +23,7 @@ import {
 
 const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 const FORMATS: readonly { format: FigureExportFormat; label: string; detail: string }[] = [
-  { format: 'pdf', label: 'PDF', detail: 'vector, for \\includegraphics' },
+  { format: 'pdf', label: 'PDF', detail: 'vector' },
   { format: 'svg', label: 'SVG', detail: 'vector' },
   { format: 'png300', label: 'PNG · 300 dpi', detail: 'slides, posters' },
   { format: 'png600', label: 'PNG · 600 dpi', detail: 'print' }

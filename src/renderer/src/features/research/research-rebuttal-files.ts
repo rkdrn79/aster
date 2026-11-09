@@ -19,9 +19,14 @@ export const REBUTTAL_JSON_FILES = {
   meta: 'rebuttal.json',
   points: 'points.json',
   clusters: 'clusters.json',
-  promises: 'promises.json'
+  promises: 'promises.json',
+  followUps: 'followups.json',
+  proposals: 'proposals.json',
+  predictions: 'predictions.json',
+  paperChanges: 'paper-changes.json'
 } as const
 export type RebuttalJsonFile = keyof typeof REBUTTAL_JSON_FILES
+export type RebuttalJsonFileName = (typeof REBUTTAL_JSON_FILES)[RebuttalJsonFile]
 
 export class RebuttalWriteConflict extends Error {
   constructor(relativePath: string) {

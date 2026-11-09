@@ -25,7 +25,8 @@ export function figurePromptContext(
 ): FigurePromptContext {
   const { api, target, owner } = host
   return {
-    folderPath: projectAbsolutePath(owner, host.folder),
+    folderPath: projectAbsolutePath(owner, api && target ? target.folder : host.folder),
+    workFolderPath: projectAbsolutePath(owner, host.folder),
     manuscriptPath: host.manuscript ? projectAbsolutePath(owner, host.manuscript) : null,
     figure:
       api && target
@@ -35,7 +36,8 @@ export function figurePromptContext(
               owner,
               figureFilePaths(target.folder, target.slug).scene
             ),
-            page: figurePage(api.getSceneElements())
+            page: figurePage(api.getSceneElements()),
+            besideManuscript: target.folder !== host.folder
           }
         : null
   }

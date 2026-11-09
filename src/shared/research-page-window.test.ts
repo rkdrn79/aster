@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  parseResearchWindowLaunchResult,
   parseResearchWindowTarget,
   researchWindowQuery,
   researchWindowTargetFromSearch
@@ -38,5 +39,18 @@ describe('research page window targets', () => {
     ['research-library']
   ])('refuses %j', (value) => {
     expect(parseResearchWindowTarget(value)).toBeNull()
+  })
+})
+
+describe('research window launch results', () => {
+  it('accepts a started session or an error message', () => {
+    expect(parseResearchWindowLaunchResult({ sessionId: 's-1' })).toEqual({ sessionId: 's-1' })
+    expect(parseResearchWindowLaunchResult({ error: 'no host' })).toEqual({ error: 'no host' })
+  })
+
+  it('rejects anything else, so a bad reply cannot stand for a started chat', () => {
+    expect(parseResearchWindowLaunchResult(null)).toBeNull()
+    expect(parseResearchWindowLaunchResult({ sessionId: 3 })).toBeNull()
+    expect(parseResearchWindowLaunchResult('started')).toBeNull()
   })
 })

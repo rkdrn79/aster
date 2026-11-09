@@ -1,6 +1,7 @@
 import type { ExcalidrawImperativeAPI, LibraryItems } from '@excalidraw/excalidraw/types'
 import { figureSlug } from '../../../../research-harness/research-figures-model.mjs'
 import { selectedFigureElements } from './research-figure-requests'
+import { useResearchFigures } from './research-figures-store'
 import {
   listProjectDirectory,
   readProjectText,
@@ -35,17 +36,26 @@ export function figurePartItems(text: string, scope: FigurePartScope, file: stri
   }
 }
 
+/** The folders with a project's saved parts: the figure's own, then the project's others. */
+export function projectLibraryFolders(folder: string): string[] {
+  const { folder: work, paperFolder } = useResearchFigures.getState()
+  return [
+    ...new Set([folder, work, paperFolder].flatMap((entry) => (entry ? [`${entry}/library`] : [])))
+  ]
+}
+
 /** The project's parts (`<figures>/library/`) and the person's, for the library panel. */
 export async function loadSavedFigureParts(
   owner: ProjectFileOwner,
   folder: string
 ): Promise<LibraryItems> {
-  const directory = `${folder}/library`
-  const entries = (await listProjectDirectory(owner, directory).catch(() => null)) ?? []
   const project: LibraryItems[] = []
-  for (const entry of entries.filter((item) => item.name.endsWith('.excalidrawlib'))) {
-    const text = await readProjectText(owner, `${directory}/${entry.name}`).catch(() => '')
-    project.push(figurePartItems(text, 'project', entry.name))
+  for (const directory of projectLibraryFolders(folder)) {
+    const entries = (await listProjectDirectory(owner, directory).catch(() => null)) ?? []
+    for (const entry of entries.filter((item) => item.name.endsWith('.excalidrawlib'))) {
+      const text = await readProjectText(owner, `${directory}/${entry.name}`).catch(() => '')
+      project.push(figurePartItems(text, 'project', entry.name))
+    }
   }
   const user = (await window.api.researchFigures?.listUserParts().catch(() => [])) ?? []
   return [

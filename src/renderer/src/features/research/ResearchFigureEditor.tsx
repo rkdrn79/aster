@@ -78,7 +78,7 @@ export default function ResearchFigureEditor(props: Props): React.JSX.Element {
     [rebaseline, pendingExternalChange]
   )
   const sync = useFigureFileSync(target, onExternalChange)
-  const { attachApi, noteSceneChange, noteUserInput, save, apiRef } = sync
+  const { attachApi, noteSceneChange, noteUserInput, save, exportNow, apiRef } = sync
   useFigureAgentTurn(target, sync)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const fittedRef = useRef(false)
@@ -129,12 +129,14 @@ export default function ResearchFigureEditor(props: Props): React.JSX.Element {
       settleApiRef.current = api
       attachApi(api)
       attachSettling(api)
-      useFigureEditorHandle.setState({ handle: { api, target, save, noteUserInput } })
+      useFigureEditorHandle.setState({
+        handle: { api, target, save, exportNow, noteUserInput }
+      })
       void loadSavedFigureParts(owner, folder).then((items) =>
         api.updateLibrary({ libraryItems: items, merge: true })
       )
     },
-    [attachApi, attachSettling, target, save, noteUserInput, owner, folder]
+    [attachApi, attachSettling, target, save, exportNow, noteUserInput, owner, folder]
   )
 
   const handleChange = useCallback(

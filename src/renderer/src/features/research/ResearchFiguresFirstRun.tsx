@@ -53,8 +53,8 @@ export function ResearchFiguresFirstRun({
         </div>
       }
     >
-      Each figure is an .excalidraw file next to the paper, exported to PDF for \includegraphics.
-      You edit it by hand; the Figure agent draws into the same file.
+      Each figure is an .excalidraw file kept with your project records; Use in paper puts its PDF
+      next to the manuscript. You edit it by hand; the Figure agent draws into the same file.
     </ResearchEmptyState>
   )
 }

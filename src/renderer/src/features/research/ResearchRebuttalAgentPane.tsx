@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useResearchRecords } from './research-records-store'
 import { ResearchAgentChatPane } from './ResearchAgentChatPane'
@@ -12,6 +12,8 @@ import {
   rebuttalAgentSessionId,
   type RebuttalAgentScope
 } from './research-rebuttal-agent-session'
+import { rebuttalReviewerSessionIds } from './research-rebuttal-reviewer-session'
+import { ResearchRebuttalTurnChips } from './ResearchRebuttalTurnChips'
 
 type Props = {
   scope: RebuttalAgentScope
@@ -20,10 +22,15 @@ type Props = {
   onRequest: ((request: RebuttalAgentRequest) => Promise<string | null>) | null
 }
 
-/** The project's Rebuttal chat, with requests that send a full prompt to it. */
+/** The author-side Rebuttal chat: it drafts and revises; the person decides what stays. */
 export function ResearchRebuttalAgentPane({ scope, visible, onRequest }: Props): React.JSX.Element {
   const boundSessionId = useResearchRecords((state) =>
     rebuttalAgentSessionId(state.document, scope)
+  )
+  const document = useResearchRecords((state) => state.document)
+  const excludeSessionIds = useMemo(
+    () => new Set(rebuttalReviewerSessionIds(document, scope)),
+    [document, scope]
   )
   const [sending, setSending] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -45,14 +52,15 @@ export function ResearchRebuttalAgentPane({ scope, visible, onRequest }: Props):
       home={{ kind: 'rebuttal' }}
       title="Rebuttal agent"
       sessionLabel="Rebuttal agent chat"
-      emptyHint="Start a rebuttal chat. The agent splits the reviews into points, groups them, and drafts answers straight into this rebuttal's files."
+      emptyHint="Start the Rebuttal chat. It splits reviews into concerns, groups the shared ones, and drafts and revises replies. Anything it changes in a reply you wrote waits for you to accept."
       visible={visible}
       className="flex-1"
+      excludeSessionIds={excludeSessionIds}
       onBind={(sessionId) => bindRebuttalAgentSession(scope, sessionId)}
       onLaunch={(agent) => launchRebuttalAgent(scope, agent)}
       toolbar={
         onRequest ? (
-          <div className="shrink-0 border-b border-border px-3 py-2">
+          <div className="shrink-0 space-y-1.5 border-b border-border px-3 py-2">
             <div className="flex flex-wrap gap-1" role="group" aria-label="Rebuttal requests">
               {REBUTTAL_QUICK_ACTIONS.map(({ request, label }) => (
                 <Button
@@ -65,9 +73,10 @@ export function ResearchRebuttalAgentPane({ scope, visible, onRequest }: Props):
                   {sending === label ? 'Sending…' : label}
                 </Button>
               ))}
+              <ResearchRebuttalTurnChips actor="author" />
             </div>
             {error ? (
-              <p role="alert" className="mt-1.5 text-xs text-destructive">
+              <p role="alert" className="text-xs text-destructive">
                 {error}
               </p>
             ) : null}

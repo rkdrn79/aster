@@ -1,4 +1,6 @@
 export type RebuttalPointKind = 'weakness' | 'question' | 'minor'
+export type RebuttalPointOrigin = 'review' | 'prediction'
+export type RebuttalReplyAuthor = 'human' | 'agent' | 'both'
 export type RebuttalPointType =
   | 'experiment-request'
   | 'clarity'
@@ -46,6 +48,11 @@ export type RebuttalPoint = {
   quote: string
   start: number
   end: number
+  /** 1 is the original review; a higher round quotes that follow-up. */
+  round: number
+  origin: RebuttalPointOrigin
+  /** The prediction this concern was turned from, when origin is prediction. */
+  fromPrediction: string | null
 }
 
 export type RebuttalManuscriptLocation = {
@@ -64,6 +71,8 @@ export type RebuttalCluster = {
   experiment: string | null
   manuscript: RebuttalManuscriptLocation | null
   response: string
+  /** Who wrote the reply; null when it is empty or predates this field. */
+  author: RebuttalReplyAuthor | null
   general: boolean
 }
 
@@ -87,6 +96,7 @@ export const REBUTTAL_SCHEMA_VERSION: 1
 export const DEFAULT_REPLY_CHAR_LIMIT: number
 export const REBUTTAL_GITIGNORE: string
 export const POINT_KINDS: readonly RebuttalPointKind[]
+export const POINT_ORIGINS: readonly RebuttalPointOrigin[]
 export const POINT_TYPES: readonly RebuttalPointType[]
 export const CLUSTER_ACTIONS: readonly RebuttalClusterAction[]
 export const CLUSTER_STATUSES: readonly RebuttalClusterStatus[]
@@ -100,6 +110,11 @@ export function safeReviewerId(value: unknown): string
 export function pointLetter(kind: RebuttalPointKind): 'W' | 'Q' | 'M'
 export function localPointLabel(pointId: string): string
 export function reviewerSortKey(reviewerId: string): number
+export function nextPointId(
+  points: readonly { id: string }[],
+  reviewerId: string,
+  kind: RebuttalPointKind
+): string
 export function newRebuttalMeta(input: {
   name: string
   slug?: string

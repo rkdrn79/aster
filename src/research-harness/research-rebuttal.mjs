@@ -3,9 +3,10 @@ import path from 'node:path'
 import { writeJsonAtomically } from './research-file-transactions.mjs'
 import { HarnessError } from './research-harness-error.mjs'
 import {
+  assembleAllReplies,
   assembleGeneralResponse,
-  assembleReviewerReplies,
-  rebuttalReadiness
+  rebuttalReadiness,
+  reviewerReplyFileName
 } from './research-rebuttal-assemble.mjs'
 import {
   loadRebuttal,
@@ -34,6 +35,7 @@ export {
   rebuttalRoot,
   resolveRebuttalSlug
 } from './research-rebuttal-files.mjs'
+export * from './research-rebuttal-replies.mjs'
 
 export async function addReview(project, slug, input) {
   if (typeof input.text !== 'string' || !input.text.trim()) {
@@ -69,7 +71,7 @@ export async function addReview(project, slug, input) {
     const ownPoints = bundle.points.filter((point) => point.reviewer === id)
     const stale = ownPoints.filter((point) => {
       try {
-        parsePoints([point], { reviewers: meta.reviewers, reviews })
+        parsePoints([point], { reviewers: meta.reviewers, reviews, followUps: bundle.followUps })
         return false
       } catch {
         return true
@@ -101,7 +103,11 @@ export async function addReview(project, slug, input) {
 
 /** Writes points, and removes points that left from clusters (dropping clusters left empty). */
 async function savePoints(bundle, meta, reviews, nextPoints) {
-  const points = parsePoints(nextPoints, { reviewers: meta.reviewers, reviews })
+  const points = parsePoints(nextPoints, {
+    reviewers: meta.reviewers,
+    reviews,
+    followUps: bundle.followUps
+  })
   const ids = new Set(points.map((point) => point.id))
   const droppedFromClusters = []
   const clusters = bundle.clusters.flatMap((cluster) => {
@@ -149,6 +155,12 @@ export function setPoints(project, slug, input, { reviewer } = {}) {
       }
       next = [...bundle.points.filter((point) => point.reviewer !== id), ...incoming]
     }
+    const keptPoints = new Set(next.map((point) => point.id))
+    refuseLosingWrittenReply(
+      bundle,
+      new Set(bundle.clusters.map((cluster) => cluster.id)),
+      keptPoints
+    )
     return savePoints(bundle, bundle.meta, bundle.reviews, next)
   })
 }
@@ -163,12 +175,52 @@ export async function listPoints(project, slug, { reviewer } = {}) {
   }
 }
 
+/** A cluster's reply stays with its cluster: this command changes grouping, never written text. */
+function withoutReplyText(input, bundle) {
+  const entries = Array.isArray(input)
+    ? input
+    : Array.isArray(input?.clusters)
+      ? input.clusters
+      : null
+  if (!entries) {
+    return input
+  }
+  const written = new Set(bundle.clusters.filter((c) => c.response.trim()).map((c) => c.id))
+  const stripped = entries.map((entry) => {
+    if (!entry || typeof entry !== 'object' || !written.has(entry.id)) {
+      return entry?.response && entry.author === undefined ? { ...entry, author: 'agent' } : entry
+    }
+    const { response: _response, author: _author, ...rest } = entry
+    return rest
+  })
+  return Array.isArray(input) ? stripped : { ...input, clusters: stripped }
+}
+
+function refuseLosingWrittenReply(bundle, keptClusterIds, keptPointIds) {
+  const lost = bundle.clusters.filter(
+    (cluster) =>
+      cluster.response.trim() &&
+      (!keptClusterIds.has(cluster.id) || cluster.points.every((id) => !keptPointIds.has(id)))
+  )
+  if (lost.length) {
+    throw new HarnessError(
+      'conflict',
+      `${lost.map((cluster) => cluster.id).join(', ')} has a written reply. Keep that cluster and at least one of its points; only the person removes written text.`
+    )
+  }
+}
+
 export function setClusters(project, slug, input) {
   return updateRebuttal(project, slug, async (bundle) => {
-    const clusters = parseClusters(input, {
+    const clusters = parseClusters(withoutReplyText(input, bundle), {
       pointIds: bundle.points.map((point) => point.id),
       previous: bundle.clusters
     })
+    refuseLosingWrittenReply(
+      bundle,
+      new Set(clusters.map((cluster) => cluster.id)),
+      new Set(bundle.points.map((point) => point.id))
+    )
     await saveClusters(bundle, clusters)
     const clustered = new Set(clusters.flatMap((cluster) => cluster.points))
     return {
@@ -181,59 +233,6 @@ export function setClusters(project, slug, input) {
 export async function listClusters(project, slug) {
   const { clusters } = await loadRebuttal(project, slug)
   return { clusters }
-}
-
-/** Sets one draft: a cluster's answer, a reviewer's opening, or the general intro/closing. */
-export function setResponse(project, slug, { cluster, opening, general, text, status }) {
-  const targets = [cluster, opening, general].filter(Boolean)
-  if (targets.length !== 1) {
-    throw new HarnessError(
-      'usage',
-      'Pass exactly one of --cluster ID, --opening REVIEWER, --general intro|closing'
-    )
-  }
-  if (general && general !== 'intro' && general !== 'closing') {
-    throw new HarnessError('usage', '--general takes intro or closing')
-  }
-  return updateRebuttal(project, slug, async (bundle) => {
-    if (cluster) {
-      if (!bundle.clusters.some((entry) => entry.id === cluster)) {
-        throw new HarnessError('not_found', `No cluster ${cluster}.`)
-      }
-      const clusters = parseClusters(
-        bundle.clusters.map((entry) =>
-          entry.id === cluster
-            ? {
-                ...entry,
-                response: text,
-                status: status ?? (entry.status === 'todo' ? 'drafting' : entry.status)
-              }
-            : entry
-        ),
-        { pointIds: bundle.points.map((point) => point.id) }
-      )
-      await saveClusters(bundle, clusters)
-      return { cluster: clusters.find((entry) => entry.id === cluster) }
-    }
-    const meta = parseRebuttalMeta(
-      opening
-        ? {
-            ...bundle.meta,
-            reviewers: bundle.meta.reviewers.map((reviewer) =>
-              reviewer.id === safeReviewerId(opening) ? { ...reviewer, opening: text } : reviewer
-            )
-          }
-        : {
-            ...bundle.meta,
-            general: { ...bundle.meta.general, [general === 'closing' ? 'closing' : 'intro']: text }
-          }
-    )
-    if (opening && !meta.reviewers.some((reviewer) => reviewer.id === opening)) {
-      throw new HarnessError('not_found', `No reviewer ${opening}.`)
-    }
-    await writeJsonAtomically(bundle.files.meta, { ...meta, updatedAt: new Date().toISOString() })
-    return { updated: opening ? `opening of ${opening}` : `general ${general}` }
-  })
 }
 
 /** Writes the assembled outputs under responses/ and reports each one's length against its limit. */
@@ -253,9 +252,9 @@ export async function assembleRebuttal(project, slug, { format = 'all', shared }
     outputs.push({ path: projectRelative(project, target), ...extra })
   }
   if (format === 'reviewer' || format === 'all') {
-    for (const reply of assembleReviewerReplies(bundle, { shared })) {
+    for (const reply of assembleAllReplies(bundle, { shared })) {
       const { text, ...facts } = reply
-      await write(`reviewer-${reply.reviewer}.md`, text, { kind: 'reviewer', ...facts })
+      await write(reviewerReplyFileName(reply), text, { kind: 'reviewer', ...facts })
     }
   }
   if (format === 'general' || format === 'all') {

@@ -1,45 +1,44 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { ChevronDown, CloudDownload, MessageSquareReply, PanelRight, Plus } from 'lucide-react'
+import { MessageSquareReply, PanelRight, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import { useAppStore } from '@/store'
-import { cn } from '@/lib/utils'
 import { ResearchEmptyState, ResearchPageBody, ResearchPageHeader } from './ResearchPageLayout'
-import { ResearchRebuttalAgentPane } from './ResearchRebuttalAgentPane'
+import { ResearchRebuttalAgentWatcher } from './ResearchRebuttalAgentWatcher'
 import { ResearchRebuttalAssemble } from './ResearchRebuttalAssemble'
-import { ResearchRebuttalClusters } from './ResearchRebuttalClusters'
-import { ResearchRebuttalLayout } from './ResearchRebuttalLayout'
+import { ResearchRebuttalFinish } from './ResearchRebuttalFinish'
+import { ResearchRebuttalFirstStep } from './ResearchRebuttalFirstStep'
+import { ResearchRebuttalLayout, REBUTTAL_OVERLAY_BELOW } from './ResearchRebuttalLayout'
 import { ResearchRebuttalNewDialog } from './ResearchRebuttalNewDialog'
 import { ResearchRebuttalOpenReviewDialog } from './ResearchRebuttalOpenReviewDialog'
-import { ResearchRebuttalPromises } from './ResearchRebuttalPromises'
-import { ResearchRebuttalReviews } from './ResearchRebuttalReviews'
+import { ResearchRebuttalPicker } from './ResearchRebuttalPicker'
+import { ResearchRebuttalReviewDialog } from './ResearchRebuttalReviewDialog'
+import { ResearchRebuttalReviewerRail, type RebuttalView } from './ResearchRebuttalReviewerRail'
+import { ResearchRebuttalReviewerView } from './ResearchRebuttalReviewerView'
+import { ResearchRebuttalReviewsMenu } from './ResearchRebuttalReviewsMenu'
+import { ResearchRebuttalSidePanel, type RebuttalSideTab } from './ResearchRebuttalSidePanel'
+import { ResearchRebuttalWaitingChanges } from './ResearchRebuttalWaitingChanges'
+import { useResearchRecords } from './research-records-store'
 import {
   consumeRebuttalAgentFocus,
+  rebuttalAgentSessionId,
   subscribeRebuttalAgentFocus
 } from './research-rebuttal-agent-session'
 import { rebuttalOwnerKey, type RebuttalOwner } from './research-rebuttal-files'
 import {
   openRebuttalProject,
-  selectRebuttal,
   useRebuttalAutoRefresh,
   useResearchRebuttal
 } from './research-rebuttal-store'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
+import { reviewerAnswers, reviewerRounds } from './research-rebuttal-view'
 import { useResearchRebuttalActions } from './use-research-rebuttal-actions'
 
-type CenterTab = 'clusters' | 'assemble' | 'promises'
-const AGENT_OPEN_KEY = 'aster.research-rebuttal-agent-open.v1'
+const SIDE_OPEN_KEY = 'aster.research-rebuttal-side-open.v1'
 
-function readAgentOpen(): boolean {
+function readSideOpen(): boolean {
   try {
-    return localStorage.getItem(AGENT_OPEN_KEY) !== 'false'
+    return localStorage.getItem(SIDE_OPEN_KEY) !== 'false'
   } catch {
     return true
   }
@@ -55,104 +54,95 @@ function RebuttalWorkspace({ owner }: { owner: RebuttalOwner }): React.JSX.Eleme
       selectedSlug: state.selectedSlug
     }))
   )
-  const [reviewerChoice, setReviewerChoice] = useState<{ slug: string; id: string | null }>()
-  const [clusterChoice, setClusterChoice] = useState<{ slug: string; id: string | null }>()
-  const [tab, setTab] = useState<CenterTab>('clusters')
+  const [viewChoice, setViewChoice] = useState<{ slug: string; view: RebuttalView }>()
   const scope = useMemo(
     () => ({ hostId: owner.hostId, workspaceId: owner.workspaceId }),
     [owner.hostId, owner.workspaceId]
   )
-  const [agentOpen, setAgentOpenState] = useState(
-    () => consumeRebuttalAgentFocus(scope) || readAgentOpen()
+  const records = useResearchRecords((state) => state.document)
+  const [sideOpen, setSideOpenState] = useState(
+    () => consumeRebuttalAgentFocus(scope) || readSideOpen()
   )
+  const [sideTab, setSideTab] = useState<RebuttalSideTab>('review')
+  // Why separate: a narrow window opens the panel over the replies, so it starts closed there.
+  const [{ contentWidth, mainWidth }, setWidths] = useState({ contentWidth: 0, mainWidth: 0 })
+  const onWidth = useCallback(
+    (nextContent: number, nextMain: number) =>
+      setWidths({ contentWidth: nextContent, mainWidth: nextMain }),
+    []
+  )
+  const [overlayOpen, setOverlayOpen] = useState(false)
+  const narrow = contentWidth > 0 && contentWidth < REBUTTAL_OVERLAY_BELOW
   const [newOpen, setNewOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(false)
-  const setAgentOpen = (open: boolean): void => {
-    setAgentOpenState(open)
+  const [reviewDialog, setReviewDialog] = useState<'add' | 'edit' | null>(null)
+  // Why: pasting reviews one by one keeps the first step open until the person moves on.
+  const [addingMore, setAddingMore] = useState(false)
+  const panelOpen = narrow ? overlayOpen : sideOpen
+  const setSideOpen = (open: boolean): void => {
+    setOverlayOpen(open)
+    setSideOpenState(open)
     try {
-      localStorage.setItem(AGENT_OPEN_KEY, String(open))
+      localStorage.setItem(SIDE_OPEN_KEY, String(open))
     } catch {
-      // The pane still toggles without storage.
+      // The panel still toggles without storage.
     }
   }
   useEffect(() => {
     void openRebuttalProject(owner)
+    void useResearchRecords.getState().load()
   }, [owner])
   useRebuttalAutoRefresh(owner, true)
   useEffect(
     () =>
       subscribeRebuttalAgentFocus(() => {
         if (consumeRebuttalAgentFocus(scope)) {
-          setAgentOpenState(true)
+          setSideOpenState(true)
+          setSideTab('author')
         }
       }),
     [scope]
   )
 
   const slug = snapshot?.bundle.meta.slug ?? null
-  const reviewers = snapshot?.bundle.meta.reviewers ?? []
-  const reviewerId =
-    reviewerChoice &&
-    reviewerChoice.slug === slug &&
-    (reviewerChoice.id === null || reviewers.some((entry) => entry.id === reviewerChoice.id))
-      ? reviewerChoice.id
-      : (reviewers[0]?.id ?? null)
-  const selectedClusterId =
-    clusterChoice?.slug === slug &&
-    snapshot?.bundle.clusters.some((cluster) => cluster.id === clusterChoice.id)
-      ? clusterChoice.id
-      : null
+  const reviewers = useMemo(() => snapshot?.bundle.meta.reviewers ?? [], [snapshot])
+  const firstReviewerId = reviewers[0]?.id ?? 'finish'
+  const candidate = viewChoice?.slug === slug ? viewChoice.view : firstReviewerId
+  const view =
+    candidate === 'general' ||
+    candidate === 'finish' ||
+    reviewers.some((entry) => entry.id === candidate)
+      ? candidate
+      : firstReviewerId
+  const reviewer = reviewers.find((entry) => entry.id === view) ?? null
+  const reviewerIds = useMemo(() => reviewers.map((entry) => entry.id), [reviewers])
   const actions = useResearchRebuttalActions(owner, snapshot, {
-    onReviewSaved: (id) => slug && setReviewerChoice({ slug, id }),
-    onAgentAsked: () => setAgentOpen(true)
+    onReviewSaved: (id) => {
+      if (slug) {
+        setViewChoice({ slug, view: id })
+      }
+    },
+    onAgentAsked: () => {
+      if (!rebuttalAgentSessionId(records, scope)) {
+        setSideOpen(true)
+        setSideTab('author')
+      }
+    }
   })
   const readOnly = Boolean(snapshot?.issues.length)
+  const showFirstStep = snapshot && (reviewers.length === 0 || addingMore)
 
-  function selectCluster(clusterId: string | null): void {
-    if (!slug || !snapshot) {
-      return
-    }
-    setClusterChoice({ slug, id: clusterId })
-    const cluster = snapshot.bundle.clusters.find((entry) => entry.id === clusterId)
-    const points = snapshot.bundle.points.filter((point) => cluster?.points.includes(point.id))
-    if (points.length && !points.some((point) => point.reviewer === reviewerId)) {
-      setReviewerChoice({ slug, id: points[0].reviewer })
-    }
-  }
-
-  const current = rebuttals.find((entry) => entry.slug === selectedSlug)
-  const picker = (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button size="xs" variant="ghost" className="max-w-72">
-          <span className="truncate">{current ? current.name : 'No rebuttal'}</span>
-          <ChevronDown aria-hidden />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-56">
-        {rebuttals.map((entry) => (
-          <DropdownMenuItem
-            key={entry.slug}
-            onSelect={() => void selectRebuttal(owner, entry.slug)}
-          >
-            <span className="min-w-0 flex-1 truncate">{entry.name}</span>
-            {entry.venue ? (
-              <span className="text-xs text-muted-foreground">{entry.venue}</span>
-            ) : null}
-          </DropdownMenuItem>
-        ))}
-        {rebuttals.length ? <DropdownMenuSeparator /> : null}
-        <DropdownMenuItem onSelect={() => setNewOpen(true)}>
-          <Plus aria-hidden /> New rebuttal…
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-  const tabs: { id: CenterTab; label: string; count?: number }[] = [
-    { id: 'clusters', label: 'Clusters', count: snapshot?.bundle.clusters.length },
-    { id: 'assemble', label: 'Assemble' },
-    { id: 'promises', label: 'Promises', count: snapshot?.bundle.promises.length }
-  ]
+  const reviewerProposals =
+    snapshot && reviewer
+      ? snapshot.proposals.filter((proposal) =>
+          reviewerRounds(snapshot.bundle, reviewer.id)
+            .flatMap((round) => reviewerAnswers(snapshot.bundle, reviewer.id, round))
+            .some((answer) => answer.cluster?.id === proposal.slot)
+        )
+      : []
+  const generalProposals = snapshot
+    ? snapshot.proposals.filter((proposal) => proposal.slot.startsWith('general:'))
+    : []
 
   return (
     <section
@@ -161,23 +151,32 @@ function RebuttalWorkspace({ owner }: { owner: RebuttalOwner }): React.JSX.Eleme
     >
       <ResearchPageHeader
         title="Rebuttal"
-        context={picker}
+        context={
+          <ResearchRebuttalPicker
+            owner={owner}
+            rebuttals={rebuttals}
+            selectedSlug={selectedSlug}
+            onNew={() => setNewOpen(true)}
+          />
+        }
         actions={
-          <>
-            {snapshot ? (
-              <Button size="xs" variant="outline" onClick={() => setImportOpen(true)}>
-                <CloudDownload aria-hidden /> Import from OpenReview
+          snapshot && !showFirstStep ? (
+            <>
+              <ResearchRebuttalReviewsMenu
+                snapshot={snapshot}
+                onImportAgain={() => setImportOpen(true)}
+                onAddReviewer={() => setReviewDialog('add')}
+              />
+              <Button
+                size="xs"
+                variant={panelOpen ? 'secondary' : 'ghost'}
+                aria-pressed={panelOpen}
+                onClick={() => setSideOpen(!panelOpen)}
+              >
+                <PanelRight aria-hidden /> Panel
               </Button>
-            ) : null}
-            <Button
-              size="xs"
-              variant={agentOpen ? 'secondary' : 'ghost'}
-              aria-pressed={agentOpen}
-              onClick={() => setAgentOpen(!agentOpen)}
-            >
-              <PanelRight aria-hidden /> Agent
-            </Button>
-          </>
+            </>
+          ) : null
         }
       />
       {error ? (
@@ -191,81 +190,123 @@ function RebuttalWorkspace({ owner }: { owner: RebuttalOwner }): React.JSX.Eleme
           {snapshot.issues.join(' · ')}
         </div>
       ) : null}
-      {snapshot ? (
-        <ResearchRebuttalLayout
-          agentOpen={agentOpen}
-          reviews={
-            <ResearchRebuttalReviews
-              snapshot={snapshot}
-              readOnly={readOnly}
-              reviewerId={reviewerId}
-              onReviewerChange={(id) => slug && setReviewerChoice({ slug, id })}
-              selectedClusterId={selectedClusterId}
-              onSelectCluster={selectCluster}
-              onSaveReview={actions.saveReview}
-            />
-          }
-          center={
-            <>
-              <div
-                role="tablist"
-                aria-label="Rebuttal views"
-                className="flex shrink-0 items-center gap-1 border-b border-border px-3 py-1.5"
+      {snapshot && showFirstStep ? (
+        <>
+          {reviewers.length ? (
+            <div className="flex shrink-0 items-center gap-2 border-b border-border px-6 py-2">
+              <span className="text-xs text-muted-foreground">
+                {reviewers.map((entry) => entry.label || entry.id).join(', ')} added.
+              </span>
+              <Button
+                size="xs"
+                className="ml-auto"
+                onClick={() => {
+                  setAddingMore(false)
+                  if (slug) {
+                    setViewChoice({ slug, view: firstReviewerId })
+                  }
+                }}
               >
-                {tabs.map((entry) => (
-                  <Button
-                    key={entry.id}
-                    role="tab"
-                    aria-selected={tab === entry.id}
-                    size="xs"
-                    variant={tab === entry.id ? 'secondary' : 'ghost'}
-                    onClick={() => setTab(entry.id)}
-                  >
-                    {entry.label}
-                    {entry.count ? (
-                      <span className="text-3xs text-muted-foreground tabular-nums">
-                        {entry.count}
-                      </span>
-                    ) : null}
-                  </Button>
-                ))}
-              </div>
-              <div className={cn('scrollbar-sleek min-h-0 flex-1 overflow-auto')}>
-                {tab === 'clusters' ? (
-                  <ResearchRebuttalClusters
+                Continue to the reviewers
+              </Button>
+            </div>
+          ) : null}
+          <ResearchRebuttalFirstStep
+            snapshot={snapshot}
+            readOnly={readOnly}
+            onSaveReview={(input) => {
+              // Why before saving: the first saved review would otherwise leave this step.
+              setAddingMore(true)
+              return actions.saveReview(input)
+            }}
+            onImported={(id) => {
+              if (slug) {
+                setViewChoice({ slug, view: id })
+              }
+              setAddingMore(false)
+            }}
+          />
+        </>
+      ) : snapshot ? (
+        <>
+          <ResearchRebuttalReviewerRail
+            snapshot={snapshot}
+            view={view}
+            onViewChange={(next) => slug && setViewChoice({ slug, view: next })}
+          />
+          <ResearchRebuttalLayout
+            sideOpen={panelOpen}
+            onWidth={onWidth}
+            main={
+              reviewer ? (
+                <>
+                  {reviewerProposals.length ? (
+                    <div className="shrink-0 border-b border-border px-4 py-1.5">
+                      <ResearchRebuttalWaitingChanges
+                        compact
+                        proposals={reviewerProposals}
+                        readOnly={readOnly}
+                        actions={actions}
+                      />
+                    </div>
+                  ) : null}
+                  <ResearchRebuttalReviewerView
                     snapshot={snapshot}
+                    reviewer={reviewer}
                     readOnly={readOnly}
-                    selectedClusterId={selectedClusterId}
-                    onSelectCluster={selectCluster}
-                    linksFor={actions.linksFor}
-                    onChangeCluster={actions.changeCluster}
-                    onAgentRequest={actions.askAgent}
+                    stacked={mainWidth > 0 && mainWidth < 700}
+                    actions={actions}
+                    onEditReview={() => setReviewDialog('edit')}
+                    onOpenDebate={() => {
+                      setSideOpen(true)
+                      setSideTab('debate')
+                    }}
                   />
-                ) : tab === 'assemble' ? (
-                  <ResearchRebuttalAssemble
-                    snapshot={snapshot}
-                    readOnly={readOnly}
-                    onUpdateMeta={actions.updateMeta}
-                  />
-                ) : (
-                  <ResearchRebuttalPromises
-                    snapshot={snapshot}
-                    readOnly={readOnly}
-                    selectedClusterId={selectedClusterId}
-                    onUpdate={actions.updatePromises}
-                  />
-                )}
-              </div>
-            </>
-          }
-          agent={
-            <ResearchRebuttalAgentPane
-              scope={scope}
-              visible={agentOpen}
-              onRequest={actions.askAgent}
-            />
-          }
-        />
+                </>
+              ) : view === 'general' ? (
+                <div className="scrollbar-sleek min-h-0 flex-1 overflow-y-auto">
+                  <div className="mx-auto max-w-3xl space-y-4 p-4 pb-16">
+                    <ResearchRebuttalWaitingChanges
+                      proposals={generalProposals}
+                      readOnly={readOnly}
+                      actions={actions}
+                    />
+                    <ResearchRebuttalAssemble
+                      snapshot={snapshot}
+                      readOnly={readOnly}
+                      onUpdateMeta={actions.updateMeta}
+                      only="general"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <ResearchRebuttalFinish
+                  snapshot={snapshot}
+                  readOnly={readOnly}
+                  actions={actions}
+                  onOpenReviewer={(id) => slug && setViewChoice({ slug, view: id })}
+                />
+              )
+            }
+            side={
+              <ResearchRebuttalSidePanel
+                scope={scope}
+                snapshot={snapshot}
+                reviewer={reviewer}
+                readOnly={readOnly}
+                tab={sideTab}
+                onTabChange={setSideTab}
+                actions={actions}
+                onRequest={actions.askAgent}
+              />
+            }
+          />
+          <ResearchRebuttalAgentWatcher
+            scope={scope}
+            slug={snapshot.bundle.meta.slug}
+            reviewerIds={reviewerIds}
+          />
+        </>
       ) : (
         <ResearchPageBody>
           {loading ? (
@@ -282,8 +323,8 @@ function RebuttalWorkspace({ owner }: { owner: RebuttalOwner }): React.JSX.Eleme
                 </Button>
               }
             >
-              Paste the reviews you received. The Rebuttal agent splits them into points, groups the
-              concerns reviewers share, and drafts answers you edit and assemble here.
+              Start one for this venue round, then bring in the reviews from OpenReview or by paste.
+              Each reviewer gets a page with their concerns next to your replies.
             </ResearchEmptyState>
           )}
         </ResearchPageBody>
@@ -294,12 +335,28 @@ function RebuttalWorkspace({ owner }: { owner: RebuttalOwner }): React.JSX.Eleme
         onCreate={actions.create}
       />
       {snapshot ? (
-        <ResearchRebuttalOpenReviewDialog
-          snapshot={snapshot}
-          open={importOpen}
-          onOpenChange={setImportOpen}
-          onImported={(id) => slug && setReviewerChoice({ slug, id })}
-        />
+        <>
+          <ResearchRebuttalOpenReviewDialog
+            snapshot={snapshot}
+            open={importOpen}
+            onOpenChange={setImportOpen}
+            onImported={(id) => slug && setViewChoice({ slug, view: id })}
+          />
+          <ResearchRebuttalReviewDialog
+            snapshot={snapshot}
+            mode={reviewDialog}
+            reviewer={reviewer}
+            onOpenChange={(open) => !open && setReviewDialog(null)}
+            onSave={async (input) => {
+              const failure = await actions.saveReview(input)
+              if (!failure) {
+                setReviewDialog(null)
+                setAddingMore(false)
+              }
+              return failure
+            }}
+          />
+        </>
       ) : null}
     </section>
   )

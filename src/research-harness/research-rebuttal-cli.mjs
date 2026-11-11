@@ -113,25 +113,35 @@ export const commands = {
       })
   },
   'rebuttal points': {
-    spec: { values: ['--rebuttal', '--file', '--reviewer'], positionals: 1 },
+    spec: {
+      values: ['--rebuttal', '--file', '--reviewer', '--turn', '--request'],
+      positionals: 1
+    },
     run: async ({ project, options, positionals }) => {
       const slug = await slugOf(project, options)
       if (action(positionals, ['set', 'list'], 'points') === 'list') {
         return listPoints(project, slug, { reviewer: options['--reviewer'] })
       }
       requireOptions(options, ['--file'], 'rebuttal points set')
-      return setPoints(project, slug, await inputJson(options), { reviewer: options['--reviewer'] })
+      return setPoints(project, slug, await inputJson(options), {
+        reviewer: options['--reviewer'],
+        turn: options['--turn'],
+        request: options['--request']
+      })
     }
   },
   'rebuttal clusters': {
-    spec: { values: ['--rebuttal', '--file'], positionals: 1 },
+    spec: { values: ['--rebuttal', '--file', '--turn', '--request'], positionals: 1 },
     run: async ({ project, options, positionals }) => {
       const slug = await slugOf(project, options)
       if (action(positionals, ['set', 'list'], 'clusters') === 'list') {
         return listClusters(project, slug)
       }
       requireOptions(options, ['--file'], 'rebuttal clusters set')
-      return setClusters(project, slug, await inputJson(options))
+      return setClusters(project, slug, await inputJson(options), {
+        turn: options['--turn'],
+        request: options['--request']
+      })
     }
   },
   'rebuttal response': {
@@ -304,6 +314,16 @@ function clusterLine(cluster) {
   return `${cluster.id} [${cluster.action}, ${cluster.status}] ${cluster.title} (${cluster.points.join(', ')})${extra ? ` · ${extra}` : ''}${cluster.response ? '' : ' · no draft'}`
 }
 
+function regroupLine(regroup) {
+  if (!regroup) {
+    return ''
+  }
+  const changes = regroup.changes.join('; ')
+  return regroup.applied
+    ? `Regrouped (${regroup.id}): ${changes}. No written text was lost: earlier replies are kept as versions, removed ones in the archive, and the person can undo the whole regroup in Aster.`
+    : `Proposed regroup ${regroup.id}: ${changes}. This rebuttal is set to Ask first, so nothing changed yet; the person accepts or discards it in Aster.`
+}
+
 function outputLine(output) {
   const limit = output.limit
     ? ` ${output.chars}/${output.limit} chars${output.over ? ' OVER LIMIT' : ''}`
@@ -346,9 +366,15 @@ export const textOutput = {
       .filter(Boolean)
       .join('\n'),
   'rebuttal points': (result) =>
-    result.points.length ? result.points.map(pointLine).join('\n') : 'No points.',
+    [
+      regroupLine(result.regroup),
+      result.points.length ? result.points.map(pointLine).join('\n') : 'No points.'
+    ]
+      .filter(Boolean)
+      .join('\n'),
   'rebuttal clusters': (result) =>
     [
+      regroupLine(result.regroup),
       ...(result.clusters.length ? result.clusters.map(clusterLine) : ['No clusters.']),
       result.unclustered?.length ? `Unclustered points: ${result.unclustered.join(', ')}` : ''
     ]
@@ -419,7 +445,7 @@ promises.json, responses/). --rebuttal may be left out when the project has one 
   rebuttal add-review [--rebuttal SLUG] [--reviewer R1] --file PATH|- [--label TEXT]
                       [--rating TEXT] [--confidence TEXT] [--force]
                                          Saves reviews/<R>.md; a new reviewer gets the next ID
-  rebuttal points set [--rebuttal SLUG] --file PATH|- [--reviewer R1]
+  rebuttal points set [--rebuttal SLUG] --file PATH|- [--reviewer R1] [--turn ID] [--request TEXT]
                                          Replaces all points (or one reviewer's). Each point:
                                          {"id":"R1-W2","kind":"weakness|question|minor",
                                          "type":"experiment-request|clarity|related-work|novelty|
@@ -427,12 +453,17 @@ promises.json, responses/). --rebuttal may be left out when the project has one 
                                          "summary":"…","quote":"exact text from the review"}.
                                          W/Q/M in the ID match the kind; quotes get offsets
   rebuttal points list [--rebuttal SLUG] [--reviewer R1]
-  rebuttal clusters set [--rebuttal SLUG] --file PATH|-
+  rebuttal clusters set [--rebuttal SLUG] --file PATH|- [--turn ID] [--request TEXT]
                                          Replaces all clusters: {"id":"C1","title":"…","points":[…],
                                          "action":"experiment|text|clarify","plan":"…",
                                          "status":"todo|drafting|done","experiment":SLUG|null,
                                          "manuscript":{"file","line","anchor"}|null,"general":false}.
-                                         A point is in at most one cluster; drafts keep by cluster ID
+                                         A point is in at most one cluster; drafts keep by cluster ID.
+                                         Merging, splitting or removing groups with written replies
+                                         is allowed: a reply whose group goes away moves to the
+                                         group of its first point, joined after its text unless that
+                                         entry has "response" (the merged reply); a reply with
+                                         nowhere to go is archived. One regroup, one Undo in Aster
   rebuttal clusters list [--rebuttal SLUG]
   rebuttal response set [--rebuttal SLUG] (--cluster C1 | --opening R1 | --general intro|closing)
                         --file PATH|- [--status todo|drafting] [--turn ID] [--request TEXT]

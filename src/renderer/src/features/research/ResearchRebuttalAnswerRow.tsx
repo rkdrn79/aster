@@ -217,6 +217,7 @@ export function ResearchRebuttalAnswerRow({
                 : 'Start typing to answer this concern.'
             }
             onSelectionChange={setSelection}
+            slot={slot}
             onEditingChange={(editing) => setEditingBase(editing?.base ?? null)}
             onSave={(text, base) => actions.saveReply(slot, first?.id ?? null, text, base)}
             footerExtra={

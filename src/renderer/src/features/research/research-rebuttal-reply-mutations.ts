@@ -7,7 +7,7 @@ import {
   proposalOutcome,
   replyAuthorAfterAccept,
   replyAuthorAfterHumanEdit,
-  type RebuttalReplyProposal
+  slotText
 } from '../../../../research-harness/research-rebuttal-records.mjs'
 import type { RebuttalOwner } from './research-rebuttal-files'
 import { withFreshSnapshot, writeJson } from './research-rebuttal-mutations'
@@ -20,6 +20,7 @@ import {
   writeProposals,
   writeSlot
 } from './research-rebuttal-reply-store'
+import { keepTextOfRegroupedSlot, settleEditWhileTyping } from './research-rebuttal-reply-typing'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 
 export { listReplyVersions }
@@ -97,6 +98,9 @@ export async function saveRebuttalReply(
       return
     }
     savedSlot = slot
+    if (slotText(snapshot.bundle, slot) === null) {
+      await keepTextOfRegroupedSlot(snapshot, slot, input.text)
+    }
     const current = currentText(snapshot, slot)
     if (current === input.text) {
       return
@@ -122,62 +126,6 @@ export async function saveRebuttalReply(
     await settleEditWhileTyping(snapshot, slot, record, current, input.text)
   })
   return savedSlot
-}
-
-/** A passage edit laid onto `text`, or null when its passage is not there exactly once. */
-function passageOnto(text: string, proposal: RebuttalReplyProposal): string | null {
-  if (proposal.kind !== 'passage' || proposal.find === null || proposal.replace === null) {
-    return null
-  }
-  const first = text.indexOf(proposal.find)
-  if (first === -1 || first !== text.lastIndexOf(proposal.find)) {
-    return null
-  }
-  return `${text.slice(0, first)}${proposal.replace}${text.slice(first + proposal.find.length)}`
-}
-
-/**
- * The agent's text landed while the person was typing in the same reply, so they never saw it.
- * Their words win. A passage edit that still fits their text is laid on top with its own Undo,
- * when the rebuttal applies agent edits directly; any other edit waits as a suggestion.
- */
-async function settleEditWhileTyping(
-  snapshot: RebuttalSnapshot,
-  slot: string,
-  record: RebuttalReplyProposal,
-  current: string,
-  typed: string
-): Promise<void> {
-  const merged = snapshot.bundle.meta.agentEdits === 'apply' ? passageOnto(typed, record) : null
-  if (merged !== null && merged !== typed) {
-    await keepVersion(snapshot, slot, {
-      by: 'human',
-      what: 'Your text, before the agent passage',
-      text: typed
-    })
-    await writeSlot(snapshot, slot, merged, 'both')
-    await writeProposals(
-      snapshot,
-      snapshot.proposals.map((entry) =>
-        entry.id === record.id ? { ...entry, base: typed, text: merged } : entry
-      )
-    )
-    return
-  }
-  await writeSlot(
-    snapshot,
-    slot,
-    typed,
-    replyAuthorAfterHumanEdit(slotAuthor(snapshot, slot), current, typed)
-  )
-  await writeProposals(
-    snapshot,
-    snapshot.proposals.map((entry) =>
-      entry.id === record.id
-        ? { ...entry, applied: false, base: typed, heldWhileTyping: true }
-        : entry
-    )
-  )
 }
 
 /** Takes one proposal into the reply. Throws when a passage no longer stands in the reply. */

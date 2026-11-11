@@ -14,9 +14,13 @@ export function applies(snapshot: RebuttalSnapshot): boolean {
 
 export function editsLine(snapshot: RebuttalSnapshot): string {
   return applies(snapshot)
-    ? 'Your reply text goes straight into the reply, also over text the person wrote: the harness keeps the earlier text as a version first, and the person can undo your edit with one click. Change only the replies you were asked about. Do not mark anything Ready; only the person does.'
-    : 'This rebuttal is set to Ask first: `response set` fills an empty reply, and for a reply that already has text it records your version as a suggestion the person accepts or discards on the Rebuttal page. Do not mark anything Ready; only the person does.'
+    ? 'Your reply text goes straight into the reply, also over text the person wrote: the harness keeps the earlier text as a version first, and the person can undo your edit with one click. Regrouping concerns with `clusters set` or `points set` (merge, split, remove a duplicate) is allowed too, also for groups that have replies: the harness carries every reply, and the person can undo the whole regroup. Change only the replies you were asked about. Do not mark anything Ready; only the person does.'
+    : 'This rebuttal is set to Ask first: `response set` fills an empty reply, and for a reply that already has text it records your version as a suggestion the person accepts or discards on the Rebuttal page. A regroup with `clusters set` or `points set` that touches a written reply waits for the person the same way. Do not mark anything Ready; only the person does.'
 }
+
+/** How replies travel when groups change, for requests that may regroup. */
+export const REGROUP_LINE =
+  '   Merging, splitting or removing groups that already have replies is allowed. A reply whose group goes away moves into the group that takes its first concern, joined after its text; when you merge two answered groups, send the merged reply as that group\'s "response" in the same command. A split keeps the reply with the group that keeps the ID (or the first part); other parts start empty unless you give them a "response". A reply with nowhere to go is archived. Pass --turn and --request so the person can undo the regroup as one change.'
 
 export function languageLines(slug: string, language: ReadingLanguageId): string[] {
   if (language === 'en') {

@@ -31,6 +31,8 @@ function snapshot(): RebuttalSnapshot {
     outlooks: [],
     paperChanges: [],
     translations: [],
+    regroups: [],
+    archive: [],
     texts: {
       meta: null,
       points: null,
@@ -40,7 +42,8 @@ function snapshot(): RebuttalSnapshot {
       proposals: null,
       predictions: null,
       paperChanges: null,
-      translations: null
+      translations: null,
+      regroups: null
     },
     issues: [],
     version: ''
@@ -78,5 +81,15 @@ describe('Rebuttal agent prompts', () => {
     expect(prompt).toContain('rebuttal translate list --rebuttal iclr-2027 --language ja --todo')
     expect(prompt).toMatch(/change no reply, concern or review/)
     expect(requestSummary({ kind: 'translate', count: 1 })).toBe('Translate 1 item for reading')
+  })
+
+  it('tells the agent it may regroup answered concerns and how replies are carried', () => {
+    const split = buildRebuttalPrompt(snapshot(), { kind: 'split' }, 't1')
+    expect(split).toContain(
+      'Merging, splitting or removing groups that already have replies is allowed'
+    )
+    expect(split).toContain('send the merged reply as that group\'s "response"')
+    expect(split).toContain('`clusters set` and `points set` command')
+    expect(buildRebuttalPrompt(snapshot(), draft, 't1')).toMatch(/undo the whole regroup/)
   })
 })

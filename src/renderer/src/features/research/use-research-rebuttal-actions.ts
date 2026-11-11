@@ -25,6 +25,12 @@ import {
 } from './research-rebuttal-decisions'
 import type { RebuttalOwner } from './research-rebuttal-files'
 import {
+  acceptRebuttalRegroup,
+  forgetRebuttalRegroup,
+  restoreArchivedRebuttalGroup,
+  undoRebuttalRegroup
+} from './research-rebuttal-regroup-mutations'
+import {
   approveRebuttalPaperChange,
   approveRebuttalPaperChanges,
   rejectRebuttalPaperChange
@@ -219,6 +225,10 @@ export function useResearchRebuttalActions(
         }
       }),
     rejectPaperChange: (id: string) => attempt(() => rejectRebuttalPaperChange(owner, id)),
+    undoRegroup: (id: string) => attempt(() => undoRebuttalRegroup(owner, id)),
+    acceptRegroup: (id: string) => attempt(() => acceptRebuttalRegroup(owner, id)),
+    forgetRegroup: (id: string) => attempt(() => forgetRebuttalRegroup(owner, id)),
+    restoreArchivedGroup: (id: string) => attempt(() => restoreArchivedRebuttalGroup(owner, id)),
     askAgent,
     askReviewer,
     linksFor: (cluster: RebuttalCluster): ClusterLinks => {

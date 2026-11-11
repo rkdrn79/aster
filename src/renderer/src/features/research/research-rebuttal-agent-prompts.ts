@@ -3,6 +3,7 @@ import { POINT_TYPES } from '../../../../research-harness/research-rebuttal-mode
 import { slotText } from '../../../../research-harness/research-rebuttal-records.mjs'
 import {
   REBUTTAL_GUIDE_LINE,
+  REGROUP_LINE,
   applies,
   editsLine,
   languageLines,
@@ -43,7 +44,7 @@ function header(snapshot: RebuttalSnapshot, turn: string, language: ReadingLangu
     `Reviews: ${meta.reviewers.map((reviewer) => `${reviewer.id}${reviewer.label ? ` (${reviewer.label})` : ''}`).join(', ') || 'none yet'} in reviews/<ID>.md; later replies from a reviewer are follow-up rounds in followups.json. Reply limit: ${meta.limits.replyChars} characters per reviewer reply, ${meta.limits.generalChars} for the general response, ${meta.limits.pdfPages} page(s) for the PDF.`,
     REBUTTAL_GUIDE_LINE,
     `Write every rebuttal file through the harness: run \`aster research harness-path\` for the cli.mjs path H, then \`node H/cli.mjs rebuttal … --rebuttal ${slug} --json\`. Pass JSON with \`--file -\` on stdin or from a temporary file outside the project. Aster shows each change on its Rebuttal page as soon as you save it.`,
-    `Pass --turn ${turn} and a short --request "what you were asked" on every \`rebuttal response\` command.`,
+    `Pass --turn ${turn} and a short --request "what you were asked" on every \`rebuttal response\`, \`clusters set\` and \`points set\` command.`,
     'Never invent results, numbers, or citations. Use `node H/cli.mjs context` and the Runs on disk for real numbers; when a result does not exist yet, write [TBD: …] and say which Experiment would produce it.',
     editsLine(snapshot),
     ...languageLines(slug, language),
@@ -128,6 +129,7 @@ function requestBody(
         '2. Group points into clusters: one cluster per answer we will write. The same concern from several reviewers goes in one cluster; a point belongs to one cluster at most; keep unrelated points apart.',
         '   Each cluster: {"id":"C<k>","title":"short noun phrase","points":[…],"action":"experiment|text|clarify","plan":"what we will do, which run or section"}. experiment = needs a new or extra run; text = change the paper; clarify = answer in the reply only.',
         '   When a cluster maps to a place in the manuscript, add "manuscript":{"file":"paper/main.tex","line":N,"anchor":"nearby words"}. Save with `rebuttal clusters set`; existing drafts are kept by cluster ID.',
+        REGROUP_LINE,
         ...(clusters.length
           ? [
               `   There are already ${clusters.length} clusters; keep their IDs when a cluster stays the same.`

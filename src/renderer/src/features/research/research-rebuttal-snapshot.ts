@@ -23,6 +23,11 @@ import {
   parseTranslations,
   type RebuttalTranslation
 } from '../../../../research-harness/research-rebuttal-translations.mjs'
+import type {
+  RebuttalArchivedGroup,
+  RebuttalRegroup
+} from '../../../../research-harness/research-rebuttal-regroup.mjs'
+import { parseRegroups } from '../../../../research-harness/research-rebuttal-regroup-records.mjs'
 import {
   REBUTTAL_JSON_FILES,
   listRebuttalDirectory,
@@ -50,6 +55,9 @@ export type RebuttalSnapshot = {
   paperChanges: RebuttalPaperChange[]
   /** Translations the agent wrote, each tied to the text it translates. */
   translations: RebuttalTranslation[]
+  /** Regroups that touched written replies (undoable or waiting), and groups removed with them. */
+  regroups: RebuttalRegroup[]
+  archive: RebuttalArchivedGroup[]
   texts: Record<RebuttalJsonFile, string | null>
   /** Files that did not validate; the page is read-only until they do. */
   issues: string[]
@@ -124,7 +132,8 @@ async function readJsonFiles(
     proposals,
     predictions,
     paperChanges,
-    translations
+    translations,
+    regroups
   ] = await Promise.all([
     read('meta'),
     read('points'),
@@ -134,7 +143,8 @@ async function readJsonFiles(
     read('proposals'),
     read('predictions'),
     read('paperChanges'),
-    read('translations')
+    read('translations'),
+    read('regroups')
   ])
   return {
     meta,
@@ -145,7 +155,8 @@ async function readJsonFiles(
     proposals,
     predictions,
     paperChanges,
-    translations
+    translations,
+    regroups
   }
 }
 
@@ -234,6 +245,11 @@ export async function loadRebuttalSnapshot(
     () => parseTranslations(parseJson(texts.translations)),
     []
   )
+  const { regroups, archive } = attempt(
+    'regroups.json',
+    () => parseRegroups(texts.regroups === null ? null : JSON.parse(texts.regroups)),
+    { regroups: [], archive: [] }
+  )
   return {
     owner,
     directory,
@@ -245,6 +261,8 @@ export async function loadRebuttalSnapshot(
     outlooks,
     paperChanges,
     translations,
+    regroups,
+    archive,
     texts,
     issues,
     version

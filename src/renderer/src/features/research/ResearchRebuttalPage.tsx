@@ -12,10 +12,10 @@ import { ResearchRebuttalHeaderActions } from './ResearchRebuttalHeaderActions'
 import { ResearchRebuttalLayout, REBUTTAL_OVERLAY_BELOW } from './ResearchRebuttalLayout'
 import { ResearchRebuttalNewDialog } from './ResearchRebuttalNewDialog'
 import { ResearchRebuttalOpenReviewDialog } from './ResearchRebuttalOpenReviewDialog'
-import { ResearchRebuttalPaperChangesBar } from './ResearchRebuttalPaperChangesBar'
 import { ResearchRebuttalPicker } from './ResearchRebuttalPicker'
 import { ResearchRebuttalReviewDialog } from './ResearchRebuttalReviewDialog'
 import { ResearchRebuttalReviewerRail, type RebuttalView } from './ResearchRebuttalReviewerRail'
+import { ResearchRebuttalReviewerStrip } from './ResearchRebuttalReviewerStrip'
 import { ResearchRebuttalReviewerView } from './ResearchRebuttalReviewerView'
 import { ResearchRebuttalSidePanel, type RebuttalSideTab } from './ResearchRebuttalSidePanel'
 import { RebuttalTranslationProvider } from './ResearchRebuttalTranslation'
@@ -33,8 +33,8 @@ import {
   useResearchRebuttal
 } from './research-rebuttal-store'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
-import { reviewerAnswers, reviewerRounds } from './research-rebuttal-view'
 import { useRebuttalPageTranslations } from './use-rebuttal-page-translations'
+import { useRebuttalShownSnapshot } from './use-rebuttal-regroup-hold'
 import { useResearchRebuttalActions } from './use-research-rebuttal-actions'
 
 const SIDE_OPEN_KEY = 'aster.research-rebuttal-side-open.v1'
@@ -48,15 +48,16 @@ function readSideOpen(): boolean {
 }
 
 function RebuttalWorkspace({ owner }: { owner: RebuttalOwner }): React.JSX.Element {
-  const { rebuttals, snapshot, loading, error, selectedSlug } = useResearchRebuttal(
+  const { rebuttals, loaded, loading, error, selectedSlug } = useResearchRebuttal(
     useShallow((state) => ({
       rebuttals: state.rebuttals,
-      snapshot: state.snapshot,
+      loaded: state.snapshot,
       loading: state.loading,
       error: state.error,
       selectedSlug: state.selectedSlug
     }))
   )
+  const snapshot = useRebuttalShownSnapshot(owner, loaded)
   const [viewChoice, setViewChoice] = useState<{ slug: string; view: RebuttalView }>()
   const scope = useMemo(
     () => ({ hostId: owner.hostId, workspaceId: owner.workspaceId }),
@@ -142,21 +143,6 @@ function RebuttalWorkspace({ owner }: { owner: RebuttalOwner }): React.JSX.Eleme
     askAgent: actions.askAgent
   })
 
-  const reviewerSlots = new Set(
-    snapshot && reviewer
-      ? reviewerRounds(snapshot.bundle, reviewer.id)
-          .flatMap((round) => reviewerAnswers(snapshot.bundle, reviewer.id, round))
-          .flatMap((answer) => (answer.cluster ? [answer.cluster.id] : []))
-      : []
-  )
-  const reviewerProposals = snapshot
-    ? snapshot.proposals.filter((proposal) => reviewerSlots.has(proposal.slot))
-    : []
-  const reviewerPaperChanges = snapshot
-    ? snapshot.paperChanges.filter(
-        (change) => change.status === 'pending' && reviewerSlots.has(change.cluster)
-      )
-    : []
   const generalProposals = snapshot
     ? snapshot.proposals.filter((proposal) => proposal.slot.startsWith('general:'))
     : []
@@ -257,23 +243,12 @@ function RebuttalWorkspace({ owner }: { owner: RebuttalOwner }): React.JSX.Eleme
               main={
                 reviewer ? (
                   <>
-                    {reviewerProposals.length || reviewerPaperChanges.length > 1 ? (
-                      <div className="shrink-0 space-y-1 border-b border-border px-4 py-1.5">
-                        <ResearchRebuttalWaitingChanges
-                          compact
-                          proposals={reviewerProposals}
-                          readOnly={readOnly}
-                          actions={actions}
-                        />
-                        {reviewerPaperChanges.length > 1 ? (
-                          <ResearchRebuttalPaperChangesBar
-                            changes={reviewerPaperChanges}
-                            readOnly={readOnly}
-                            onApplyAll={actions.approvePaperChanges}
-                          />
-                        ) : null}
-                      </div>
-                    ) : null}
+                    <ResearchRebuttalReviewerStrip
+                      snapshot={snapshot}
+                      reviewerId={reviewer.id}
+                      readOnly={readOnly}
+                      actions={actions}
+                    />
                     <ResearchRebuttalReviewerView
                       snapshot={snapshot}
                       reviewer={reviewer}

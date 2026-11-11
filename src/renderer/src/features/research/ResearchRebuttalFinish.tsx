@@ -7,6 +7,10 @@ import { CharMeter, ResearchRebuttalAssemble } from './ResearchRebuttalAssemble'
 import { ResearchRebuttalPaperChangeCard } from './ResearchRebuttalPaperChangeCard'
 import { ResearchRebuttalPromises } from './ResearchRebuttalPromises'
 import { ResearchRebuttalPaperChangesBar } from './ResearchRebuttalPaperChangesBar'
+import {
+  ResearchRebuttalRegroupList,
+  ResearchRebuttalRemovedGroups
+} from './ResearchRebuttalRegroups'
 import { ResearchRebuttalWaitingChanges } from './ResearchRebuttalWaitingChanges'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 import { useRebuttalTurns, REBUTTAL_TURN_ACTIVE } from './research-rebuttal-turns'
@@ -36,6 +40,7 @@ export function ResearchRebuttalFinish({
   const [error, setError] = useState<string | null>(null)
   const pendingPaper = paperChanges.filter((change) => change.status === 'pending')
   const waiting = proposals.filter((proposal) => !proposal.applied)
+  const regroupsWaiting = snapshot.regroups.filter((record) => !record.applied).length
   const rows = meta.reviewers.map((reviewer) => ({
     reviewer,
     progress: reviewerProgress(snapshot, reviewer.id)
@@ -49,6 +54,9 @@ export function ResearchRebuttalFinish({
     overLimit.length ? `${overLimit.join(', ')} over the limit` : null,
     waiting.length
       ? `${waiting.length} agent ${waiting.length === 1 ? 'suggestion' : 'suggestions'} waiting`
+      : null,
+    regroupsWaiting
+      ? `${regroupsWaiting} ${regroupsWaiting === 1 ? 'regroup' : 'regroups'} waiting`
       : null,
     pendingPaper.length
       ? `${pendingPaper.length} paper ${pendingPaper.length === 1 ? 'change' : 'changes'} to approve`
@@ -144,8 +152,19 @@ export function ResearchRebuttalFinish({
             </p>
           ) : null}
         </section>
+        <ResearchRebuttalRegroupList
+          records={snapshot.regroups}
+          archive={snapshot.archive}
+          readOnly={readOnly}
+          actions={actions}
+        />
         <ResearchRebuttalWaitingChanges
           proposals={proposals}
+          readOnly={readOnly}
+          actions={actions}
+        />
+        <ResearchRebuttalRemovedGroups
+          archive={snapshot.archive}
           readOnly={readOnly}
           actions={actions}
         />

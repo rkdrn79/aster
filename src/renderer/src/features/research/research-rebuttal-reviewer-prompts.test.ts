@@ -61,6 +61,8 @@ function snapshot(): RebuttalSnapshot {
     outlooks: [],
     paperChanges: [],
     translations: [],
+    regroups: [],
+    archive: [],
     texts: {
       meta: null,
       points: null,
@@ -70,7 +72,8 @@ function snapshot(): RebuttalSnapshot {
       proposals: null,
       predictions: null,
       paperChanges: null,
-      translations: null
+      translations: null,
+      regroups: null
     },
     issues: [],
     version: ''

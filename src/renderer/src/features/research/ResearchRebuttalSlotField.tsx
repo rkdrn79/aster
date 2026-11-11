@@ -41,6 +41,7 @@ export function ResearchRebuttalSlotField({
         readOnly={readOnly}
         rows={rows}
         placeholder={placeholder}
+        slot={slot}
         onEditingChange={(editing) => setEditingBase(editing?.base ?? null)}
         onSave={(text, base) => actions.saveReply(slot, null, text, base)}
       />

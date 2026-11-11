@@ -52,7 +52,7 @@ export function ResearchRebuttalAgentPane({ scope, visible, onRequest }: Props):
       home={{ kind: 'rebuttal' }}
       title="Rebuttal agent"
       sessionLabel="Rebuttal agent chat"
-      emptyHint="Start the Rebuttal chat. It splits reviews into concerns, groups the shared ones, and drafts and revises replies. Anything it changes in a reply you wrote waits for you to accept."
+      emptyHint="Start the Rebuttal chat. It splits reviews into concerns, groups the shared ones, and drafts and revises replies. Its edits show under each reply with Undo; choose Ask first in the ⋯ menu to approve them instead."
       visible={visible}
       className="flex-1"
       excludeSessionIds={excludeSessionIds}

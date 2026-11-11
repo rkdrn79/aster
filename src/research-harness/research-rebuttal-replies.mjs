@@ -42,7 +42,7 @@ import {
   sharedClusters
 } from './research-rebuttal-assemble.mjs'
 
-async function pushVersion(files, slot, version) {
+export async function pushVersion(files, slot, version) {
   await mkdir(files.history, { recursive: true })
   const target = path.join(files.history, historyFileName(slot))
   const versions = parseHistory((await readJsonIfPresent(target)) ?? [])

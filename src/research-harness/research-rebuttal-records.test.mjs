@@ -184,8 +184,9 @@ test('clusters set can regroup but cannot rewrite or smuggle reply text', async 
   })
 })
 
-test('agent commands cannot remove a cluster or points that carry a written reply', async () => {
+test('set to Ask first, removing a group or points with a written reply only proposes it', async () => {
   await withRebuttal(async (project) => {
+    await askFirst(project)
     const clustersFile = path.join(project, '.aster/rebuttal/iclr-2027/clusters.json')
     const document = JSON.parse(await readFile(clustersFile, 'utf8'))
     document.clusters[0].response = 'Typed by hand.'
@@ -195,7 +196,9 @@ test('agent commands cannot remove a cluster or points that carry a written repl
       ['rebuttal', 'clusters', 'set', '--file', '-'],
       JSON.stringify([{ id: 'C2', title: 'Ablation', points: ['R1-W2'], action: 'text' }])
     )
-    assert.notEqual(dropped.code, 0)
+    assert.equal(dropped.code, 0)
+    assert.equal(dropped.result.regroup.applied, false)
+    assert.deepEqual(dropped.result.regroup.summary.removed, ['C1'])
     const points = await harness(project, ['rebuttal', 'points', 'list'])
     const withoutC1 = points.result.points
       .filter((point) => !['R1-W1', 'R2-W1'].includes(point.id))
@@ -205,9 +208,11 @@ test('agent commands cannot remove a cluster or points that carry a written repl
       ['rebuttal', 'points', 'set', '--file', '-'],
       JSON.stringify(withoutC1)
     )
-    assert.notEqual(removed.code, 0)
+    assert.equal(removed.result.regroup.applied, false)
     const after = JSON.parse(await readFile(clustersFile, 'utf8'))
+    assert.equal(after.clusters.length, 2)
     assert.equal(after.clusters[0].response, 'Typed by hand.')
+    assert.equal((await harness(project, ['rebuttal', 'points', 'list'])).result.points.length, 3)
   })
 })
 

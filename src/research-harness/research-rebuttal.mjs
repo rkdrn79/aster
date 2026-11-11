@@ -18,15 +18,15 @@ import { assembleRebuttalLatex } from './research-rebuttal-latex.mjs'
 import {
   MAX_REVIEW_CHARS,
   SHARED_ANSWER_MODES,
-  clustersDocument,
   nextReviewerId,
   nextSequentialId,
   parseRebuttalMeta,
-  pointsDocument,
   promisesDocument,
   safeReviewerId
 } from './research-rebuttal-model.mjs'
-import { parseClusters, parsePoints, parsePromises } from './research-rebuttal-points.mjs'
+import { parsePoints, parsePromises } from './research-rebuttal-points.mjs'
+import { applyRegroup, regroupResult } from './research-rebuttal-regroup-io.mjs'
+import { clusterEntries, suppliedReplies } from './research-rebuttal-regroup.mjs'
 
 export {
   createRebuttal,
@@ -90,7 +90,8 @@ export async function addReview(project, slug, input) {
       bundle,
       meta,
       reviews,
-      bundle.points.filter((p) => !stale.includes(p))
+      bundle.points.filter((p) => !stale.includes(p)),
+      { apply: true, request: `Replaced ${id}'s review` }
     )
     await writeJsonAtomically(bundle.files.meta, meta)
     return {
@@ -102,43 +103,32 @@ export async function addReview(project, slug, input) {
   })
 }
 
-/** Writes points, and removes points that left from clusters (dropping clusters left empty). */
-async function savePoints(bundle, meta, reviews, nextPoints) {
+/**
+ * Writes points; points that left also leave their groups, and a group left empty is removed (its
+ * written reply archived, as a regroup the person can undo).
+ */
+async function savePoints(bundle, meta, reviews, nextPoints, context = {}) {
   const points = parsePoints(nextPoints, {
     reviewers: meta.reviewers,
     reviews,
     followUps: bundle.followUps
   })
   const ids = new Set(points.map((point) => point.id))
-  const droppedFromClusters = []
-  const clusters = bundle.clusters.flatMap((cluster) => {
-    const kept = cluster.points.filter((id) => ids.has(id))
-    droppedFromClusters.push(...cluster.points.filter((id) => !ids.has(id)))
-    return kept.length ? [{ ...cluster, points: kept }] : []
-  })
+  const droppedFromClusters = bundle.clusters.flatMap((cluster) =>
+    cluster.points.filter((id) => !ids.has(id))
+  )
+  const { plan, regroup } = await applyRegroup(
+    bundle,
+    { points },
+    { ...context, input: { points: nextPoints } }
+  )
   const removedClusters = bundle.clusters
-    .filter((cluster) => !clusters.some((entry) => entry.id === cluster.id))
+    .filter((cluster) => !plan.clusters.some((entry) => entry.id === cluster.id))
     .map((cluster) => cluster.id)
-  await writeJsonAtomically(bundle.files.points, pointsDocument(points))
-  if (droppedFromClusters.length) {
-    await saveClusters(bundle, clusters)
-  }
-  return { points, droppedFromClusters, removedClusters }
+  return { points, droppedFromClusters, removedClusters, ...regroupResult(regroup) }
 }
 
-async function saveClusters(bundle, clusters) {
-  const ids = new Set(clusters.map((cluster) => cluster.id))
-  await writeJsonAtomically(bundle.files.clusters, clustersDocument(clusters))
-  if (bundle.promises.some((promise) => promise.clusters.some((id) => !ids.has(id)))) {
-    const promises = bundle.promises.map((promise) => ({
-      ...promise,
-      clusters: promise.clusters.filter((id) => ids.has(id))
-    }))
-    await writeJsonAtomically(bundle.files.promises, promisesDocument(promises))
-  }
-}
-
-export function setPoints(project, slug, input, { reviewer } = {}) {
+export function setPoints(project, slug, input, { reviewer, turn, request } = {}) {
   return updateRebuttal(project, slug, async (bundle) => {
     const incoming = Array.isArray(input) ? input : (input?.points ?? input)
     if (!Array.isArray(incoming)) {
@@ -156,13 +146,7 @@ export function setPoints(project, slug, input, { reviewer } = {}) {
       }
       next = [...bundle.points.filter((point) => point.reviewer !== id), ...incoming]
     }
-    const keptPoints = new Set(next.map((point) => point.id))
-    refuseLosingWrittenReply(
-      bundle,
-      new Set(bundle.clusters.map((cluster) => cluster.id)),
-      keptPoints
-    )
-    return savePoints(bundle, bundle.meta, bundle.reviews, next)
+    return savePoints(bundle, bundle.meta, bundle.reviews, next, { turn, request })
   })
 }
 
@@ -176,57 +160,24 @@ export async function listPoints(project, slug, { reviewer } = {}) {
   }
 }
 
-/** A cluster's reply stays with its cluster: this command changes grouping, never written text. */
-function withoutReplyText(input, bundle) {
-  const entries = Array.isArray(input)
-    ? input
-    : Array.isArray(input?.clusters)
-      ? input.clusters
-      : null
-  if (!entries) {
-    return input
-  }
-  const written = new Set(bundle.clusters.filter((c) => c.response.trim()).map((c) => c.id))
-  const stripped = entries.map((entry) => {
-    if (!entry || typeof entry !== 'object' || !written.has(entry.id)) {
-      return entry?.response && entry.author === undefined ? { ...entry, author: 'agent' } : entry
-    }
-    const { response: _response, author: _author, ...rest } = entry
-    return rest
-  })
-  return Array.isArray(input) ? stripped : { ...input, clusters: stripped }
-}
-
-function refuseLosingWrittenReply(bundle, keptClusterIds, keptPointIds) {
-  const lost = bundle.clusters.filter(
-    (cluster) =>
-      cluster.response.trim() &&
-      (!keptClusterIds.has(cluster.id) || cluster.points.every((id) => !keptPointIds.has(id)))
-  )
-  if (lost.length) {
-    throw new HarnessError(
-      'conflict',
-      `${lost.map((cluster) => cluster.id).join(', ')} has a written reply. Keep that cluster and at least one of its points; only the person removes written text.`
-    )
-  }
-}
-
-export function setClusters(project, slug, input) {
+/**
+ * Replaces the groups. A reply stays with its group ID; one whose group goes away moves to the
+ * group that took its first concern (joined after its text, or the agent's merged text when the
+ * entry has a "response"); a reply with nowhere to go is archived. See applyRegroup.
+ */
+export function setClusters(project, slug, input, { turn, request } = {}) {
   return updateRebuttal(project, slug, async (bundle) => {
-    const clusters = parseClusters(withoutReplyText(input, bundle), {
-      pointIds: bundle.points.map((point) => point.id),
-      previous: bundle.clusters
-    })
-    refuseLosingWrittenReply(
+    const { plan, regroup } = await applyRegroup(
       bundle,
-      new Set(clusters.map((cluster) => cluster.id)),
-      new Set(bundle.points.map((point) => point.id))
+      { clusters: input, supplied: suppliedReplies(input) },
+      { turn, request, input: { clusters: clusterEntries(input) } }
     )
-    await saveClusters(bundle, clusters)
+    const clusters = regroup && !regroup.applied ? bundle.clusters : plan.clusters
     const clustered = new Set(clusters.flatMap((cluster) => cluster.points))
     return {
       clusters,
-      unclustered: bundle.points.filter((point) => !clustered.has(point.id)).map((p) => p.id)
+      unclustered: bundle.points.filter((point) => !clustered.has(point.id)).map((p) => p.id),
+      ...regroupResult(regroup)
     }
   })
 }

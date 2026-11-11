@@ -201,6 +201,7 @@ older projects); `--rebuttal <slug>` may be left out when the project has only o
 | `predictions.json`   | a simulated reviewer's next-concern predictions (`R1-N1`, `concern`, `why`, `likelihood`, `trigger`, `preempt`, `status`)                                                                                                                                                                |
 | `paper-changes.json` | tracked manuscript changes: `E1`, `cluster`, `promise`, `file`, `find`, `replace`, `why`, `status` (`pending`, `applied`, `rejected`)                                                                                                                                                    |
 | `history/`           | kept versions of each reply (`C3.json`, `opening-R1.json`, …)                                                                                                                                                                                                                            |
+| `regroups.json`      | regroups that touched written replies (`G1`: `summary`, the affected clusters `before` and `after`, `applied`), and the `archive` of clusters removed with their replies (`A1`)                                                                                                          |
 | `translations.json`  | reading translations: `key` (`quote:R1-W2`, `summary:R1-W2`, `title:C3`, `reply:C3`, `reply:opening:R1`, `reply:general:intro`, `review:R1`, `review:R1-round-2`), `language`, `text`, and the `hash` of the text it translates                                                          |
 
 ```bash
@@ -222,6 +223,18 @@ node H/cli.mjs rebuttal translate list --rebuttal <slug> --language ko --todo
 - **Group.** Points one answer serves share a cluster, across reviewers; a point is in at most one
   cluster. `clusters set` replaces the list and keeps each cluster's draft by ID, so keep the IDs
   of clusters that stay the same.
+- **Regroup.** Merging, splitting, moving points between or removing clusters is allowed, also
+  when they have written replies; no written text is lost. A reply whose cluster goes away moves to
+  the cluster that takes its first point, joined after that cluster's reply as a new paragraph;
+  when you merge answered clusters, send the merged reply as the surviving entry's `response` in
+  the same `clusters set`. A split keeps the reply with the cluster that keeps the ID (or the first
+  part); other parts start empty unless their entry has a `response`. A cluster with a reply and
+  nowhere to go (its points left every cluster, or `points set` dropped them) is archived with its
+  reply in `regroups.json`, restorable in Aster. Every replaced reply is kept as a version,
+  promises, paper changes and predictions follow their cluster, and translations go outdated.
+  One regroup is one change the person can undo; pass `--turn` and `--request`. Set to Ask first,
+  a regroup that touches a written reply waits as one proposal, and so does one that lands while
+  the person is typing in an affected reply. The output says which happened.
 - **Draft.** Answer first, then evidence with real numbers from Runs (`context`, `run show`), then
   the paper change. Never invent results: write `[TBD: …]` and propose the Experiment that would
   produce it. Record each promise with `promises add` as you make it.
@@ -231,9 +244,9 @@ node H/cli.mjs rebuttal translate list --rebuttal <slug> --language ko --todo
   written instead of starting over, and change only the replies you were asked about. When
   `rebuttal.json` has `"agentEdits": "ask"` (Ask first), text over a written reply waits as a
   proposal the person accepts or discards; the command output says which happened. If the person
-  is typing in that reply, Aster keeps their words and holds yours as a suggestion. `clusters set`
-  keeps every reply as written; a `response` field in it is ignored on a reply that has text. Pass
-  the `--turn` and `--request` Aster gives you. Only the person marks a reply Ready (`--status
+  is typing in that reply, Aster keeps their words and holds yours as a suggestion. In `clusters
+  set`, a `response` on a cluster that already has a reply is used only when other replies merge
+  into it; otherwise use `response set`. Pass the `--turn` and `--request` Aster gives you. Only the person marks a reply Ready (`--status
   done` is refused).
 - **Revise.** To change part of a reply, send `response revise` with the exact passage; a whole-reply
   revision goes through `response set`. Keep every number and citation unless the request says

@@ -30,6 +30,8 @@ type Props = {
   autoGrow?: boolean
   /** Reports unsaved typing and the text it started from, or null once it is saved. */
   onEditingChange?: (editing: { base: string } | null) => void
+  /** The reply slot this field edits, so a regroup never moves text that is being typed. */
+  slot?: string | null
 }
 
 type Draft = { base: string; text: string }
@@ -52,7 +54,8 @@ export function ResearchRebuttalDraftField({
   onSelectionChange,
   hideLabel = false,
   autoGrow = false,
-  onEditingChange
+  onEditingChange,
+  slot = null
 }: Props): React.JSX.Element {
   const id = useId()
   const [draft, setDraft] = useState<Draft>({ base: value, text: value })
@@ -75,9 +78,9 @@ export function ResearchRebuttalDraftField({
     editingRef.current = onEditingChange
   })
   useEffect(() => {
-    setRebuttalFieldDirty(id, dirty)
+    setRebuttalFieldDirty(id, dirty, slot)
     editingRef.current?.(dirty ? { base: draft.base } : null)
-  }, [id, dirty, draft.base])
+  }, [id, dirty, draft.base, slot])
   useEffect(() => () => setRebuttalFieldDirty(id, false), [id])
 
   async function save(): Promise<void> {

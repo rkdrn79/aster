@@ -3,7 +3,8 @@ import { create } from 'zustand'
 // Which reply fields hold unsaved typing, page-wide, so background work (asking the agent to
 // translate) waits until the person stops editing.
 
-type EditingState = { dirty: Readonly<Record<string, true>> }
+/** Field ID → the reply slot it edits ('' when it has none yet). */
+type EditingState = { dirty: Readonly<Record<string, string>> }
 
 export const useRebuttalEditing = create<EditingState>(() => ({ dirty: {} }))
 
@@ -14,19 +15,29 @@ export function noteRebuttalKeystroke(now = Date.now()): void {
   lastEditAt = now
 }
 
-export function setRebuttalFieldDirty(id: string, dirty: boolean): void {
+export function setRebuttalFieldDirty(
+  id: string,
+  dirty: boolean,
+  slot: string | null = null
+): void {
   useRebuttalEditing.setState((state) => {
-    if (Boolean(state.dirty[id]) === dirty) {
+    const value = slot ?? ''
+    if (dirty ? state.dirty[id] === value : !(id in state.dirty)) {
       return state
     }
     const next = { ...state.dirty }
     if (dirty) {
-      next[id] = true
+      next[id] = value
     } else {
       delete next[id]
     }
     return { dirty: next }
   })
+}
+
+/** The reply slots that hold unsaved typing right now. */
+export function rebuttalDirtySlots(): Set<string> {
+  return new Set(Object.values(useRebuttalEditing.getState().dirty).filter(Boolean))
 }
 
 /** True when no field has unsaved typing and nothing was typed for `quietMs`. */

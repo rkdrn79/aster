@@ -2,17 +2,10 @@ import { toast } from 'sonner'
 import type { PdfTextSelection } from '@/components/editor/pdf-text-selection'
 import { MAX_PDF_TEXT_SELECTION_LENGTH } from '@/components/editor/pdf-text-selection'
 import { createBrowserUuid } from '@/lib/browser-uuid'
-import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
-import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
-import type {
-  ExperimentRecord,
-  ResearchDelegationRecord
-} from '../../../../shared/research/research-records'
+import type { ExperimentRecord } from '../../../../shared/research/research-records'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
 import { resolveResearchAdoptAgent } from './research-adopt-conversation'
-import { nameResearchChat } from './research-chat-label'
-import { trackDelegationLaunch } from './research-delegation-launch'
-import { useResearchRecords } from './research-records-store'
+import { launchResearchBackgroundAgent } from './research-background-agent-launch'
 import {
   buildWritingPdfRevisionPrompt,
   type PdfRevisionSource
@@ -40,50 +33,38 @@ export async function startProjectPdfRevision(input: {
   }
   const agent = await resolveResearchAdoptAgent(host.id)
   const label = `Revise PDF page ${input.selection.pageNumber}`
-  const result = launchAgentInNewTab({
-    requestId: newAgentLaunchRequestId(),
-    requestedSurface: 'chat',
-    selectedExecutionHostId: host.id,
-    agent,
-    worktreeId: input.project.workspaceId,
-    prompt: buildWritingPdfRevisionPrompt(input.source, input.selection, input.instruction),
-    promptDelivery: 'auto-submit',
-    onStructuredHostDeclined: () => ({ opened: false }),
-    activate: false
-  })
-  if (!result) {
-    return 'The project host could not start an agent. Check its agent settings and try again.'
-  }
-  nameResearchChat(input.project.workspaceId, result, label)
-  const now = new Date().toISOString()
-  const delegation: ResearchDelegationRecord = {
-    id: createBrowserUuid(),
-    sourceWorkspaceId: input.project.workspaceId,
-    sourceHostId: input.project.hostId,
-    sourceExperimentId: null,
-    targetWorkspaceId: input.project.workspaceId,
-    targetHostId: input.project.hostId,
-    targetLabel: input.project.name,
-    agent,
-    task: label,
-    tabId: result.surface.kind === 'host-published' ? null : result.surface.tabId,
-    sessionId: null,
-    state: 'launching',
-    createdAt: now,
-    updatedAt: now
-  }
-  try {
-    await useResearchRecords.getState().update((current) => ({
-      ...current,
-      delegations: [delegation, ...current.delegations].slice(0, 500)
-    }))
-  } catch (cause) {
+  const started = await launchResearchBackgroundAgent(
+    {
+      agent,
+      hostId: host.id,
+      workspaceId: input.project.workspaceId,
+      surface: 'chat',
+      prompt: buildWritingPdfRevisionPrompt(input.source, input.selection, input.instruction),
+      promptDelivery: 'auto-submit',
+      label,
+      noFallbackTerminal: true
+    },
+    {
+      id: createBrowserUuid(),
+      sourceWorkspaceId: input.project.workspaceId,
+      sourceHostId: input.project.hostId,
+      sourceExperimentId: null,
+      targetWorkspaceId: input.project.workspaceId,
+      targetHostId: input.project.hostId,
+      targetLabel: input.project.name,
+      agent,
+      task: label
+    }
+  )
+  if (!started.ok) {
+    if (started.stage !== 'record') {
+      return 'The project host could not start an agent. Check its agent settings and try again.'
+    }
     toast.error(
-      `The revision agent started, but its Background task could not be saved. ${String(cause)}`
+      `The revision agent started, but its Background task could not be saved. ${started.error}`
     )
     return null
   }
-  trackDelegationLaunch(delegation.id, result)
   toast.success('PDF revision started on the project host. Follow it under Background tasks.')
   return null
 }

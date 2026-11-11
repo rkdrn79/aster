@@ -7,8 +7,14 @@ import {
   type BundledSkillGuide,
   type BundledSkillGuideReference
 } from './bundled-skill-guide-table'
+import { guideSection, guideSectionTitles } from './skill-guide-section'
 
-type GuideSelection = { full: boolean; reference: string | null; listReferences: boolean }
+type GuideSelection = {
+  full: boolean
+  reference: string | null
+  listReferences: boolean
+  section: string | null
+}
 
 // Why: the kernel's gate table names each document as `references/<file>.md`, so that
 // exact string must resolve as well as the bare name an agent is likely to retype.
@@ -39,10 +45,23 @@ function resolveSelection(flags: Map<string, string | boolean>): GuideSelection 
   if (hasReference && (typeof requested !== 'string' || requested.trim().length === 0)) {
     throw new RuntimeClientError('invalid_argument', 'Missing required --reference')
   }
+  const section = flags.get('section')
+  if (flags.has('section')) {
+    if (listReferences || hasReference) {
+      throw new RuntimeClientError(
+        'invalid_argument',
+        'Use --section on the guide itself, not with --reference or --references.'
+      )
+    }
+    if (typeof section !== 'string' || section.trim().length === 0) {
+      throw new RuntimeClientError('invalid_argument', 'Missing required --section')
+    }
+  }
   return {
     full,
     reference: typeof requested === 'string' ? requested : null,
-    listReferences
+    listReferences,
+    section: typeof section === 'string' ? section : null
   }
 }
 
@@ -99,6 +118,25 @@ export const SKILL_GUIDE_GET_HANDLER: Record<string, CommandHandler> = {
     }
 
     const markdown = selection.full ? guide.fullMarkdown : guide.markdown
+    if (selection.section !== null) {
+      const section = guideSection(markdown, selection.section)
+      if (section === null) {
+        throw new RuntimeClientError(
+          'invalid_argument',
+          `No section "${selection.section}" in ${guide.name}. Sections: ${guideSectionTitles(markdown).join(', ')}`
+        )
+      }
+      writeStdoutLine(
+        json
+          ? JSON.stringify(
+              { name: guide.name, section: selection.section, markdown: section },
+              null,
+              2
+            )
+          : section
+      )
+      return
+    }
     writeStdoutLine(
       json
         ? JSON.stringify({ name: guide.name, full: selection.full, markdown }, null, 2)

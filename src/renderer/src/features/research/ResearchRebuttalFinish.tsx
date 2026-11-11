@@ -6,6 +6,7 @@ import { reviewerDisplayName } from '../../../../research-harness/research-rebut
 import { CharMeter, ResearchRebuttalAssemble } from './ResearchRebuttalAssemble'
 import { ResearchRebuttalPaperChangeCard } from './ResearchRebuttalPaperChangeCard'
 import { ResearchRebuttalPromises } from './ResearchRebuttalPromises'
+import { ResearchRebuttalPaperChangesBar } from './ResearchRebuttalPaperChangesBar'
 import { ResearchRebuttalWaitingChanges } from './ResearchRebuttalWaitingChanges'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 import { useRebuttalTurns, REBUTTAL_TURN_ACTIVE } from './research-rebuttal-turns'
@@ -34,6 +35,7 @@ export function ResearchRebuttalFinish({
   })
   const [error, setError] = useState<string | null>(null)
   const pendingPaper = paperChanges.filter((change) => change.status === 'pending')
+  const waiting = proposals.filter((proposal) => !proposal.applied)
   const rows = meta.reviewers.map((reviewer) => ({
     reviewer,
     progress: reviewerProgress(snapshot, reviewer.id)
@@ -45,8 +47,8 @@ export function ResearchRebuttalFinish({
     unwritten ? `${unwritten} ${unwritten === 1 ? 'reply' : 'replies'} not written` : null,
     notReady ? `${notReady} not marked ready` : null,
     overLimit.length ? `${overLimit.join(', ')} over the limit` : null,
-    proposals.length
-      ? `${proposals.length} agent ${proposals.length === 1 ? 'change' : 'changes'} to review`
+    waiting.length
+      ? `${waiting.length} agent ${waiting.length === 1 ? 'suggestion' : 'suggestions'} waiting`
       : null,
     pendingPaper.length
       ? `${pendingPaper.length} paper ${pendingPaper.length === 1 ? 'change' : 'changes'} to approve`
@@ -153,10 +155,18 @@ export function ResearchRebuttalFinish({
             snapshot={snapshot}
             readOnly={readOnly}
             onUpdateMeta={actions.updateMeta}
+            actions={actions}
           />
         </section>
         <section aria-label="Promises for the final version" className="space-y-2">
           <h3 className="text-xs font-semibold">Promises for the final version</h3>
+          {pendingPaper.length > 1 ? (
+            <ResearchRebuttalPaperChangesBar
+              changes={pendingPaper}
+              readOnly={readOnly}
+              onApplyAll={actions.approvePaperChanges}
+            />
+          ) : null}
           {pendingPaper.map((change) => (
             <ResearchRebuttalPaperChangeCard
               key={change.id}

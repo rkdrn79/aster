@@ -231,6 +231,36 @@ describe('UI IPC', () => {
     expect(selectAll).toHaveBeenCalledOnce()
   })
 
+  it('falls back to native paste and selection in a project window', () => {
+    const paste = vi.fn()
+    const pasteAndMatchStyle = vi.fn()
+    const copy = vi.fn()
+    const selectAll = vi.fn()
+    const event = makeUIEvent({ id: 51 })
+    setTrustedUIRendererWebContentsId(17)
+    const isResearchPageWindowRenderer = vi.fn((sender: unknown) => sender === event.sender)
+    fromWebContentsMock.mockReturnValue({
+      webContents: { paste, pasteAndMatchStyle, copy, selectAll }
+    })
+
+    // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: these handlers read only the store members makeStore stubs.
+    registerUIHandlers(makeStore() as never, { isResearchPageWindowRenderer })
+
+    getNativePasteHandler()?.(event)
+    getNativePasteHandler()?.(event, { mode: 'paste-and-match-style' })
+    getNativeSelectionActionHandler()?.(event, 'copy')
+    getNativeSelectionActionHandler()?.(event, 'select-all')
+    // Another window that is neither the main window nor a project window gets nothing.
+    getNativePasteHandler()?.(makeUIEvent({ id: 52 }))
+    getNativeSelectionActionHandler()?.(makeUIEvent({ id: 52 }), 'copy')
+
+    expect(fromWebContentsMock).toHaveBeenCalledWith(event.sender)
+    expect(paste).toHaveBeenCalledOnce()
+    expect(pasteAndMatchStyle).toHaveBeenCalledOnce()
+    expect(copy).toHaveBeenCalledOnce()
+    expect(selectAll).toHaveBeenCalledOnce()
+  })
+
   it('ignores native paste fallback from stale or browser senders', () => {
     const paste = vi.fn()
     const pasteAndMatchStyle = vi.fn()

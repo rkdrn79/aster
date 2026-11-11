@@ -15,6 +15,7 @@ import {
 import type { ResearchWindowTarget } from '../../../../shared/research-page-window'
 import { researchChatSessionTabs } from './ResearchAgentChatPane'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
+import { useResearchWindowChatRequest } from './research-window-surface'
 
 const EMPTY_TABS: readonly Tab[] = []
 // How long a started chat may take to show up in this window's list before the spinner gives up.
@@ -49,6 +50,17 @@ export function ResearchWindowChats({
   const [selectedId, setSelectedId] = useState<string | null>(null)
   // The chats before a start from here; the first one outside it is the chat that start made.
   const [launchBaseline, setLaunchBaseline] = useState<ReadonlySet<string> | null>(null)
+  // A page in this window asked to show a chat (e.g. a proposal's "Open chat").
+  const requestSeq = useResearchWindowChatRequest((state) => state.seq)
+  useEffect(() => {
+    const { tabId } = useResearchWindowChatRequest.getState()
+    if (tabId) {
+      setSelectedId(tabId)
+      setLaunchBaseline(null)
+      // Taken: a later visit to Chats keeps whatever the person picked since.
+      useResearchWindowChatRequest.setState({ tabId: null })
+    }
+  }, [requestSeq])
   const created = launchBaseline ? (chats.find((tab) => !launchBaseline.has(tab.id)) ?? null) : null
   const starting = launchBaseline !== null && created === null
   // The main window answered, but the new chat has not shown up yet; don't wait on it forever.
@@ -136,11 +148,11 @@ export function ResearchWindowChats({
       </aside>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {selected && sessionTarget ? (
+          // Why no groupId: splitting a chat into the Workbench's panes only makes sense there.
           <NativeChatView
             key={selected.id}
             mode="structured"
             tabId={selected.id}
-            groupId={selected.groupId}
             sessionId={selected.entityId}
             target={sessionTarget}
             agent={selected.agentSessionAgent}

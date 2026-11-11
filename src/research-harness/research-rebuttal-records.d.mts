@@ -18,8 +18,10 @@ export type RebuttalReplyProposal = {
   id: string
   slot: string
   kind: 'replace' | 'passage'
-  /** True when the draft went straight into an empty reply and can be undone. */
+  /** True when the text went straight into the reply; `base` is what Undo puts back. */
   applied: boolean
+  /** Set when the agent's text landed while the person was typing, so it waits instead. */
+  heldWhileTyping?: boolean
   base: string
   text: string
   find: string | null

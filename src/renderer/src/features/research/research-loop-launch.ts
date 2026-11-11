@@ -1,19 +1,16 @@
 import { createBrowserUuid } from '@/lib/browser-uuid'
-import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
-import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
-import type { ResearchDelegationRecord } from '../../../../shared/research/research-records'
 import type { ResearchHarnessLocation } from '../../../../shared/research/research-harness-results'
 import type { ResearchLoopStartParams } from '../../../../preload/api/research-harness-bridge'
 import { CLI_NAME } from '../../../../shared/product-brand'
 import { withAsterContext } from '../../../../shared/aster-context-block'
 import { useResearchRecords } from './research-records-store'
-import { trackDelegationLaunch } from './research-delegation-launch'
+import { launchResearchBackgroundAgent } from './research-background-agent-launch'
 import { createCatalogExperiment } from './research-experiment-catalog-import'
 import type { selectResearchWorkspaceContext } from './research-workspace-context'
 import { researchHarnessBridge } from './use-research-harness-experiment'
-import { nameResearchChat, researchChatTitle } from './research-chat-label'
+import { researchChatTitle } from './research-chat-label'
 
 export type ResearchLoopContract = Omit<ResearchLoopStartParams, 'workspacePath'>
 
@@ -82,42 +79,35 @@ async function launchResearchLoopCoordinator({
   objective,
   prompt
 }: LoopCoordinator): Promise<void> {
-  const result = launchAgentInNewTab({
-    requestId: newAgentLaunchRequestId(),
-    requestedSurface: surface,
-    selectedExecutionHostId: hostId,
-    agent,
-    worktreeId: workspaceId,
-    prompt,
-    promptDelivery: surface === 'chat' ? 'auto-submit' : 'submit-after-ready',
-    activate: false
-  })
-  if (!result) {
-    throw new Error('The agent could not be started. Check it in Settings.')
+  const started = await launchResearchBackgroundAgent(
+    {
+      agent,
+      hostId,
+      workspaceId,
+      surface,
+      prompt,
+      promptDelivery: surface === 'chat' ? 'auto-submit' : 'submit-after-ready',
+      label: researchChatTitle('Research loop', objective)
+    },
+    {
+      id: createBrowserUuid(),
+      sourceWorkspaceId: workspaceId,
+      sourceHostId: hostId,
+      sourceExperimentId: experimentId,
+      targetWorkspaceId: workspaceId,
+      targetHostId: hostId,
+      targetLabel: workspaceLabel,
+      agent,
+      task: `Research loop: ${objective}`.slice(0, 240)
+    }
+  )
+  if (!started.ok) {
+    throw new Error(
+      started.stage === 'record'
+        ? `The loop started, but its Background task was not saved. ${started.error}`
+        : 'The agent could not be started. Check it in Settings.'
+    )
   }
-  nameResearchChat(workspaceId, result, researchChatTitle('Research loop', objective))
-  const now = new Date().toISOString()
-  const delegation: ResearchDelegationRecord = {
-    id: createBrowserUuid(),
-    sourceWorkspaceId: workspaceId,
-    sourceHostId: hostId,
-    sourceExperimentId: experimentId,
-    targetWorkspaceId: workspaceId,
-    targetHostId: hostId,
-    targetLabel: workspaceLabel,
-    agent,
-    task: `Research loop: ${objective}`.slice(0, 240),
-    tabId: result.surface.kind === 'host-published' ? null : result.surface.tabId,
-    sessionId: null,
-    state: 'launching',
-    createdAt: now,
-    updatedAt: now
-  }
-  await useResearchRecords.getState().update((current) => ({
-    ...current,
-    delegations: [delegation, ...current.delegations].slice(0, 500)
-  }))
-  trackDelegationLaunch(delegation.id, result)
 }
 
 /**

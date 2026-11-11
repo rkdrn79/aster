@@ -14,7 +14,7 @@ import { ResearchDeadlineZonePicker } from '@/features/research/research-deadlin
 import {
   READING_LANGUAGES,
   useReadingLanguage
-} from '@/features/research/research-library-reading-language'
+} from '@/features/research/research-reading-language'
 import { openResearchHome } from '@/features/research/research-navigation'
 import { Button } from '../ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'

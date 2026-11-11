@@ -1,4 +1,4 @@
-import { app, ipcMain, type BrowserWindow } from 'electron'
+import { app, ipcMain, type BrowserWindow, type WebContents } from 'electron'
 import {
   createRejectedNativeFileDropPayload,
   validateNativeFileDropPaths
@@ -18,30 +18,36 @@ import { getDarwinUserTempDir } from './darwin-user-temp-dir'
 
 export function registerDroppedPathPreparation(
   mainWindow: BrowserWindow,
-  localChatAttachmentStore?: DroppedPathPreparationDeps['localChatAttachmentStore']
+  localChatAttachmentStore?: DroppedPathPreparationDeps['localChatAttachmentStore'],
+  /** Another window that renders the main window's chats, such as a project window. */
+  isAppPageWindowRenderer: (sender: WebContents) => boolean = () => false
 ): void {
   const prepareChannel = 'fs:prepareDroppedPaths'
   const mainWebContents = mainWindow.webContents
   const isWindowGone = (): boolean => mainWindow.isDestroyed() || mainWebContents.isDestroyed()
   ipcMain.removeHandler(prepareChannel)
-  const prepare = createDroppedPathPreparationQueue(
-    {
-      platform: process.platform,
-      localChatAttachmentStore,
-      getCopyEnvironment: async () => ({
+  // Why per window: a request is abandoned when the window that dropped the files reloads or closes.
+  const queueFor = (contents: WebContents) =>
+    createDroppedPathPreparationQueue(
+      {
         platform: process.platform,
-        sourceTempRoot: await getDarwinUserTempDir(),
-        copyRoot: getDragTempCopyRoot(app.getPath('temp'))
-      }),
-      watchRenderer: () => abortWhenRendererGone(mainWebContents)
-    },
-    windowDragTempCopyLane
-  )
+        localChatAttachmentStore,
+        getCopyEnvironment: async () => ({
+          platform: process.platform,
+          sourceTempRoot: await getDarwinUserTempDir(),
+          copyRoot: getDragTempCopyRoot(app.getPath('temp'))
+        }),
+        watchRenderer: () => abortWhenRendererGone(contents)
+      },
+      windowDragTempCopyLane
+    )
+  const prepare = queueFor(mainWebContents)
   const prepareHandler = (
     event: Electron.IpcMainInvokeEvent,
     args: unknown
   ): Promise<PreparedDroppedPaths> => {
-    if (isWindowGone() || event.sender !== mainWebContents) {
+    const fromMain = event.sender === mainWebContents
+    if (isWindowGone() || (!fromMain && !isAppPageWindowRenderer(event.sender))) {
       throw new Error('Dropped paths must come from the owning window')
     }
     if (!isPrepareDroppedPathsRequest(args)) {
@@ -54,7 +60,7 @@ export function registerDroppedPathPreparation(
         failures: [createRejectedNativeFileDropPayload(validation)]
       })
     }
-    return Promise.resolve(prepare(args))
+    return Promise.resolve((fromMain ? prepare : queueFor(event.sender))(args))
   }
   ipcMain.handle(prepareChannel, prepareHandler)
   activePrepareHandler = prepareHandler

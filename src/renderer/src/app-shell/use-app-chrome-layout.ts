@@ -8,6 +8,7 @@ import { shouldShowWorktreeCreationSurface } from '@/lib/worktree-creation-surfa
 import { useAppStore } from '../store'
 import { isResearchPage, useResearchHomeAtStartup } from '@/features/research/research-navigation'
 import { useResearchPaletteShortcut } from '@/components/cmd-j/use-research-palette-shortcut'
+import { useResearchProjectSwitcherShortcut } from '@/features/research/use-research-project-switcher-shortcut'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import { selectActiveTerminalChromeState } from '../store/active-terminal-chrome-selector'
 import { useCompactViewport, useLeftSidebarDocked } from './use-compact-viewport'
@@ -40,6 +41,7 @@ export function useAppChromeLayout() {
   }, [activeView, researchUiEnabled, settings])
   useResearchHomeAtStartup()
   useResearchPaletteShortcut(researchUiEnabled)
+  useResearchProjectSwitcherShortcut(researchUiEnabled)
   const activePendingCreationId = useAppStore((s) => s.activePendingCreationId)
   // Why: the creation surface owns the tab strip from the first pending frame; gating on the delayed loader flag swapped the tab bar mid-create.
   const activePendingCreationExists = useAppStore(

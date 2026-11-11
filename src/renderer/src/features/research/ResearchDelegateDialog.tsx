@@ -18,17 +18,13 @@ import {
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
-import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { selectExecutionHostDisplayLabel } from '@/lib/execution-host-display-label'
-import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
 import { useAgentMenuObservation } from '@/components/tab-bar/use-new-tab-agent-menu-rows'
 import { useAppStore } from '@/store'
-import type { ResearchDelegationRecord } from '../../../../shared/research/research-records'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 import { useResearchHomeProjects } from './research-home-projects'
-import { useResearchRecords } from './research-records-store'
-import { trackDelegationLaunch } from './research-delegation-launch'
+import { launchResearchBackgroundAgent } from './research-background-agent-launch'
 import { formatAgentTypeLabel } from '../../../../shared/agent-type-label'
 
 type Destination = {
@@ -64,10 +60,6 @@ export function openComputerSettings(): void {
   const state = useAppStore.getState()
   state.openSettingsTarget({ pane: 'ssh', repoId: null, sectionId: 'ssh' })
   state.openSettingsPage()
-}
-
-function timestamp(): string {
-  return new Date().toISOString()
 }
 
 function DelegateBody({
@@ -109,52 +101,38 @@ function DelegateBody({
     }
     setBusy(true)
     setError(null)
-    const result = launchAgentInNewTab({
-      requestId: newAgentLaunchRequestId(),
-      requestedSurface: selected.kind === 'chat' ? 'chat' : 'terminal',
-      selectedExecutionHostId: destination.hostId,
-      agent: selected.agent,
-      worktreeId: destination.workspaceId,
-      prompt: task.trim(),
-      promptDelivery: selected.kind === 'chat' ? 'auto-submit' : 'submit-after-ready',
-      onStructuredHostDeclined: () => ({ opened: false }),
-      activate: false
-    })
-    if (!result) {
-      setError('This host could not start the agent. Check its connection and agent support.')
-      setBusy(false)
-      return
-    }
-    const id = createBrowserUuid()
-    const now = timestamp()
-    const delegation: ResearchDelegationRecord = {
-      id,
-      sourceWorkspaceId,
-      sourceHostId,
-      sourceExperimentId,
-      targetWorkspaceId: destination.workspaceId,
-      targetHostId: destination.hostId,
-      targetLabel: destination.label,
-      agent: selected.agent,
-      task: task.trim().slice(0, 240),
-      tabId: result.surface.kind === 'host-published' ? null : result.surface.tabId,
-      sessionId: null,
-      state: 'launching',
-      createdAt: now,
-      updatedAt: now
-    }
-    try {
-      await useResearchRecords.getState().update((current) => ({
-        ...current,
-        delegations: [delegation, ...current.delegations].slice(0, 500)
-      }))
-    } catch (cause) {
-      setError(`The agent may have started, but its link was not saved: ${String(cause)}`)
+    const started = await launchResearchBackgroundAgent(
+      {
+        agent: selected.agent,
+        hostId: destination.hostId,
+        workspaceId: destination.workspaceId,
+        surface: selected.kind === 'chat' ? 'chat' : 'terminal',
+        prompt: task.trim(),
+        promptDelivery: selected.kind === 'chat' ? 'auto-submit' : 'submit-after-ready',
+        noFallbackTerminal: true
+      },
+      {
+        id: createBrowserUuid(),
+        sourceWorkspaceId,
+        sourceHostId,
+        sourceExperimentId,
+        targetWorkspaceId: destination.workspaceId,
+        targetHostId: destination.hostId,
+        targetLabel: destination.label,
+        agent: selected.agent,
+        task: task.trim().slice(0, 240)
+      }
+    )
+    if (!started.ok) {
+      setError(
+        started.stage === 'record'
+          ? `The agent may have started, but its link was not saved: ${started.error}`
+          : 'This host could not start the agent. Check its connection and agent support.'
+      )
       setBusy(false)
       return
     }
     onClose()
-    trackDelegationLaunch(id, result)
   }
 
   return (

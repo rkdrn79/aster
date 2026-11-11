@@ -7,6 +7,7 @@ import {
 } from '../menu/register-app-menu'
 import { zoomDashboardPopoutIfFocused } from '../window/dashboard-popout-window'
 import { zoomWorkspaceSpaceWindowIfFocused } from '../window/workspace-space-window'
+import { zoomResearchPageWindowIfFocused } from '../window/research-page-window'
 import { recordCrashBreadcrumb } from '../crash-reporting/crash-breadcrumb-store'
 import { mainProcessState as state } from './main-process-state'
 import {
@@ -58,17 +59,29 @@ export async function initializeMainProcessI18nAndMenu(): Promise<void> {
     // Why: menu zoom must act on the window the user is looking at — routing to
     // the main window while the dashboard pop-out is focused zooms behind it.
     onZoomIn: () => {
-      if (!zoomDashboardPopoutIfFocused('in') && !zoomWorkspaceSpaceWindowIfFocused('in')) {
+      if (
+        !zoomDashboardPopoutIfFocused('in') &&
+        !zoomWorkspaceSpaceWindowIfFocused('in') &&
+        !zoomResearchPageWindowIfFocused('in')
+      ) {
         state.mainWindow?.webContents.send('terminal:zoom', 'in')
       }
     },
     onZoomOut: () => {
-      if (!zoomDashboardPopoutIfFocused('out') && !zoomWorkspaceSpaceWindowIfFocused('out')) {
+      if (
+        !zoomDashboardPopoutIfFocused('out') &&
+        !zoomWorkspaceSpaceWindowIfFocused('out') &&
+        !zoomResearchPageWindowIfFocused('out')
+      ) {
         state.mainWindow?.webContents.send('terminal:zoom', 'out')
       }
     },
     onZoomReset: () => {
-      if (!zoomDashboardPopoutIfFocused('reset') && !zoomWorkspaceSpaceWindowIfFocused('reset')) {
+      if (
+        !zoomDashboardPopoutIfFocused('reset') &&
+        !zoomWorkspaceSpaceWindowIfFocused('reset') &&
+        !zoomResearchPageWindowIfFocused('reset')
+      ) {
         state.mainWindow?.webContents.send('terminal:zoom', 'reset')
       }
     },

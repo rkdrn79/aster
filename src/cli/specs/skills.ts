@@ -48,21 +48,23 @@ export const SKILL_COMMAND_SPECS: CommandSpec[] = [
     path: ['skills', 'get'],
     aliases: [['skills', 'show']],
     summary: 'Print a version-matched skill guide as Markdown',
-    usage: `${CLI_NAME} skills get <topic> [--full | --reference <name>] [--json]`,
-    allowedFlags: [...GLOBAL_FLAGS, 'topic', 'full', 'reference', 'references'],
+    usage: `${CLI_NAME} skills get <topic> [--full | --reference <name> | --section <heading>] [--json]`,
+    allowedFlags: [...GLOBAL_FLAGS, 'topic', 'full', 'reference', 'references', 'section'],
     positionalArgs: ['topic'],
     notes: [
       `Reads bundled guide content locally without contacting the ${PRODUCT_NAME} runtime.`,
       'Prints the compact guide by default. Use --full to print the full guide with bundled references when provided.',
       'Use --reference <name> to print one bundled reference alone, which is what an action gate in the compact guide needs; --references lists the available names.',
       'A reference name may be given bare (recovery-and-cleanup) or as the guide spells it (references/recovery-and-cleanup.md).',
+      'Use --section <heading> to print one `## ` section of the guide, from its heading to the next one (case is ignored; a heading prefix works).',
       'Use --json for a deterministic object containing canonical topic metadata and content.'
     ],
     examples: [
       `${CLI_NAME} skills get aster-cli`,
       `${CLI_NAME} skills get aster-orchestration --full`,
       `${CLI_NAME} skills get aster-orchestration --references`,
-      `${CLI_NAME} skills get aster-orchestration --reference recovery-and-cleanup`
+      `${CLI_NAME} skills get aster-orchestration --reference recovery-and-cleanup`,
+      `${CLI_NAME} skills get aster-research-track --section Figures`
     ]
   },
   {

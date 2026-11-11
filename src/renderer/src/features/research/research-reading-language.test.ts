@@ -3,7 +3,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { i18n } from '@/i18n/i18n'
-import { useReadingLanguage } from './research-library-reading-language'
+import { useReadingLanguage } from './research-reading-language'
 
 afterEach(async () => {
   vi.restoreAllMocks()
@@ -11,7 +11,7 @@ afterEach(async () => {
   await act(() => i18n.changeLanguage('en'))
 })
 
-describe('Library reading language', () => {
+describe('Reading language', () => {
   it('defaults to the UI language rather than the OS locale, and follows it', async () => {
     vi.spyOn(navigator, 'language', 'get').mockReturnValue('ko-KR')
     const { result } = renderHook(() => useReadingLanguage())
@@ -34,5 +34,13 @@ describe('Library reading language', () => {
     await act(() => i18n.changeLanguage('pt'))
     const { result } = renderHook(() => useReadingLanguage())
     expect(result.current[0]).toBe('en')
+  })
+
+  it('is one setting: a choice on one page reaches every other user at once', () => {
+    const library = renderHook(() => useReadingLanguage())
+    const rebuttal = renderHook(() => useReadingLanguage())
+    act(() => rebuttal.result.current[1]('ko'))
+    expect(library.result.current[0]).toBe('ko')
+    expect(window.localStorage.getItem('aster.library.readingLanguage')).toBe('ko')
   })
 })

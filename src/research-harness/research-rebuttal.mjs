@@ -36,6 +36,7 @@ export {
   resolveRebuttalSlug
 } from './research-rebuttal-files.mjs'
 export * from './research-rebuttal-replies.mjs'
+export { listTranslations, setTranslations } from './research-rebuttal-translate.mjs'
 
 export async function addReview(project, slug, input) {
   if (typeof input.text !== 'string' || !input.text.trim()) {

@@ -20,8 +20,9 @@ import type { RebuttalAnswer } from './research-rebuttal-view'
 import { ResearchRebuttalConcernColumn } from './ResearchRebuttalConcernColumn'
 import { ResearchRebuttalDraftField } from './ResearchRebuttalDraftField'
 import { ResearchRebuttalPaperChangeCard } from './ResearchRebuttalPaperChangeCard'
-import { ResearchRebuttalProposalCard } from './ResearchRebuttalProposalCard'
+import { ResearchRebuttalProposalSlot } from './ResearchRebuttalProposalSlot'
 import { ResearchRebuttalReviseButton } from './ResearchRebuttalReviseButton'
+import { RebuttalTranslationBlock } from './ResearchRebuttalTranslation'
 import { ResearchRebuttalVersionsDialog } from './ResearchRebuttalVersionsDialog'
 import type { RebuttalActions } from './use-research-rebuttal-actions'
 
@@ -86,6 +87,7 @@ export function ResearchRebuttalAnswerRow({
   const busy = useRebuttalSlotBusy(slot)
   const [selection, setSelection] = useState<string | null>(null)
   const [versionsOpen, setVersionsOpen] = useState(false)
+  const [editingBase, setEditingBase] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const proposal = slot ? (snapshot.proposals.find((entry) => entry.slot === slot) ?? null) : null
   const paperChanges: RebuttalPaperChange[] = slot
@@ -215,6 +217,7 @@ export function ResearchRebuttalAnswerRow({
                 : 'Start typing to answer this concern.'
             }
             onSelectionChange={setSelection}
+            onEditingChange={(editing) => setEditingBase(editing?.base ?? null)}
             onSave={(text, base) => actions.saveReply(slot, first?.id ?? null, text, base)}
             footerExtra={
               readOnly ? null : (
@@ -249,6 +252,7 @@ export function ResearchRebuttalAnswerRow({
               )
             }
           />
+          <RebuttalTranslationBlock tkey={slot ? `reply:${slot}` : null} source={reply} />
           {homeReviewer ? (
             <p className="text-2xs leading-4 text-muted-foreground">
               The full answer goes to {homeReviewer.name} ({homeReviewer.answer}); this reply says
@@ -256,12 +260,12 @@ export function ResearchRebuttalAnswerRow({
             </p>
           ) : null}
           {proposal && slot ? (
-            <ResearchRebuttalProposalCard
+            <ResearchRebuttalProposalSlot
               proposal={proposal}
               current={reply}
+              editingBase={editingBase}
               readOnly={readOnly}
-              onAccept={() => actions.acceptProposal(proposal.id)}
-              onDiscard={() => actions.discardProposal(proposal.id)}
+              actions={actions}
             />
           ) : null}
           {paperChanges.map((change) => (

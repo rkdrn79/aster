@@ -29,6 +29,7 @@ import { RESEARCH_CONVERSATION_DRAG_TYPE } from './research-conversation-drag'
 import { useResearchSidebarSections } from './research-sidebar-sections'
 import { ResearchProjectRowMenu } from './ResearchProjectRowMenu'
 import { ResearchPageWindowMenu } from './ResearchPageWindowMenu'
+import { ResearchProjectSwitcher, ResearchProjectSwitcherButton } from './ResearchProjectSwitcher'
 import { researchPageDragProps } from './research-page-window-open'
 
 export function ResearchNavigation(): React.JSX.Element {
@@ -85,15 +86,10 @@ function ResearchProjectNavigation(): React.JSX.Element {
           {translate('research.navigation.back', 'Projects')}
         </Button>
         {project ? (
-          <ResearchProjectRowMenu
-            project={project}
-            showTrigger
-            className="gap-2 px-2 text-worktree-sidebar-foreground"
-          >
-            <ResearchComputeProjectDot color={project.badgeColor} />
-            <span className="min-w-0 flex-1 truncate text-base font-semibold" title={project.name}>
-              {project.name}
-            </span>
+          <ResearchProjectRowMenu project={project} showTrigger className="gap-1">
+            <ResearchProjectSwitcher>
+              <ResearchProjectSwitcherButton project={project} />
+            </ResearchProjectSwitcher>
           </ResearchProjectRowMenu>
         ) : (
           <div className="flex items-center gap-2 px-2 text-worktree-sidebar-foreground">

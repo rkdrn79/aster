@@ -29,6 +29,8 @@ export const CLUSTER_ACTIONS = ['experiment', 'text', 'clarify']
 export const CLUSTER_STATUSES = ['todo', 'drafting', 'done']
 /** Where a shared answer is written in full: the first reviewer's reply, the general response, or every reply. */
 export const SHARED_ANSWER_MODES = ['reviewer', 'general', 'repeat']
+/** apply: an agent's reply text lands in the reply (undoable); ask: text over a written reply waits. */
+export const AGENT_EDIT_MODES = ['apply', 'ask']
 export const MAX_REVIEW_CHARS = 200_000
 // Why: reviews stay confidential until the paper is public, so a rebuttal folder is kept out of the
 // project's Git history. Deleting this file lets coauthors share the folder through Git.
@@ -162,6 +164,7 @@ export function parseRebuttalMeta(value) {
       ...assembly,
       shared: oneOf(assembly.shared, 'assembly.shared', SHARED_ANSWER_MODES, 'reviewer')
     },
+    agentEdits: oneOf(value.agentEdits, 'agentEdits', AGENT_EDIT_MODES, 'apply'),
     createdAt: text(value.createdAt, 'createdAt', { max: 64 }),
     updatedAt: text(value.updatedAt, 'updatedAt', { max: 64 })
   }

@@ -236,7 +236,7 @@ describe('orca skills CLI', () => {
     await main(['--help'], '/tmp/repo')
 
     expect(String(logSpy.mock.calls[0]?.[0])).toContain(
-      `Usage: ${CLI_NAME} skills get <topic> [--full | --reference <name>] [--json]`
+      `Usage: ${CLI_NAME} skills get <topic> [--full | --reference <name> | --section <heading>] [--json]`
     )
     expect(String(logSpy.mock.calls[1]?.[0])).toContain(
       'Commands:\n  installed          List installed skill selectors'

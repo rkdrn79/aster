@@ -26,6 +26,7 @@ export {
   figureChatSessions,
   figureOfChat
 } from './research-figure-chat-slots'
+import { renameResearchChatTab } from './research-window-tab-actions'
 
 const FOCUS_EVENT = 'aster:research-figures-agent-focus'
 let pendingFocusKey: string | null = null
@@ -125,9 +126,7 @@ export async function renameFigureAgentChat(
   )
   // Why compare: a chat the person renamed keeps the name they gave it.
   if (tab?.customLabel === figureChatLabel(from.title ?? from.slug)) {
-    state.setTabCustomTitle(tab.id, figureChatLabel(to.title ?? to.slug), {
-      recordInteraction: false
-    })
+    renameResearchChatTab(tab, figureChatLabel(to.title ?? to.slug))
   }
 }
 

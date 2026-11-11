@@ -13,10 +13,13 @@ import type {
   RebuttalMeta,
   RebuttalSharedAnswerMode
 } from '../../../../research-harness/research-rebuttal-model.mjs'
-import { ResearchRebuttalDraftField } from './ResearchRebuttalDraftField'
+import { ResearchRebuttalSlotField } from './ResearchRebuttalSlotField'
+import { useRebuttalTranslationLookup } from './ResearchRebuttalTranslation'
+import { translatedBundle } from './research-rebuttal-translation-view'
 import { ResearchRebuttalPdfPanel } from './ResearchRebuttalPdfPanel'
 import { writeRebuttalOutput } from './research-rebuttal-mutations'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
+import type { RebuttalActions } from './use-research-rebuttal-actions'
 
 type Output = 'replies' | 'general' | 'pdf'
 
@@ -31,6 +34,7 @@ type Props = {
   readOnly: boolean
   /** Resolves to an error message, or null once saved. */
   onUpdateMeta: (change: (meta: RebuttalMeta) => RebuttalMeta) => Promise<string | null>
+  actions: Pick<RebuttalActions, 'saveReply' | 'acceptProposal' | 'discardProposal'>
   /** Fixes the view to one output and hides the switch. */
   only?: Output
 }
@@ -73,7 +77,8 @@ function OutputCard({
   chars,
   limit,
   missing,
-  children
+  children,
+  translation
 }: {
   title: string
   text: string
@@ -81,6 +86,8 @@ function OutputCard({
   limit: number
   missing: string[]
   children?: React.ReactNode
+  /** The same text in the reading language, with its label, shown under it. */
+  translation?: { label: string; text: string } | null
 }): React.JSX.Element {
   const [copied, setCopied] = useState(false)
   return (
@@ -116,6 +123,19 @@ function OutputCard({
       <pre className="scrollbar-sleek max-h-96 overflow-auto px-3 py-2.5 font-sans text-sm leading-6 whitespace-pre-wrap break-words">
         {text || 'Nothing to send yet.'}
       </pre>
+      {translation ? (
+        <section
+          aria-label={`${translation.label} translation`}
+          className="mx-3 mb-3 border-l-2 border-border pl-2.5"
+        >
+          <p className="text-3xs font-medium text-muted-foreground">
+            {translation.label} · for reading only, not sent
+          </p>
+          <p className="scrollbar-sleek max-h-96 overflow-auto text-sm leading-6 break-words whitespace-pre-wrap text-muted-foreground">
+            {translation.text}
+          </p>
+        </section>
+      ) : null}
     </article>
   )
 }
@@ -124,6 +144,7 @@ export function ResearchRebuttalAssemble({
   snapshot,
   readOnly,
   onUpdateMeta,
+  actions,
   only
 }: Props): React.JSX.Element {
   const [chosenOutput, setOutput] = useState<Output>('replies')
@@ -134,6 +155,8 @@ export function ResearchRebuttalAssemble({
   const { meta } = bundle
   const replies = assembleAllReplies(bundle)
   const general = assembleGeneralResponse(bundle)
+  const lookup = useRebuttalTranslationLookup()
+  const translatedGeneral = output === 'general' && lookup ? translatedBundle(bundle, lookup) : null
 
   async function saveOutputs(): Promise<void> {
     try {
@@ -268,21 +291,16 @@ export function ResearchRebuttalAssemble({
                     <summary className="cursor-pointer text-xs text-muted-foreground select-none">
                       Opening{reviewer?.opening ? '' : ' (none)'}
                     </summary>
-                    <ResearchRebuttalDraftField
+                    <ResearchRebuttalSlotField
                       className="mt-2"
+                      snapshot={snapshot}
+                      slot={`opening:${reply.reviewer}`}
                       label={`Opening for ${reply.reviewer}`}
                       value={reviewer?.opening ?? ''}
                       readOnly={readOnly}
                       rows={3}
                       placeholder="One or two sentences before the answers, e.g. thanks and the main change."
-                      onSave={(opening) =>
-                        onUpdateMeta((current) => ({
-                          ...current,
-                          reviewers: current.reviewers.map((entry) =>
-                            entry.id === reply.reviewer ? { ...entry, opening } : entry
-                          )
-                        }))
-                      }
+                      actions={actions}
                     />
                   </details>
                 )}
@@ -295,26 +313,23 @@ export function ResearchRebuttalAssemble({
       ) : output === 'general' ? (
         <>
           <div className="grid gap-3 lg:grid-cols-2">
-            <ResearchRebuttalDraftField
+            <ResearchRebuttalSlotField
+              snapshot={snapshot}
+              slot="general:intro"
               label="Intro"
               value={meta.general.intro}
               readOnly={readOnly}
               placeholder="Thank the reviewers once and name the main changes."
-              onSave={(intro) =>
-                onUpdateMeta((current) => ({ ...current, general: { ...current.general, intro } }))
-              }
+              actions={actions}
             />
-            <ResearchRebuttalDraftField
+            <ResearchRebuttalSlotField
+              snapshot={snapshot}
+              slot="general:closing"
               label="Closing"
               value={meta.general.closing}
               readOnly={readOnly}
               placeholder="Optional closing sentence."
-              onSave={(closing) =>
-                onUpdateMeta((current) => ({
-                  ...current,
-                  general: { ...current.general, closing }
-                }))
-              }
+              actions={actions}
             />
           </div>
           <OutputCard
@@ -323,6 +338,14 @@ export function ResearchRebuttalAssemble({
             chars={general.chars}
             limit={general.limit}
             missing={general.missing}
+            translation={
+              translatedGeneral && lookup
+                ? {
+                    label: lookup.label,
+                    text: assembleGeneralResponse(translatedGeneral).text
+                  }
+                : null
+            }
           />
         </>
       ) : (

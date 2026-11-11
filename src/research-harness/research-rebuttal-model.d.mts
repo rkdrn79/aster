@@ -14,6 +14,7 @@ export type RebuttalPointType =
 export type RebuttalClusterAction = 'experiment' | 'text' | 'clarify'
 export type RebuttalClusterStatus = 'todo' | 'drafting' | 'done'
 export type RebuttalSharedAnswerMode = 'reviewer' | 'general' | 'repeat'
+export type RebuttalAgentEditMode = 'apply' | 'ask'
 
 export type RebuttalReviewer = {
   id: string
@@ -35,6 +36,8 @@ export type RebuttalMeta = {
   reviewers: RebuttalReviewer[]
   general: { intro: string; closing: string }
   assembly: { shared: RebuttalSharedAnswerMode }
+  /** apply: agent text lands in the reply and can be undone; ask: it waits as a suggestion. */
+  agentEdits: RebuttalAgentEditMode
   createdAt: string
   updatedAt: string
 }
@@ -101,6 +104,7 @@ export const POINT_TYPES: readonly RebuttalPointType[]
 export const CLUSTER_ACTIONS: readonly RebuttalClusterAction[]
 export const CLUSTER_STATUSES: readonly RebuttalClusterStatus[]
 export const SHARED_ANSWER_MODES: readonly RebuttalSharedAnswerMode[]
+export const AGENT_EDIT_MODES: readonly RebuttalAgentEditMode[]
 export const MAX_REVIEW_CHARS: number
 export const KIND_LETTER: Readonly<Record<RebuttalPointKind, 'W' | 'Q' | 'M'>>
 

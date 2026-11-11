@@ -1,9 +1,14 @@
 import { ipcRenderer } from 'electron'
 import type {
+  ResearchWindowChatOptions,
   ResearchWindowLaunchResult,
   ResearchWindowTarget
 } from '../../shared/research-page-window'
 import type { TuiAgent } from '../../shared/tui-agent'
+import type {
+  ResearchWindowAction,
+  ResearchWindowActionResult
+} from '../../shared/research-window-actions'
 
 export type ResearchWindowApi = {
   /** Main window only. `fromDrag` opens it only when the pointer is outside the main window. */
@@ -15,9 +20,17 @@ export type ResearchWindowApi = {
   /** Research window: shows the same page in the main window, for what only that window can do. */
   revealInMain: (target: ResearchWindowTarget) => Promise<void>
   /** Research window: the main window starts a chat in this project, staying where it is. */
-  launchChat: (target: ResearchWindowTarget, agent: TuiAgent) => Promise<ResearchWindowLaunchResult>
+  launchChat: (
+    target: ResearchWindowTarget,
+    agent: TuiAgent,
+    options?: ResearchWindowChatOptions
+  ) => Promise<ResearchWindowLaunchResult>
   /** Main window: how a chat start it ran for a research window ended. */
   reportLaunchChatResult: (requestId: string, result: ResearchWindowLaunchResult) => Promise<void>
+  /** Research window: the main window makes, closes or renames a tab, or opens a file, for it. */
+  runAction: (action: ResearchWindowAction) => Promise<ResearchWindowActionResult>
+  /** Main window: how an action it ran for a research window went. */
+  reportActionResult: (requestId: string, result: ResearchWindowActionResult) => Promise<void>
   /** Main window: whether any research window is open, after this window reloaded. */
   hasOpenWindows: () => Promise<boolean>
   onState: (callback: (state: unknown) => void) => () => void
@@ -26,8 +39,15 @@ export type ResearchWindowApi = {
   onRevealInMain: (callback: (target: ResearchWindowTarget) => void) => () => void
   /** Main window: a research window asked for a chat in its project. */
   onLaunchChat: (
-    callback: (target: ResearchWindowTarget, agent: TuiAgent, requestId: string) => void
+    callback: (
+      target: ResearchWindowTarget,
+      agent: TuiAgent,
+      requestId: string,
+      options: ResearchWindowChatOptions | undefined
+    ) => void
   ) => () => void
+  /** Main window: a research window asked it to run an action on the tabs. */
+  onRunAction: (callback: (action: ResearchWindowAction, requestId: string) => void) => () => void
   /** Research window: show this section, when the project's window was opened again. */
   onShowPage: (callback: (page: unknown) => void) => () => void
 }
@@ -47,9 +67,13 @@ export const researchWindowApi: ResearchWindowApi = {
   publishState: (state) => ipcRenderer.invoke('researchWindow:publishState', state),
   requestState: () => ipcRenderer.invoke('researchWindow:requestState'),
   revealInMain: (target) => ipcRenderer.invoke('researchWindow:revealInMain', target),
-  launchChat: (target, agent) => ipcRenderer.invoke('researchWindow:launchChat', target, agent),
+  launchChat: (target, agent, options) =>
+    ipcRenderer.invoke('researchWindow:launchChat', target, agent, options),
   reportLaunchChatResult: (requestId, result) =>
     ipcRenderer.invoke('researchWindow:reportLaunchChatResult', requestId, result),
+  runAction: (action) => ipcRenderer.invoke('researchWindow:runAction', action),
+  reportActionResult: (requestId, result) =>
+    ipcRenderer.invoke('researchWindow:reportActionResult', requestId, result),
   hasOpenWindows: () => ipcRenderer.invoke('researchWindow:hasOpenWindows'),
   onState: (callback) => subscribe<[unknown]>('researchWindow:state', callback),
   onStateRequested: (callback) => subscribe<[]>('researchWindow:stateRequested', callback),
@@ -57,6 +81,11 @@ export const researchWindowApi: ResearchWindowApi = {
   onRevealInMain: (callback) =>
     subscribe<[ResearchWindowTarget]>('researchWindow:revealInMain', callback),
   onLaunchChat: (callback) =>
-    subscribe<[ResearchWindowTarget, TuiAgent, string]>('researchWindow:launchChat', callback),
+    subscribe<[ResearchWindowTarget, TuiAgent, string, ResearchWindowChatOptions | undefined]>(
+      'researchWindow:launchChat',
+      callback
+    ),
+  onRunAction: (callback) =>
+    subscribe<[ResearchWindowAction, string]>('researchWindow:runAction', callback),
   onShowPage: (callback) => subscribe<[unknown]>('researchWindow:showPage', callback)
 }

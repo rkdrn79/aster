@@ -163,6 +163,47 @@ describe('registerDroppedPathPreparation', () => {
     ).resolves.toEqual({ paths: [FINDER], failures: [] })
   })
 
+  it('prepares a drop from a project window, and refuses other windows', async () => {
+    const main = createWindow()
+    const project = createWindow()
+    const stranger = createWindow()
+    registerDroppedPathPreparation(main.window, undefined, (sender) =>
+      Object.is(sender, project.webContents)
+    )
+    const handler = ipcHandlers.get('fs:prepareDroppedPaths')!
+    const request = { paths: [FINDER], consumer: 'local-chat' }
+    await expect(handler({ sender: project.webContents }, request)).resolves.toEqual({
+      paths: [FINDER],
+      failures: []
+    })
+    expect(() => handler({ sender: stranger.webContents }, request)).toThrow('owning window')
+  })
+
+  it.skipIf(process.platform !== 'darwin')(
+    "abandons a project window's copy when that window goes away, not the main window's",
+    async () => {
+      const copy = deferred<DragTempCopyItemResult[]>()
+      materializeMock.mockReturnValueOnce(copy.promise)
+      const main = createWindow()
+      const project = createWindow()
+      registerDroppedPathPreparation(main.window, undefined, (sender) =>
+        Object.is(sender, project.webContents)
+      )
+      const handler = ipcHandlers.get('fs:prepareDroppedPaths')!
+      const pending = handler(
+        { sender: project.webContents },
+        { paths: [DRAG_TEMP], consumer: 'agent' }
+      )
+      await settle()
+      expect(project.webContents.once).toHaveBeenCalled()
+      expect(main.webContents.once).not.toHaveBeenCalled()
+      const rejected = expect(pending).rejects.toThrow('went away')
+      project.destroy()
+      copy.resolve([copied(DRAG_TEMP, COPY)])
+      await rejected
+    }
+  )
+
   it.skipIf(process.platform !== 'darwin')(
     'copies from the macOS user temp dir and aborts when the renderer is gone',
     async () => {

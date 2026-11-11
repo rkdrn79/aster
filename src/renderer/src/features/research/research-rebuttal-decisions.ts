@@ -3,33 +3,21 @@ import {
   clustersDocument,
   nextSequentialId,
   pointsDocument,
-  promisesDocument,
   type RebuttalPoint
 } from '../../../../research-harness/research-rebuttal-model.mjs'
 import {
   parseClusters,
-  parsePoints,
-  parsePromises
+  parsePoints
 } from '../../../../research-harness/research-rebuttal-points.mjs'
 import {
   followUpsDocument,
-  locatePaperChange,
   nextFollowUpRound,
   parseFollowUps,
-  paperChangesDocument,
   predictionsDocument,
-  type RebuttalPaperChange,
   type RebuttalPrediction,
   MAX_FOLLOW_UP_CHARS
 } from '../../../../research-harness/research-rebuttal-records.mjs'
-import { useAppStore } from '@/store'
-import { isEditorModelDirty } from '@/components/editor/editor-save-disk-precondition'
-import {
-  readRebuttalText,
-  rebuttalAbsolutePath,
-  writeRebuttalText,
-  type RebuttalOwner
-} from './research-rebuttal-files'
+import type { RebuttalOwner } from './research-rebuttal-files'
 import { withFreshSnapshot, writeJson } from './research-rebuttal-mutations'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 
@@ -202,92 +190,6 @@ export async function markPredictionHandedOff(owner: RebuttalOwner, id: string):
     await writePredictions(
       snapshot,
       replacePrediction(snapshot, id, (entry) => ({ ...entry, status: 'handed-off' }))
-    )
-  })
-}
-
-/** Why applying to the manuscript must wait, if the file is open with unsaved edits. */
-function manuscriptEditBlocker(owner: RebuttalOwner, relativePath: string): string | null {
-  const state = useAppStore.getState()
-  const filePath = rebuttalAbsolutePath(owner, relativePath)
-  const dirty = state.openFiles.some(
-    (file) =>
-      file.worktreeId === owner.workspaceId &&
-      file.filePath === filePath &&
-      isEditorModelDirty(state, file)
-  )
-  return dirty ? `Save ${relativePath} in Writing before applying this change.` : null
-}
-
-function writePaperChanges(
-  snapshot: RebuttalSnapshot,
-  changes: RebuttalPaperChange[]
-): Promise<void> {
-  return writeJson(
-    snapshot,
-    'paper-changes.json',
-    snapshot.texts.paperChanges,
-    paperChangesDocument(changes)
-  )
-}
-
-/** Applies a tracked change to the manuscript and marks its promise done. */
-export async function approveRebuttalPaperChange(owner: RebuttalOwner, id: string): Promise<void> {
-  await withFreshSnapshot(owner, async (snapshot) => {
-    const change = snapshot.paperChanges.find((entry) => entry.id === id)
-    if (!change || change.status !== 'pending') {
-      return
-    }
-    const blocker = manuscriptEditBlocker(owner, change.file)
-    if (blocker) {
-      throw new Error(blocker)
-    }
-    const source = await readRebuttalText(owner, change.file)
-    const located = locatePaperChange(source, change.find)
-    if (located.error !== undefined) {
-      throw new Error(`Not applied: ${located.error}`)
-    }
-    const { start, end } = located
-    await writeRebuttalText(
-      owner,
-      change.file,
-      `${source.slice(0, start)}${change.replace}${source.slice(end)}`,
-      source
-    )
-    await writePaperChanges(
-      snapshot,
-      snapshot.paperChanges.map((entry) =>
-        entry.id === id
-          ? { ...entry, status: 'applied' as const, decidedAt: new Date().toISOString() }
-          : entry
-      )
-    )
-    if (change.promise) {
-      const promises = parsePromises(
-        snapshot.bundle.promises.map((promise) =>
-          promise.id === change.promise ? { ...promise, done: true } : promise
-        ),
-        { clusterIds: snapshot.bundle.clusters.map((cluster) => cluster.id) }
-      )
-      await writeJson(
-        snapshot,
-        'promises.json',
-        snapshot.texts.promises,
-        promisesDocument(promises)
-      )
-    }
-  })
-}
-
-export async function rejectRebuttalPaperChange(owner: RebuttalOwner, id: string): Promise<void> {
-  await withFreshSnapshot(owner, async (snapshot) => {
-    await writePaperChanges(
-      snapshot,
-      snapshot.paperChanges.map((entry) =>
-        entry.id === id
-          ? { ...entry, status: 'rejected' as const, decidedAt: new Date().toISOString() }
-          : entry
-      )
     )
   })
 }

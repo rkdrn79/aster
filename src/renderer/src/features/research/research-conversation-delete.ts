@@ -11,6 +11,7 @@ import { useAppStore } from '@/store'
 import { useResearchLibrary } from './research-library-store'
 import { useResearchRecords } from './research-records-store'
 import { researchConversationHomeKey, writingAgentScopeKey } from './research-conversation-home'
+import { closeResearchChatTab } from './research-window-tab-actions'
 
 /** A deleted chat leaves its figure (which then starts over) and the list of old Figure chats. */
 function withoutFigureChat(
@@ -131,7 +132,7 @@ export function useDeleteResearchConversation(): (
     await useResearchRecords
       .getState()
       .update((current) => withoutResearchConversation(current, tab, hostId))
-    if (!useAppStore.getState().closeUnifiedTab(tab.id)) {
+    if (!(await closeResearchChatTab(tab))) {
       throw new Error('The agent session could not be closed.')
     }
     if (tab.contentType === 'agent-session') {

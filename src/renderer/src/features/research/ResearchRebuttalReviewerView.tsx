@@ -102,7 +102,12 @@ export function ResearchRebuttalReviewerView({
                 {progress.ready}/{progress.total} ready · {progress.drafted}/{progress.total}{' '}
                 written
               </span>
-              {progress.waiting ? <span>{progress.waiting} agent change to review</span> : null}
+              {progress.waiting ? (
+                <span>
+                  {progress.waiting} agent {progress.waiting === 1 ? 'suggestion' : 'suggestions'}{' '}
+                  waiting
+                </span>
+              ) : null}
               <span className="w-44 max-w-full">
                 <CharMeter chars={progress.chars} limit={progress.limit} />
               </span>

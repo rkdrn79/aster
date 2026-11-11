@@ -93,20 +93,28 @@ export async function launchRebuttalAgent(
   }
 }
 
+/** Whether the project's Rebuttal chat is bound and open, so a message reaches it as is. */
+export async function rebuttalAgentChatOpen(scope: RebuttalAgentScope): Promise<boolean> {
+  const sessionId = rebuttalAgentSessionId(useResearchRecords.getState().document, scope)
+  if (!sessionId) {
+    return false
+  }
+  const { researchChatSessionTabs } = await import('./ResearchAgentChatPane')
+  const state = useAppStore.getState()
+  return researchChatSessionTabs(
+    state,
+    state.unifiedTabsByWorktree[scope.workspaceId] ?? [],
+    scope.hostId
+  ).some((tab) => tab.entityId === sessionId)
+}
+
 /** Sends to the bound Rebuttal chat, starting a Claude chat with the prompt when none is open. */
 export async function sendRebuttalPrompt(
   scope: RebuttalAgentScope,
   prompt: string
 ): Promise<string | null> {
   const sessionId = rebuttalAgentSessionId(useResearchRecords.getState().document, scope)
-  const { researchChatSessionTabs } = await import('./ResearchAgentChatPane')
-  const state = useAppStore.getState()
-  const open = researchChatSessionTabs(
-    state,
-    state.unifiedTabsByWorktree[scope.workspaceId] ?? [],
-    scope.hostId
-  ).some((tab) => tab.entityId === sessionId)
-  if (!sessionId || !open) {
+  if (!sessionId || !(await rebuttalAgentChatOpen(scope))) {
     return launchRebuttalAgent(scope, 'claude', prompt)
   }
   const result = await sendMessageToAgent({

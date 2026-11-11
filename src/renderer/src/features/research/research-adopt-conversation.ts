@@ -1,19 +1,14 @@
 import { toast } from 'sonner'
 import { useAppStore } from '@/store'
 import { createBrowserUuid } from '@/lib/browser-uuid'
-import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
-import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import type { ExecutionHostId } from '../../../../shared/execution-host'
 import { isTuiAgent } from '../../../../shared/tui-agent-config'
 import { normalizeDisabledTuiAgents } from '../../../../shared/tui-agent-selection'
-import type { ResearchDelegationRecord } from '../../../../shared/research/research-records'
 import { ipcOrRuntimeTargetForHostId } from '@/runtime/runtime-client-target'
 import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
-import { useResearchRecords } from './research-records-store'
-import { trackDelegationLaunch } from './research-delegation-launch'
-import { nameResearchChat } from './research-chat-label'
+import { launchResearchBackgroundAgent } from './research-background-agent-launch'
 
 // Why: the bundled adopt guide supports these agents; never silently switch to Claude.
 const SKILL_AGENTS = new Set<TuiAgent>(['claude', 'codex'])
@@ -96,50 +91,37 @@ export async function startResearchAdoptInBackground(target?: ResearchAdoptTarge
       return
     }
   }
-  const result = launchAgentInNewTab({
-    requestId: newAgentLaunchRequestId(),
-    requestedSurface: 'chat',
-    selectedExecutionHostId: hostId,
-    agent,
-    worktreeId: workspaceId,
-    prompt: ADOPT_PROMPT,
-    promptDelivery: 'auto-submit',
-    // Why: the fallback terminal of a background launch drops the prompt, so record a failure.
-    onStructuredHostDeclined: () => ({ opened: false }),
-    activate: false
-  })
-  if (!result) {
-    toast.error('Could not start the organizing agent. Check the agent in Settings.')
+  const started = await launchResearchBackgroundAgent(
+    {
+      agent,
+      hostId,
+      workspaceId,
+      surface: 'chat',
+      prompt: ADOPT_PROMPT,
+      promptDelivery: 'auto-submit',
+      label: ADOPT_DELEGATION_TASK,
+      noFallbackTerminal: true
+    },
+    {
+      id: createBrowserUuid(),
+      sourceWorkspaceId: workspaceId,
+      sourceHostId: hostId,
+      sourceExperimentId: null,
+      targetWorkspaceId: workspaceId,
+      targetHostId: hostId,
+      targetLabel: context.workspaceName ?? context.projectName ?? 'This workspace',
+      agent,
+      task: ADOPT_DELEGATION_TASK
+    }
+  )
+  if (!started.ok) {
+    toast.error(
+      started.stage === 'record'
+        ? `The agent started, but its progress cannot be shown: ${started.error}`
+        : 'Could not start the organizing agent. Check the agent in Settings.'
+    )
     return
   }
-  nameResearchChat(workspaceId, result, ADOPT_DELEGATION_TASK)
-  const now = new Date().toISOString()
-  const delegation: ResearchDelegationRecord = {
-    id: createBrowserUuid(),
-    sourceWorkspaceId: workspaceId,
-    sourceHostId: hostId,
-    sourceExperimentId: null,
-    targetWorkspaceId: workspaceId,
-    targetHostId: hostId,
-    targetLabel: context.workspaceName ?? context.projectName ?? 'This workspace',
-    agent,
-    task: ADOPT_DELEGATION_TASK,
-    tabId: result.surface.kind === 'host-published' ? null : result.surface.tabId,
-    sessionId: null,
-    state: 'launching',
-    createdAt: now,
-    updatedAt: now
-  }
-  try {
-    await useResearchRecords.getState().update((current) => ({
-      ...current,
-      delegations: [delegation, ...current.delegations].slice(0, 500)
-    }))
-  } catch (cause) {
-    toast.error(`The agent started, but its progress cannot be shown: ${String(cause)}`)
-    return
-  }
-  trackDelegationLaunch(delegation.id, result)
   toast.success(
     `Organizing with ${agent === 'codex' ? 'Codex' : 'Claude Code'} on the project host. Follow it under Background agent tasks.`
   )

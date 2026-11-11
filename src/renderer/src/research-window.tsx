@@ -28,12 +28,17 @@ import { ResearchPreviewPage } from './features/research/ResearchPreviewPage'
 import { ResearchWindowChats } from './features/research/ResearchWindowChats'
 import { isResearchPage } from './features/research/research-navigation'
 import { isResearchWindowState } from './features/research/research-window-state'
-import { markResearchWindowSurface } from './features/research/research-window-surface'
+import {
+  markResearchWindowSurface,
+  setResearchWindowChatsSection
+} from './features/research/research-window-surface'
 import { ResearchWindowHostBanner } from './features/research/ResearchWindowHostBanner'
 import { ResearchWindowRemoteServices } from './features/research/ResearchWindowRemoteServices'
+import { ResearchWindowPalette } from './features/research/ResearchWindowPalette'
 import { selectResearchWorkspaceContext } from './features/research/research-workspace-context'
 import { replaceRuntimeEnvironmentRevisions } from './runtime/runtime-environment-revision'
 import { disableStructuredAgentLaunchPersistence } from './lib/structured-agent-session-launch-persistence'
+import { useResearchWindowEditServices } from './features/research/use-research-window-edit-services'
 
 function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React.JSX.Element {
   const { t } = useTranslation()
@@ -44,10 +49,9 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
       selectResearchWorkspaceContext(state).projectName ??
       selectResearchWorkspaceContext(state).workspaceName
   )
-  const onRemoteHost = useAppStore(
-    (state) =>
-      parseExecutionHostId(selectResearchWorkspaceContext(state).hostId)?.kind === 'runtime'
-  )
+  const hostId = useAppStore((state) => selectResearchWorkspaceContext(state).hostId)
+  const onRemoteHost = parseExecutionHostId(hostId)?.kind === 'runtime'
+  useResearchWindowEditServices()
   const [ready, setReady] = useState(false)
   const [waitingForMain, setWaitingForMain] = useState(false)
   const [section, setSection] = useState<ResearchWindowPage>(target.page)
@@ -57,6 +61,11 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
       useAppStore.setState({ activeView: page })
     }
   }, [])
+
+  useEffect(() => {
+    setResearchWindowChatsSection(() => showSection('research-chats'))
+    return () => setResearchWindowChatsSection(null)
+  }, [showSection])
 
   useEffect(
     () =>
@@ -125,6 +134,10 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
   const currentPage: ResearchWindowPage =
     section === 'research-chats' ? section : isResearchWindowPage(activeView) ? activeView : section
   const pageLabel = RESEARCH_WINDOW_PAGE_LABELS[currentPage]
+  const openInMain = useCallback(
+    () => void window.api.researchWindow.revealInMain({ ...target, page: currentPage }),
+    [target, currentPage]
+  )
   useEffect(() => {
     document.title = projectName
       ? `${projectName} — ${PRODUCT_NAME}`
@@ -160,14 +173,7 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
                   </Button>
                 ))}
               </nav>
-              <Button
-                variant="ghost"
-                size="xs"
-                className="ml-auto"
-                onClick={() =>
-                  void window.api.researchWindow.revealInMain({ ...target, page: currentPage })
-                }
-              >
+              <Button variant="ghost" size="xs" className="ml-auto" onClick={openInMain}>
                 <ExternalLink aria-hidden />
                 {t('research.window.openInMain', 'Open in main window')}
               </Button>
@@ -190,6 +196,14 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
             </main>
           </div>
         </ConfirmationDialogProvider>
+        {ready ? (
+          <ResearchWindowPalette
+            workspaceId={target.workspaceId}
+            hostId={hostId}
+            onShowSection={showSection}
+            onOpenInMain={openInMain}
+          />
+        ) : null}
         <Toaster closeButton toastOptions={{ className: 'font-sans text-sm' }} />
       </TooltipProvider>
     </RecoverableRenderErrorBoundary>

@@ -3,10 +3,15 @@ import { useAppStore } from '@/store'
 import { normalizeExecutionHostId } from '../../../../shared/execution-host'
 import { formatAgentTypeLabel } from '../../../../shared/agent-type-label'
 import type {
+  ResearchWindowChatOptions,
   ResearchWindowLaunchResult,
   ResearchWindowTarget
 } from '../../../../shared/research-page-window'
 import type { TuiAgent } from '../../../../shared/tui-agent'
+import type {
+  ResearchWindowAction,
+  ResearchWindowActionResult
+} from '../../../../shared/research-window-actions'
 import { enterResearchWorkspace, openResearchView } from './research-navigation'
 import { pickResearchWindowState, researchWindowStateChanged } from './research-window-state'
 
@@ -19,9 +24,10 @@ export function revealResearchPageInMain(target: ResearchWindowTarget): void {
 }
 
 /** Starts a chat in a research window's project; this window stays on the project it shows. */
-async function launchChatForResearchWindow(
+export async function launchChatForResearchWindow(
   target: ResearchWindowTarget,
-  agent: TuiAgent
+  agent: TuiAgent,
+  options: ResearchWindowChatOptions = {}
 ): Promise<ResearchWindowLaunchResult> {
   if (!target.hostId) {
     return { error: 'This project has no host to start a chat on yet.' }
@@ -31,9 +37,21 @@ async function launchChatForResearchWindow(
     hostId: target.hostId,
     workspaceId: target.workspaceId,
     agent,
-    label: formatAgentTypeLabel(agent),
+    ...(options.prompt ? { prompt: options.prompt } : {}),
+    label: options.label ?? formatAgentTypeLabel(agent),
     activate: false
   }).catch((cause: unknown) => ({ error: `The chat could not start. ${String(cause)}` }))
+}
+
+/** Runs what a research window asked of the tabs; a failure is reported, never thrown. */
+async function runActionForResearchWindow(
+  action: ResearchWindowAction
+): Promise<ResearchWindowActionResult> {
+  const { runResearchWindowAction } = await import('./research-window-main-actions')
+  return runResearchWindowAction(action).catch((cause: unknown) => ({
+    ok: false as const,
+    error: `The main window could not do that. ${String(cause)}`
+  }))
 }
 
 /** Calls `onChange` whenever a slice the research windows read changes. */
@@ -88,9 +106,14 @@ export function ResearchWindowStatePublisher(): null {
       }
     })
     const offReveal = api.onRevealInMain(revealResearchPageInMain)
-    const offLaunch = api.onLaunchChat((target, agent, requestId) => {
-      void launchChatForResearchWindow(target, agent).then((result) =>
+    const offLaunch = api.onLaunchChat((target, agent, requestId, options) => {
+      void launchChatForResearchWindow(target, agent, options).then((result) =>
         api.reportLaunchChatResult(requestId, result)
+      )
+    })
+    const offAction = api.onRunAction?.((action, requestId) => {
+      void runActionForResearchWindow(action).then((result) =>
+        api.reportActionResult(requestId, result)
       )
     })
     return () => {
@@ -102,6 +125,7 @@ export function ResearchWindowStatePublisher(): null {
       offClosed()
       offReveal()
       offLaunch()
+      offAction?.()
     }
   }, [])
   return null

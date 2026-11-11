@@ -65,6 +65,32 @@ export const KEYBINDING_DEFINITION_CORE_4: readonly KeybindingDefinition[] = [
     defaultBindings: platformBindings(['Mod+K'])
   },
   {
+    id: 'research.projectSwitcher',
+    title: 'Switch project',
+    group: 'Research',
+    scope: 'research',
+    searchKeywords: ['shortcut', 'research', 'project', 'switch', 'jump', 'recent', 'open'],
+    // Why: Mod+Shift+O opens a markdown file and Mod+P is quick open; Ctrl+Cmd is free on macOS.
+    defaultBindings: {
+      darwin: ['Cmd+Ctrl+P'],
+      linux: ['Ctrl+Shift+P'],
+      win32: ['Ctrl+Shift+P']
+    }
+  },
+  {
+    id: 'research.previousProject',
+    title: 'Go to previous project',
+    group: 'Research',
+    scope: 'research',
+    searchKeywords: ['shortcut', 'research', 'project', 'previous', 'last', 'toggle', 'switch'],
+    // Why: macOS only; Ctrl+Shift+O opens markdown and Ctrl+Alt+letter is AltGr text elsewhere.
+    defaultBindings: {
+      darwin: ['Cmd+Ctrl+O'],
+      linux: [],
+      win32: []
+    }
+  },
+  {
     id: 'sidebar.childWorkspaces.toggle',
     title: 'Toggle Child Workspaces',
     group: 'Global',

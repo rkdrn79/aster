@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import type { ReadingRequest } from './research-library-reading-agent'
-import { READING_LANGUAGES, type ReadingLanguageId } from './research-library-reading-language'
+import { READING_LANGUAGES, type ReadingLanguageId } from './research-reading-language'
 
 type QuickRequest = 'summarize' | 'relate' | 'critique'
 

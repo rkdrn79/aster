@@ -18,6 +18,7 @@ import {
   parsePredictions,
   parseProposals
 } from './research-rebuttal-records.mjs'
+import { parseTranslations } from './research-rebuttal-translations.mjs'
 
 export function rebuttalRoot(project) {
   return path.join(researchPaths(project).root, 'rebuttal')
@@ -36,6 +37,7 @@ export function rebuttalFiles(project, slug) {
     proposals: path.join(directory, 'proposals.json'),
     predictions: path.join(directory, 'predictions.json'),
     paperChanges: path.join(directory, 'paper-changes.json'),
+    translations: path.join(directory, 'translations.json'),
     history: path.join(directory, 'history'),
     responses: path.join(directory, 'responses'),
     lock: path.join(directory, '.rebuttal.lock')
@@ -120,6 +122,7 @@ export async function loadRebuttal(project, slug) {
   const paperChanges = parsePaperChanges((await readJsonIfPresent(files.paperChanges)) ?? [], {
     clusterIds
   })
+  const translations = parseTranslations((await readJsonIfPresent(files.translations)) ?? [])
   return {
     files,
     meta,
@@ -131,7 +134,8 @@ export async function loadRebuttal(project, slug) {
     proposals,
     predictions,
     outlooks,
-    paperChanges
+    paperChanges,
+    translations
   }
 }
 

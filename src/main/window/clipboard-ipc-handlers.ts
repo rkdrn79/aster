@@ -1,11 +1,4 @@
-import {
-  app,
-  clipboard,
-  ipcMain,
-  nativeImage,
-  type IpcMainInvokeEvent,
-  type WebContents
-} from 'electron'
+import { app, clipboard, ipcMain, nativeImage } from 'electron'
 import { randomUUID } from 'node:crypto'
 import { open, stat } from 'node:fs/promises'
 import { runProcess } from '@orca/process-host'
@@ -46,12 +39,15 @@ import { readClipboardCopiedFilePaths } from './clipboard-copied-file-paths'
 import { buildClipboardImageThumbnail } from './clipboard-image-thumbnail'
 import { readClipboardNativeImage } from './clipboard-native-image'
 import { publishClipboardText } from './clipboard-text-publisher'
-import { isDashboardPopoutRenderer } from './dashboard-popout-window'
+import {
+  assertTrustedClipboardSender,
+  assertTrustedClipboardTextSender
+} from './clipboard-sender-access'
 import { restoreNativeChatPastes } from './native-chat-paste-files'
 import { agentSessionPastedImageName } from '../../shared/agent-session-attachments'
 import type { AgentSessionAttachmentStore } from '../native-chat/agent-session-attachments/agent-session-attachment-store'
 
-let trustedClipboardRendererWebContentsId: number | null = null
+export { setTrustedClipboardRendererWebContentsId } from './clipboard-sender-access'
 
 type ClipboardWriteFileRequest = {
   filePath: string
@@ -99,10 +95,6 @@ async function saveClipboardImageBufferForTarget(
     }
   }
   return saveClipboardImageBufferAsTempFile(buffer, args)
-}
-
-export function setTrustedClipboardRendererWebContentsId(webContentsId: number | null): void {
-  trustedClipboardRendererWebContentsId = webContentsId
 }
 
 export function registerClipboardHandlers(
@@ -304,38 +296,4 @@ function makeClipboardFileDeps(
     writeBuffer: (format, buffer) => clipboard.writeBuffer(format, buffer),
     runProcess
   }
-}
-
-function assertTrustedClipboardSender(event: IpcMainInvokeEvent): void {
-  if (!isTrustedClipboardRenderer(event.sender)) {
-    throw new Error('Unauthorized clipboard IPC sender')
-  }
-}
-
-function assertTrustedClipboardTextSender(event: IpcMainInvokeEvent): void {
-  // Why: terminal copy/paste runs in the exact dashboard popout window, but its
-  // clipboard authority must not extend to image, file, or remote operations.
-  if (!isTrustedClipboardRenderer(event.sender) && !isDashboardPopoutRenderer(event.sender)) {
-    throw new Error('Unauthorized clipboard IPC sender')
-  }
-}
-
-function isTrustedClipboardRenderer(sender: WebContents): boolean {
-  if (sender.isDestroyed() || sender.getType() !== 'window') {
-    return false
-  }
-  if (trustedClipboardRendererWebContentsId != null) {
-    return sender.id === trustedClipboardRendererWebContentsId
-  }
-
-  const senderUrl = sender.getURL()
-  if (process.env.ELECTRON_RENDERER_URL) {
-    try {
-      return new URL(senderUrl).origin === new URL(process.env.ELECTRON_RENDERER_URL).origin
-    } catch {
-      return false
-    }
-  }
-
-  return senderUrl.startsWith('file://')
 }

@@ -190,17 +190,18 @@ older projects); `--rebuttal <slug>` may be left out when the project has only o
 
 | File                 | Holds                                                                                                                                                                                                                                                                                    |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `rebuttal.json`      | name, venue, OpenReview forum, limits (`replyChars`, default 5000; `generalChars`; `pdfPages`), reviewers `R1`… with label, rating, confidence and opening, the general response intro and closing                                                                                       |
+| `rebuttal.json`      | name, venue, OpenReview forum, limits (`replyChars`, default 5000; `generalChars`; `pdfPages`), reviewers `R1`… with label, rating, confidence and opening, the general response intro and closing, `agentEdits` (`apply` default, or `ask`)                                             |
 | `reviews/R1.md`      | one reviewer's text, as pasted or imported                                                                                                                                                                                                                                               |
 | `points.json`        | atomic points: `id` (`R1-W2` weakness, `R1-Q1` question, `R1-M1` minor; numbered in review order), `kind`, `type` (experiment-request, clarity, related-work, novelty, soundness, reproducibility, presentation, typo, other), `summary`, and `quote` copied verbatim from the review    |
 | `clusters.json`      | one answer each: `id` (`C1`), `title`, `points`, `action` (`experiment` new run, `text` paper change, `clarify` reply only), `plan`, `status` (`todo`, `drafting`, `done`), `experiment` (catalog slug), `manuscript` (`file`, `line`, `anchor`), `response` (Markdown draft), `general` |
 | `promises.json`      | what the rebuttal promises for the final version: `P1`, `text`, `clusters`, `done`                                                                                                                                                                                                       |
 | `responses/`         | assembled outputs: `reviewer-R1.md` (`reviewer-R1-round-2.md` for a later round), `general.md`, `rebuttal.tex`                                                                                                                                                                           |
 | `followups.json`     | a reviewer's later replies as rounds: `reviewer`, `round` (2, 3…), `text`, `receivedAt`; points of a round carry `round` and quote its text                                                                                                                                              |
-| `proposals.json`     | agent changes the person has not decided yet: `slot` (`C3`, `opening:R1`, `general:intro`), `text`, `base`, `turn`, `request`                                                                                                                                                            |
+| `proposals.json`     | the agent's latest text per reply: `slot` (`C3`, `opening:R1`, `general:intro`), `text`, `base`, `turn`, `request`; `applied` ones are in the reply and `base` is what Undo puts back, others wait for the person                                                                        |
 | `predictions.json`   | a simulated reviewer's next-concern predictions (`R1-N1`, `concern`, `why`, `likelihood`, `trigger`, `preempt`, `status`)                                                                                                                                                                |
 | `paper-changes.json` | tracked manuscript changes: `E1`, `cluster`, `promise`, `file`, `find`, `replace`, `why`, `status` (`pending`, `applied`, `rejected`)                                                                                                                                                    |
 | `history/`           | kept versions of each reply (`C3.json`, `opening-R1.json`, …)                                                                                                                                                                                                                            |
+| `translations.json`  | reading translations: `key` (`quote:R1-W2`, `summary:R1-W2`, `title:C3`, `reply:C3`, `reply:opening:R1`, `reply:general:intro`, `review:R1`, `review:R1-round-2`), `language`, `text`, and the `hash` of the text it translates                                                          |
 
 ```bash
 node H/cli.mjs rebuttal show --rebuttal <slug>
@@ -212,6 +213,8 @@ node H/cli.mjs rebuttal followup add --rebuttal <slug> --reviewer R1 --file - < 
 node H/cli.mjs rebuttal paper propose --rebuttal <slug> --cluster C5 --file - < '{"file":"paper/main.tex","find":"…","replace":"…","why":"…","promise":"…"}'
 node H/cli.mjs rebuttal promises add --rebuttal <slug> --text "Add X to Table 2" --cluster C3
 node H/cli.mjs rebuttal assemble --rebuttal <slug> [--format reviewer|general|pdf|all]
+node H/cli.mjs rebuttal translate set --rebuttal <slug> --language ko --file - < '{"items":[{"key":"reply:C3","text":"…"}]}'
+node H/cli.mjs rebuttal translate list --rebuttal <slug> --language ko --todo
 ```
 
 - **Split.** One concern, request, or question per point; skip summaries and praise. The quote is
@@ -222,20 +225,33 @@ node H/cli.mjs rebuttal assemble --rebuttal <slug> [--format reviewer|general|pd
 - **Draft.** Answer first, then evidence with real numbers from Runs (`context`, `run show`), then
   the paper change. Never invent results: write `[TBD: …]` and propose the Experiment that would
   produce it. Record each promise with `promises add` as you make it.
-- **Never overwrite written text.** `response set` fills an empty reply and leaves a reply that has
-  text untouched: your text becomes a proposal the person accepts or discards on the Rebuttal page.
-  `clusters set` keeps every reply as written; a `response` field in it is ignored on a reply that
-  has text. Pass the `--turn` and `--request` Aster gives you. Only the person marks a reply Ready
-  (`--status done` is refused).
+- **Edits apply directly, and can be undone.** `response set` and `response revise` put your text in
+  the reply, also over text the person wrote. The harness first keeps the earlier text as a
+  version, and Aster shows "Edited by the agent" with a one-click Undo, so build on what is
+  written instead of starting over, and change only the replies you were asked about. When
+  `rebuttal.json` has `"agentEdits": "ask"` (Ask first), text over a written reply waits as a
+  proposal the person accepts or discards; the command output says which happened. If the person
+  is typing in that reply, Aster keeps their words and holds yours as a suggestion. `clusters set`
+  keeps every reply as written; a `response` field in it is ignored on a reply that has text. Pass
+  the `--turn` and `--request` Aster gives you. Only the person marks a reply Ready (`--status
+  done` is refused).
 - **Revise.** To change part of a reply, send `response revise` with the exact passage; a whole-reply
   revision goes through `response set`. Keep every number and citation unless the request says
   otherwise, and never add one.
+- **Translations.** When Aster says the person reads in another language, write the replies in the
+  review language and, in the same turn, save a translation of each reply, opening or general text
+  you save with `translate set` (`"proposal":"X4"` for text that waits as proposal X4). When asked
+  to translate, `translate list --todo` gives every missing or outdated item with its source.
+  Translate faithfully and keep numbers, math, citations, IDs and `[TBD: …]` as written. The
+  harness stores each translation with the hash of its source, so a later edit marks it outdated.
+  Translations are for reading only; never change a reply, concern or review to translate it.
 - **Follow-ups.** A reviewer's later reply is a new round: `followup add`, then `points set` with
   `"round": 2` and a quote from the follow-up. Answers go into clusters as usual; each round
   assembles into its own reply.
 - **Manuscript.** Never edit the paper from a rebuttal request. When a concern needs a paper change,
   record it with `paper propose` (an exact passage, its replacement, why, and the promise); the
-  person approves it in Aster, which applies it.
+  person approves it in Aster (one by one or Apply all), which applies it. Paper changes never
+  apply on their own: they edit the manuscript, which has no version kept here to undo to.
 - **Assemble.** Each reviewer's reply answers their points in review order as A1, A2…; an answer
   an earlier reviewer already got becomes "Please see our response to R1 (A2)" (`assemble
   --shared general|repeat` moves it to the general response or repeats it). `assemble` exits 1

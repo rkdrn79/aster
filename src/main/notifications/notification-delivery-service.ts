@@ -38,6 +38,8 @@ export type NotificationDeliveryDependencies = {
   now: () => number
   /** Told once per path that actually announced the request: a desktop banner shown, or a mobile alert sent. */
   recordAnnounced?: (request: NotificationDispatchRequest) => void
+  /** Whether a focused project window shows this workspace, as the main window does its active one. */
+  isWorkspaceInFocusedProjectWindow?: (worktreeId: string) => boolean
 }
 
 export type NotificationDeliveryService = {
@@ -140,12 +142,13 @@ export function createNotificationDeliveryService(
       }
 
       const browserWindow = deps.findActiveWindow()
-      if (
-        settings.suppressWhenFocused &&
-        request.isActiveWorktree &&
-        browserWindow &&
-        browserWindow.isFocused()
-      ) {
+      const watchedInMainWindow =
+        request.isActiveWorktree === true && browserWindow !== null && browserWindow.isFocused()
+      // Why: a project window shows its chats as the main window shows its active workspace's.
+      const watchedInProjectWindow =
+        request.worktreeId !== undefined &&
+        deps.isWorkspaceInFocusedProjectWindow?.(request.worktreeId) === true
+      if (settings.suppressWhenFocused && (watchedInMainWindow || watchedInProjectWindow)) {
         return { delivered: false, reason: 'suppressed-focus' }
       }
 

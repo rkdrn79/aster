@@ -20,6 +20,36 @@ export type ResearchWindowTarget = {
   hostId: string | null
 }
 
+/** What a page asks for when it starts a chat from a research window: its first prompt and title. */
+export type ResearchWindowChatOptions = { prompt?: string; label?: string }
+
+// Why so large: a Rebuttal or Figure agent's first prompt carries the reviews or the scene.
+const MAX_CHAT_PROMPT_LENGTH = 2_000_000
+const MAX_CHAT_LABEL_LENGTH = 512
+
+/** The chat options a research window sent, or null when they are malformed. */
+export function parseResearchWindowChatOptions(value: unknown): ResearchWindowChatOptions | null {
+  if (value === undefined || value === null) {
+    return {}
+  }
+  if (typeof value !== 'object') {
+    return null
+  }
+  const prompt: unknown = Reflect.get(value, 'prompt')
+  const label: unknown = Reflect.get(value, 'label')
+  if (
+    (prompt !== undefined &&
+      (typeof prompt !== 'string' || prompt.length > MAX_CHAT_PROMPT_LENGTH)) ||
+    (label !== undefined && (typeof label !== 'string' || label.length > MAX_CHAT_LABEL_LENGTH))
+  ) {
+    return null
+  }
+  return {
+    ...(typeof prompt === 'string' && prompt.length > 0 ? { prompt } : {}),
+    ...(typeof label === 'string' && label.length > 0 ? { label } : {})
+  }
+}
+
 /** What became of a chat start the main window ran for a research window. */
 export type ResearchWindowLaunchResult = { sessionId: string } | { error: string }
 

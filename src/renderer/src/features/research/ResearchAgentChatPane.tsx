@@ -1,13 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Check,
-  ExternalLink,
-  GripVertical,
-  Link2,
-  MoreHorizontal,
-  Plus,
-  Trash2
-} from 'lucide-react'
+import { Check, GripVertical, Link2, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import type { Tab } from '../../../../shared/tab-types'
 import { isStructuredTab } from '../../../../shared/structured-agent-session-tab'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
@@ -44,11 +36,11 @@ import { useResearchLibrary } from './research-library-store'
 import {
   researchChatAvailableForHome,
   researchConversationHome,
-  researchConversationHomePage,
   type ResearchConversationHome
 } from './research-conversation-home'
 import { useDeleteResearchConversation } from './research-conversation-delete'
 import { researchWindowSurfaceTarget } from './research-window-surface'
+import { launchResearchChatThroughMainWindow } from './research-window-chat-launch'
 import { nameResearchChat } from './research-chat-label'
 import { ResearchAgentPicker, ResearchAgentPickerMenuItems } from './ResearchAgentPicker'
 
@@ -85,6 +77,11 @@ export async function launchResearchChat(input: {
   /** For chats a Library or Writing pane shows, so the Workbench keeps its own tab. */
   activate?: false
 }): Promise<ResearchChatLaunchResult> {
+  const windowTarget = researchWindowSurfaceTarget()
+  if (windowTarget) {
+    // Why: the main window owns the tabs; a chat made here would vanish with this window's copy.
+    return launchResearchChatThroughMainWindow(windowTarget, input)
+  }
   const host = parseExecutionHostId(input.hostId)
   if (!host) {
     return { error: 'This workspace host cannot start an agent chat.' }
@@ -209,17 +206,7 @@ export function ResearchAgentChatPane({
     }
   }
 
-  // Why: a research window shows the main window's chats, but tabs are made and closed there.
-  const windowTarget = researchWindowSurfaceTarget()
-
   async function launch(agent: TuiAgent): Promise<void> {
-    if (windowTarget) {
-      await window.api.researchWindow.revealInMain({
-        ...windowTarget,
-        page: researchConversationHomePage(home)
-      })
-      return
-    }
     if (launching) {
       return
     }
@@ -298,9 +285,7 @@ export function ResearchAgentChatPane({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="max-w-64">
-              <DropdownMenuLabel>
-                Start a new {title.toLowerCase()} chat{windowTarget ? ' in the main window' : ''}
-              </DropdownMenuLabel>
+              <DropdownMenuLabel>Start a new {title.toLowerCase()} chat</DropdownMenuLabel>
               <ResearchAgentPickerMenuItems
                 workspaceId={workspaceId}
                 disabled={launching}
@@ -353,11 +338,9 @@ export function ResearchAgentChatPane({
                       ))}
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
-                  {windowTarget ? null : (
-                    <DropdownMenuItem className="text-destructive" onSelect={() => void remove()}>
-                      <Trash2 aria-hidden /> Delete conversation…
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem className="text-destructive" onSelect={() => void remove()}>
+                    <Trash2 aria-hidden /> Delete conversation…
+                  </DropdownMenuItem>
                 </>
               ) : null}
             </DropdownMenuContent>
@@ -379,7 +362,8 @@ export function ResearchAgentChatPane({
             <NativeChatView
               mode="structured"
               tabId={boundSession.id}
-              groupId={boundSession.groupId}
+              // Why: a research window has no Workbench panes to split this chat into.
+              groupId={researchWindowSurfaceTarget() ? undefined : boundSession.groupId}
               sessionId={boundSession.entityId}
               target={sessionTarget}
               agent={boundSession.agentSessionAgent}
@@ -396,20 +380,14 @@ export function ResearchAgentChatPane({
           ) : (
             emptyHint
           )}
-          {windowTarget ? (
-            <Button size="sm" variant="outline" onClick={() => void launch('claude')}>
-              <ExternalLink aria-hidden /> Start a chat in the main window
-            </Button>
-          ) : (
-            <ResearchAgentPicker
-              workspaceId={workspaceId}
-              disabled={launching}
-              label={`Start a ${title.toLowerCase()} chat with`}
-              onPick={(agent) => void launch(agent)}
-            >
-              <Plus aria-hidden /> Start a chat
-            </ResearchAgentPicker>
-          )}
+          <ResearchAgentPicker
+            workspaceId={workspaceId}
+            disabled={launching}
+            label={`Start a ${title.toLowerCase()} chat with`}
+            onPick={(agent) => void launch(agent)}
+          >
+            <Plus aria-hidden /> Start a chat
+          </ResearchAgentPicker>
           {launching && (
             <p role="status" className="text-xs text-muted-foreground">
               Starting agent chat…

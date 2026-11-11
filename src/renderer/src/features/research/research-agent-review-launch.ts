@@ -11,6 +11,7 @@ import type { ResearchAgentIdentity } from '../../../../shared/research/research
 import type { AgentReviewSetup } from './research-agent-review-prompt'
 import { researchErrorText } from './research-error-text'
 import { researchHarnessBridge } from './use-research-harness-experiment'
+import { openChatInResearchWindow } from './research-window-surface'
 
 /** Where a review runs and records: a workspace and one catalog Experiment in it. */
 export type AgentReviewScope = {
@@ -94,9 +95,12 @@ export function researchChatTab(workspaceId: string, sessionId: string): Tab | u
   )
 }
 
-/** Shows a research chat tab in the Workbench. */
+/** Shows a research chat tab in the Workbench, or in a research window's own Chats section. */
 export function openResearchChatTab(workspaceId: string, sessionId: string): void {
   const tab = researchChatTab(workspaceId, sessionId)
+  if (tab && openChatInResearchWindow(workspaceId, tab.id)) {
+    return
+  }
   if (tab) {
     const state = useAppStore.getState()
     state.setActiveView('terminal')

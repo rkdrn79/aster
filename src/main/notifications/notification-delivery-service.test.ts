@@ -174,6 +174,32 @@ describe('createNotificationDeliveryService', () => {
     expect(harness.dispatchMobileNotification).toHaveBeenCalledTimes(1)
   })
 
+  it('suppresses a workspace that a focused project window shows, like the active one', () => {
+    const harness = makeHarness(makeSettings({ suppressWhenFocused: true }))
+    const shown = vi.fn((worktreeId: string) => worktreeId === 'wt-1')
+    harness.deps.isWorkspaceInFocusedProjectWindow = shown
+    const service = createNotificationDeliveryService(harness.deps)
+
+    expect(service.dispatch(makeRequest({ isActiveWorktree: false }))).toEqual({
+      delivered: false,
+      reason: 'suppressed-focus'
+    })
+    expect(shown).toHaveBeenCalledWith('wt-1')
+    expect(service.dispatch(makeRequest({ worktreeId: 'wt-2', worktreeLabel: 'wt-2' }))).toEqual({
+      delivered: true
+    })
+    expect(harness.dispatchMobileNotification).toHaveBeenCalledTimes(2)
+  })
+
+  it('still notifies for a project window when focus suppression is off', () => {
+    const harness = makeHarness(makeSettings({ suppressWhenFocused: false }))
+    harness.deps.isWorkspaceInFocusedProjectWindow = () => true
+
+    expect(createNotificationDeliveryService(harness.deps).dispatch(makeRequest())).toEqual({
+      delivered: true
+    })
+  })
+
   it('dedupes desktop bursts per workspace but still reports the first delivery', () => {
     const harness = makeHarness(makeSettings())
     const service = createNotificationDeliveryService(harness.deps)

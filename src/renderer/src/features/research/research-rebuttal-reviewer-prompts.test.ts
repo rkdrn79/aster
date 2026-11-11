@@ -60,6 +60,7 @@ function snapshot(): RebuttalSnapshot {
     predictions: [],
     outlooks: [],
     paperChanges: [],
+    translations: [],
     texts: {
       meta: null,
       points: null,
@@ -68,7 +69,8 @@ function snapshot(): RebuttalSnapshot {
       followUps: null,
       proposals: null,
       predictions: null,
-      paperChanges: null
+      paperChanges: null,
+      translations: null
     },
     issues: [],
     version: ''
@@ -91,6 +93,11 @@ describe('simulated reviewer prompts', () => {
     expect(text).toContain('rebuttal predictions set --reviewer R1')
     expect(text).toMatch(/Never run `rebuttal response`/)
     expect(text).toMatch(/never edit the manuscript/)
+  })
+
+  it('points the simulated reviewer at the Rebuttal guide this Aster ships', () => {
+    const text = reviewerBrief(snapshot(), 'R1').join('\n')
+    expect(text).toContain('aster skills get aster-research-track --section Rebuttal')
   })
 
   it('stays in character and uses no invented results', () => {
@@ -133,7 +140,7 @@ describe('simulated reviewer prompts', () => {
 })
 
 describe('author-side prompts', () => {
-  it('passes the turn and forbids overwriting and invented results', () => {
+  it('passes the turn, says edits apply and can be undone, and forbids invented results', () => {
     const prompt = buildRebuttalPrompt(
       snapshot(),
       { kind: 'draft', scope: { kind: 'all' } },
@@ -141,7 +148,21 @@ describe('author-side prompts', () => {
     )
     expect(prompt).toContain('--turn t123')
     expect(prompt).toMatch(/Never invent results, numbers, or citations/)
-    expect(prompt).toMatch(/You never overwrite a reply/)
+    expect(prompt).toMatch(/keeps the earlier text as a version first/)
+    expect(prompt).toMatch(/can undo your edit with one click/)
+  })
+
+  it('set to Ask first, tells the agent its text over a written reply waits', () => {
+    const ask = snapshot()
+    ask.bundle.meta = { ...ask.bundle.meta, agentEdits: 'ask' }
+    const prompt = buildRebuttalPrompt(
+      ask,
+      { kind: 'revise', slot: 'C1', passage: null, instruction: 'Shorter' },
+      't1'
+    )
+    expect(prompt).toMatch(/set to Ask first/)
+    expect(prompt).toMatch(/Your version waits for the person to accept it/)
+    expect(prompt).not.toMatch(/undo your edit/)
   })
 
   it('sends a revision with the exact passage through the revise command', () => {

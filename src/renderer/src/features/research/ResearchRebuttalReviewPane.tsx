@@ -13,6 +13,7 @@ import {
   reviewSegments
 } from './research-rebuttal-highlights'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
+import { RebuttalTranslationBlock } from './ResearchRebuttalTranslation'
 import type { RebuttalActions } from './use-research-rebuttal-actions'
 
 type PendingConcern = { quote: string; round: number; x: number; y: number }
@@ -151,16 +152,22 @@ export function ResearchRebuttalReviewPane({
           <ReviewBlock text={text} points={reviewPoints.filter((point) => point.round === 1)} />
           {text ? null : <p className="text-muted-foreground">This review has no text yet.</p>}
         </div>
+        {/* Why outside the round: selecting translated words must not become a quoted concern. */}
+        <RebuttalTranslationBlock tkey={`review:${reviewer.id}`} source={text} />
         {followUps.map((followUp) => (
-          <div
-            key={followUp.round}
-            data-review-round={followUp.round}
-            className="border-t border-border pt-3"
-          >
-            <p className="mb-1 text-xs font-medium text-muted-foreground">Round {followUp.round}</p>
-            <ReviewBlock
-              text={followUp.text}
-              points={reviewPoints.filter((point) => point.round === followUp.round)}
+          <div key={followUp.round} className="space-y-3 border-t border-border pt-3">
+            <div data-review-round={followUp.round}>
+              <p className="mb-1 text-xs font-medium text-muted-foreground">
+                Round {followUp.round}
+              </p>
+              <ReviewBlock
+                text={followUp.text}
+                points={reviewPoints.filter((point) => point.round === followUp.round)}
+              />
+            </div>
+            <RebuttalTranslationBlock
+              tkey={`review:${reviewer.id}-round-${followUp.round}`}
+              source={followUp.text}
             />
           </div>
         ))}

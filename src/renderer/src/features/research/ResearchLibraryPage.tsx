@@ -31,7 +31,7 @@ import {
   sendReadingPrompt,
   type ReadingRequest
 } from './research-library-reading-agent'
-import { useReadingLanguage } from './research-library-reading-language'
+import { useReadingLanguage } from './research-reading-language'
 import type { ReaderSelectionAction } from './research-library-selection-toolbar'
 import { useResearchLibrary } from './research-library-store'
 import { importProjectBibliography } from './research-library-bibtex-import'

@@ -2,8 +2,11 @@ import { app, BrowserWindow, nativeTheme, screen, type WebContents } from 'elect
 import { join } from 'node:path'
 import { isBackgroundLaunch, showWindowWithoutStealingFocus } from './foreground-activation-policy'
 import { installPrivilegedWindowNavigationPolicy } from './privileged-window-navigation'
+import { attachEditableContextMenu } from './editable-context-menu-window'
+import { attachResearchWindowShortcuts } from './research-page-window-shortcuts'
 import { sendToTrustedUIRenderer } from '../ipc/ui'
 import type { Store } from '../persistence'
+import type { KeybindingOverrides } from '../../shared/keybindings'
 import { PRODUCT_NAME } from '../../shared/product-brand'
 import {
   RESEARCH_WINDOW_PAGE_LABELS,
@@ -30,6 +33,25 @@ export function getResearchPageWindows(): BrowserWindow[] {
   return liveWindows()
 }
 
+/** Sends a View menu zoom to the focused project window; false when none has focus. */
+export function zoomResearchPageWindowIfFocused(direction: 'in' | 'out' | 'reset'): boolean {
+  const focused = liveWindows().find((window) => window.isFocused())
+  if (!focused) {
+    return false
+  }
+  // Why the window's own handling: it zooms the focused chat or editor text, else the whole UI.
+  focused.webContents.send('terminal:zoom', direction)
+  return true
+}
+
+/** Whether the focused window is the project window for this workspace, on any host. */
+export function isResearchPageWindowFocusedOn(workspaceId: string): boolean {
+  return [...windows.entries()].some(
+    ([key, window]) =>
+      key.endsWith(`\0${workspaceId}`) && !window.isDestroyed() && window.isFocused()
+  )
+}
+
 export function isResearchPageWindowRenderer(sender: WebContents): boolean {
   return liveWindows().some((window) => window.webContents === sender)
 }
@@ -53,7 +75,8 @@ function boundsAt(point: Electron.Point | undefined): Electron.Rectangle | undef
 export function openResearchPageWindow(
   store: Store,
   target: ResearchWindowTarget,
-  point?: Electron.Point
+  point?: Electron.Point,
+  getKeybindings?: () => KeybindingOverrides | undefined
 ): BrowserWindow {
   const key = windowKey(target)
   const existing = windows.get(key)
@@ -89,6 +112,8 @@ export function openResearchPageWindow(
   })
   windows.set(key, window)
   installPrivilegedWindowNavigationPolicy(window.webContents)
+  attachEditableContextMenu(window)
+  attachResearchWindowShortcuts(window, { getKeybindings })
   window.webContents.on('dom-ready', () => {
     if (!window.isDestroyed()) {
       window.webContents.setZoomLevel(store.getUI().uiZoomLevel ?? 0)

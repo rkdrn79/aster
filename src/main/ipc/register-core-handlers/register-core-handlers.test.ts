@@ -62,6 +62,7 @@ const {
   registerWorkspaceSpaceWindowHandlersMock,
   registerResearchPageWindowHandlersMock,
   isDashboardPopoutRendererMock,
+  isResearchPageWindowRendererMock,
   registerTerminalPreviewHandlersMock,
   registerSpeechHandlersMock,
   registerSkillsHandlersMock,
@@ -134,6 +135,7 @@ const {
   registerWorkspaceSpaceWindowHandlersMock: vi.fn(),
   registerResearchPageWindowHandlersMock: vi.fn(),
   isDashboardPopoutRendererMock: vi.fn(),
+  isResearchPageWindowRendererMock: vi.fn(),
   registerTerminalPreviewHandlersMock: vi.fn(),
   registerSpeechHandlersMock: vi.fn(),
   registerSkillsHandlersMock: vi.fn(),
@@ -183,6 +185,10 @@ vi.mock('../research-page-window', () => ({
 
 vi.mock('../../window/dashboard-popout-window', () => ({
   isDashboardPopoutRenderer: isDashboardPopoutRendererMock
+}))
+
+vi.mock('../../window/research-page-window', () => ({
+  isResearchPageWindowRenderer: isResearchPageWindowRendererMock
 }))
 
 vi.mock('../terminal-preview', () => ({
@@ -619,7 +625,7 @@ describe('registerCoreHandlers', () => {
     expect(registerComputerUsePermissionHandlersMock).toHaveBeenCalled()
     expect(registerDashboardPopoutHandlersMock).toHaveBeenCalledWith(store, undefined)
     expect(registerWorkspaceSpaceWindowHandlersMock).toHaveBeenCalledWith(store)
-    expect(registerResearchPageWindowHandlersMock).toHaveBeenCalledWith(store)
+    expect(registerResearchPageWindowHandlersMock).toHaveBeenCalledWith(store, undefined)
     expect(registerTerminalPreviewHandlersMock).toHaveBeenCalledWith(runtime)
     expect(registerSettingsHandlersMock).toHaveBeenCalledWith(store, agentAwakeService)
     expect(registerSkillsHandlersMock).toHaveBeenCalledWith(store, runtime)
@@ -631,7 +637,8 @@ describe('registerCoreHandlers', () => {
     expect(registerOrcaProfileHandlersMock).toHaveBeenCalledWith(store, { onBeforeRelaunch })
     expect(registerSessionHandlersMock).toHaveBeenCalledWith(store, runtime)
     expect(registerUIHandlersMock).toHaveBeenCalledWith(store, {
-      isDashboardPopoutRenderer: isDashboardPopoutRendererMock
+      isDashboardPopoutRenderer: isDashboardPopoutRendererMock,
+      isResearchPageWindowRenderer: isResearchPageWindowRendererMock
     })
     expect(registerEmulatorFrameStreamHandlersMock).toHaveBeenCalled()
     expect(registerEmulatorVideoStreamHandlersMock).toHaveBeenCalled()

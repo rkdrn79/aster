@@ -67,7 +67,8 @@ export function reviewerProgress(snapshot: RebuttalSnapshot, reviewerId: string)
     chars: first?.chars ?? 0,
     limit: first?.limit ?? bundle.meta.limits.replyChars,
     over: replies.some((reply) => reply.over),
-    waiting: snapshot.proposals.filter((proposal) => slots.has(proposal.slot)).length,
+    waiting: snapshot.proposals.filter((proposal) => !proposal.applied && slots.has(proposal.slot))
+      .length,
     predictionsOpen: open.length,
     predictionsStale: open.filter((prediction) => predictionIsStale(bundle, prediction)).length
   }

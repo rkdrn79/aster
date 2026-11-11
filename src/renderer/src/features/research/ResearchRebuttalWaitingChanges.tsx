@@ -42,7 +42,7 @@ function slotName(slot: string): string {
       : slot
 }
 
-/** The agent's unreviewed work, one line per request, with Keep/Undo for the whole request. */
+/** The agent's recent edits and waiting suggestions, one line per request, decided together. */
 export function ResearchRebuttalWaitingChanges({
   proposals,
   readOnly,
@@ -68,8 +68,8 @@ export function ResearchRebuttalWaitingChanges({
   }
 
   return (
-    <section aria-label="Agent changes to review" className="space-y-1.5">
-      {compact ? null : <h3 className="text-xs font-semibold">Agent changes to review</h3>}
+    <section aria-label="Agent edits" className="space-y-1.5">
+      {compact ? null : <h3 className="text-xs font-semibold">Agent edits</h3>}
       <ul className="space-y-1">
         {groups.map((group) => {
           const ids = group.proposals.map((proposal) => proposal.id)

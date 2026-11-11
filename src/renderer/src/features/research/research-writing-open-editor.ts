@@ -5,15 +5,28 @@ import type { ExperimentRecord } from '../../../../shared/research/research-reco
 import { openResearchView } from './research-navigation'
 import { openEditorForWriting } from './research-writing-editor-ownership'
 import type { ManuscriptFile } from './research-writing-source'
+import { researchWindowSurfaceTarget } from './research-window-surface'
+import { openInMainWindowEditor } from './research-window-tab-actions'
+
+type EditorFile = Pick<ManuscriptFile, 'absolutePath' | 'relativePath'>
 
 export function openManuscriptInEditor(
-  experiment: ExperimentRecord,
-  file: ManuscriptFile,
-  besidePdf?: ManuscriptFile | null
+  experiment: Pick<ExperimentRecord, 'hostId' | 'workspaceId'>,
+  file: EditorFile,
+  besidePdf?: EditorFile | null
 ): string | null {
   const host = parseExecutionHostId(experiment.hostId)
   if (!host) {
     return 'The Experiment host is unavailable.'
+  }
+  if (researchWindowSurfaceTarget()) {
+    // Why: the Workbench editor is the main window's; this window asks it to open the files there.
+    openInMainWindowEditor(
+      { workspaceId: experiment.workspaceId, hostId: host.id },
+      editorFile(file),
+      besidePdf ? editorFile(besidePdf) : null
+    )
+    return null
   }
   const state = useAppStore.getState()
   if (!state.setActiveWorktree(experiment.workspaceId, host.id)) {
@@ -63,6 +76,10 @@ export function openManuscriptInEditor(
   state.setActiveTabType('editor', experiment.workspaceId)
   openResearchView('terminal')
   return null
+}
+
+function editorFile(file: EditorFile): EditorFile {
+  return { absolutePath: file.absolutePath, relativePath: file.relativePath }
 }
 
 /** Open the existing editor buffer for the Writing surface without leaving that surface. */

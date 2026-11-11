@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  parseResearchWindowChatOptions,
   parseResearchWindowLaunchResult,
   parseResearchWindowTarget,
   researchWindowQuery,
@@ -52,5 +53,25 @@ describe('research window launch results', () => {
     expect(parseResearchWindowLaunchResult(null)).toBeNull()
     expect(parseResearchWindowLaunchResult({ sessionId: 3 })).toBeNull()
     expect(parseResearchWindowLaunchResult('started')).toBeNull()
+  })
+})
+
+describe('research window chat options', () => {
+  it('passes a first prompt and a title, and drops empty ones', () => {
+    expect(parseResearchWindowChatOptions(undefined)).toEqual({})
+    expect(parseResearchWindowChatOptions({ prompt: 'Draw it', label: 'Figure agent' })).toEqual({
+      prompt: 'Draw it',
+      label: 'Figure agent'
+    })
+    expect(parseResearchWindowChatOptions({ prompt: '', label: '' })).toEqual({})
+  })
+
+  it.each([
+    ['not an object', 'Draw it'],
+    ['a prompt that is not text', { prompt: 7 }],
+    ['an overlong title', { label: 'x'.repeat(513) }],
+    ['an overlong prompt', { prompt: 'x'.repeat(2_000_001) }]
+  ])('refuses %s', (_name, value) => {
+    expect(parseResearchWindowChatOptions(value)).toBeNull()
   })
 })

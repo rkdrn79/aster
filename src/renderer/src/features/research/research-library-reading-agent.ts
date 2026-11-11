@@ -13,7 +13,7 @@ import { useResearchRecords } from './research-records-store'
 import { researchConversationHomeKey } from './research-conversation-home'
 import { launchResearchChat, researchChatSessionTabs } from './ResearchAgentChatPane'
 import { researchChatTitleFromPrompt } from './research-chat-label'
-import { READING_LANGUAGES, type ReadingLanguageId } from './research-library-reading-language'
+import { READING_LANGUAGES, type ReadingLanguageId } from './research-reading-language'
 
 export type ReadingRequest =
   | { kind: 'explain' | 'translate'; selection: PdfTextSelection }

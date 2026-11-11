@@ -115,8 +115,15 @@ test('an agent draft fills an empty reply, undoably', async () => {
   })
 })
 
-test('an agent never replaces a reply that has text: it becomes a proposal', async () => {
+async function askFirst(project) {
+  const metaFile = path.join(project, '.aster/rebuttal/iclr-2027/rebuttal.json')
+  const meta = JSON.parse(await readFile(metaFile, 'utf8'))
+  await writeFile(metaFile, JSON.stringify({ ...meta, agentEdits: 'ask' }))
+}
+
+test('set to Ask first, an agent never replaces a reply that has text', async () => {
   await withRebuttal(async (project) => {
+    await askFirst(project)
     const directory = path.join(project, '.aster/rebuttal/iclr-2027')
     const clustersFile = path.join(directory, 'clusters.json')
     const document = JSON.parse(await readFile(clustersFile, 'utf8'))
@@ -216,8 +223,9 @@ test('only the person marks a reply Ready', async () => {
   })
 })
 
-test('revise proposes a passage and refuses text that moved', async () => {
+test('set to Ask first, revise proposes a passage and refuses text that moved', async () => {
   await withRebuttal(async (project) => {
+    await askFirst(project)
     await harness(
       project,
       ['rebuttal', 'response', 'set', '--cluster', 'C1', '--file', '-'],

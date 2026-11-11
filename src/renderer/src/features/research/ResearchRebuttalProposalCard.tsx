@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Bot, Check, Undo2, X } from 'lucide-react'
+import { Bot, Check, X } from 'lucide-react'
 import { diffWordsWithSpace } from 'diff'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -8,6 +8,7 @@ import {
   type RebuttalReplyProposal
 } from '../../../../research-harness/research-rebuttal-records.mjs'
 import { historyTimeText } from './research-rebuttal-view'
+import { RebuttalTranslationBlock } from './ResearchRebuttalTranslation'
 
 /** A word-level diff, removed words struck through and added words underlined. */
 export function RebuttalDiff({
@@ -45,7 +46,7 @@ type Props = {
   onDiscard: () => Promise<string | null>
 }
 
-/** What the agent changed or wants to change in one reply, decided here. */
+/** Agent text waiting for the person: Ask first is on, or it arrived while they typed. */
 export function ResearchRebuttalProposalCard({
   proposal,
   current,
@@ -63,36 +64,6 @@ export function ResearchRebuttalProposalCard({
     setBusy(false)
   }
 
-  if (proposal.applied) {
-    return (
-      <div
-        className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-border bg-muted/40 px-2.5 py-1.5 text-xs"
-        aria-label="Agent draft waiting for your review"
-      >
-        <Bot className="size-3.5 text-muted-foreground" aria-hidden />
-        <span className="min-w-0 flex-1 text-muted-foreground">
-          Agent draft
-          {proposal.request ? ` · ${proposal.request}` : ''}
-        </span>
-        {readOnly ? null : (
-          <span className="flex items-center gap-1.5">
-            <Button size="xs" variant="ghost" disabled={busy} onClick={() => void run(onDiscard)}>
-              <Undo2 aria-hidden /> Undo
-            </Button>
-            <Button size="xs" variant="outline" disabled={busy} onClick={() => void run(onAccept)}>
-              <Check aria-hidden /> Keep
-            </Button>
-          </span>
-        )}
-        {error ? (
-          <p role="alert" className="w-full text-destructive">
-            {error}
-          </p>
-        ) : null}
-      </div>
-    )
-  }
-
   return (
     <section
       aria-label="Suggested change from the agent"
@@ -102,7 +73,11 @@ export function ResearchRebuttalProposalCard({
         <Bot className="size-3.5 text-muted-foreground" aria-hidden />
         <span className="font-medium">Suggested change</span>
         <span className="text-muted-foreground">
-          {proposal.kind === 'passage' ? 'to a passage' : 'to the whole reply'}
+          {proposal.heldWhileTyping
+            ? 'written while you were typing'
+            : proposal.kind === 'passage'
+              ? 'to a passage'
+              : 'to the whole reply'}
           {proposal.request ? ` · ${proposal.request}` : ''}
         </span>
         <span className="ml-auto text-2xs text-muted-foreground">
@@ -117,6 +92,7 @@ export function ResearchRebuttalProposalCard({
           after={proposal.text}
         />
       )}
+      <RebuttalTranslationBlock exact tkey={`reply:${proposal.slot}`} source={proposal.text} />
       {outcome.mode === 'overwrites' ? (
         <p className="text-xs text-status-warning">
           You changed this reply after the agent read it. Accepting replaces those edits; they stay

@@ -1,5 +1,6 @@
 import { withAsterContext } from '../../../../shared/aster-context-block'
 import { reviewerDisplayName } from '../../../../research-harness/research-rebuttal-assemble.mjs'
+import { REBUTTAL_GUIDE_LINE } from './research-rebuttal-agent-prompt-parts'
 import { rebuttalAbsolutePath } from './research-rebuttal-files'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 import { reviewerAnswers, reviewerRounds } from './research-rebuttal-view'
@@ -40,6 +41,7 @@ export function reviewerBrief(snapshot: RebuttalSnapshot, reviewerId: string): s
     ]),
     '',
     `The manuscript is in this project (read it; usually paper/main.tex, or see .aster/project.json). The rebuttal files are in ${JSON.stringify(rebuttalAbsolutePath(snapshot.owner, snapshot.directory))}.`,
+    `${REBUTTAL_GUIDE_LINE} Its part on simulated reviewers is the one that applies to you.`,
     `To see the current replies to you, run \`aster research harness-path\`; H is the folder of the path it prints. Then run \`node H/cli.mjs rebuttal reviewer-context --rebuttal ${slug} --reviewer ${reviewerId} --json\`. It prints your review, the concerns as the authors split them, and each reply. Run it before judging the replies.`,
     '',
     'Stay in character:',

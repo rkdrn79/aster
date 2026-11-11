@@ -31,6 +31,8 @@ import {
   writeProjectText,
   type ProjectFileOwner
 } from './research-project-files'
+import { researchWindowSurfaceTarget } from './research-window-surface'
+import { openInMainWindowEditor } from './research-window-tab-actions'
 
 export type FigureFiles = { folder: string; slug: string }
 type Move = { from: string; to: string }
@@ -293,8 +295,16 @@ export function revealFigure(owner: ProjectFileOwner, files: FigureFiles): Promi
 
 /** Opens a project file in the Workbench editor, as Writing's "Open in editor" does. */
 export function openProjectFileInEditor(owner: ProjectFileOwner, relativePath: string): void {
-  const state = useAppStore.getState()
   const filePath = projectAbsolutePath(owner, relativePath)
+  if (researchWindowSurfaceTarget()) {
+    // Why: the Workbench editor is the main window's; this window asks it to open the file there.
+    openInMainWindowEditor(
+      { workspaceId: owner.workspaceId, hostId: owner.hostId },
+      { absolutePath: filePath, relativePath }
+    )
+    return
+  }
+  const state = useAppStore.getState()
   const groupId =
     state.activeGroupIdByWorktree[owner.workspaceId] ??
     state.ensureWorktreeRootGroup(owner.workspaceId)

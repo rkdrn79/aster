@@ -41,6 +41,7 @@ import { registerRuntimeWindowLifecycle } from './runtime-window-lifecycle'
 import { ensureStructuredAgentSessionHostUnlessRefused } from '../runtime/structured-agent-session-host-refusal'
 import { getAgentSessionAttachmentStore } from '../native-chat/agent-session-attachments/agent-session-attachment-store-registry'
 import { registerDroppedPathPreparation } from './dropped-path-preparation-ipc'
+import { isResearchPageWindowRenderer } from './research-page-window'
 
 export { ensureAutoUpdaterConfigured, registerUpdaterHandlers } from './main-window-updater'
 
@@ -126,12 +127,16 @@ export function attachMainWindowServices(
     void hydrateLocalPtyRegistryAtBoot(store)
   }
   registerSshHandlers(store, () => mainWindow, runtime)
-  registerDroppedPathPreparation(mainWindow, async () => {
-    await ensureStructuredAgentSessionHostUnlessRefused(() =>
-      runtime.ensureStructuredAgentSessionHost()
-    )
-    return getAgentSessionAttachmentStore()
-  })
+  registerDroppedPathPreparation(
+    mainWindow,
+    async () => {
+      await ensureStructuredAgentSessionHostUnlessRefused(() =>
+        runtime.ensureStructuredAgentSessionHost()
+      )
+      return getAgentSessionAttachmentStore()
+    },
+    isResearchPageWindowRenderer
+  )
   registerTccPromptNoticeHandlers(mainWindow)
   scheduleMainWindowAutoUpdaterSetup(mainWindow, store, options)
   registerRuntimeWindowLifecycle(mainWindow, runtime)

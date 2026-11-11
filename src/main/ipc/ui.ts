@@ -53,8 +53,14 @@ export function getTrustedUIRendererWindow(): BrowserWindow | null {
 
 export function registerUIHandlers(
   store: Store,
-  options: { isDashboardPopoutRenderer?: (sender: WebContents) => boolean } = {}
+  options: {
+    isDashboardPopoutRenderer?: (sender: WebContents) => boolean
+    /** A project window renders the main window's pages, so its Edit menu falls back the same way. */
+    isResearchPageWindowRenderer?: (sender: WebContents) => boolean
+  } = {}
 ): void {
+  const isAppPageRenderer = (sender: WebContents): boolean =>
+    isTrustedUIRenderer(sender) || options.isResearchPageWindowRenderer?.(sender) === true
   // Why: UI view-state is shared between the desktop renderer and mobile (ui.set
   // RPC). Broadcast every change so the desktop re-hydrates when mobile (or
   // another window) updates it — bi-directional sync, mirroring settings:changed.
@@ -100,7 +106,7 @@ export function registerUIHandlers(
 
   ipcMain.removeAllListeners('ui:performNativePaste')
   ipcMain.on('ui:performNativePaste', (event, options?: { mode?: unknown }) => {
-    if (!isTrustedUIRenderer(event.sender)) {
+    if (!isAppPageRenderer(event.sender)) {
       return
     }
     // Why: coordinated renderer paste falls back here only after no Orca owner
@@ -116,7 +122,7 @@ export function registerUIHandlers(
   ipcMain.removeAllListeners('ui:performNativeSelectionAction')
   ipcMain.on('ui:performNativeSelectionAction', (event, action: unknown) => {
     if (
-      !isTrustedUIRenderer(event.sender) &&
+      !isAppPageRenderer(event.sender) &&
       options.isDashboardPopoutRenderer?.(event.sender) !== true
     ) {
       return

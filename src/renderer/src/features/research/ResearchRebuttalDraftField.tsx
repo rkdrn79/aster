@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { replyCharCount } from '../../../../research-harness/research-rebuttal-assemble.mjs'
+import { noteRebuttalKeystroke, setRebuttalFieldDirty } from './research-rebuttal-editing'
 
 const AUTOSAVE_MS = 1200
 
@@ -27,6 +28,8 @@ type Props = {
   hideLabel?: boolean
   /** Grow with the text instead of scrolling. */
   autoGrow?: boolean
+  /** Reports unsaved typing and the text it started from, or null once it is saved. */
+  onEditingChange?: (editing: { base: string } | null) => void
 }
 
 type Draft = { base: string; text: string }
@@ -48,7 +51,8 @@ export function ResearchRebuttalDraftField({
   footerExtra,
   onSelectionChange,
   hideLabel = false,
-  autoGrow = false
+  autoGrow = false,
+  onEditingChange
 }: Props): React.JSX.Element {
   const id = useId()
   const [draft, setDraft] = useState<Draft>({ base: value, text: value })
@@ -65,6 +69,16 @@ export function ResearchRebuttalDraftField({
     setDraft({ base: value, text: value })
   }
   const agentChanged = draft.base !== value && draft.text !== draft.base
+  const dirty = draft.text !== draft.base
+  const editingRef = useRef(onEditingChange)
+  useEffect(() => {
+    editingRef.current = onEditingChange
+  })
+  useEffect(() => {
+    setRebuttalFieldDirty(id, dirty)
+    editingRef.current?.(dirty ? { base: draft.base } : null)
+  }, [id, dirty, draft.base])
+  useEffect(() => () => setRebuttalFieldDirty(id, false), [id])
 
   async function save(): Promise<void> {
     if (timer.current !== null) {
@@ -136,6 +150,7 @@ export function ResearchRebuttalDraftField({
         }}
         onChange={(event) => {
           const text = event.target.value
+          noteRebuttalKeystroke()
           latest.current = { ...latest.current, text }
           setDraft((current) => ({ ...current, text }))
           setState('idle')

@@ -22,6 +22,7 @@ import {
   type RebuttalClusterAction
 } from '../../../../research-harness/research-rebuttal-model.mjs'
 import { POINT_TYPE_LABELS } from './research-rebuttal-highlights'
+import { RebuttalTranslationLine } from './ResearchRebuttalTranslation'
 import { sharedWith, type RebuttalAnswer } from './research-rebuttal-view'
 import type { ClusterLinks, RebuttalActions } from './use-research-rebuttal-actions'
 
@@ -57,6 +58,12 @@ export function ResearchRebuttalConcernColumn({
   const shared = sharedWith(bundle, answer, reviewerId)
   const first = points[0]
   const title = cluster?.title || first?.summary || first?.quote || ''
+  // Why: a title that is the quote itself is translated under the quote instead.
+  const titleKey = cluster?.title
+    ? `title:${cluster.id}`
+    : first?.summary
+      ? `summary:${first.id}`
+      : null
   const ActionIcon = cluster ? ACTION_META[cluster.action].Icon : null
 
   async function run(task: () => Promise<string | null>): Promise<void> {
@@ -91,15 +98,21 @@ export function ResearchRebuttalConcernColumn({
           </span>
         ) : null}
       </div>
-      <h3 className="text-sm font-medium leading-5">{title}</h3>
+      <div className="space-y-0.5">
+        <h3 className="text-sm font-medium leading-5">{title}</h3>
+        <RebuttalTranslationLine tkey={titleKey} source={title} />
+      </div>
       {points.map((point) =>
         point.quote ? (
-          <p key={point.id} className="text-xs leading-5 text-muted-foreground">
-            <span className="font-mono text-3xs">
-              {points.length > 1 ? `${localPointLabel(point.id)} ` : ''}
-            </span>
-            “{point.quote}”
-          </p>
+          <div key={point.id} className="space-y-1">
+            <p className="text-xs leading-5 text-muted-foreground">
+              <span className="font-mono text-3xs">
+                {points.length > 1 ? `${localPointLabel(point.id)} ` : ''}
+              </span>
+              “{point.quote}”
+            </p>
+            <RebuttalTranslationLine tkey={`quote:${point.id}`} source={point.quote} />
+          </div>
         ) : point.origin === 'prediction' ? (
           <p key={point.id} className="text-xs leading-5 text-muted-foreground">
             Predicted by the simulated reviewer, not something they wrote.

@@ -85,6 +85,8 @@ export type KeybindingActionId =
   | 'research.history.back'
   | 'research.history.forward'
   | 'research.commandPalette'
+  | 'research.projectSwitcher'
+  | 'research.previousProject'
   | 'browser.back'
   | 'browser.forward'
   | 'browser.reload'

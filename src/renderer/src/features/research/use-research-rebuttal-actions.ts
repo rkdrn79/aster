@@ -1,11 +1,13 @@
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '@/store'
 import type {
+  RebuttalAgentEditMode,
   RebuttalCluster,
   RebuttalMeta,
   RebuttalPromise
 } from '../../../../research-harness/research-rebuttal-model.mjs'
 import { researchErrorText } from './research-error-text'
+import { useReadingLanguage } from './research-reading-language'
 import { useResearchRecords } from './research-records-store'
 import {
   buildRebuttalPrompt,
@@ -13,21 +15,20 @@ import {
   requestSummary,
   type RebuttalAgentRequest
 } from './research-rebuttal-agent-prompts'
-import {
-  rebuttalAgentSessionId,
-  sendRebuttalPrompt,
-  type RebuttalAgentScope
-} from './research-rebuttal-agent-session'
+import { sendRebuttalPrompt, type RebuttalAgentScope } from './research-rebuttal-agent-session'
 import {
   addRebuttalConcern,
   addRebuttalFollowUp,
-  approveRebuttalPaperChange,
   convertRebuttalPrediction,
   dismissRebuttalPrediction,
-  markPredictionHandedOff,
-  rejectRebuttalPaperChange
+  markPredictionHandedOff
 } from './research-rebuttal-decisions'
 import type { RebuttalOwner } from './research-rebuttal-files'
+import {
+  approveRebuttalPaperChange,
+  approveRebuttalPaperChanges,
+  rejectRebuttalPaperChange
+} from './research-rebuttal-paper-changes'
 import {
   clusterExperiment,
   createClusterExperiment,
@@ -53,11 +54,10 @@ import {
   buildReviewerChallengePrompt,
   buildReviewerPredictPrompt
 } from './research-rebuttal-reviewer-prompts'
-import { reviewerAgentSessionId, sendReviewerPrompt } from './research-rebuttal-reviewer-session'
+import { sendReviewerPrompt } from './research-rebuttal-reviewer-session'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 import { beginRebuttalTurn, failRebuttalTurn, newRebuttalTurnId } from './research-rebuttal-turns'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
-import { researchWindowSurfaceTarget } from './research-window-surface'
 import type { NewRebuttalInput } from './ResearchRebuttalNewDialog'
 
 export type ClusterLinks = {
@@ -87,6 +87,7 @@ export function useResearchRebuttalActions(
 ) {
   const context = useAppStore(useShallow(selectResearchWorkspaceContext))
   const records = useResearchRecords((state) => state.document)
+  const [language] = useReadingLanguage()
   const scope: RebuttalAgentScope = { hostId: owner.hostId, workspaceId: owner.workspaceId }
 
   const changeCluster = (clusterId: string, patch: Partial<RebuttalCluster>) =>
@@ -100,9 +101,6 @@ export function useResearchRebuttalActions(
     if (!snapshot) {
       return 'Choose a rebuttal first.'
     }
-    if (researchWindowSurfaceTarget() && !rebuttalAgentSessionId(records, scope)) {
-      return 'Start the Rebuttal chat in the main window first.'
-    }
     const turn = newRebuttalTurnId()
     const summary = requestSummary(request)
     beginRebuttalTurn({
@@ -112,7 +110,10 @@ export function useResearchRebuttalActions(
       slots: requestSlots(snapshot, request)
     })
     const failure = await attempt(async () => {
-      const error = await sendRebuttalPrompt(scope, buildRebuttalPrompt(snapshot, request, turn))
+      const error = await sendRebuttalPrompt(
+        scope,
+        buildRebuttalPrompt(snapshot, request, turn, language)
+      )
       if (error) {
         throw new Error(error)
       }
@@ -133,12 +134,6 @@ export function useResearchRebuttalActions(
       return 'Choose a rebuttal first.'
     }
     const slug = snapshot.bundle.meta.slug
-    if (
-      researchWindowSurfaceTarget() &&
-      !reviewerAgentSessionId(records, scope, slug, reviewerId)
-    ) {
-      return 'Start the reviewer chat in the main window first.'
-    }
     const summary =
       request === 'predict'
         ? `Predict ${reviewerId}'s next concerns`
@@ -191,7 +186,16 @@ export function useResearchRebuttalActions(
         }
       }),
     discardProposals: (ids: readonly string[]) =>
-      attempt(() => discardRebuttalProposals(owner, ids)),
+      attempt(async () => {
+        const failed = await discardRebuttalProposals(owner, ids)
+        if (failed.length) {
+          throw new Error(
+            `Could not undo ${failed.join(', ')}: those replies changed since. Use Versions.`
+          )
+        }
+      }),
+    setAgentEdits: (mode: RebuttalAgentEditMode) =>
+      attempt(() => updateRebuttalMeta(owner, (meta) => ({ ...meta, agentEdits: mode }))),
     addFollowUp: (reviewerId: string, text: string) =>
       attempt(() => addRebuttalFollowUp(owner, { reviewerId, text })),
     addConcern: (input: Parameters<typeof addRebuttalConcern>[1]) =>
@@ -207,6 +211,13 @@ export function useResearchRebuttalActions(
         await markPredictionHandedOff(owner, predictionId)
       }),
     approvePaperChange: (id: string) => attempt(() => approveRebuttalPaperChange(owner, id)),
+    approvePaperChanges: (ids: readonly string[]) =>
+      attempt(async () => {
+        const failed = await approveRebuttalPaperChanges(owner, ids)
+        if (failed.length) {
+          throw new Error(failed.map((entry) => `${entry.id}: ${entry.reason}`).join(' '))
+        }
+      }),
     rejectPaperChange: (id: string) => attempt(() => rejectRebuttalPaperChange(owner, id)),
     askAgent,
     askReviewer,

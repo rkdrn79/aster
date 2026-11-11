@@ -6,7 +6,8 @@ import { parseClusters } from '../../../../research-harness/research-rebuttal-po
 import {
   proposalOutcome,
   replyAuthorAfterAccept,
-  replyAuthorAfterHumanEdit
+  replyAuthorAfterHumanEdit,
+  type RebuttalReplyProposal
 } from '../../../../research-harness/research-rebuttal-records.mjs'
 import type { RebuttalOwner } from './research-rebuttal-files'
 import { withFreshSnapshot, writeJson } from './research-rebuttal-mutations'
@@ -101,26 +102,82 @@ export async function saveRebuttalReply(
       return
     }
     await keepHumanVersion(snapshot, slot, current, input.text)
-    await writeSlot(
-      snapshot,
-      slot,
-      input.text,
-      replyAuthorAfterHumanEdit(slotAuthor(snapshot, slot), current, input.text)
-    )
     const record = snapshot.proposals.find((entry) => entry.slot === slot && entry.applied)
-    if (record) {
-      const sawDraft = input.base === record.text
-      await writeProposals(
+    if (!record || input.base === record.text) {
+      await writeSlot(
         snapshot,
-        sawDraft
-          ? snapshot.proposals.filter((entry) => entry.id !== record.id)
-          : snapshot.proposals.map((entry) =>
-              entry.id === record.id ? { ...entry, applied: false, base: input.text } : entry
-            )
+        slot,
+        input.text,
+        replyAuthorAfterHumanEdit(slotAuthor(snapshot, slot), current, input.text)
       )
+      if (record) {
+        // Why: the person saw the agent's text and edited on from it; that settles the edit.
+        await writeProposals(
+          snapshot,
+          snapshot.proposals.filter((entry) => entry.id !== record.id)
+        )
+      }
+      return
     }
+    await settleEditWhileTyping(snapshot, slot, record, current, input.text)
   })
   return savedSlot
+}
+
+/** A passage edit laid onto `text`, or null when its passage is not there exactly once. */
+function passageOnto(text: string, proposal: RebuttalReplyProposal): string | null {
+  if (proposal.kind !== 'passage' || proposal.find === null || proposal.replace === null) {
+    return null
+  }
+  const first = text.indexOf(proposal.find)
+  if (first === -1 || first !== text.lastIndexOf(proposal.find)) {
+    return null
+  }
+  return `${text.slice(0, first)}${proposal.replace}${text.slice(first + proposal.find.length)}`
+}
+
+/**
+ * The agent's text landed while the person was typing in the same reply, so they never saw it.
+ * Their words win. A passage edit that still fits their text is laid on top with its own Undo,
+ * when the rebuttal applies agent edits directly; any other edit waits as a suggestion.
+ */
+async function settleEditWhileTyping(
+  snapshot: RebuttalSnapshot,
+  slot: string,
+  record: RebuttalReplyProposal,
+  current: string,
+  typed: string
+): Promise<void> {
+  const merged = snapshot.bundle.meta.agentEdits === 'apply' ? passageOnto(typed, record) : null
+  if (merged !== null && merged !== typed) {
+    await keepVersion(snapshot, slot, {
+      by: 'human',
+      what: 'Your text, before the agent passage',
+      text: typed
+    })
+    await writeSlot(snapshot, slot, merged, 'both')
+    await writeProposals(
+      snapshot,
+      snapshot.proposals.map((entry) =>
+        entry.id === record.id ? { ...entry, base: typed, text: merged } : entry
+      )
+    )
+    return
+  }
+  await writeSlot(
+    snapshot,
+    slot,
+    typed,
+    replyAuthorAfterHumanEdit(slotAuthor(snapshot, slot), current, typed)
+  )
+  await writeProposals(
+    snapshot,
+    snapshot.proposals.map((entry) =>
+      entry.id === record.id
+        ? { ...entry, applied: false, base: typed, heldWhileTyping: true }
+        : entry
+    )
+  )
 }
 
 /** Takes one proposal into the reply. Throws when a passage no longer stands in the reply. */
@@ -156,7 +213,21 @@ export async function acceptRebuttalProposal(owner: RebuttalOwner, id: string): 
   })
 }
 
-/** Undoes an agent draft that filled an empty reply, or discards a waiting suggestion. */
+/** Who wrote a reply once an agent edit is undone back to `base`. */
+function authorAfterUndo(
+  author: ReturnType<typeof slotAuthor>,
+  base: string
+): ReturnType<typeof slotAuthor> {
+  if (!base.trim()) {
+    return null
+  }
+  return author === 'both' ? 'human' : author
+}
+
+/**
+ * Undoes an applied agent edit, putting back the exact text from before it, or discards a
+ * waiting suggestion. Throws when the reply changed after the edit: Versions has both texts.
+ */
 export async function discardRebuttalProposal(owner: RebuttalOwner, id: string): Promise<void> {
   await withFreshSnapshot(owner, async (snapshot) => {
     const proposal = snapshot.proposals.find((entry) => entry.id === id)
@@ -164,13 +235,23 @@ export async function discardRebuttalProposal(owner: RebuttalOwner, id: string):
       return
     }
     const remaining = snapshot.proposals.filter((entry) => entry.id !== id)
+    if (proposal.applied && currentText(snapshot, proposal.slot) !== proposal.text) {
+      throw new Error(
+        'This reply changed after the agent edit, so Undo cannot put the earlier text back. Open Versions to restore it.'
+      )
+    }
     await keepVersion(snapshot, proposal.slot, {
       by: 'agent',
-      what: proposal.applied ? 'Undone agent draft' : 'Discarded suggestion',
+      what: proposal.applied ? 'Undone agent edit' : 'Discarded suggestion',
       text: proposal.text
     })
-    if (proposal.applied && currentText(snapshot, proposal.slot) === proposal.text) {
-      await writeSlot(snapshot, proposal.slot, proposal.base, null)
+    if (proposal.applied) {
+      await writeSlot(
+        snapshot,
+        proposal.slot,
+        proposal.base,
+        authorAfterUndo(slotAuthor(snapshot, proposal.slot), proposal.base)
+      )
     }
     await writeProposals(snapshot, remaining)
   })
@@ -194,10 +275,16 @@ export async function acceptRebuttalProposals(
 export async function discardRebuttalProposals(
   owner: RebuttalOwner,
   ids: readonly string[]
-): Promise<void> {
+): Promise<string[]> {
+  const failed: string[] = []
   for (const id of ids) {
-    await discardRebuttalProposal(owner, id)
+    try {
+      await discardRebuttalProposal(owner, id)
+    } catch {
+      failed.push(id)
+    }
   }
+  return failed
 }
 
 export async function restoreReplyVersion(

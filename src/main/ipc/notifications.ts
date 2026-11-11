@@ -13,6 +13,7 @@ import type { OrcaRuntimeService } from '../runtime/orca-runtime'
 import { readNotificationAuthorizationStatus } from './notification-authorization-status'
 import { setTrayAttention } from '../tray/system-tray'
 import { isMainWindowVisible } from '../window/main-window-visibility'
+import { isResearchPageWindowFocusedOn } from '../window/research-page-window'
 import { activeNotificationsById } from './native-notification-lifecycle'
 import { deliverNativeNotification } from './native-notification-delivery'
 import { removeReadMacosNotifications } from './macos-notification-center'
@@ -161,6 +162,7 @@ export function registerNotificationHandlers(store: Store, runtime?: OrcaRuntime
     deliverNative: deliverNativeNotification,
     platform: process.platform,
     now: () => Date.now(),
+    isWorkspaceInFocusedProjectWindow: isResearchPageWindowFocusedOn,
     recordAnnounced: (request) => {
       if (request.paneKey && request.notificationId) {
         announced.record(request.paneKey, request.notificationId, request.structuredOrigin)

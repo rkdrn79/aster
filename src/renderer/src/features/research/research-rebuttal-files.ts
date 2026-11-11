@@ -23,7 +23,8 @@ export const REBUTTAL_JSON_FILES = {
   followUps: 'followups.json',
   proposals: 'proposals.json',
   predictions: 'predictions.json',
-  paperChanges: 'paper-changes.json'
+  paperChanges: 'paper-changes.json',
+  translations: 'translations.json'
 } as const
 export type RebuttalJsonFile = keyof typeof REBUTTAL_JSON_FILES
 export type RebuttalJsonFileName = (typeof REBUTTAL_JSON_FILES)[RebuttalJsonFile]

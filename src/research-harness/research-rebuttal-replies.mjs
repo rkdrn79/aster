@@ -19,6 +19,7 @@ import {
   predictionIsStale,
   predictionsDocument,
   proposalsDocument,
+  replyAuthorAfterAccept,
   reviewerRepliesBasis,
   safeSlot,
   slotFor,
@@ -126,9 +127,85 @@ async function saveProposal(bundle, proposalInput) {
   return proposals.at(-1)
 }
 
+function slotAuthorOf(bundle, slot) {
+  return bundle.clusters.find((cluster) => cluster.id === slot)?.author ?? null
+}
+
+/** Whether agent text goes straight into a reply: always into an empty one, else per the setting. */
+function agentTextLands(bundle, current) {
+  return !current.trim() || bundle.meta.agentEdits !== 'ask'
+}
+
 /**
- * Agent write of one reply. An empty reply takes the draft (undoable). A reply that has text is
- * never changed by the agent: the new text waits as a proposal the person accepts or discards.
+ * Puts agent text into a reply. Written text is kept as a version first, and the applied record
+ * holds the text to go back to: for edits the person has not touched since, the text before the
+ * first of them, so one Undo returns to what they last had.
+ */
+async function applyAgentText(bundle, slot, input) {
+  const { current, next, at, status, turn, request, passage } = input
+  const author = slotAuthorOf(bundle, slot)
+  const edited = Boolean(current.trim())
+  if (edited) {
+    await pushVersion(bundle.files, slot, {
+      at,
+      by: author === 'agent' ? 'agent' : 'human',
+      what: 'Before the agent edit',
+      text: current,
+      turn: null
+    })
+  }
+  const cluster = await writeSlot(bundle, slot, next, {
+    author: edited ? replyAuthorAfterAccept(author) : 'agent',
+    status
+  })
+  const untouched = bundle.proposals.find(
+    (entry) => entry.slot === slot && entry.applied && entry.text === current
+  )
+  const proposal = await saveProposal(bundle, {
+    slot,
+    turn,
+    request,
+    at,
+    applied: true,
+    base: untouched ? untouched.base : current,
+    text: next,
+    ...passage
+  })
+  await pushVersion(bundle.files, slot, {
+    at,
+    by: 'agent',
+    what: edited ? `Agent edit${request ? `: ${request}` : ''}`.slice(0, 200) : 'Agent draft',
+    text: next,
+    turn
+  })
+  return {
+    slot,
+    applied: true,
+    edited,
+    proposal: proposal.id,
+    updated: slot,
+    ...(cluster ? { cluster } : {})
+  }
+}
+
+async function holdAgentText(bundle, slot, { current, next, at, turn, request, passage }) {
+  const proposal = await saveProposal(bundle, {
+    slot,
+    turn,
+    request,
+    at,
+    applied: false,
+    base: current,
+    text: next,
+    ...passage
+  })
+  return { slot, applied: false, proposal: proposal.id, updated: slot, pendingProposal: true }
+}
+
+/**
+ * Agent write of one reply. It lands in the reply (the earlier text kept as a version and undoable
+ * in Aster), unless the reply has text and the rebuttal is set to Ask first: then it waits as a
+ * proposal the person accepts or discards.
  */
 export function setResponse(project, slug, input) {
   const slot = requireSlot(input)
@@ -142,42 +219,21 @@ export function setResponse(project, slug, input) {
     if (current.trim() === next) {
       return { slot, unchanged: true, updated: slot }
     }
-    const at = new Date().toISOString()
-    const common = { slot, turn: input.turn, request: input.request, at }
-    if (!current.trim()) {
-      const cluster = await writeSlot(bundle, slot, next, { author: 'agent', status: input.status })
-      const proposal = await saveProposal(bundle, {
-        ...common,
-        applied: true,
-        base: '',
-        text: next
-      })
-      await pushVersion(bundle.files, slot, {
-        at,
-        by: 'agent',
-        what: 'Agent draft',
-        text: next,
-        turn: input.turn
-      })
-      return {
-        slot,
-        applied: true,
-        proposal: proposal.id,
-        updated: slot,
-        ...(cluster ? { cluster } : {})
-      }
+    const write = {
+      current,
+      next,
+      at: new Date().toISOString(),
+      status: input.status,
+      turn: input.turn,
+      request: input.request
     }
-    const proposal = await saveProposal(bundle, {
-      ...common,
-      applied: false,
-      base: current,
-      text: next
-    })
-    return { slot, applied: false, proposal: proposal.id, updated: slot, pendingProposal: true }
+    return agentTextLands(bundle, current)
+      ? applyAgentText(bundle, slot, write)
+      : holdAgentText(bundle, slot, write)
   })
 }
 
-/** Proposes replacing an exact passage of a reply; the person accepts it in Aster. */
+/** Replaces an exact passage of a reply, applied or held the same way as `setResponse`. */
 export function reviseResponse(project, slug, input) {
   const slot = requireSlot(input)
   if (typeof input.find !== 'string' || !input.find || typeof input.replace !== 'string') {
@@ -192,19 +248,21 @@ export function reviseResponse(project, slug, input) {
         `The passage ${first === -1 ? 'is not in' : 'appears more than once in'} ${slot}. Read the reply again with rebuttal show, then retry with the exact current text.`
       )
     }
-    const text = `${current.slice(0, first)}${input.replace}${current.slice(first + input.find.length)}`
-    const proposal = await saveProposal(bundle, {
-      slot,
-      applied: false,
-      base: current,
-      text,
-      find: input.find,
-      replace: input.replace,
+    const next = `${current.slice(0, first)}${input.replace}${current.slice(first + input.find.length)}`
+    if (next === current) {
+      return { slot, unchanged: true, updated: slot }
+    }
+    const write = {
+      current,
+      next,
+      at: new Date().toISOString(),
       turn: input.turn,
       request: input.request,
-      at: new Date().toISOString()
-    })
-    return { slot, applied: false, proposal: proposal.id, updated: slot, pendingProposal: true }
+      passage: { find: input.find, replace: input.replace }
+    }
+    return agentTextLands(bundle, current)
+      ? applyAgentText(bundle, slot, write)
+      : holdAgentText(bundle, slot, write)
   })
 }
 

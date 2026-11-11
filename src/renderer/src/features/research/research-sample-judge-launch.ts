@@ -1,17 +1,14 @@
 import { useAppStore } from '@/store'
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { basename } from '@/lib/path'
-import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
-import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
-import type { ResearchDelegationRecord } from '../../../../shared/research/research-records'
 import { useResearchRecords } from './research-records-store'
-import { trackDelegationLaunch } from './research-delegation-launch'
+import { launchResearchBackgroundAgent } from './research-background-agent-launch'
 import { researchErrorText } from './research-error-text'
 import { sampleJudgePrompt, type SampleJudgeTarget } from './research-sample-judge-prompt'
 import { researchHarnessBridge } from './use-research-harness-experiment'
-import { nameResearchChat, researchChatTitle } from './research-chat-label'
+import { researchChatTitle } from './research-chat-label'
 
 // Why: these match agentIdentityFromEnvironment's provider names, so judge groups line up.
 const JUDGE_PROVIDERS: Partial<Record<TuiAgent, string>> = { claude: 'claude-code', codex: 'codex' }
@@ -69,59 +66,46 @@ export async function launchSampleJudge(input: {
       return 'The Run host cannot start an agent.'
     }
     const agent = judgeAgent()
-    const result = launchAgentInNewTab({
-      requestId: newAgentLaunchRequestId(),
-      requestedSurface: 'chat',
-      selectedExecutionHostId: host.id,
-      agent,
-      activate: false,
-      onStructuredHostDeclined: () => ({ opened: false }),
-      worktreeId: input.workspaceId,
-      promptDelivery: 'auto-submit',
-      prompt: sampleJudgePrompt({
-        cli: harness.cli,
-        provider: JUDGE_PROVIDERS[agent] ?? agent,
-        ...(await briefRubric(input.workspacePath, experiment)),
-        target
-      })
-    })
-    if (!result) {
-      return 'The judge could not start on this host.'
-    }
-    nameResearchChat(input.workspaceId, result, researchChatTitle('Judge', experiment))
-    const now = new Date().toISOString()
     const records = useResearchRecords.getState().document
-    const task: ResearchDelegationRecord = {
-      id: createBrowserUuid(),
-      sourceWorkspaceId: input.workspaceId,
-      sourceHostId: input.hostId,
-      sourceExperimentId:
-        records?.experiments.find(
-          (entry) =>
-            entry.catalogSlug === experiment &&
-            entry.hostId === input.hostId &&
-            entry.workspaceId === input.workspaceId
-        )?.id ?? null,
-      targetWorkspaceId: input.workspaceId,
-      targetHostId: input.hostId,
-      targetLabel: basename(input.workspacePath) || 'Workspace',
-      agent,
-      task: `Judge outputs: ${experiment}`,
-      tabId: result.surface.kind === 'host-published' ? null : result.surface.tabId,
-      sessionId: null,
-      state: 'launching',
-      createdAt: now,
-      updatedAt: now
+    const started = await launchResearchBackgroundAgent(
+      {
+        agent,
+        hostId: host.id,
+        workspaceId: input.workspaceId,
+        surface: 'chat',
+        prompt: sampleJudgePrompt({
+          cli: harness.cli,
+          provider: JUDGE_PROVIDERS[agent] ?? agent,
+          ...(await briefRubric(input.workspacePath, experiment)),
+          target
+        }),
+        promptDelivery: 'auto-submit',
+        label: researchChatTitle('Judge', experiment),
+        noFallbackTerminal: true
+      },
+      {
+        id: createBrowserUuid(),
+        sourceWorkspaceId: input.workspaceId,
+        sourceHostId: input.hostId,
+        sourceExperimentId:
+          records?.experiments.find(
+            (entry) =>
+              entry.catalogSlug === experiment &&
+              entry.hostId === input.hostId &&
+              entry.workspaceId === input.workspaceId
+          )?.id ?? null,
+        targetWorkspaceId: input.workspaceId,
+        targetHostId: input.hostId,
+        targetLabel: basename(input.workspacePath) || 'Workspace',
+        agent,
+        task: `Judge outputs: ${experiment}`
+      }
+    )
+    if (!started.ok) {
+      return started.stage === 'record'
+        ? `The judge started, but its Background task link was not saved. ${started.error}`
+        : 'The judge could not start on this host.'
     }
-    try {
-      await useResearchRecords.getState().update((current) => ({
-        ...current,
-        delegations: [task, ...current.delegations].slice(0, 500)
-      }))
-    } catch (cause) {
-      return `The judge started, but its Background task link was not saved. ${researchErrorText(cause)}`
-    }
-    trackDelegationLaunch(task.id, result)
     return null
   } catch (cause) {
     return `The judge could not start. ${researchErrorText(cause)}`

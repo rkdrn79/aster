@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { BrowserWindow, ipcMain, screen } from 'electron'
 import { getTrustedUIRendererWebContents, isTrustedUIRenderer } from './ui'
 import {
@@ -7,15 +6,21 @@ import {
   openResearchPageWindow
 } from '../window/research-page-window'
 import { safelyRevealWindow } from '../window/focus-existing-window'
+import { createMainWindowRequests } from './research-window-main-requests'
 import {
+  parseResearchWindowAction,
+  parseResearchWindowActionResult,
+  type ResearchWindowActionResult
+} from '../../shared/research-window-actions'
+import {
+  parseResearchWindowChatOptions,
   parseResearchWindowLaunchResult,
   parseResearchWindowTarget,
-  type ResearchWindowLaunchResult,
-  type ResearchWindowTarget
+  type ResearchWindowLaunchResult
 } from '../../shared/research-page-window'
 import { isTuiAgent } from '../../shared/tui-agent-config'
-import type { TuiAgent } from '../../shared/tui-agent'
 import type { Store } from '../persistence'
+import type { KeybindingService } from '../keybindings/keybinding-service'
 
 function contains(bounds: Electron.Rectangle, point: Electron.Point): boolean {
   return (
@@ -29,35 +34,24 @@ function contains(bounds: Electron.Rectangle, point: Electron.Point): boolean {
 const LAUNCH_CHAT_TIMEOUT_MS = 180_000
 const MAIN_WINDOW_UNAVAILABLE = 'The main window is not available. Open it and try again.'
 const LAUNCH_TIMED_OUT = 'The chat did not start in time. Check the host and try again.'
+const ACTION_TIMED_OUT = 'The main window did not answer in time. Check it and try again.'
 
-// Chat starts a research window handed to the main window, by request id, until the answer comes.
-const pendingChatLaunches = new Map<string, (result: ResearchWindowLaunchResult) => void>()
+// Chat starts and tab actions a research window handed to the main window, until it answers.
+const chatLaunches = createMainWindowRequests<ResearchWindowLaunchResult>({
+  timeoutMs: LAUNCH_CHAT_TIMEOUT_MS,
+  timedOut: { error: LAUNCH_TIMED_OUT },
+  unavailable: { error: MAIN_WINDOW_UNAVAILABLE }
+})
+const tabActions = createMainWindowRequests<ResearchWindowActionResult>({
+  timeoutMs: LAUNCH_CHAT_TIMEOUT_MS,
+  timedOut: { ok: false, error: ACTION_TIMED_OUT },
+  unavailable: { ok: false, error: MAIN_WINDOW_UNAVAILABLE }
+})
 
-/** Hands a chat start to the main window and waits for how it ended. */
-function launchChatThroughMainWindow(
-  target: ResearchWindowTarget,
-  agent: TuiAgent
-): Promise<ResearchWindowLaunchResult> {
-  const main = getTrustedUIRendererWebContents()
-  if (!main) {
-    return Promise.resolve({ error: MAIN_WINDOW_UNAVAILABLE })
-  }
-  return new Promise((resolve) => {
-    const requestId = randomUUID()
-    const timer = setTimeout(() => {
-      pendingChatLaunches.delete(requestId)
-      resolve({ error: LAUNCH_TIMED_OUT })
-    }, LAUNCH_CHAT_TIMEOUT_MS)
-    pendingChatLaunches.set(requestId, (result) => {
-      clearTimeout(timer)
-      pendingChatLaunches.delete(requestId)
-      resolve(result)
-    })
-    main.send('researchWindow:launchChat', target, agent, requestId)
-  })
-}
-
-export function registerResearchPageWindowHandlers(store: Store): void {
+export function registerResearchPageWindowHandlers(
+  store: Store,
+  keybindings?: Pick<KeybindingService, 'getOverrides'>
+): void {
   for (const channel of [
     'researchWindow:open',
     'researchWindow:publishState',
@@ -65,6 +59,8 @@ export function registerResearchPageWindowHandlers(store: Store): void {
     'researchWindow:revealInMain',
     'researchWindow:launchChat',
     'researchWindow:reportLaunchChatResult',
+    'researchWindow:runAction',
+    'researchWindow:reportActionResult',
     'researchWindow:hasOpenWindows'
   ]) {
     ipcMain.removeHandler(channel)
@@ -81,7 +77,9 @@ export function registerResearchPageWindowHandlers(store: Store): void {
     if (fromDrag === true && main && contains(main.getBounds(), point)) {
       return false
     }
-    openResearchPageWindow(store, target, fromDrag === true ? point : undefined)
+    openResearchPageWindow(store, target, fromDrag === true ? point : undefined, () =>
+      keybindings?.getOverrides()
+    )
     return true
   })
   ipcMain.handle('researchWindow:publishState', (event, state: unknown): void => {
@@ -112,12 +110,56 @@ export function registerResearchPageWindowHandlers(store: Store): void {
   // Why through the main window: it owns the tabs, and starts the chat without leaving its project.
   ipcMain.handle(
     'researchWindow:launchChat',
-    (event, input: unknown, agent: unknown): Promise<ResearchWindowLaunchResult> => {
+    (
+      event,
+      input: unknown,
+      agent: unknown,
+      rawOptions: unknown
+    ): Promise<ResearchWindowLaunchResult> => {
       const target = parseResearchWindowTarget(input)
-      if (!isResearchPageWindowRenderer(event.sender) || !target || !isTuiAgent(agent)) {
+      const options = parseResearchWindowChatOptions(rawOptions)
+      if (
+        !isResearchPageWindowRenderer(event.sender) ||
+        !target ||
+        !isTuiAgent(agent) ||
+        !options
+      ) {
         return Promise.resolve({ error: 'This window cannot start that chat.' })
       }
-      return launchChatThroughMainWindow(target, agent)
+      return chatLaunches.ask((main, requestId) =>
+        main.send('researchWindow:launchChat', target, agent, requestId, options)
+      )
+    }
+  )
+  // Why through the main window: a tab made, closed or renamed in a research window's copy of the
+  // state is lost; the main window does it and says how it went.
+  ipcMain.handle(
+    'researchWindow:runAction',
+    (event, input: unknown): Promise<ResearchWindowActionResult> => {
+      const action = parseResearchWindowAction(input)
+      if (!isResearchPageWindowRenderer(event.sender) || !action) {
+        return Promise.resolve({ ok: false, error: 'This window cannot do that.' })
+      }
+      if (action.kind === 'open-in-editor') {
+        // Why: the editor opens in the main window, which the person must then see.
+        const main = getTrustedUIRendererWebContents()
+        const window = main ? BrowserWindow.fromWebContents(main) : null
+        if (window) {
+          safelyRevealWindow(window)
+        }
+      }
+      return tabActions.ask((main, requestId) =>
+        main.send('researchWindow:runAction', action, requestId)
+      )
+    }
+  )
+  ipcMain.handle(
+    'researchWindow:reportActionResult',
+    (event, requestId: unknown, result: unknown): void => {
+      const parsed = parseResearchWindowActionResult(result)
+      if (isTrustedUIRenderer(event.sender) && typeof requestId === 'string' && parsed) {
+        tabActions.answer(requestId, parsed)
+      }
     }
   )
   ipcMain.handle(
@@ -125,7 +167,7 @@ export function registerResearchPageWindowHandlers(store: Store): void {
     (event, requestId: unknown, result: unknown): void => {
       const parsed = parseResearchWindowLaunchResult(result)
       if (isTrustedUIRenderer(event.sender) && typeof requestId === 'string' && parsed) {
-        pendingChatLaunches.get(requestId)?.(parsed)
+        chatLaunches.answer(requestId, parsed)
       }
     }
   )

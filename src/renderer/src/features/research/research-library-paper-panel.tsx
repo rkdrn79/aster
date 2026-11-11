@@ -24,7 +24,7 @@ import {
   launchReadingChat,
   type ReadingRequest
 } from './research-library-reading-agent'
-import type { ReadingLanguageId } from './research-library-reading-language'
+import type { ReadingLanguageId } from './research-reading-language'
 import { useResearchLibrary } from './research-library-store'
 
 export type PaperPanelTab = 'overview' | 'highlights' | 'agent'

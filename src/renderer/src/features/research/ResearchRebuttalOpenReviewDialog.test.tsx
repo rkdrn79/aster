@@ -41,6 +41,7 @@ const snapshot: RebuttalSnapshot = {
   predictions: [],
   outlooks: [],
   paperChanges: [],
+  translations: [],
   texts: {
     meta: null,
     points: null,
@@ -49,7 +50,8 @@ const snapshot: RebuttalSnapshot = {
     followUps: null,
     proposals: null,
     predictions: null,
-    paperChanges: null
+    paperChanges: null,
+    translations: null
   },
   issues: [],
   version: ''

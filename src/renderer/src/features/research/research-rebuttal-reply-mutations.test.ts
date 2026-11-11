@@ -71,6 +71,7 @@ import {
 } from './research-rebuttal-reply-mutations'
 import { loadRebuttalSnapshot } from './research-rebuttal-snapshot'
 import { convertRebuttalPrediction, dismissRebuttalPrediction } from './research-rebuttal-decisions'
+import { approveRebuttalPaperChanges } from './research-rebuttal-paper-changes'
 
 const owner: RebuttalOwner = { hostId: 'local', workspaceId: 'ws', workspacePath: '/project' }
 const dir = '.aster/rebuttal/iclr'
@@ -226,7 +227,109 @@ describe('rebuttal reply writes', () => {
     await discardRebuttalProposal(owner, 'X1')
     expect((await cluster()).response).toBe('')
     expect((await cluster()).author).toBeNull()
-    expect((await listReplyVersions(await snapshot(), 'C1'))[0].what).toBe('Undone agent draft')
+    expect((await listReplyVersions(await snapshot(), 'C1'))[0].what).toBe('Undone agent edit')
+  })
+
+  it('undoing an agent edit puts back the exact text from before it, in one step', async () => {
+    seed('Agent rewrite.', 'both')
+    proposal({ applied: true, base: 'My careful words.', text: 'Agent rewrite.' })
+    await discardRebuttalProposal(owner, 'X1')
+    expect((await cluster()).response).toBe('My careful words.')
+    expect((await cluster()).author).toBe('human')
+    expect((await snapshot()).proposals).toEqual([])
+    const kept = await listReplyVersions(await snapshot(), 'C1')
+    expect(kept.at(-1)).toMatchObject({ what: 'Undone agent edit', text: 'Agent rewrite.' })
+  })
+
+  it('refuses to undo an agent edit once the reply changed after it', async () => {
+    seed('Edited again by hand.', 'both')
+    proposal({ applied: true, base: 'My careful words.', text: 'Agent rewrite.' })
+    await expect(discardRebuttalProposal(owner, 'X1')).rejects.toThrow(/Versions/)
+    expect((await cluster()).response).toBe('Edited again by hand.')
+  })
+
+  it('an agent rewrite that landed while the person typed waits as a suggestion', async () => {
+    seed('Agent rewrite.', 'both')
+    proposal({ applied: true, base: 'My careful words.', text: 'Agent rewrite.' })
+    // The editor still showed the person's text when they typed on.
+    await saveRebuttalReply(owner, {
+      slot: 'C1',
+      pointId: 'R1-W1',
+      text: 'My careful words, and more.',
+      base: 'My careful words.'
+    })
+    expect((await cluster()).response).toBe('My careful words, and more.')
+    expect((await snapshot()).proposals[0]).toMatchObject({
+      applied: false,
+      heldWhileTyping: true,
+      base: 'My careful words, and more.',
+      text: 'Agent rewrite.'
+    })
+  })
+
+  it('a passage edit that landed while the person typed applies on top once they pause', async () => {
+    seed('Intro. The number is 45.1.', 'both')
+    proposal({
+      applied: true,
+      base: 'Intro. The number is 45.',
+      text: 'Intro. The number is 45.1.',
+      find: 'The number is 45.',
+      replace: 'The number is 45.1.'
+    })
+    await saveRebuttalReply(owner, {
+      slot: 'C1',
+      pointId: 'R1-W1',
+      text: 'New intro. The number is 45.',
+      base: 'Intro. The number is 45.'
+    })
+    expect((await cluster()).response).toBe('New intro. The number is 45.1.')
+    expect((await snapshot()).proposals[0]).toMatchObject({
+      applied: true,
+      base: 'New intro. The number is 45.',
+      text: 'New intro. The number is 45.1.'
+    })
+    // Undo goes back to exactly what the person typed.
+    await discardRebuttalProposal(owner, 'X1')
+    expect((await cluster()).response).toBe('New intro. The number is 45.')
+  })
+
+  it('set to Ask first, a passage edit made while typing waits instead', async () => {
+    seed('Intro. The number is 45.1.', 'both')
+    const meta = JSON.parse(disk.get(`${dir}/rebuttal.json`)!)
+    put('rebuttal.json', { ...meta, agentEdits: 'ask' })
+    proposal({
+      applied: true,
+      base: 'Intro. The number is 45.',
+      text: 'Intro. The number is 45.1.',
+      find: 'The number is 45.',
+      replace: 'The number is 45.1.'
+    })
+    await saveRebuttalReply(owner, {
+      slot: 'C1',
+      pointId: 'R1-W1',
+      text: 'New intro. The number is 45.',
+      base: 'Intro. The number is 45.'
+    })
+    expect((await cluster()).response).toBe('New intro. The number is 45.')
+    expect((await snapshot()).proposals[0].applied).toBe(false)
+  })
+
+  it('the general intro saves like a reply, with versions', async () => {
+    await saveRebuttalReply(owner, {
+      slot: 'general:intro',
+      pointId: null,
+      text: 'We thank the reviewers.',
+      base: ''
+    })
+    await saveRebuttalReply(owner, {
+      slot: 'general:intro',
+      pointId: null,
+      text: 'We thank all reviewers.',
+      base: 'We thank the reviewers.'
+    })
+    expect((await snapshot()).bundle.meta.general.intro).toBe('We thank all reviewers.')
+    const kept = await listReplyVersions(await snapshot(), 'general:intro')
+    expect(kept.map((version) => version.text)).toEqual(['We thank the reviewers.'])
   })
 
   it('discarding a suggestion leaves the reply alone', async () => {
@@ -344,5 +447,65 @@ describe('next-concern decisions', () => {
     expect(snap.bundle.clusters.find((entry) => entry.points.includes(point.id))?.plan).toBe(
       'Add the 36-epoch row.'
     )
+  })
+})
+
+describe('paper changes', () => {
+  beforeEach(() => {
+    seed('My careful words.', 'human')
+    disk.set('paper/main.tex', 'We use a noise schedule.\nMore text.\n')
+    put('paper-changes.json', {
+      schemaVersion: 1,
+      changes: [
+        {
+          id: 'E1',
+          cluster: 'C1',
+          promise: null,
+          file: 'paper/main.tex',
+          find: 'We use a noise schedule.',
+          replace: 'We use a cosine noise schedule.',
+          why: 'Undefined.',
+          status: 'pending',
+          at: '',
+          decidedAt: null
+        },
+        {
+          id: 'E2',
+          cluster: 'C1',
+          promise: null,
+          file: 'paper/main.tex',
+          find: 'Not in the paper.',
+          replace: 'x',
+          why: 'Stale.',
+          status: 'pending',
+          at: '',
+          decidedAt: null
+        },
+        {
+          id: 'E3',
+          cluster: 'C1',
+          promise: null,
+          file: 'paper/main.tex',
+          find: 'More text.',
+          replace: 'More text, defined.',
+          why: 'Second edit to the same file.',
+          status: 'pending',
+          at: '',
+          decidedAt: null
+        }
+      ]
+    })
+  })
+
+  it('Apply all applies what still fits in one write and reports the rest', async () => {
+    const failed = await approveRebuttalPaperChanges(owner, ['E1', 'E2', 'E3'])
+    expect(failed).toEqual([
+      { id: 'E2', reason: 'Not applied: The passage is no longer in the file.' }
+    ])
+    expect(disk.get('paper/main.tex')).toBe(
+      'We use a cosine noise schedule.\nMore text, defined.\n'
+    )
+    const changes = (await snapshot()).paperChanges
+    expect(changes.map((change) => change.status)).toEqual(['applied', 'pending', 'applied'])
   })
 })

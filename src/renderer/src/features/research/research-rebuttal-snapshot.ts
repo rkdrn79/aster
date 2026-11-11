@@ -20,6 +20,10 @@ import {
   type RebuttalReplyProposal
 } from '../../../../research-harness/research-rebuttal-records.mjs'
 import {
+  parseTranslations,
+  type RebuttalTranslation
+} from '../../../../research-harness/research-rebuttal-translations.mjs'
+import {
   REBUTTAL_JSON_FILES,
   listRebuttalDirectory,
   readRebuttalText,
@@ -44,6 +48,8 @@ export type RebuttalSnapshot = {
   predictions: RebuttalPrediction[]
   outlooks: RebuttalOutlook[]
   paperChanges: RebuttalPaperChange[]
+  /** Translations the agent wrote, each tied to the text it translates. */
+  translations: RebuttalTranslation[]
   texts: Record<RebuttalJsonFile, string | null>
   /** Files that did not validate; the page is read-only until they do. */
   issues: string[]
@@ -109,18 +115,38 @@ async function readJsonFiles(
     names.has(REBUTTAL_JSON_FILES[key])
       ? readRebuttalText(owner, `${directory}/${REBUTTAL_JSON_FILES[key]}`)
       : null
-  const [meta, points, clusters, promises, followUps, proposals, predictions, paperChanges] =
-    await Promise.all([
-      read('meta'),
-      read('points'),
-      read('clusters'),
-      read('promises'),
-      read('followUps'),
-      read('proposals'),
-      read('predictions'),
-      read('paperChanges')
-    ])
-  return { meta, points, clusters, promises, followUps, proposals, predictions, paperChanges }
+  const [
+    meta,
+    points,
+    clusters,
+    promises,
+    followUps,
+    proposals,
+    predictions,
+    paperChanges,
+    translations
+  ] = await Promise.all([
+    read('meta'),
+    read('points'),
+    read('clusters'),
+    read('promises'),
+    read('followUps'),
+    read('proposals'),
+    read('predictions'),
+    read('paperChanges'),
+    read('translations')
+  ])
+  return {
+    meta,
+    points,
+    clusters,
+    promises,
+    followUps,
+    proposals,
+    predictions,
+    paperChanges,
+    translations
+  }
 }
 
 async function readReviews(
@@ -203,6 +229,11 @@ export async function loadRebuttalSnapshot(
     () => parsePaperChanges(parseJson(texts.paperChanges), { clusterIds }),
     []
   )
+  const translations = attempt(
+    'translations.json',
+    () => parseTranslations(parseJson(texts.translations)),
+    []
+  )
   return {
     owner,
     directory,
@@ -213,6 +244,7 @@ export async function loadRebuttalSnapshot(
     predictions,
     outlooks,
     paperChanges,
+    translations,
     texts,
     issues,
     version

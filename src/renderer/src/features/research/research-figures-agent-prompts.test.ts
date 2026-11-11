@@ -121,6 +121,8 @@ describe('Figure agent prompts', () => {
     expect(draw.context).toContain('figures context --manuscript "/home/me/proj/paper/main.tex"')
     expect(draw.context).toContain("fig.style('illustrative')")
     expect(draw.context).toContain('figures kit')
+    // Why: hosts may have no installed skill, or an old one; the CLI serves the matching guide.
+    expect(draw.context).toContain('`aster skills get aster-research-track --section Figures`')
     expect(draw.context).not.toContain('one box per stage')
     expect(draw.context).toContain('"/home/me/proj/.aster/figures/src/method.figure.mjs"')
     const plot = body(buildFigureQuickPrompt({ ...context, figure: null }, 'plot'))

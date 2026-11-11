@@ -11,6 +11,7 @@ import { ResearchComputeProjectDot } from './ResearchComputeProjectDot'
 import { ResearchDeadlineNavBadge } from './research-deadline-nav-badge'
 import { ResearchProjectRowMenu } from './ResearchProjectRowMenu'
 import { researchProjectDragProps } from './research-page-window-open'
+import { ResearchProjectSwitcher } from './ResearchProjectSwitcher'
 
 /** Home sidebar: everything that spans projects, plus a way into each one. */
 export function ResearchHomeNavigation(): React.JSX.Element {
@@ -25,19 +26,22 @@ export function ResearchHomeNavigation(): React.JSX.Element {
       className="scrollbar-sleek min-h-0 flex-1 space-y-3 overflow-y-auto p-3"
     >
       <div className="space-y-1">
-        <div className="flex items-center gap-1">
-          <Button
-            variant={onProjects ? 'secondary' : 'ghost'}
-            size="sm"
-            className="min-w-0 flex-1 justify-start"
-            aria-current={onProjects ? 'page' : undefined}
-            onClick={() => openResearchHome()}
-          >
-            <LayoutGrid aria-hidden />
-            {translate('research.home.overview', 'Home')}
-          </Button>
-          <ResearchOptionsMenu />
-        </div>
+        {/* Why: the switcher shortcut works on Home too and opens right under the Home row. */}
+        <ResearchProjectSwitcher anchorOnly>
+          <div className="flex items-center gap-1">
+            <Button
+              variant={onProjects ? 'secondary' : 'ghost'}
+              size="sm"
+              className="min-w-0 flex-1 justify-start"
+              aria-current={onProjects ? 'page' : undefined}
+              onClick={() => openResearchHome()}
+            >
+              <LayoutGrid aria-hidden />
+              {translate('research.home.overview', 'Home')}
+            </Button>
+            <ResearchOptionsMenu />
+          </div>
+        </ResearchProjectSwitcher>
         <Button
           variant={activeView === 'research-deadlines' ? 'secondary' : 'ghost'}
           size="sm"

@@ -25,6 +25,8 @@ import {
   setPredictions,
   setPromiseDone,
   setResponse,
+  setTranslations,
+  listTranslations,
   showRebuttal
 } from './research-rebuttal.mjs'
 
@@ -233,6 +235,28 @@ export const commands = {
       })
     }
   },
+  'rebuttal translate': {
+    spec: {
+      values: ['--rebuttal', '--language', '--file'],
+      booleans: ['--todo'],
+      positionals: 1,
+      required: ['--language']
+    },
+    run: async ({ project, options, positionals }) => {
+      const slug = await slugOf(project, options)
+      if (action(positionals, ['set', 'list'], 'translate') === 'list') {
+        return listTranslations(project, slug, {
+          language: options['--language'],
+          todo: Boolean(options['--todo'])
+        })
+      }
+      requireOptions(options, ['--file'], 'rebuttal translate set')
+      return setTranslations(project, slug, {
+        language: options['--language'],
+        input: await inputJson(options)
+      })
+    }
+  },
   'rebuttal assemble': {
     spec: { values: ['--rebuttal', '--format', '--shared'] },
     run: async ({ project, options }) =>
@@ -330,18 +354,24 @@ export const textOutput = {
     ]
       .filter(Boolean)
       .join('\n'),
-  'rebuttal response': (result) =>
-    result.unchanged
-      ? `No change to ${result.slot}.`
-      : result.applied
-        ? `Drafted ${result.slot}: the reply was empty. ${result.cluster ? clusterLine(result.cluster) : ''}`.trim()
-        : `Proposed ${result.proposal} for ${result.slot}: the reply already has text, so the person accepts or discards this in Aster.`,
+  'rebuttal response': (result) => {
+    if (result.unchanged) {
+      return `No change to ${result.slot}.`
+    }
+    if (!result.applied) {
+      return `Proposed ${result.proposal} for ${result.slot}: this rebuttal is set to Ask first, so the person accepts or discards it in Aster. To translate it, pass "proposal":"${result.proposal}" to rebuttal translate set.`
+    }
+    const cluster = result.cluster ? ` ${clusterLine(result.cluster)}` : ''
+    return result.edited
+      ? `Edited ${result.slot} (${result.proposal}): your text is in the reply now. The earlier text is kept as a version, and the person can undo the edit in Aster.${cluster}`
+      : `Drafted ${result.slot}: the reply was empty.${cluster}`
+  },
   'rebuttal proposals': (result) =>
     result.proposals.length
       ? result.proposals
           .map(
             (p) =>
-              `${p.id} ${p.slot}${p.applied ? ' (applied draft)' : ' (waiting)'} ${clip(p.request)}`
+              `${p.id} ${p.slot}${p.applied ? ' (applied, undoable)' : ' (waiting)'} ${clip(p.request)}`
           )
           .join('\n')
       : 'No proposals.',
@@ -360,6 +390,13 @@ export const textOutput = {
       : result.changes.length
         ? result.changes.map((c) => `${c.id} ${c.cluster} ${c.status} ${c.file}`).join('\n')
         : 'No paper changes.',
+  'rebuttal translate': (result) =>
+    result.saved
+      ? `Saved ${result.saved.length} ${result.language} ${result.saved.length === 1 ? 'translation' : 'translations'}: ${result.saved.join(', ')}`
+      : [
+          `${result.language}: ${result.counts.current} current, ${result.counts.outdated} outdated, ${result.counts.missing} missing`,
+          ...result.items.map((item) => `${item.key} [${item.status}] ${clip(item.source, 70)}`)
+        ].join('\n'),
   'rebuttal assemble': (result) => result.outputs.map(outputLine).join('\n'),
   'rebuttal promises': (result) =>
     result.promise
@@ -399,9 +436,11 @@ promises.json, responses/). --rebuttal may be left out when the project has one 
   rebuttal clusters list [--rebuttal SLUG]
   rebuttal response set [--rebuttal SLUG] (--cluster C1 | --opening R1 | --general intro|closing)
                         --file PATH|- [--status todo|drafting] [--turn ID] [--request TEXT]
-                                         An empty reply takes the draft; a reply with text stays as
-                                         written and this becomes a proposal the person accepts
+                                         The text lands in the reply; earlier text is kept as a
+                                         version the person can undo to. When the rebuttal is set
+                                         to Ask first, text over a written reply waits as a proposal
   rebuttal response revise [--rebuttal SLUG] (--cluster C1 | ...) --file -  (JSON {"find","replace"})
+                                         Replaces one exact passage, applied the same way
   rebuttal followup add [--rebuttal SLUG] --reviewer R1 --file PATH|-
                                          A reviewer's later reply, kept as a new round; points of it
                                          use "round":2 and quote the follow-up text
@@ -418,6 +457,16 @@ promises.json, responses/). --rebuttal may be left out when the project has one 
                                          {"file":"paper/main.tex","find":"exact passage","replace":"…",
                                          "why":"…","promise":"…"?}; applied only after the person approves
   rebuttal paper list [--rebuttal SLUG]
+  rebuttal translate set [--rebuttal SLUG] --language ko --file PATH|-
+                                         {"items":[{"key":"reply:C3","text":"…"}]}. Keys: quote:R1-W2,
+                                         summary:R1-W2, title:C3, reply:C3, reply:opening:R1,
+                                         reply:general:intro|closing, review:R1, review:R1-round-2.
+                                         Kept with the hash of the text it translates, so an edit
+                                         marks it outdated. Add "proposal":"X4" to translate a
+                                         waiting proposal's text instead of the reply
+  rebuttal translate list [--rebuttal SLUG] --language ko [--todo]
+                                         Each item's state; --todo lists missing and outdated ones
+                                         with their source text
   rebuttal assemble [--rebuttal SLUG] [--format reviewer|general|pdf|all] [--shared reviewer|general|repeat]
                                          Writes responses/reviewer-<R>.md, general.md, rebuttal.tex
                                          with character counts; exit 1 when a reply is over its limit

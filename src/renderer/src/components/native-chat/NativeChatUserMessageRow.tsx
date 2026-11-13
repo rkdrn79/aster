@@ -8,6 +8,7 @@ import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client-typ
 import type { NativeChatMessage } from '../../../../shared/native-chat-types'
 import type { NativeChatDeliveryNotice } from './NativeChatMessageRow'
 import { NativeChatRewindAction } from './NativeChatRewindAction'
+import { NativeChatBranchAction } from './NativeChatBranchAction'
 import type { NativeChatRewindSurface } from './use-native-chat-rewind'
 import { NativeChatMarkdown } from './NativeChatMarkdown'
 import { NativeChatUserMessageFold } from './NativeChatUserMessageFold'
@@ -30,14 +31,16 @@ function UserMessageMeta({
   markdown,
   timestamp,
   sending,
-  rewind
+  rewind,
+  branchItemId
 }: {
   markdown: string
   timestamp: number | null
   sending: boolean
   rewind?: { itemId: string; surface: NativeChatRewindSurface }
+  branchItemId?: string
 }): React.JSX.Element | null {
-  if (!markdown && timestamp === null && !sending && !rewind) {
+  if (!markdown && timestamp === null && !sending && !rewind && !branchItemId) {
     return null
   }
   return (
@@ -56,6 +59,9 @@ function UserMessageMeta({
       ) : (
         <NativeChatMessageTimestamp timestamp={timestamp} focusable />
       )}
+      {branchItemId && !sending ? (
+        <NativeChatBranchAction messageId={branchItemId} kind="user" />
+      ) : null}
       {rewind && !sending ? (
         <NativeChatRewindAction itemId={rewind.itemId} rewind={rewind.surface} />
       ) : null}
@@ -73,6 +79,7 @@ export function NativeChatUserMessageRow({
   allowFileUriLinks,
   runtimeContext,
   rewind,
+  branchable = false,
   deliveryNotice
 }: {
   message: NativeChatMessage
@@ -84,6 +91,7 @@ export function NativeChatUserMessageRow({
   allowFileUriLinks: boolean
   runtimeContext?: RuntimeFileOperationArgs | null
   rewind?: NativeChatRewindSurface
+  branchable?: boolean
   deliveryNotice?: NativeChatDeliveryNotice
 }): React.JSX.Element {
   // Another agent's message is the agent's turn input too, but is not the person's: it reads
@@ -99,6 +107,8 @@ export function NativeChatUserMessageRow({
       // Read by the context menu: only rows showing the hover copy or rewind offer them there.
       data-native-chat-message-id={markdown ? message.id : undefined}
       data-native-chat-rewind-item={rewind && !sending ? message.id : undefined}
+      data-native-chat-branch-item={branchable && !sending ? message.id : undefined}
+      data-native-chat-branch-kind={branchable && !sending ? 'user' : undefined}
       className={cn('group relative flex flex-col gap-0.5', from ? 'items-start' : 'items-end')}
     >
       {from ? (
@@ -168,6 +178,7 @@ export function NativeChatUserMessageRow({
         timestamp={message.timestamp}
         sending={sending}
         {...(rewind ? { rewind: { itemId: message.id, surface: rewind } } : {})}
+        {...(branchable ? { branchItemId: message.id } : {})}
       />
       {deliveryNotice?.text !== undefined ? (
         <div className="flex max-w-[85%] items-center gap-2 text-2xs text-destructive/80">

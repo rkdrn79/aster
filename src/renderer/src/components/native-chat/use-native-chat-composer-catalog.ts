@@ -11,6 +11,7 @@ import {
 } from '../../../../shared/native-chat-slash-commands'
 import { structuredSessionSlashCommands } from '../../../../shared/structured-agent-session-composer'
 import { withNativeChatResumeCommand } from './use-native-chat-resume-command'
+import { withNativeChatBranchCommand } from './use-native-chat-branch-command'
 import type { NativeChatStructuredComposerTransport } from './native-chat-composer-types'
 
 export type NativeChatComposerCatalog = {
@@ -22,7 +23,7 @@ export type NativeChatComposerCatalog = {
  * What the `/` menu offers. A structured chat offers the host's own commands, then
  * what the session reports it actually loaded — the only list that includes this
  * repo's own commands and the skills that reach the session through plugin roots —
- * and Orca's `/resume`. The PTY lane keeps the curated per-agent catalog.
+ * and Aster's `/resume` and `/fork`. The PTY lane keeps the curated per-agent catalog.
  */
 export function useNativeChatComposerCatalog(
   agent: AgentType,
@@ -35,8 +36,10 @@ export function useNativeChatComposerCatalog(
   const agentCommands = useMemo(
     () =>
       structured
-        ? withNativeChatResumeCommand(
-            structuredSessionSlashCommands(agent, conversationCommands, reported)
+        ? withNativeChatBranchCommand(
+            withNativeChatResumeCommand(
+              structuredSessionSlashCommands(agent, conversationCommands, reported)
+            )
           )
         : getVerifiedNativeChatCommands(agent),
     [agent, conversationCommands, reported, structured]

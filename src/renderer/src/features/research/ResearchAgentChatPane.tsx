@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { Check, GripVertical, Link2, MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import type { Tab } from '../../../../shared/tab-types'
 import { isStructuredTab } from '../../../../shared/structured-agent-session-tab'
-import { parseExecutionHostId } from '../../../../shared/execution-host'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import { formatAgentTypeLabel } from '../../../../shared/agent-type-label'
 import { Button } from '@/components/ui/button'
@@ -26,8 +25,6 @@ import {
   structuredAgentSessionOwnerForTab,
   structuredAgentSessionTargetForHost
 } from '@/runtime/structured-agent-session-owner'
-import { launchAgentInNewTab } from '@/lib/launch-agent-in-new-tab'
-import { newAgentLaunchRequestId } from '@/lib/agent-launch-request-id'
 import { RESEARCH_CONVERSATION_DRAG_TYPE } from './research-conversation-drag'
 import { conversationExperiment } from '../../../../shared/research/research-conversation-context'
 import { useResearchRecords } from './research-records-store'
@@ -40,9 +37,13 @@ import {
 } from './research-conversation-home'
 import { useDeleteResearchConversation } from './research-conversation-delete'
 import { researchWindowSurfaceTarget } from './research-window-surface'
-import { launchResearchChatThroughMainWindow } from './research-window-chat-launch'
-import { nameResearchChat } from './research-chat-label'
 import { ResearchAgentPicker, ResearchAgentPickerMenuItems } from './ResearchAgentPicker'
+import { NativeChatBranchNavigationContext } from '@/components/native-chat/native-chat-branch-context'
+import {
+  ResearchChatBranchSwitcher,
+  useResearchPaneBranchNavigation
+} from './ResearchChatBranchSwitcher'
+import { ResearchChatBranchMenuItem } from './ResearchChatBranchMenuItem'
 
 const EMPTY_TABS: readonly Tab[] = []
 type ChatSessionTab = Tab & {
@@ -64,47 +65,7 @@ export function researchChatSessionTabs(
   })
 }
 
-export type ResearchChatLaunchResult = { sessionId: string } | { error: string }
-
-/** Starts a structured chat tab in the workspace; an optional first prompt is submitted once ready. */
-export async function launchResearchChat(input: {
-  hostId: string
-  workspaceId: string
-  agent: TuiAgent
-  prompt?: string
-  /** The chat's title, so it never comes from the prompt Aster wrote. */
-  label: string
-  /** For chats a Library or Writing pane shows, so the Workbench keeps its own tab. */
-  activate?: false
-}): Promise<ResearchChatLaunchResult> {
-  const windowTarget = researchWindowSurfaceTarget()
-  if (windowTarget) {
-    // Why: the main window owns the tabs; a chat made here would vanish with this window's copy.
-    return launchResearchChatThroughMainWindow(windowTarget, input)
-  }
-  const host = parseExecutionHostId(input.hostId)
-  if (!host) {
-    return { error: 'This workspace host cannot start an agent chat.' }
-  }
-  const result = launchAgentInNewTab({
-    requestId: newAgentLaunchRequestId(),
-    requestedSurface: 'chat',
-    selectedExecutionHostId: host.id,
-    agent: input.agent,
-    worktreeId: input.workspaceId,
-    ...(input.prompt ? { prompt: input.prompt, promptDelivery: 'auto-submit' as const } : {}),
-    ...(input.activate === false ? { activate: false } : {})
-  })
-  if (!result?.structuredSettlement) {
-    return { error: 'A structured agent chat could not be started. Choose an existing chat.' }
-  }
-  nameResearchChat(input.workspaceId, result, input.label)
-  const settled = await result.structuredSettlement
-  if (settled.kind !== 'structured') {
-    return { error: 'The agent chat did not become ready. Choose an existing chat or retry.' }
-  }
-  return { sessionId: settled.sessionId }
-}
+export { launchResearchChat, type ResearchChatLaunchResult } from './research-chat-launch'
 
 type ResearchAgentChatPaneProps = {
   workspaceId: string
@@ -188,6 +149,9 @@ export function ResearchAgentChatPane({
     ? structuredAgentSessionOwnerForTab(useAppStore.getState(), boundSession)
     : null
   const sessionTarget = structuredAgentSessionTargetForHost(sessionOwner)
+  const branchScope = useMemo(() => ({ hostId, workspaceId }), [hostId, workspaceId])
+  // A branch made or opened here binds to this pane's subject, so its quick actions follow.
+  const branchNavigation = useResearchPaneBranchNavigation((sessionId) => void bind(sessionId))
   const boundLabel = boundSession
     ? (boundSession.customLabel ??
       boundSession.aiVaultTitle?.title ??
@@ -273,6 +237,13 @@ export function ResearchAgentChatPane({
           <span className="min-w-0 truncate text-xs text-muted-foreground" title={boundLabel}>
             {boundLabel}
           </span>
+          {boundSession ? (
+            <ResearchChatBranchSwitcher
+              scope={branchScope}
+              sessionId={boundSession.entityId}
+              onSwitch={(sessionId) => void bind(sessionId)}
+            />
+          ) : null}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -317,6 +288,7 @@ export function ResearchAgentChatPane({
               {boundSession ? (
                 <>
                   <DropdownMenuSeparator />
+                  <ResearchChatBranchMenuItem tab={boundSession} open={branchNavigation.open} />
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                       <Link2 aria-hidden /> Link to Experiment
@@ -359,18 +331,20 @@ export function ResearchAgentChatPane({
       {boundSession && sessionTarget ? (
         <div className="min-h-0 flex-1">
           <NativeChatPlaceholderContext.Provider value={composerPlaceholder ?? null}>
-            <NativeChatView
-              mode="structured"
-              tabId={boundSession.id}
-              // Why: a research window has no Workbench panes to split this chat into.
-              groupId={researchWindowSurfaceTarget() ? undefined : boundSession.groupId}
-              sessionId={boundSession.entityId}
-              target={sessionTarget}
-              agent={boundSession.agentSessionAgent}
-              isVisible={visible}
-              isFocusedGroup={visible}
-              decorateOutgoingText={decorateOutgoingText}
-            />
+            <NativeChatBranchNavigationContext.Provider value={branchNavigation}>
+              <NativeChatView
+                mode="structured"
+                tabId={boundSession.id}
+                // Why: a research window has no Workbench panes to split this chat into.
+                groupId={researchWindowSurfaceTarget() ? undefined : boundSession.groupId}
+                sessionId={boundSession.entityId}
+                target={sessionTarget}
+                agent={boundSession.agentSessionAgent}
+                isVisible={visible}
+                isFocusedGroup={visible}
+                decorateOutgoingText={decorateOutgoingText}
+              />
+            </NativeChatBranchNavigationContext.Provider>
           </NativeChatPlaceholderContext.Provider>
         </div>
       ) : (

@@ -60,6 +60,8 @@ export function NativeChatAssistantMessageRow({
       ref={rowRef}
       // The context menu offers Copy message only where the hover controls offer it.
       data-native-chat-message-id={showControls ? message.id : undefined}
+      data-native-chat-branch-item={showControls && props.branchable ? message.id : undefined}
+      data-native-chat-branch-kind={showControls && props.branchable ? 'agent' : undefined}
       data-native-chat-message-tone={isSystem ? 'faint' : undefined}
       className={cn(
         'group relative max-w-full select-text text-sm leading-relaxed text-chat-foreground',
@@ -95,6 +97,7 @@ export function NativeChatAssistantMessageRow({
           markdown={words}
           timestamp={message.timestamp}
           onScrollToTop={scrollToTop}
+          {...(props.branchable ? { branchMessageId: message.id } : {})}
           className={cn(
             'mt-1 w-fit select-none transition-opacity can-hover:pointer-events-none can-hover:opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 [.group:has(:focus-visible)_&]:pointer-events-auto [.group:has(:focus-visible)_&]:opacity-100',
             // They hang into the gap below; a section keeps them inside its border instead.

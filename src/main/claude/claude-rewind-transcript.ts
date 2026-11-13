@@ -30,10 +30,24 @@ export async function materializeClaudeRewindTranscript(
   if (!fork.throughEntryId) {
     return { ...fork, materialized: true }
   }
+  const copy = await forkClaudeTranscript(sourcePath, fork.sourceSessionId, fork.throughEntryId)
+  return { ...fork, ...copy, materialized: true }
+}
+
+/**
+ * A new session beside `sourcePath` holding its conversation through `upToMessageId` (inclusive),
+ * or all of it when absent: Claude's own fork, read and written through a store pinned to that
+ * file's folder, so it never depends on which account `process.env` names.
+ */
+export async function forkClaudeTranscript(
+  sourcePath: string,
+  sourceSessionId: string,
+  upToMessageId?: string
+): Promise<{ sessionId: string; resumeCursor?: string }> {
   const { forkSession } = await loadClaudeAgentSdk()
   let resumeCursor: string | undefined
-  const result = await forkSession(fork.sourceSessionId, {
-    upToMessageId: fork.throughEntryId,
+  const result = await forkSession(sourceSessionId, {
+    ...(upToMessageId ? { upToMessageId } : {}),
     // A store pins both reads and writes to the resolved account, without changing process.env.
     sessionStore: {
       load: async () => {
@@ -72,5 +86,5 @@ export async function materializeClaudeRewindTranscript(
       }
     }
   })
-  return { ...fork, sessionId: result.sessionId, resumeCursor, materialized: true }
+  return { sessionId: result.sessionId, ...(resumeCursor ? { resumeCursor } : {}) }
 }

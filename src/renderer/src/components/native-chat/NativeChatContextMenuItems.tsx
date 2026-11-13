@@ -1,5 +1,16 @@
 import type { RefObject } from 'react'
-import { Copy, ExternalLink, FileText, Globe, Quote, Search, Undo2 } from 'lucide-react'
+import {
+  Copy,
+  ExternalLink,
+  FileText,
+  GitBranch,
+  Globe,
+  PencilLine,
+  Quote,
+  Search,
+  Split,
+  Undo2
+} from 'lucide-react'
 import { DropdownMenuItem, DropdownMenuShortcut } from '@/components/ui/dropdown-menu'
 import { formatOptionalPrimaryShortcutLabel } from '@/hooks/useShortcutLabel'
 import { useAppStore } from '@/store'
@@ -10,6 +21,11 @@ import type { NativeChatComposerHandle } from './native-chat-composer-types'
 import type { NativeChatContextMenuTarget } from './native-chat-context-menu-target'
 import { formatNativeChatQuote } from './native-chat-quote-selection'
 import type { NativeChatRewindSurface } from './use-native-chat-rewind'
+import {
+  nativeChatBranchRowBlock,
+  type NativeChatBranchSurface
+} from './native-chat-branch-context'
+import { NativeChatBranchMenuRow, nativeChatBranchLabels } from './NativeChatBranchAction'
 
 function copyText(text: string): void {
   // Best-effort, as the hover copy buttons are: the clipboard can reject when unfocused.
@@ -20,13 +36,15 @@ function copyText(text: string): void {
 export function NativeChatContextMenuTargetItems({
   target,
   composerRef,
-  rewind
+  rewind,
+  branch
 }: {
   target: NativeChatContextMenuTarget
   composerRef: RefObject<NativeChatComposerHandle | null>
   rewind: NativeChatRewindSurface | undefined
+  branch?: NativeChatBranchSurface
 }): React.JSX.Element {
-  const { quoteText, link, codeText, messageText, rewindItemId } = target
+  const { quoteText, link, codeText, messageText, rewindItemId, branchItem } = target
   const linkRows = link ? [link.primary, link.alternate, ...(link.secondaryActions ?? [])] : []
   return (
     <>
@@ -69,10 +87,59 @@ export function NativeChatContextMenuTargetItems({
           {translate('components.native-chat.copyMessage.copy', 'Copy message')}
         </DropdownMenuItem>
       ) : null}
+      {branchItem && branch ? (
+        <NativeChatBranchMenuItems item={branchItem} branch={branch} />
+      ) : null}
       {rewindItemId && rewind ? (
         <NativeChatRewindMenuItem itemId={rewindItemId} rewind={rewind} />
       ) : null}
     </>
+  )
+}
+
+/** The hover branch action's rows for the right-clicked message. */
+function NativeChatBranchMenuItems({
+  item,
+  branch
+}: {
+  item: NonNullable<NativeChatContextMenuTarget['branchItem']>
+  branch: NativeChatBranchSurface
+}): React.JSX.Element {
+  const labels = nativeChatBranchLabels()
+  const block = nativeChatBranchRowBlock(branch, item.id)
+  return (
+    <>
+      {item.kind === 'user' ? (
+        <NativeChatBranchMenuRow
+          icon={<PencilLine />}
+          label={labels.editAndBranch}
+          disabledReason={block}
+          onSelect={() => branch.editAndBranch(item.id)}
+        />
+      ) : null}
+      <NativeChatBranchMenuRow
+        icon={item.kind === 'user' ? <Split /> : <GitBranch />}
+        label={labels.branchFromHere}
+        disabledReason={block}
+        onSelect={() => branch.branchFrom(item.id)}
+      />
+    </>
+  )
+}
+
+/** Branch chat: the whole conversation into a new chat, from its latest finished message. */
+export function NativeChatBranchChatMenuItem({
+  branch
+}: {
+  branch: NativeChatBranchSurface
+}): React.JSX.Element {
+  return (
+    <NativeChatBranchMenuRow
+      icon={<GitBranch />}
+      label={nativeChatBranchLabels().branchChat}
+      disabledReason={branch.disabledReason}
+      onSelect={branch.branchChat}
+    />
   )
 }
 

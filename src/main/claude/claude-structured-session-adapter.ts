@@ -46,6 +46,7 @@ import {
 } from './claude-structured-prompt-ownership'
 import { claudePromptCancelRoute } from './claude-structured-prompt-replies'
 import { claudeForkForRewind } from './claude-rewind-fork'
+import { claudeForkForBranch } from './claude-branch-fork'
 import { openClaudeStructuredSession } from './claude-structured-session-open'
 
 export type { ClaudeStructuredLaunch } from './claude-structured-launch-resolution'
@@ -166,6 +167,8 @@ export class ClaudeStructuredSessionAdapter implements StructuredAgentSessionAda
 
   // A rewind forks the kept conversation into a new session, which the next launch makes.
   forkForRewind = claudeForkForRewind
+  // A branch is a fork too, of the whole conversation or before one prompt, which a new chat adopts.
+  forkForBranch = claudeForkForBranch
   compact: NonNullable<StructuredAgentSessionAdapter['compact']> = (input) =>
     dispatchClaudeCommand(this.session(input.sessionId), input.command)
 

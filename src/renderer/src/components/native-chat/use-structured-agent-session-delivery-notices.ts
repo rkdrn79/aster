@@ -97,3 +97,36 @@ function sameNoticesKept(
   }
   return allKept ? previous : kept
 }
+
+/** A structured chat's start failures, read where a message shows as not sent or for Claude's
+ *  sign-in, and the notices under its unsent messages. */
+export function useStructuredAgentSessionDeliveryFacts(args: {
+  pending: readonly StructuredAgentSessionPendingSend[]
+  submissions: readonly AgentJournalSubmission[]
+  journalItems: readonly AgentJournalRenderItem[]
+  agent: string
+  agentName: string
+  /** A queued message came back to its card. */
+  hasReturnedCard: boolean
+}): {
+  startFailures: readonly AgentSessionFailureFact[]
+  deliveryNotices: ReadonlyMap<string, NativeChatDeliveryNotice>
+} {
+  const needsFailureFacts =
+    args.hasReturnedCard ||
+    args.submissions.some(
+      (submission) => submission.dispatchState === 'rejected' && !dispatchWasWithdrawn(submission)
+    )
+  const startFailures = useStructuredAgentSessionStartFailureFacts(
+    args.journalItems,
+    needsFailureFacts || args.agent === 'claude'
+  )
+  const deliveryNotices = useStructuredAgentSessionDeliveryNotices({
+    pending: args.pending,
+    submissions: args.submissions,
+    journalItems: args.journalItems,
+    startFailures,
+    agentName: args.agentName
+  })
+  return { startFailures, deliveryNotices }
+}

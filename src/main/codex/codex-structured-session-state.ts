@@ -23,7 +23,10 @@ import type { AgentChildWorkEvidence } from '../../shared/agent-status-child-wor
 import type { CodexBackgroundTaskTracker } from './codex-background-task-tracker'
 import type { CodexSkillReport } from './codex-structured-skill-report'
 import type { CodexJournalTranslator } from './codex-structured-journal-translation'
-import type { StructuredAgentSessionLifecycleEvent } from '../native-chat/agent-session-wire/structured-agent-session-adapter'
+import type {
+  StructuredAgentSessionAdapter,
+  StructuredAgentSessionLifecycleEvent
+} from '../native-chat/agent-session-wire/structured-agent-session-adapter'
 import type { CodexStructuredPermissionPolicy } from './codex-structured-permission-policy'
 import type { StructuredLaunchRequest } from '../runtime/structured-agent-launch-composition'
 import type {
@@ -101,6 +104,8 @@ export type CodexStructuredSessionAdapterDeps = {
   resolveAccountKind?: (home: string) => AgentSessionAccountKind | undefined
   /** What a resting Codex chat's menu lists, as Codex itself would list it there. */
   atRestCommands?: StructuredAgentSessionAtRestCommands
+  /** Copies a chat's thread for a branch; absent, Codex chats cannot branch. */
+  forkForBranch?: StructuredAgentSessionAdapter['forkForBranch']
   resolveLaunch: (input: StructuredLaunchRequest) => Promise<CodexStructuredLaunch>
   onEvent?: (event: CodexStructuredSessionEvent) => void
   /** Where bookkeeping a close or exit does after the child is gone reports a failure. */

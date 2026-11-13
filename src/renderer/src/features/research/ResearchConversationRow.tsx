@@ -34,6 +34,7 @@ import { researchChatSessionTabs } from './ResearchAgentChatPane'
 import { useResearchRecords } from './research-records-store'
 import { useResearchLibrary } from './research-library-store'
 import { researchConversationHome } from './research-conversation-home'
+import { ResearchChatBranchMenuItem } from './ResearchChatBranchMenuItem'
 
 type Props = {
   tab: Tab
@@ -220,9 +221,12 @@ export function ResearchConversationRow({
               </DropdownMenuItem>
             ) : null}
             {tab.contentType === 'agent-session' && tab.entityId ? (
-              <DropdownMenuItem onSelect={askInChat}>
-                <MessageCircleQuestionMark aria-hidden /> Ask an agent in this chat
-              </DropdownMenuItem>
+              <>
+                <DropdownMenuItem onSelect={askInChat}>
+                  <MessageCircleQuestionMark aria-hidden /> Ask an agent in this chat
+                </DropdownMenuItem>
+                <ResearchChatBranchMenuItem tab={tab} />
+              </>
             ) : null}
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive" onSelect={() => void remove()}>

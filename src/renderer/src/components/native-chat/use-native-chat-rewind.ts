@@ -201,7 +201,7 @@ export function useNativeChatRewind(input: RewindInput) {
         title: translate('components.native-chat.rewind.title', 'Rewind to here?'),
         description: translate(
           'components.native-chat.rewind.confirmation',
-          'Discard this message and everything after it? The message returns to the composer so you can edit and resend it. File changes on disk are kept.'
+          'Discard this message and everything after it in this chat? The message returns to the composer so you can edit and resend it. File changes on disk are kept. To keep this chat as it is, use Edit and branch instead.'
         ),
         confirmLabel: translate('components.native-chat.rewind.confirm', 'Rewind'),
         cancelLabel: translate('components.native-chat.rewind.cancel', 'Cancel'),

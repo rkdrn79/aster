@@ -54,6 +54,8 @@ export type MessageRowProps = {
   runtimeContext?: RuntimeFileOperationArgs | null
   /** On a user row: discards it and everything after it. */
   rewind?: NativeChatRewindSurface
+  /** The row offers Branch: a new chat up to it, leaving this one as it is. */
+  branchable?: true
   /** This row draws a run of tool calls and thoughts: every message in it, `message` first.
    *  The same row either way, so a row becoming a run keeps everything it has mounted. */
   workRun?: readonly NativeChatMessage[]
@@ -150,6 +152,7 @@ export const MessageRow = memo(function MessageRow(
         allowFileUriLinks={allowFileUriLinks}
         runtimeContext={runtimeContext}
         rewind={rewind}
+        branchable={props.branchable === true}
         deliveryNotice={deliveryNotice}
       />
     )

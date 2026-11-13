@@ -13,6 +13,8 @@ export type NativeChatContextMenuTarget = {
   codeText: string | null
   messageText: string | null
   rewindItemId: string | null
+  /** A message the row offers Branch at, and whose it is. */
+  branchItem: { id: string; kind: 'user' | 'agent' } | null
 }
 
 export const noNativeChatContextMenuTarget: NativeChatContextMenuTarget = {
@@ -20,7 +22,8 @@ export const noNativeChatContextMenuTarget: NativeChatContextMenuTarget = {
   link: null,
   codeText: null,
   messageText: null,
-  rewindItemId: null
+  rewindItemId: null,
+  branchItem: null
 }
 
 export type NativeChatContextMenuTargetSources = {
@@ -44,6 +47,9 @@ export function readNativeChatContextMenuTarget(
   const messageId = element
     ?.closest('[data-native-chat-message-id]')
     ?.getAttribute('data-native-chat-message-id')
+  const branchRow = element?.closest('[data-native-chat-branch-item]')
+  const branchId = branchRow?.getAttribute('data-native-chat-branch-item')
+  const branchKind = branchRow?.getAttribute('data-native-chat-branch-kind')
   return {
     quoteText: quotable?.text ?? null,
     link: href ? nativeChatLinkActions(href, linkContext) : null,
@@ -55,6 +61,10 @@ export function readNativeChatContextMenuTarget(
     rewindItemId:
       element
         ?.closest('[data-native-chat-rewind-item]')
-        ?.getAttribute('data-native-chat-rewind-item') ?? null
+        ?.getAttribute('data-native-chat-rewind-item') ?? null,
+    branchItem:
+      branchId && (branchKind === 'user' || branchKind === 'agent')
+        ? { id: branchId, kind: branchKind }
+        : null
   }
 }

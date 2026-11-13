@@ -16,6 +16,11 @@ import {
 } from '../../../../shared/structured-agent-session-composer'
 import type { DiscoveredSkill } from '../../../../shared/skills'
 import { withNativeChatResumeCommand } from './use-native-chat-resume-command'
+import { withNativeChatBranchCommand } from './use-native-chat-branch-command'
+
+/** A structured chat's own commands follow the host's: `/resume`, then `/fork`. */
+const withAsterCommands = (commands: Parameters<typeof withNativeChatResumeCommand>[0]) =>
+  withNativeChatBranchCommand(withNativeChatResumeCommand(commands))
 
 function transport(sessionCommands?: NativeChatStructuredComposerTransport['sessionCommands']) {
   return { sessionCommands } as NativeChatStructuredComposerTransport
@@ -28,7 +33,7 @@ describe('composer catalog authority', () => {
     expect(pty.result.current.sessionSkills).toBeUndefined()
     const oldHost = renderHook(() => useNativeChatComposerCatalog('claude', transport()))
     expect(oldHost.result.current.agentCommands).toEqual(
-      withNativeChatResumeCommand(structuredSlashCommands())
+      withAsterCommands(structuredSlashCommands())
     )
     expect(oldHost.result.current.sessionSkills).toBeUndefined()
   })
@@ -49,14 +54,16 @@ describe('composer catalog authority', () => {
       'effort',
       'clear',
       'compact',
-      'resume'
+      'resume',
+      'fork'
     ])
     rerender({ conversationCommands: ['clear'] })
     expect(result.current.agentCommands.map(({ name }) => name)).toEqual([
       'model',
       'effort',
       'clear',
-      'resume'
+      'resume',
+      'fork'
     ])
   })
   // Codex reports no catalog, so the hook's fallback is its entire `/` menu; the
@@ -64,7 +71,7 @@ describe('composer catalog authority', () => {
   it('offers Codex the commands its model runs from message text', () => {
     const { result } = renderHook(() => useNativeChatComposerCatalog('codex', transport()))
     expect(result.current.agentCommands).toEqual(
-      withNativeChatResumeCommand(structuredSlashCommands([], 'codex'))
+      withAsterCommands(structuredSlashCommands([], 'codex'))
     )
     expect(result.current.agentCommands.map(({ name }) => name)).toContain('goal')
   })
@@ -75,13 +82,15 @@ describe('composer catalog authority', () => {
       'model',
       'effort',
       'init',
-      'resume'
+      'resume',
+      'fork'
     ])
     const withoutReport = renderHook(() => useNativeChatComposerCatalog('claude', transport()))
     expect(withoutReport.result.current.agentCommands.map(({ name }) => name)).toEqual([
       'model',
       'effort',
-      'resume'
+      'resume',
+      'fork'
     ])
   })
   it('respects empty catalogs and command-only catalogs without reviving disk skills', () => {
@@ -94,15 +103,12 @@ describe('composer catalog authority', () => {
       }
     )
     expect(result.current).toEqual({
-      agentCommands: withNativeChatResumeCommand(structuredSlashCommands()),
+      agentCommands: withAsterCommands(structuredSlashCommands()),
       sessionSkills: []
     })
     rerender({ reported: [{ name: 'custom-command', kind: 'command' }] })
     expect(result.current).toEqual({
-      agentCommands: withNativeChatResumeCommand([
-        ...structuredSlashCommands(),
-        { name: 'custom-command' }
-      ]),
+      agentCommands: withAsterCommands([...structuredSlashCommands(), { name: 'custom-command' }]),
       sessionSkills: []
     })
   })
@@ -122,6 +128,7 @@ describe('composer catalog authority', () => {
       'command:effort',
       'command:review',
       'command:resume',
+      'command:fork',
       'skill:resume'
     ])
     expect(rows('r')[0]).toMatchObject({ name: 'review' })
@@ -192,8 +199,8 @@ it('Enter completes a known pre-init skill while still dispatching a built-in co
         setCaret: vi.fn()
       })
     },
-    // Commands lead: the host's /model and /effort, clear, Orca's /resume, then the skill.
-    { initialProps: { activeSuggestion: 4 } }
+    // Commands lead: the host's /model and /effort, clear, Aster's /resume and /fork, then the skill.
+    { initialProps: { activeSuggestion: 5 } }
   )
   const enter = { key: 'Enter', nativeEvent: {}, preventDefault: vi.fn() } as unknown as Parameters<
     typeof result.current

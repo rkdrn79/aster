@@ -13,5 +13,17 @@ export const researchAgentSessionFields = {
   // Each figure's own chat: workspace scope, then figure slug.
   figureAgentSessionsByScope: z.record(z.string(), z.record(z.string(), chatSessionId)).optional(),
   // Figure chats no figure holds any more (New chat, deleted figure); still listed under Figures.
-  figureAgentPastSessionsByScope: z.record(z.string(), z.array(chatSessionId).max(500)).optional()
+  figureAgentPastSessionsByScope: z.record(z.string(), z.array(chatSessionId).max(500)).optional(),
+  // Each branched chat, keyed like a conversation home (host, workspace, chat): the chat it was
+  // branched from, and the message it was branched at, counted as that chat shows its messages.
+  chatBranches: z
+    .record(
+      z.string().min(1),
+      z.object({
+        parentSessionId: chatSessionId,
+        messageNumber: z.number().int().nonnegative(),
+        createdAt: z.string().min(1).max(64)
+      })
+    )
+    .optional()
 }

@@ -43,9 +43,11 @@ import {
   type NativeChatContextMenuTarget
 } from './native-chat-context-menu-target'
 import {
+  NativeChatBranchChatMenuItem,
   NativeChatContextMenuTargetItems,
   NativeChatFindMenuItem
 } from './NativeChatContextMenuItems'
+import type { NativeChatBranchSurface } from './native-chat-branch-context'
 import type { NativeChatFileLinkContext } from './native-chat-file-link'
 import type { NativeChatMessageListHandle } from './use-native-chat-reveal-latest'
 import type { NativeChatRewindSurface } from './use-native-chat-rewind'
@@ -87,6 +89,8 @@ export type NativeChatContextMenuTargetArgs = {
   fileLinkContext?: NativeChatFileLinkContext | null
   /** Where the transcript offers rewind; absent where it never does. */
   rewind?: NativeChatRewindSurface
+  /** Where the chat offers Branch; absent where it never does. */
+  branch?: NativeChatBranchSurface
   onFind?: (returnFocusTo: Element | null) => void
 }
 
@@ -151,6 +155,7 @@ export function useNativeChatContextMenu({
   messageListRef,
   fileLinkContext = null,
   rewind,
+  branch,
   onFind
 }: UseNativeChatContextMenuArgs): {
   onContextMenuCapture: MouseEventHandler<HTMLElement>
@@ -176,8 +181,9 @@ export function useNativeChatContextMenu({
     hasSelection ||
     state.canPaste ||
     Boolean(target.quoteText ?? target.link ?? target.codeText ?? target.messageText) ||
-    (target.rewindItemId !== null && rewind !== undefined)
-  const hasSessionItems = onFind !== undefined || showTerminalPaneActions
+    (target.rewindItemId !== null && rewind !== undefined) ||
+    (target.branchItem !== null && branch !== undefined)
+  const hasSessionItems = onFind !== undefined || showTerminalPaneActions || branch !== undefined
   const showWorkspaceLayout =
     workspaceLayout !== undefined &&
     canMoveTabToNewPaneColumn(workspaceLayout.unifiedTabId, workspaceLayout.groupId)
@@ -283,6 +289,7 @@ export function useNativeChatContextMenu({
             target={target}
             composerRef={composerRef}
             rewind={rewind}
+            branch={branch}
           />
           {state.canPaste ? (
             <DropdownMenuItem onSelect={() => actions.onPaste(state.pasteOrigin ?? undefined)}>
@@ -292,6 +299,7 @@ export function useNativeChatContextMenu({
           ) : null}
           {hasEditItems && hasSessionItems ? <DropdownMenuSeparator /> : null}
           {onFind ? <NativeChatFindMenuItem onSelect={() => onFind(state.returnFocusTo)} /> : null}
+          {branch ? <NativeChatBranchChatMenuItem branch={branch} /> : null}
           {showTerminalPaneActions ? (
             <>
               {onSwitchToTerminal ? (

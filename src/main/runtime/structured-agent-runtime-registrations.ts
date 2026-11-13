@@ -4,6 +4,7 @@ import { claudeStructuredLaunchPart } from '../claude/claude-structured-launch-r
 import { createClaudeCommandCatalogProbe } from '../claude/claude-command-catalog-probe'
 import { CodexStructuredSessionAdapter } from '../codex/codex-structured-session-adapter'
 import { createCodexAtRestSkillCatalog } from '../codex/codex-at-rest-skills-probe'
+import { createCodexBranchFork } from '../codex/codex-structured-branch-fork'
 import { CODEX_STRUCTURED_AGENT } from '../codex/codex-structured-agent-definition'
 import { CLAUDE_STRUCTURED_AGENT } from '../claude/claude-structured-agent-definition'
 import { agentModelCatalogStore } from '../native-chat/agent-model-catalog/agent-model-catalog-store'
@@ -47,17 +48,21 @@ export type {
 
 function createCodexAdapter(context: StructuredAgentAdapterContext): StructuredAgentRuntimeAdapter {
   const { deps, followUps, host } = context
+  const invocation = {
+    resolveLaunchArgs: () => deps.resolveLaunchArgs('codex'),
+    resolveWorkspacePath: deps.resolveWorkspacePath,
+    resolveEnvironment: () => context.environment.resolveAgentEnvironment('codex'),
+    refreshEnvironmentAfterMiss: context.environment.refreshAfterMissingProgram,
+    ...(deps.resolveCodexCommand ? { resolveCommand: deps.resolveCodexCommand } : {})
+  }
   return new CodexStructuredSessionAdapter({
     resolveAccountKind: deps.resolveCodexAccountKind,
+    forkForBranch: createCodexBranchFork(invocation),
     atRestCommands: createCodexAtRestSkillCatalog({
-      resolveLaunchArgs: () => deps.resolveLaunchArgs('codex'),
-      resolveWorkspacePath: deps.resolveWorkspacePath,
-      resolveEnvironment: () => context.environment.resolveAgentEnvironment('codex'),
-      refreshEnvironmentAfterMiss: context.environment.refreshAfterMissingProgram,
+      ...invocation,
       ...(deps.prepareCodexCatalogProbeHome
         ? { prepareHome: deps.prepareCodexCatalogProbeHome }
-        : {}),
-      ...(deps.resolveCodexCommand ? { resolveCommand: deps.resolveCodexCommand } : {})
+        : {})
     }),
     resolveLaunch: withSupportedCodexCli(
       composeStructuredLaunch(

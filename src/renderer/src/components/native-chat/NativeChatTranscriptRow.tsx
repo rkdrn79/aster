@@ -13,6 +13,7 @@ import type { NativeChatTaskListPredecessors } from '../../../../shared/native-c
 import type { NativeChatTranscriptSlot } from './native-chat-transcript-slots'
 import type { NativeChatDiffReveal, NativeChatDiffTarget } from './native-chat-turn-diffs'
 import { NativeChatRewindContext } from './native-chat-rewind-context'
+import { NativeChatBranchContext } from './native-chat-branch-context'
 import { nativeChatRowOffersRewind } from './native-chat-rewind-eligibility'
 import { isActionableStructuredAgentSessionPrompt } from '../../../../shared/structured-agent-session-live-turn'
 import { NativeChatNewRowsMarker } from './NativeChatNewRowsMarker'
@@ -57,6 +58,8 @@ export const NativeChatTranscriptRow = memo(function NativeChatTranscriptRow({
 }): React.JSX.Element {
   // Offered only on the conversation's own turn-opening prompts (`nativeChatRowOffersRewind`).
   const rewind = useContext(NativeChatRewindContext)
+  // Offered on the agent's replies and on the person's own turn-opening prompts.
+  const branch = useContext(NativeChatBranchContext)
   // A subagent's section is set off from the conversation it sits in.
   const sectionClassName = cn(
     slot.depth > 0 && 'border-l-2 border-border/60 pl-3',
@@ -87,6 +90,12 @@ export const NativeChatTranscriptRow = memo(function NativeChatTranscriptRow({
   }
   const { message, turnKey, status, receipt, turnDiff, workRun } = slot
   const deliveryNotice = context.deliveryNotices?.get(message.id)
+  const branchable =
+    branch !== undefined &&
+    slot.depth === 0 &&
+    (message.role === 'assistant' ||
+      (nativeChatRowOffersRewind(message, slot, deliveryNotice !== undefined) &&
+        branch.openerIds.has(message.id)))
   const predecessors = context.taskListPredecessors.get(message.id)
   const expanded = turnKey ? context.expandedTurnIds.has(turnKey) : undefined
   const marker = newRowsMarker ? (
@@ -148,6 +157,7 @@ export const NativeChatTranscriptRow = memo(function NativeChatTranscriptRow({
               : undefined
           }
           workRun={workRun}
+          {...(branchable ? { branchable: true as const } : {})}
         />
       )}
       {newRowsMarker?.place === 'above-turn-bar' ? marker : null}

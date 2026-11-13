@@ -66,11 +66,22 @@ describe('research window chat options', () => {
     expect(parseResearchWindowChatOptions({ prompt: '', label: '' })).toEqual({})
   })
 
+  it("carries a branch's conversation copy, and nothing else of it", () => {
+    expect(
+      parseResearchWindowChatOptions({
+        label: 'Figure agent · branch 2',
+        resumeFrom: { providerSessionId: 'copy-1', extra: true }
+      })
+    ).toEqual({ label: 'Figure agent · branch 2', resumeFrom: { providerSessionId: 'copy-1' } })
+  })
+
   it.each([
     ['not an object', 'Draw it'],
     ['a prompt that is not text', { prompt: 7 }],
     ['an overlong title', { label: 'x'.repeat(513) }],
-    ['an overlong prompt', { prompt: 'x'.repeat(2_000_001) }]
+    ['an overlong prompt', { prompt: 'x'.repeat(2_000_001) }],
+    ['a copy with no conversation', { resumeFrom: { providerSessionId: '' } }],
+    ['a copy that is not an object', { resumeFrom: 'copy-1' }]
   ])('refuses %s', (_name, value) => {
     expect(parseResearchWindowChatOptions(value)).toBeNull()
   })

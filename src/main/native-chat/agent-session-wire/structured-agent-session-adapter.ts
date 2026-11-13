@@ -1,4 +1,8 @@
 import type { AiVaultConversationCopy } from '../../../shared/ai-vault-resume-preparation'
+import type {
+  AgentSessionBranchCut,
+  AgentSessionBranchCopy
+} from '../../../shared/agent-session-branch'
 import type { AgentSessionAccountKind } from '../../../shared/agent-session-availability'
 import type {
   AgentSessionRewindFork,
@@ -313,6 +317,12 @@ export type StructuredAgentSessionAdapter = StructuredAgentSessionAdapterStop & 
   }): Promise<
     { ok: true; fork: AgentSessionRewindFork } | { ok: false; reason: AgentSessionRewindReason }
   >
+  /** Copies the chat's conversation through `cut` into a new one the agent saves, for a new chat to
+   *  take over; the chat keeps its own. The agent need not be running. */
+  forkForBranch?(input: {
+    record: AgentSessionRecord
+    cut: AgentSessionBranchCut
+  }): Promise<AgentSessionBranchCopy>
   /** Sends a conversation compaction and answers with the provider's receipt of it, as a dispatch
    *  does. The command's turn is the child's journal translator's to end, from the provider's own
    *  frames; a child that ends first leaves it to the host's settlement of that child. */

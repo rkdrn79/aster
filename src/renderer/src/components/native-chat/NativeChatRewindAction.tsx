@@ -32,8 +32,19 @@ export function NativeChatRewindAction({
           <Undo2 className="size-3.5" />
         </button>
       </TooltipTrigger>
-      <TooltipContent side="top" sideOffset={4}>
-        {rewind.disabledReason ?? label}
+      <TooltipContent side="top" sideOffset={4} className="max-w-64">
+        {rewind.disabledReason ?? (
+          <>
+            <span className="font-medium">{label}</span>
+            {/* Said beside Branch, which makes a new chat: this one changes this chat. */}
+            <span className="block text-background/70">
+              {translate(
+                'components.native-chat.rewind.hint',
+                'Removes this message and what follows from this chat.'
+              )}
+            </span>
+          </>
+        )}
       </TooltipContent>
     </Tooltip>
   )

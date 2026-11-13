@@ -93,6 +93,9 @@ export class CodexStructuredSessionAdapter implements StructuredAgentSessionAdap
 
   readonly atRestCommands: CodexStructuredSessionAdapterDeps['atRestCommands']
 
+  forkForBranch: NonNullable<StructuredAgentSessionAdapter['forkForBranch']> = (input) =>
+    this.deps.forkForBranch?.(input) ?? Promise.resolve({ ok: false, reason: 'unsupported' })
+
   acquire = (input: StructuredAgentSessionAcquireInput): Promise<AgentSessionAcquisition> =>
     acquireCodexStructuredSession({
       input,

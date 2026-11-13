@@ -3,6 +3,7 @@ import { libraryScopeKey } from '../../../../shared/research/research-library'
 import type { ResearchDocument } from '../../../../shared/research/research-records'
 import { writingAgentScopeKey } from '../../../../shared/research/research-conversation-context'
 import type { ResearchWindowPage } from '../../../../shared/research-page-window'
+import { researchChatBranchFamily } from './research-chat-branches'
 
 export { writingAgentScopeKey }
 
@@ -52,7 +53,32 @@ function isRebuttalReviewerSession(
   )
 }
 
+/** Where a chat lives: its own page, else the page any chat of its branch family lives on, so a
+ *  figure's or a reviewer's branches stay with it wherever the subject is bound now. */
 export function researchConversationHome(
+  records: ResearchDocument | null,
+  library: ResearchLibraryDocument | null,
+  hostId: string | null,
+  workspaceId: string,
+  sessionId: string
+): ResearchConversationHome {
+  const own = directConversationHome(records, library, hostId, workspaceId, sessionId)
+  if (own.kind !== 'workbench' || !hostId || !records?.chatBranches) {
+    return own
+  }
+  for (const member of researchChatBranchFamily(records, { hostId, workspaceId }, sessionId)) {
+    const home =
+      member === sessionId
+        ? own
+        : directConversationHome(records, library, hostId, workspaceId, member)
+    if (home.kind !== 'workbench') {
+      return home
+    }
+  }
+  return own
+}
+
+function directConversationHome(
   records: ResearchDocument | null,
   library: ResearchLibraryDocument | null,
   hostId: string | null,

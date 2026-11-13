@@ -32,12 +32,13 @@ export async function launchChatForResearchWindow(
   if (!target.hostId) {
     return { error: 'This project has no host to start a chat on yet.' }
   }
-  const { launchResearchChat } = await import('./ResearchAgentChatPane')
+  const { launchResearchChat } = await import('./research-chat-launch')
   return launchResearchChat({
     hostId: target.hostId,
     workspaceId: target.workspaceId,
     agent,
     ...(options.prompt ? { prompt: options.prompt } : {}),
+    ...(options.resumeFrom ? { resumeFrom: options.resumeFrom } : {}),
     label: options.label ?? formatAgentTypeLabel(agent),
     activate: false
   }).catch((cause: unknown) => ({ error: `The chat could not start. ${String(cause)}` }))

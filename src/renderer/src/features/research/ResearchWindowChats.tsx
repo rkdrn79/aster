@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MessageSquare, Plus } from 'lucide-react'
+import { MessageSquare, MoreHorizontal, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Tab } from '../../../../shared/tab-types'
 import { formatAgentTypeLabel } from '../../../../shared/agent-type-label'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import { ResearchAgentPicker } from './ResearchAgentPicker'
 import NativeChatView from '@/components/native-chat/NativeChatView'
@@ -16,6 +21,7 @@ import type { ResearchWindowTarget } from '../../../../shared/research-page-wind
 import { researchChatSessionTabs } from './ResearchAgentChatPane'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
 import { useResearchWindowChatRequest } from './research-window-surface'
+import { ResearchChatBranchMenuItem } from './ResearchChatBranchMenuItem'
 
 const EMPTY_TABS: readonly Tab[] = []
 // How long a started chat may take to show up in this window's list before the spinner gives up.
@@ -123,18 +129,37 @@ export function ResearchWindowChats({
         </div>
         <nav className="scrollbar-sleek min-h-0 flex-1 space-y-0.5 overflow-y-auto p-1.5">
           {chats.map((tab) => (
-            <Button
-              key={tab.id}
-              size="sm"
-              variant={tab.id === selected?.id ? 'secondary' : 'ghost'}
-              aria-current={tab.id === selected?.id ? 'page' : undefined}
-              className="w-full justify-start"
-              title={chatLabel(tab)}
-              onClick={() => choose(tab.id)}
-            >
-              <MessageSquare aria-hidden />
-              <span className="min-w-0 truncate">{chatLabel(tab)}</span>
-            </Button>
+            <div key={tab.id} className="group flex min-w-0 items-center gap-0.5">
+              <Button
+                size="sm"
+                variant={tab.id === selected?.id ? 'secondary' : 'ghost'}
+                aria-current={tab.id === selected?.id ? 'page' : undefined}
+                className="min-w-0 flex-1 justify-start"
+                title={chatLabel(tab)}
+                onClick={() => choose(tab.id)}
+              >
+                <MessageSquare aria-hidden />
+                <span className="min-w-0 truncate">{chatLabel(tab)}</span>
+              </Button>
+              {/* Why: shown on hover, focus or while open so each row reads as a title first. */}
+              <span className="flex opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100">
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size="icon-xs"
+                      variant="ghost"
+                      aria-label={`Chat options for ${chatLabel(tab)}`}
+                      title="Chat options"
+                    >
+                      <MoreHorizontal aria-hidden />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-64">
+                    <ResearchChatBranchMenuItem tab={tab} />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </span>
+            </div>
           ))}
           {starting ? (
             <p role="status" className="px-2 py-1 text-xs text-muted-foreground">

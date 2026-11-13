@@ -335,6 +335,10 @@ export class StructuredAgentSessionHost {
   journalSnapshot = async (sessionId: string) =>
     (await this.lifetime.conversation(sessionId)).journal.snapshot()
 
+  /** The chat's journal, opened from disk when the chat is at rest. */
+  conversationJournal = async (sessionId: string) =>
+    (await this.lifetime.conversation(sessionId)).journal
+
   /** The host's projection of a held chat's current work (`structuredAgentSessionCurrentWork`). */
   currentWork = this.clientDelivery.readCurrentWork
   readCurrentRequests: StructuredAgentSessionBackgroundTaskChannel['currentRequests'] = (...args) =>

@@ -14,7 +14,11 @@ function hasChatTab(workspaceId: string, sessionId: string): boolean {
 }
 
 /** Resolves once the chat's tab is in this window's state, or after the timeout. */
-function waitForChatTab(workspaceId: string, sessionId: string, timeoutMs: number): Promise<void> {
+export function waitForChatTab(
+  workspaceId: string,
+  sessionId: string,
+  timeoutMs: number
+): Promise<void> {
   if (hasChatTab(workspaceId, sessionId)) {
     return Promise.resolve()
   }
@@ -40,13 +44,26 @@ function waitForChatTab(workspaceId: string, sessionId: string, timeoutMs: numbe
  */
 export async function launchResearchChatThroughMainWindow(
   windowTarget: ResearchWindowTarget,
-  input: { hostId: string; workspaceId: string; agent: TuiAgent; prompt?: string; label: string },
+  input: {
+    hostId: string
+    workspaceId: string
+    agent: TuiAgent
+    prompt?: string
+    label: string
+    resumeFrom?: { providerSessionId: string }
+  },
   timeoutMs = TAB_ARRIVAL_TIMEOUT_MS
 ): Promise<ResearchWindowLaunchResult> {
   const result = await window.api.researchWindow.launchChat(
     { ...windowTarget, workspaceId: input.workspaceId, hostId: input.hostId },
     input.agent,
-    { ...(input.prompt ? { prompt: input.prompt } : {}), label: input.label }
+    {
+      ...(input.prompt ? { prompt: input.prompt } : {}),
+      label: input.label,
+      ...(input.resumeFrom
+        ? { resumeFrom: { providerSessionId: input.resumeFrom.providerSessionId } }
+        : {})
+    }
   )
   if ('sessionId' in result) {
     await waitForChatTab(input.workspaceId, result.sessionId, timeoutMs)

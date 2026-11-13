@@ -20,8 +20,13 @@ export type ResearchWindowTarget = {
   hostId: string | null
 }
 
-/** What a page asks for when it starts a chat from a research window: its first prompt and title. */
-export type ResearchWindowChatOptions = { prompt?: string; label?: string }
+/** What a page asks for when it starts a chat from a research window: its first prompt and title,
+ *  and for a branch, the copy of a conversation it takes over. */
+export type ResearchWindowChatOptions = {
+  prompt?: string
+  label?: string
+  resumeFrom?: { providerSessionId: string }
+}
 
 // Why so large: a Rebuttal or Figure agent's first prompt carries the reviews or the scene.
 const MAX_CHAT_PROMPT_LENGTH = 2_000_000
@@ -37,16 +42,26 @@ export function parseResearchWindowChatOptions(value: unknown): ResearchWindowCh
   }
   const prompt: unknown = Reflect.get(value, 'prompt')
   const label: unknown = Reflect.get(value, 'label')
+  const resumeFrom: unknown = Reflect.get(value, 'resumeFrom')
+  const providerSessionId: unknown =
+    resumeFrom && typeof resumeFrom === 'object'
+      ? Reflect.get(resumeFrom, 'providerSessionId')
+      : undefined
   if (
     (prompt !== undefined &&
       (typeof prompt !== 'string' || prompt.length > MAX_CHAT_PROMPT_LENGTH)) ||
-    (label !== undefined && (typeof label !== 'string' || label.length > MAX_CHAT_LABEL_LENGTH))
+    (label !== undefined && (typeof label !== 'string' || label.length > MAX_CHAT_LABEL_LENGTH)) ||
+    (resumeFrom !== undefined &&
+      (typeof providerSessionId !== 'string' ||
+        providerSessionId.length === 0 ||
+        providerSessionId.length > MAX_CHAT_LABEL_LENGTH))
   ) {
     return null
   }
   return {
     ...(typeof prompt === 'string' && prompt.length > 0 ? { prompt } : {}),
-    ...(typeof label === 'string' && label.length > 0 ? { label } : {})
+    ...(typeof label === 'string' && label.length > 0 ? { label } : {}),
+    ...(typeof providerSessionId === 'string' ? { resumeFrom: { providerSessionId } } : {})
   }
 }
 

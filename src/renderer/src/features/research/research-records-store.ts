@@ -38,7 +38,7 @@ export const useResearchRecords = create<ResearchRecordsState>((set, get) => ({
     if (get().document) {
       return Promise.resolve()
     }
-    if (!window.api.researchRecords?.read) {
+    if (!window.api?.researchRecords?.read) {
       set({ error: 'Research records are unavailable in this client version.' })
       return Promise.resolve()
     }

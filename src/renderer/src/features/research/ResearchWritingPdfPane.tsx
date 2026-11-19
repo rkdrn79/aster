@@ -11,12 +11,9 @@ import type { PdfNavigationRequest } from '@/components/editor/pdf-navigation'
 import type { PdfPagePoint } from '@/components/editor/pdf-page-point'
 import type { PdfTextSelection } from '@/components/editor/pdf-text-selection'
 import { useAppStore } from '@/store'
-import {
-  readManuscriptPdf,
-  resolveManuscriptFile,
-  type ManuscriptFile,
-  type ManuscriptPdf
-} from './research-writing-source'
+import { resolveManuscriptFile, type ManuscriptFile } from './research-writing-source'
+import { openManuscriptPdf, type ManuscriptPdfSource } from './research-pdf-file'
+import { encodeBase64Bytes } from '@/lib/fast-base64'
 import { ResearchWritingPdfReviseComposer } from './research-writing-pdf-revise-composer'
 import { useWritingCompile } from './research-writing-compile'
 import {
@@ -59,7 +56,7 @@ export function ResearchWritingPdfPane({
   const [pdfLoading, setPdfLoading] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [pdfError, setPdfError] = useState<string | null>(null)
-  const [pdf, setPdf] = useState<ManuscriptPdf | null>(null)
+  const [pdf, setPdf] = useState<ManuscriptPdfSource | null>(null)
   const [pdfRefreshKey, setPdfRefreshKey] = useState(0)
   const [compiledPdfPath, setCompiledPdfPath] = useState<string | null>(null)
   const [lastBuiltAt, setLastBuiltAt] = useState<string | null>(null)
@@ -160,16 +157,16 @@ export function ResearchWritingPdfPane({
     }
     setPdfLoading(true)
     setPdfError(null)
-    void readManuscriptPdf(
-      { hostId, workspaceId, workspacePath },
-      pdfFile,
-      undefined,
-      pdfRefreshKey > 0
-    ).then(
+    let opened: ManuscriptPdfSource | null = null
+    // Why no forced re-read after a build: the open compares size and change times, so an
+    // unchanged PDF comes from the cache and a rebuilt one is read again.
+    void openManuscriptPdf({ hostId, workspaceId, workspacePath }, pdfFile).then(
       (result) => {
         if (generation !== pdfReadGeneration.current) {
+          result.release()
           return
         }
+        opened = result
         setPdf(result)
         setPdfLoading(false)
       },
@@ -184,6 +181,7 @@ export function ResearchWritingPdfPane({
     )
     return () => {
       pdfReadGeneration.current += 1
+      opened?.release()
     }
   }, [hostId, workspaceId, workspacePath, pdfFile, pdfRefreshKey])
 
@@ -214,7 +212,7 @@ export function ResearchWritingPdfPane({
     try {
       const result = await window.api.fs.saveDownloadedFile({
         suggestedName: basename(pdfFile.relativePath),
-        content: pdf.base64,
+        content: encodeBase64Bytes(await pdf.whole()),
         encoding: 'base64'
       })
       if (!result.canceled) {
@@ -319,7 +317,7 @@ export function ResearchWritingPdfPane({
             fallback={<p className="p-4 text-xs text-muted-foreground">Loading PDF viewer…</p>}
           >
             <PdfViewer
-              content={pdf.base64}
+              source={pdf}
               filePath={pdfFile.absolutePath}
               preferenceKey={`${experiment.workspaceId}:${pdfFile.relativePath}`}
               scrollCacheKey={`${experiment.workspaceId}:${pdfFile.relativePath}`}

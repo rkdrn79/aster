@@ -16355,6 +16355,9 @@
           "d080ab37d6": "No matches",
           "db56fcd6d2": "{{value0}} of {{value1}}"
         },
+        "PdfLoadProgress": {
+          "da4143bbfa": "Loading PDF · {{value0}}"
+        },
         "PdfViewer": {
           "3e98d500d2": "PDF preview",
           "069ff59932": "Find in PDF ({{value0}})",

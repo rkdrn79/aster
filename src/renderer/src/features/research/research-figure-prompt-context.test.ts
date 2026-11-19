@@ -37,7 +37,7 @@ describe('the prompt context of an open plot', () => {
         manifestPath: '/p/.aster/figures/flow.plot.json'
       },
       // No reference folder on this device and nothing chosen: careful and concept off, no refs.
-      modes: { careful: null, references: null, concept: false }
+      modes: { careful: null, references: null, concept: false, conceptStyle: 'redraw' }
     })
     expect(figurePromptContext({ ...host, plot: null }).plot).toBeNull()
   })

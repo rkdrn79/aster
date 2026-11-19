@@ -1,6 +1,11 @@
 import * as pdfjsLib from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
-import { buildPdfJsDocumentOptions } from '@/components/editor/pdf-js-document-options'
+import {
+  buildPdfJsDocumentOptions,
+  buildPdfJsRangeDocumentOptions
+} from '@/components/editor/pdf-js-document-options'
+import type { PdfDocumentSource } from '@/components/editor/pdf-document-source'
+import { createPdfRangeTransport } from '@/components/editor/pdf-range-transport'
 import {
   findPaperIdentifiers,
   pdfDateYear,
@@ -37,12 +42,40 @@ function infoField(info: unknown, key: string): unknown {
   return typeof info === 'object' && info !== null ? Reflect.get(info, key) : undefined
 }
 
-/** Title, authors and year from the PDF's own metadata, else the largest text on page 1. */
+function openDocument(source: Uint8Array | PdfDocumentSource) {
+  const bytes = source instanceof Uint8Array ? source : source.bytes
+  if (bytes) {
+    // Why a copy: pdf.js detaches the buffer it gets, and the cache keeps these bytes.
+    return {
+      task: pdfjsLib.getDocument(buildPdfJsDocumentOptions(bytes.slice(), document.baseURI)),
+      release: () => {}
+    }
+  }
+  const ranged = source instanceof Uint8Array ? null : source.ranged
+  if (!ranged) {
+    throw new Error('The PDF has no bytes to read.')
+  }
+  const range = createPdfRangeTransport(ranged, () => {})
+  return {
+    task: pdfjsLib.getDocument(
+      buildPdfJsRangeDocumentOptions(
+        { transport: range.transport, chunkBytes: ranged.blockBytes },
+        document.baseURI
+      )
+    ),
+    release: range.dispose
+  }
+}
+
+/**
+ * Title, authors and year from the PDF's own metadata, else the largest text on page 1. A ranged
+ * source reads only what the info dictionary and page 1 need, not the whole paper.
+ */
 export async function readPdfPaperMetadata(
-  bytes: Uint8Array,
+  source: Uint8Array | PdfDocumentSource,
   fileStem: string
 ): Promise<PdfPaperMetadata> {
-  const task = pdfjsLib.getDocument(buildPdfJsDocumentOptions(bytes, document.baseURI))
+  const { task, release } = openDocument(source)
   try {
     const pdf = await task.promise
     const { info } = await pdf.getMetadata().catch(() => ({ info: null }))
@@ -59,6 +92,7 @@ export async function readPdfPaperMetadata(
       ...findPaperIdentifiers(runs.map((run) => run.str).join(' '))
     }
   } finally {
+    release()
     void task.destroy().catch(() => {})
   }
 }

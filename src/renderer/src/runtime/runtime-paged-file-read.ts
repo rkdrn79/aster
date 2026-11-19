@@ -14,9 +14,13 @@ import {
 import { RuntimeRpcCallError } from './runtime-rpc-result'
 import { callRuntimeRpc } from './runtime-rpc-client'
 import { captureRuntimeEnvironmentRequestRevision } from './runtime-environment-revision'
+import { forEachWithConcurrency } from '../../../shared/map-with-concurrency'
+import { decodeBase64Bytes, encodeBase64Bytes } from '@/lib/fast-base64'
 
 // Why: under files.readChunk's 512 KiB cap, and a multiple of 3 so its base64 has no padding.
 const PAGED_READ_CHUNK_BYTES = 384 * 1024
+// Why 4: half of the app's per-host RPC queue, enough to keep a 50 ms link busy.
+const PAGED_READ_CONCURRENCY = 4
 // Why: the cap local and SSH reads already apply, so a file opens the same on every host.
 export const PAGED_REMOTE_FILE_MAX_BYTES = 50 * 1024 * 1024
 export const REMOTE_FILE_CHANGED_DURING_READ_MESSAGE =
@@ -72,33 +76,41 @@ export async function readFileInChunks(reader: ChunkedFileReader): Promise<Paged
   if (before.size > PAGED_REMOTE_FILE_MAX_BYTES) {
     return { kind: 'too_large', size: before.size }
   }
-  const bytes = new Uint8Array(before.size)
-  let offset = 0
-  for (;;) {
-    const chunk = await nullWhenUnsupported(() => reader.readChunk(offset, PAGED_READ_CHUNK_BYTES))
+  const size = before.size
+  const bytes = new Uint8Array(size)
+  const offsets = Array.from(
+    { length: Math.max(1, Math.ceil(size / PAGED_READ_CHUNK_BYTES)) },
+    (_, index) => index * PAGED_READ_CHUNK_BYTES
+  )
+  let unsupported = false
+  // Why parallel: one chunk per round trip left a slow link idle; the stat fixes every offset.
+  await forEachWithConcurrency(offsets, PAGED_READ_CONCURRENCY, async (offset) => {
+    const chunk = unsupported
+      ? null
+      : await nullWhenUnsupported(() => reader.readChunk(offset, PAGED_READ_CHUNK_BYTES))
     if (!chunk) {
-      return { kind: 'unsupported' }
+      unsupported = true
+      return
     }
     const decoded = decodeChunk(chunk.contentBase64, chunk.bytesRead)
-    // Why: the stat bounds the loop, so a growing file or a host that never reports EOF stops.
-    if (offset + decoded.length > before.size || (!chunk.eof && decoded.length === 0)) {
+    // Why: the stat bounds the read, so a shrunk or growing file, or a host that never reports
+    // EOF on the last chunk, stops it.
+    const last = offset + PAGED_READ_CHUNK_BYTES >= size
+    if (
+      decoded.length !== Math.min(PAGED_READ_CHUNK_BYTES, size - offset) ||
+      (last && !chunk.eof)
+    ) {
       throw new Error(REMOTE_FILE_CHANGED_DURING_READ_MESSAGE)
     }
     bytes.set(decoded, offset)
-    offset += decoded.length
-    if (chunk.eof) {
-      break
-    }
+  })
+  if (unsupported) {
+    return { kind: 'unsupported' }
   }
   // Why: chunks are separate reads, so a rewrite between them (a PDF rebuild) would splice two
   // versions into one corrupt file.
   const after = await reader.stat()
-  if (
-    offset !== before.size ||
-    after.size !== before.size ||
-    after.mtime !== before.mtime ||
-    after.ctime !== before.ctime
-  ) {
+  if (after.size !== before.size || after.mtime !== before.mtime || after.ctime !== before.ctime) {
     throw new Error(REMOTE_FILE_CHANGED_DURING_READ_MESSAGE)
   }
   return { kind: 'ok', bytes }
@@ -143,7 +155,7 @@ export function pagedFilePreviewResult(
 ): RuntimeFilePreviewResult {
   const mimeType = previewableBinaryMimeType(relativePath)
   if (mimeType) {
-    return { content: bytesToBase64(bytes), isBinary: true, isImage: true, mimeType }
+    return { content: encodeBase64Bytes(bytes), isBinary: true, isImage: true, mimeType }
   }
   return pagedTextFileResult(bytes)
 }
@@ -187,23 +199,9 @@ function decodeChunk(contentBase64: unknown, bytesRead: unknown): Uint8Array {
   ) {
     throw new Error('Remote file read returned an invalid chunk')
   }
-  const binary = atob(contentBase64)
-  const bytes = new Uint8Array(binary.length)
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index)
-  }
+  const bytes = decodeBase64Bytes(contentBase64)
   if (bytes.length !== bytesRead) {
     throw new Error('Remote file read returned an invalid chunk')
   }
   return bytes
-}
-
-function bytesToBase64(bytes: Uint8Array): string {
-  const parts: string[] = []
-  // Why: a multiple of 3, so slices join without padding; small enough for fromCharCode's args.
-  const slice = 0x2000 * 3
-  for (let start = 0; start < bytes.length; start += slice) {
-    parts.push(btoa(String.fromCharCode(...bytes.subarray(start, start + slice))))
-  }
-  return parts.join('')
 }

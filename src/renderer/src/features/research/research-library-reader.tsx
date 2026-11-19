@@ -12,12 +12,8 @@ import {
   ResearchLibrarySelectionToolbar,
   type ReaderSelectionAction
 } from './research-library-selection-toolbar'
-import {
-  readManuscriptPdf,
-  resolveManuscriptFile,
-  type ManuscriptFile,
-  type ManuscriptPdf
-} from './research-writing-source'
+import { resolveManuscriptFile, type ManuscriptFile } from './research-writing-source'
+import { openManuscriptPdf, type ManuscriptPdfSource } from './research-pdf-file'
 
 const PdfViewer = lazy(() => import('@/components/editor/PdfViewer'))
 const MAX_LIBRARY_PDF_BYTES = 64 * 1024 * 1024
@@ -52,7 +48,7 @@ export function ResearchLibraryReader({
   onSelectionAction: (action: ReaderSelectionAction) => Promise<string | null>
   onAttachPdf: (() => Promise<void>) | null
 }): React.JSX.Element {
-  const [pdf, setPdf] = useState<ManuscriptPdf | null>(null)
+  const [pdf, setPdf] = useState<ManuscriptPdfSource | null>(null)
   const [pdfError, setPdfError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
@@ -89,15 +85,19 @@ export function ResearchLibraryReader({
       return
     }
     setLoading(true)
-    void readManuscriptPdf(
+    let opened: ManuscriptPdfSource | null = null
+    void openManuscriptPdf(
       { hostId, workspaceId, workspacePath },
       file,
       MAX_LIBRARY_PDF_BYTES
     ).then(
       (nextPdf) => {
         if (request.current === current) {
+          opened = nextPdf
           setPdf(nextPdf)
           setLoading(false)
+        } else {
+          nextPdf.release()
         }
       },
       (cause) => {
@@ -109,6 +109,8 @@ export function ResearchLibraryReader({
     )
     return () => {
       request.current += 1
+      // Why: a half-read paper pauses its download until it is opened again.
+      opened?.release()
     }
   }, [hostId, workspaceId, workspacePath, file, refreshKey])
 
@@ -157,7 +159,7 @@ export function ResearchLibraryReader({
             fallback={<p className="p-6 text-sm text-muted-foreground">Loading PDF viewer…</p>}
           >
             <PdfViewer
-              content={pdf.base64}
+              source={pdf}
               filePath={file.absolutePath}
               preferenceKey={`library:${workspaceId}:${file.relativePath}`}
               scrollCacheKey={`library:${workspaceId}:${file.relativePath}`}

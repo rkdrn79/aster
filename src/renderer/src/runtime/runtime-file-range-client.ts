@@ -1,12 +1,25 @@
 import type { RuntimeFileReadChunkResult } from '../../../shared/runtime-types'
 import type { RuntimeClientTarget } from '../../../shared/runtime-client-target'
-import { validateFileRangeRequest } from '../../../shared/file-range-read'
+import {
+  MAX_FILE_RANGE_READ_BYTES,
+  validateFileRangeRequest
+} from '../../../shared/file-range-read'
 import type { RuntimeFileReadArgs } from './runtime-file-client-types'
 import { assertExternalSshReadOwnership, canReadRelativeRuntimeFile } from './runtime-file-routing'
 import { callRuntimeRpc } from './runtime-rpc-client'
 import { RuntimeRpcCallError } from './runtime-rpc-result'
 import { toRuntimeWorktreeSelector } from './runtime-worktree-selector'
+import { captureRuntimeEnvironmentRequestRevision } from './runtime-environment-revision'
 import { PRODUCT_NAME } from '../../../shared/product-brand'
+import { decodeBase64Bytes } from '@/lib/fast-base64'
+
+/** Under `files.readChunk`'s 512 KiB cap (hosts since September), and a multiple of 3 so its
+ *  base64 carries no padding. Local IPC keeps the stricter shared range cap. */
+export const REMOTE_FILE_BLOCK_BYTES = 384 * 1024
+// Why 4: the app's per-host RPC queue runs 8 calls at once; whole-file reads leave half for
+// everything else, and four replies in flight keep a 50 ms, 10 MB/s link busy.
+const REMOTE_FILE_BLOCK_CONCURRENCY = 4
+const LOCAL_FILE_BLOCK_CONCURRENCY = 4
 
 /** A file on a paired runtime, addressed the way its host's `files.*` methods expect. */
 export type RuntimeRemoteFileAddress = {
@@ -113,9 +126,50 @@ export async function readRuntimeFileRange(
     }
     throw error
   }
-  const bytes = Uint8Array.from(atob(result.contentBase64), (character) => character.charCodeAt(0))
+  const bytes = decodeBase64Bytes(result.contentBase64)
   if (bytes.length !== result.bytesRead || bytes.length > length || bytes.length === 0) {
     throw new Error('File changed or returned an invalid CSV chunk. Reload the preview.')
   }
   return bytes
+}
+
+export type RuntimeFileBlockReader = {
+  /** True when the bytes cross a paired-runtime link rather than this machine's IPC. */
+  remote: boolean
+  blockBytes: number
+  concurrency: number
+  read: (offset: number, length: number) => Promise<Uint8Array<ArrayBuffer>>
+}
+
+/** Whole-file reads in blocks: larger ones over a paired runtime, pinned to its current pairing. */
+export function runtimeFileBlockReader(args: RuntimeFileReadArgs): RuntimeFileBlockReader {
+  const address = rangeReadTarget(args)
+  if (!address) {
+    return {
+      remote: false,
+      blockBytes: MAX_FILE_RANGE_READ_BYTES,
+      concurrency: LOCAL_FILE_BLOCK_CONCURRENCY,
+      read: (offset, length) => readRuntimeFileRange(args, offset, length)
+    }
+  }
+  const remote: RuntimeRemoteFileAddress = {
+    ...address,
+    expectedEnvironmentPairingRevision: captureRuntimeEnvironmentRequestRevision(
+      address.target.environmentId,
+      address.expectedEnvironmentPairingRevision
+    )
+  }
+  return {
+    remote: true,
+    blockBytes: REMOTE_FILE_BLOCK_BYTES,
+    concurrency: REMOTE_FILE_BLOCK_CONCURRENCY,
+    read: async (offset, length) => {
+      const result = await readRemoteRuntimeFileChunk(remote, offset, length)
+      const bytes = decodeBase64Bytes(result.contentBase64)
+      if (bytes.length !== result.bytesRead) {
+        throw new Error('The host returned an invalid file chunk.')
+      }
+      return bytes
+    }
+  }
 }

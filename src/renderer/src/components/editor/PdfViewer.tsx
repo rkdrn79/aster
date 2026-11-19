@@ -29,6 +29,9 @@ import { EditorCommandOwnerContext } from './editor-command-owner-context'
 import { listenForPdfZoomRequests } from './pdf-zoom-request'
 import { extractPdfTextSelection, type PdfTextSelection } from './pdf-text-selection'
 import { attachPdfHighlightLayer, type PdfHighlightOverlay } from './pdf-highlight-layer'
+import type { PdfDocumentSource } from './pdf-document-source'
+import type { RangedFileProgress } from './ranged-file'
+import { PdfLoadProgressOverlay, pdfLoadProgressLabel } from './PdfLoadProgress'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl
 
@@ -38,7 +41,10 @@ const SCALE_STEP = 1.25
 const SCALE_BOUNDS = { min: MIN_SCALE, max: MAX_SCALE, step: SCALE_STEP }
 
 type PdfViewerProps = {
-  content: string
+  /** Base64 file content; ignored when `source` is set. */
+  content?: string
+  /** A cached or ranged file: pdf.js shows the first page before the rest arrives. */
+  source?: PdfDocumentSource | null
   filePath: string
   // Why: callers that do not have an owner identity (for example diff and
   // conflict panes) must not persist a preference under a path-only key.
@@ -68,7 +74,8 @@ export default function PdfViewer(props: PdfViewerProps): JSX.Element {
 }
 
 function PdfDocumentViewer({
-  content,
+  content = '',
+  source = null,
   filePath,
   preferenceKey = null,
   scrollCacheKey = null,
@@ -82,6 +89,8 @@ function PdfDocumentViewer({
   const viewerDivRef = useRef<HTMLDivElement>(null)
   const loaderRef = useRef<PdfDocumentLoader | null>(null)
   const [pdfError, setPdfError] = useState<string | null>(null)
+  const [loadProgress, setLoadProgress] = useState<RangedFileProgress | null>(null)
+  const [painted, setPainted] = useState(false)
   const [findOpen, setFindOpen] = useState(false)
   const [scale, setScale] = useState(1)
   // Why state too: the Fit button shows whether the PDF follows the pane width.
@@ -103,7 +112,10 @@ function PdfDocumentViewer({
   const scalePreferenceRef = useRef<PdfScalePreference>('page-width')
 
   const filename = useMemo(() => filePath.split(/[/\\]/).pop() || filePath, [filePath])
-  const cleanedContent = useMemo(() => content.replace(/\s/g, ''), [content])
+  const cleanedContent = useMemo(
+    () => (source ? '' : content.replace(/\s/g, '')),
+    [content, source]
+  )
 
   // Why: every zoom entry point (toolbar, app zoom command, wheel/pinch) must record the
   // scale preference so the next content reload restores it (see scalePreferenceRef).
@@ -154,6 +166,7 @@ function PdfDocumentViewer({
     setFitsWidth(scalePreferenceRef.current === 'page-width')
     const loader = createPdfDocumentLoader({
       onError: setPdfError,
+      onProgress: setLoadProgress,
       display: (doc) => {
         const session = createPdfViewerSession({
           container,
@@ -175,8 +188,15 @@ function PdfDocumentViewer({
         })
         highlightLayerRef.current = highlightLayer
         session.eventBus.on('pagesloaded', applyPendingNavigation)
+        const onPainted = (): void => {
+          session.eventBus.off('pagerendered', onPainted)
+          setPainted(true)
+          loader.notifyPainted()
+        }
+        session.eventBus.on('pagerendered', onPainted)
         return () => {
           try {
+            session.eventBus.off('pagerendered', onPainted)
             session.eventBus.off('pagesloaded', applyPendingNavigation)
             highlightLayer.dispose()
             highlightLayerRef.current = null
@@ -233,9 +253,10 @@ function PdfDocumentViewer({
   }, [navigation, applyPendingNavigation])
 
   useEffect(() => {
-    loaderRef.current?.load(cleanedContent)
+    setPainted(false)
+    loaderRef.current?.load(source ?? cleanedContent)
     // Why: owner changes must load again even when the bytes are identical.
-  }, [cleanedContent, filePath, preferenceKey, scrollCacheKey])
+  }, [cleanedContent, source, filePath, preferenceKey, scrollCacheKey])
 
   const closeFindBar = useCallback(() => {
     const eventBus = eventBusRef.current
@@ -323,6 +344,9 @@ function PdfDocumentViewer({
             <div ref={viewerDivRef} className="pdfViewer" />
           </div>
         </div>
+        {loadProgress && !painted && !pdfError ? (
+          <PdfLoadProgressOverlay progress={loadProgress} />
+        ) : null}
         {pdfError ? (
           <div
             role="alert"
@@ -380,9 +404,15 @@ function PdfDocumentViewer({
         <span className="min-w-0 truncate" title={filename}>
           {filename}
         </span>
-        <span className="hidden shrink-0 whitespace-nowrap @md:inline">
-          {translate('auto.components.editor.PdfViewer.3e98d500d2', 'PDF preview')}
-        </span>
+        {loadProgress ? (
+          <span role="status" className="shrink-0 whitespace-nowrap tabular-nums">
+            {pdfLoadProgressLabel(loadProgress)}
+          </span>
+        ) : (
+          <span className="hidden shrink-0 whitespace-nowrap @md:inline">
+            {translate('auto.components.editor.PdfViewer.3e98d500d2', 'PDF preview')}
+          </span>
+        )}
       </div>
     </div>
   )

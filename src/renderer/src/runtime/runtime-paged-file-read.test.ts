@@ -294,6 +294,34 @@ describe('remote reads larger than one RPC reply', () => {
     expect(calls.every((call) => call.expectedEnvironmentPairingRevision === 7)).toBe(true)
   })
 
+  it('reads chunks four at a time and reassembles them in order', async () => {
+    const bytes = patternedBytes(3 * MB)
+    serveRemoteFile('paper.pdf', { bytes })
+    const serve = runtimeEnvironmentCall.getMockImplementation()
+    let inFlight = 0
+    let maxInFlight = 0
+    runtimeEnvironmentCall.mockImplementation(async (request: RuntimeRpcRequest) => {
+      const params = request.params
+      if (request.method !== 'files.readChunk' || !isChunkParams(params)) {
+        return serve?.(request)
+      }
+      inFlight += 1
+      maxInFlight = Math.max(maxInFlight, inFlight)
+      // Later chunks answer first, as replies on a busy link can.
+      await new Promise((resolve) => setTimeout(resolve, 20 - params.offset / MB))
+      inFlight -= 1
+      return serve?.(request)
+    })
+
+    const result = await readRuntimeFileContent({
+      ...remote('paper.pdf'),
+      pageOversizedBinary: true
+    })
+
+    expect(maxInFlight).toBe(4)
+    expect(Buffer.from(result.content, 'base64').equals(bytes)).toBe(true)
+  })
+
   it('stops when the host never reports EOF', async () => {
     const bytes = htmlBytes(2 * MB)
     serveRemoteFile('report.html', {

@@ -1,27 +1,54 @@
 import * as pdfjsLib from 'pdfjs-dist'
-import { buildPdfJsDocumentOptions } from './pdf-js-document-options'
+import { decodeBase64Bytes } from '@/lib/fast-base64'
+import {
+  buildPdfJsDocumentOptions,
+  buildPdfJsRangeDocumentOptions
+} from './pdf-js-document-options'
+import type { PdfDocumentSource } from './pdf-document-source'
+import { createPdfRangeTransport } from './pdf-range-transport'
+import {
+  RangedFileAbortedError,
+  RangedFileChangedError,
+  type RangedFileProgress
+} from './ranged-file'
 
 type PdfLoadingTask = ReturnType<typeof pdfjsLib.getDocument>
 
+/** Base64 content (editor tabs, figure files) or a viewer source (cached or ranged). */
+export type PdfLoadInput = string | PdfDocumentSource
+
 export type PdfDocumentLoader = {
-  load: (content: string) => void
+  load: (input: PdfLoadInput) => void
+  /** The first page painted: the rest of a ranged file may now download in the background. */
+  notifyPainted: () => void
   dispose: () => void
 }
 
+// Why a fallback: a hidden pane paints nothing, yet the file should still finish downloading.
+const BACKGROUND_FILL_FALLBACK_MS = 1500
+
 export function createPdfDocumentLoader({
   display,
-  onError
+  onError,
+  onProgress = () => {}
 }: {
   display: (doc: pdfjsLib.PDFDocumentProxy) => () => void
   onError: (message: string | null) => void
+  /** Bytes loaded of a ranged file, or null once it is whole (or nothing is loading). */
+  onProgress?: (progress: RangedFileProgress | null) => void
 }): PdfDocumentLoader {
-  const tasks = new Set<PdfLoadingTask>()
+  const tasks = new Map<PdfLoadingTask, () => void>()
   let pending: PdfLoadingTask | null = null
   let displayed: { task: PdfLoadingTask; detach: () => void } | null = null
+  let current: PdfDocumentSource | null = null
+  let fillTimer: ReturnType<typeof setTimeout> | null = null
   let disposed = false
 
   const destroy = (task: PdfLoadingTask): void => {
-    if (tasks.delete(task)) {
+    const release = tasks.get(task)
+    if (release) {
+      tasks.delete(task)
+      release()
       void task.destroy().catch(() => {})
     }
   }
@@ -29,12 +56,80 @@ export function createPdfDocumentLoader({
     onError(
       error instanceof Error && error.name === 'PasswordException'
         ? 'This PDF is password-protected'
-        : 'Failed to load PDF preview'
+        : error instanceof RangedFileChangedError
+          ? error.message
+          : 'Failed to load PDF preview'
     )
+  }
+  const clearFillTimer = (): void => {
+    if (fillTimer !== null) {
+      clearTimeout(fillTimer)
+      fillTimer = null
+    }
+  }
+  const startFill = (): void => {
+    clearFillTimer()
+    current?.ranged?.fillInBackground()
+  }
+  const openRanged = (input: PdfDocumentSource): PdfOpened | null => {
+    const ranged = input.ranged
+    if (!ranged) {
+      onError('Failed to load PDF preview')
+      return null
+    }
+    const range = createPdfRangeTransport(ranged, (error) => {
+      // Why skip an abort: only a superseded read is aborted, and its replacement is on the way.
+      if (!disposed && current === input && !(error instanceof RangedFileAbortedError)) {
+        fail(error)
+      }
+    })
+    const stopProgress = ranged.onProgress((progress) => {
+      if (current === input) {
+        onProgress(ranged.isComplete() ? null : progress)
+      }
+    })
+    onProgress(ranged.isComplete() ? null : { loaded: ranged.loadedBytes(), total: ranged.size })
+    const task = pdfjsLib.getDocument(
+      buildPdfJsRangeDocumentOptions(
+        { transport: range.transport, chunkBytes: ranged.blockBytes },
+        document.baseURI
+      )
+    )
+    return {
+      task,
+      release: () => {
+        stopProgress()
+        range.dispose()
+      }
+    }
+  }
+  const open = (input: PdfLoadInput): PdfOpened | null => {
+    if (typeof input !== 'string') {
+      // Why a copy: pdf.js transfers the buffer to its worker, and the cache keeps this one.
+      return input.bytes
+        ? {
+            task: pdfjsLib.getDocument(
+              buildPdfJsDocumentOptions(input.bytes.slice(), document.baseURI)
+            ),
+            release: () => {}
+          }
+        : openRanged(input)
+    }
+    let bytes: Uint8Array
+    try {
+      bytes = decodeBase64Bytes(input)
+    } catch {
+      onError('Failed to decode PDF content')
+      return null
+    }
+    return {
+      task: pdfjsLib.getDocument(buildPdfJsDocumentOptions(bytes, document.baseURI)),
+      release: () => {}
+    }
   }
 
   return {
-    load: (content) => {
+    load: (input) => {
       if (disposed) {
         return
       }
@@ -52,30 +147,26 @@ export function createPdfDocumentLoader({
           destroy(previous.task)
         }
       }
+      clearFillTimer()
+      current = typeof input === 'string' ? null : input
       onError(null)
-      if (!content) {
+      onProgress(null)
+      if (!input) {
         onError('Failed to load PDF preview')
         return
       }
-      let binary: string
+      let opened: PdfOpened | null
       try {
-        binary = window.atob(content)
-      } catch {
-        onError('Failed to decode PDF content')
-        return
-      }
-      const bytes = new Uint8Array(binary.length)
-      for (let index = 0; index < binary.length; index += 1) {
-        bytes[index] = binary.charCodeAt(index)
-      }
-      let task: PdfLoadingTask
-      try {
-        task = pdfjsLib.getDocument(buildPdfJsDocumentOptions(bytes, document.baseURI))
+        opened = open(input)
       } catch (error) {
         fail(error)
         return
       }
-      tasks.add(task)
+      if (!opened) {
+        return
+      }
+      const { task } = opened
+      tasks.set(task, opened.release)
       pending = task
       void task.promise.then(
         (doc) => {
@@ -86,6 +177,9 @@ export function createPdfDocumentLoader({
           try {
             displayed = { task, detach: display(doc) }
             onError(null)
+            if (current?.ranged && !current.ranged.isComplete()) {
+              fillTimer = setTimeout(startFill, BACKGROUND_FILL_FALLBACK_MS)
+            }
           } catch (error) {
             destroy(task)
             fail(error)
@@ -101,20 +195,30 @@ export function createPdfDocumentLoader({
         }
       )
     },
+    notifyPainted: () => {
+      if (!disposed && displayed) {
+        startFill()
+      }
+    },
     dispose: () => {
       if (disposed) {
         return
       }
       disposed = true
       pending = null
+      current = null
+      clearFillTimer()
       try {
         displayed?.detach()
       } finally {
         displayed = null
-        for (const task of tasks) {
+        // Deleting the entry being visited is safe in a Map iteration.
+        for (const task of tasks.keys()) {
           destroy(task)
         }
       }
     }
   }
 }
+
+type PdfOpened = { task: PdfLoadingTask; release: () => void }

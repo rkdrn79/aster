@@ -1,11 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
-import { MAX_FILE_RANGE_READ_BYTES } from '../../../../shared/file-range-read'
-import {
-  isWritingTeXFile,
-  readManuscriptPdf,
-  resolveManuscriptFile
-} from './research-writing-source'
+import { isWritingTeXFile, resolveManuscriptFile } from './research-writing-source'
 
 const fileRead = vi.hoisted(() => ({
   stat: vi.fn(),
@@ -92,83 +87,5 @@ describe('manuscript file boundary', () => {
         'paper/notes.md'
       )
     ).toBe(false)
-  })
-
-  it('preserves PDF bytes exactly for the existing viewer', async () => {
-    const bytes = Uint8Array.from([...new TextEncoder().encode('%PDF-1.4\n'), 0, 0x7f, 0xff])
-    fileRead.stat.mockResolvedValue({ size: bytes.length, mtime: 42, isDirectory: false })
-    fileRead.range.mockResolvedValue(bytes)
-
-    const pdf = await readManuscriptPdf(
-      experiment,
-      resolveManuscriptFile(experiment, 'paper/main.pdf', '.pdf')
-    )
-
-    expect(Uint8Array.from(atob(pdf.base64), (character) => character.charCodeAt(0))).toEqual(bytes)
-    expect(pdf.mtime).toBe(42)
-    expect(fileRead.range).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filePath: '/research/project/paper/main.pdf',
-        relativePath: 'paper/main.pdf',
-        access: { kind: 'research-workspace', workspacePath: '/research/project' }
-      }),
-      0,
-      bytes.length
-    )
-  })
-
-  it('reads a multi-chunk PDF with at most two in-flight ranges', async () => {
-    const bytes = new Uint8Array(MAX_FILE_RANGE_READ_BYTES * 2 + 17)
-    for (let index = 0; index < bytes.length; index += 1) {
-      bytes[index] = index % 251
-    }
-    bytes.set(new TextEncoder().encode('%PDF-1.4'))
-    fileRead.stat.mockResolvedValue({ size: bytes.length, mtime: 43, isDirectory: false })
-    let inFlight = 0
-    let maxInFlight = 0
-    fileRead.range.mockImplementation(async (_args: unknown, offset: number, length: number) => {
-      inFlight += 1
-      maxInFlight = Math.max(maxInFlight, inFlight)
-      await new Promise<void>((resolve) => setTimeout(resolve, 1))
-      inFlight -= 1
-      return bytes.slice(offset, offset + length)
-    })
-
-    const pdf = await readManuscriptPdf(
-      experiment,
-      resolveManuscriptFile(experiment, 'paper/main.pdf', '.pdf')
-    )
-
-    expect(maxInFlight).toBe(2)
-    expect(fileRead.range).toHaveBeenCalledTimes(3)
-    expect(Uint8Array.from(atob(pdf.base64), (character) => character.charCodeAt(0))).toEqual(bytes)
-  })
-
-  it('reuses an unchanged PDF and fetches it again after a change or explicit refresh', async () => {
-    const file = resolveManuscriptFile(experiment, 'paper/cache-test.pdf', '.pdf')
-    const firstBytes = new TextEncoder().encode('%PDF-first')
-    const changedBytes = new TextEncoder().encode('%PDF-changed')
-    let bytes = firstBytes
-    let mtime = 100
-    fileRead.stat.mockImplementation(async () => ({
-      size: bytes.length,
-      mtime,
-      ctime: mtime,
-      isDirectory: false
-    }))
-    fileRead.range.mockImplementation(async () => bytes)
-
-    const first = await readManuscriptPdf(experiment, file)
-    expect(await readManuscriptPdf(experiment, file)).toBe(first)
-    expect(fileRead.range).toHaveBeenCalledTimes(1)
-
-    bytes = changedBytes
-    mtime += 1
-    const changed = await readManuscriptPdf(experiment, file)
-    expect(changed).not.toBe(first)
-    expect(fileRead.range).toHaveBeenCalledTimes(2)
-
-    expect(await readManuscriptPdf(experiment, file, undefined, true)).not.toBe(changed)
-    expect(fileRead.range).toHaveBeenCalledTimes(3)
   })
 })

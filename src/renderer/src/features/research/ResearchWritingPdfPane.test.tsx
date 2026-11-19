@@ -3,13 +3,13 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
 
-const mocks = vi.hoisted(() => ({ readManuscriptPdf: vi.fn() }))
+const mocks = vi.hoisted(() => ({ openManuscriptPdf: vi.fn(), release: vi.fn() }))
 
 vi.mock('@/store', () => ({
   useAppStore: (select: (state: { openFiles: [] }) => unknown) => select({ openFiles: [] })
 }))
+vi.mock('./research-pdf-file', () => ({ openManuscriptPdf: mocks.openManuscriptPdf }))
 vi.mock('./research-writing-source', () => ({
-  readManuscriptPdf: mocks.readManuscriptPdf,
   resolveManuscriptFile: (owner: { workspacePath: string }, path: string) => ({
     absolutePath: `${owner.workspacePath}/${path}`,
     relativePath: path
@@ -49,16 +49,32 @@ const record: ExperimentRecord = {
 
 afterEach(() => {
   cleanup()
-  mocks.readManuscriptPdf.mockReset()
+  mocks.openManuscriptPdf.mockReset()
+  mocks.release.mockReset()
 })
 
+function pdfSource(key: string) {
+  const bytes = new TextEncoder().encode('%PDF-')
+  return {
+    key,
+    size: 5,
+    mtime: 1,
+    bytes,
+    ranged: null,
+    whole: async () => bytes,
+    release: mocks.release
+  }
+}
+
 it('keeps rendered PDF pages when unrelated experiment fields change', async () => {
-  mocks.readManuscriptPdf.mockResolvedValue({ base64: 'JVBERi0=', size: 5, mtime: 1 })
+  mocks.openManuscriptPdf.mockImplementation(
+    async (_owner: unknown, file: { relativePath: string }) => pdfSource(file.relativePath)
+  )
   const rootFile = { absolutePath: '/research/project/main.tex', relativePath: 'main.tex' }
   const view = render(
     <ResearchWritingPdfPane experiment={record} rootFile={rootFile} visible={true} />
   )
-  await waitFor(() => expect(mocks.readManuscriptPdf).toHaveBeenCalledTimes(1))
+  await waitFor(() => expect(mocks.openManuscriptPdf).toHaveBeenCalledTimes(1))
   const renderedPage = await screen.findByText('PDF page')
 
   view.rerender(
@@ -68,7 +84,7 @@ it('keeps rendered PDF pages when unrelated experiment fields change', async () 
       visible={true}
     />
   )
-  expect(mocks.readManuscriptPdf).toHaveBeenCalledTimes(1)
+  expect(mocks.openManuscriptPdf).toHaveBeenCalledTimes(1)
   expect(screen.getByText('PDF page')).toBe(renderedPage)
 
   view.rerender(
@@ -78,5 +94,9 @@ it('keeps rendered PDF pages when unrelated experiment fields change', async () 
       visible={true}
     />
   )
-  await waitFor(() => expect(mocks.readManuscriptPdf).toHaveBeenCalledTimes(2))
+  await waitFor(() => expect(mocks.openManuscriptPdf).toHaveBeenCalledTimes(2))
+  // Why: the replaced PDF's download pauses once nothing shows it.
+  expect(mocks.release).toHaveBeenCalledTimes(1)
+  view.unmount()
+  expect(mocks.release).toHaveBeenCalledTimes(2)
 })

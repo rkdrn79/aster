@@ -4,14 +4,16 @@ import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 import { authorityKey, parseHostAuthorityKey } from '../../../../shared/host-authority'
 import type { ResearchLatexCompileResult } from '../../../../preload/api/research-latex-bridge'
 import { assembleRebuttalLatex } from '../../../../research-harness/research-rebuttal-latex.mjs'
-import { readManuscriptPdf, resolveManuscriptFile } from './research-writing-source'
+import { resolveManuscriptFile } from './research-writing-source'
+import { readManuscriptPdf } from './research-pdf-file'
+import type { PdfDocumentSource } from '@/components/editor/pdf-document-source'
 import { writeRebuttalOutput } from './research-rebuttal-mutations'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 
 export type RebuttalPdfBuild =
   | {
       status: 'ok'
-      base64: string
+      source: PdfDocumentSource
       pdfPath: string
       texPath: string
       pages: number | null
@@ -53,16 +55,15 @@ async function compileTex(
   })
 }
 
-async function countPdfPages(base64: string): Promise<number | null> {
+async function countPdfPages(bytes: Uint8Array): Promise<number | null> {
   try {
     // Why PdfViewer first: loading it points pdf.js at the worker bundle the app ships.
     await import('@/components/editor/PdfViewer')
     const pdfjs = await import('pdfjs-dist')
     const { buildPdfJsDocumentOptions } =
       await import('@/components/editor/pdf-js-document-options')
-    const binary = window.atob(base64)
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
-    const task = pdfjs.getDocument(buildPdfJsDocumentOptions(bytes, document.baseURI))
+    // Why a copy: pdf.js transfers the buffer, and the viewer shows these same bytes.
+    const task = pdfjs.getDocument(buildPdfJsDocumentOptions(bytes.slice(), document.baseURI))
     try {
       return (await task.promise).numPages
     } finally {
@@ -82,13 +83,18 @@ export async function buildRebuttalPdf(snapshot: RebuttalSnapshot): Promise<Rebu
     return { status: 'failed', message: result.message, output: result.output }
   }
   const file = resolveManuscriptFile(snapshot.owner, result.pdfPath, '.pdf')
-  const pdf = await readManuscriptPdf(snapshot.owner, file, undefined, true)
+  const pdf = await readManuscriptPdf(snapshot.owner, file)
   return {
     status: 'ok',
-    base64: pdf.base64,
+    source: {
+      key: JSON.stringify([file.absolutePath, pdf.size, pdf.mtime]),
+      size: pdf.size,
+      bytes: pdf.bytes,
+      ranged: null
+    },
     pdfPath: file.relativePath,
     texPath,
-    pages: await countPdfPages(pdf.base64),
+    pages: await countPdfPages(pdf.bytes),
     missing
   }
 }

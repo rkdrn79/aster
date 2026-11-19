@@ -90,7 +90,7 @@ export function ResearchRebuttalPdfPanel({
             }
           >
             <PdfViewer
-              content={build.base64}
+              source={build.source}
               filePath={build.pdfPath}
               preferenceKey={`${snapshot.owner.workspaceId}:${build.pdfPath}`}
             />

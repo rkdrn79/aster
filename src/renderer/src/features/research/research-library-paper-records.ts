@@ -12,7 +12,8 @@ import { parseArxivReference } from '../../../../shared/research/research-librar
 import type { DoiPaperMetadata } from '../../../../shared/research/research-library-doi'
 import { useResearchLibrary } from './research-library-store'
 import type { PdfPaperMetadata } from './research-library-pdf-metadata'
-import { readManuscriptPdf, resolveManuscriptFile } from './research-writing-source'
+import { resolveManuscriptFile } from './research-writing-source'
+import { openManuscriptPdf } from './research-pdf-file'
 
 export const HIGHLIGHT_STYLES: Record<
   HighlightColor,
@@ -186,12 +187,16 @@ async function readImportedPdfMetadata(
   fileStem: string
 ): Promise<PdfPaperMetadata | null> {
   try {
-    const pdf = await readManuscriptPdf(scope, resolveManuscriptFile(scope, relativePath, '.pdf'))
-    const binary = window.atob(pdf.base64)
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
-    // Why lazy: pdf.js loads only when a PDF is imported, as it does for the reader.
-    const { readPdfPaperMetadata } = await import('./research-library-pdf-metadata')
-    return await readPdfPaperMetadata(bytes, fileStem)
+    // Why ranged: the title and IDs need page 1 and the info dictionary, not a 40 MB download
+    // before the import finishes; the read it starts resumes when the reader opens the paper.
+    const pdf = await openManuscriptPdf(scope, resolveManuscriptFile(scope, relativePath, '.pdf'))
+    try {
+      // Why lazy: pdf.js loads only when a PDF is imported, as it does for the reader.
+      const { readPdfPaperMetadata } = await import('./research-library-pdf-metadata')
+      return await readPdfPaperMetadata(pdf, fileStem)
+    } finally {
+      pdf.release()
+    }
   } catch {
     return null
   }

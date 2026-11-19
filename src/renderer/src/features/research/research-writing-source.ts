@@ -9,16 +9,8 @@ import { relativePathInsideRoot, resolveRuntimePath } from '../../../../shared/c
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
 
 const MAX_TEX_BYTES = 2 * 1024 * 1024
-const MAX_PDF_BYTES = 24 * 1024 * 1024
 // Why: the remote control queue has room for two capped range replies, but not three.
 const READ_CONCURRENCY = 2
-let cachedPdf: {
-  key: string
-  size: number
-  mtime: number
-  ctime?: number
-  pdf: ManuscriptPdf
-} | null = null
 
 export type ManuscriptFile = {
   absolutePath: string
@@ -27,12 +19,6 @@ export type ManuscriptFile = {
 
 export type ManuscriptSource = {
   text: string
-  size: number
-  mtime: number
-}
-
-export type ManuscriptPdf = {
-  base64: string
   size: number
   mtime: number
 }
@@ -72,7 +58,8 @@ export function isWritingTeXFile(
   }
 }
 
-function manuscriptReadTarget(experiment: ResearchWorkspaceFileOwner, file: ManuscriptFile) {
+/** How a workspace file is read on its host: this app's IPC, or the owning server's RPC. */
+export function manuscriptReadTarget(experiment: ResearchWorkspaceFileOwner, file: ManuscriptFile) {
   const authority = parseHostAuthorityKey(experiment.hostId)
   if (!authority || (authority.endpoint.kind === 'environment' && authority.at !== 'local')) {
     throw new Error('This host does not support manuscript file reads.')
@@ -158,48 +145,4 @@ export async function statManuscriptSource(
     throw new Error('Choose a file, not a directory.')
   }
   return { size: snapshot.size, mtime: snapshot.mtime, ctime: snapshot.ctime }
-}
-
-function bytesToBase64(bytes: Uint8Array): string {
-  const parts: string[] = []
-  const stride = 24 * 1024
-  for (let offset = 0; offset < bytes.length; offset += stride) {
-    parts.push(btoa(String.fromCharCode(...bytes.subarray(offset, offset + stride))))
-  }
-  return parts.join('')
-}
-
-export async function readManuscriptPdf(
-  experiment: ResearchWorkspaceFileOwner,
-  file: ManuscriptFile,
-  maxBytes = MAX_PDF_BYTES,
-  refresh = false
-): Promise<ManuscriptPdf> {
-  const snapshot = await statRuntimeReadTarget(manuscriptReadTarget(experiment, file))
-  const key = JSON.stringify([
-    experiment.hostId,
-    experiment.workspaceId,
-    experiment.workspacePath,
-    file.absolutePath
-  ])
-  if (
-    !refresh &&
-    cachedPdf?.key === key &&
-    cachedPdf.size === snapshot.size &&
-    cachedPdf.mtime === snapshot.mtime &&
-    cachedPdf.ctime === snapshot.ctime &&
-    snapshot.size <= maxBytes
-  ) {
-    return cachedPdf.pdf
-  }
-  const result = await readManuscriptBytes(experiment, file, maxBytes, snapshot)
-  if (
-    result.bytes.length < 5 ||
-    new TextDecoder().decode(result.bytes.subarray(0, 5)) !== '%PDF-'
-  ) {
-    throw new Error('The selected file is not a PDF.')
-  }
-  const pdf = { base64: bytesToBase64(result.bytes), size: result.size, mtime: result.mtime }
-  cachedPdf = { key, size: result.size, mtime: result.mtime, ctime: result.ctime, pdf }
-  return pdf
 }

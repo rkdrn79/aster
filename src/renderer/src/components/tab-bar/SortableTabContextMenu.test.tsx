@@ -252,7 +252,7 @@ describe('SortableTabContextMenu', () => {
           onClose,
           onRenameOpen
         })
-        await act(async () => getButton(container, 'Copy Tab ID').click())
+        await act(async () => getButton(container, 'Copy tab ID').click())
         expect(writeClipboardText).toHaveBeenCalledExactlyOnceWith('orcaTabId: tab-1')
         expect(onActivate).not.toHaveBeenCalled()
         expect(onClose).not.toHaveBeenCalled()
@@ -270,14 +270,14 @@ describe('SortableTabContextMenu', () => {
   it('does not expose a native/terminal view switch', () => {
     const { container } = renderMenu()
 
-    expect(container.textContent).not.toContain('Continue with Terminal Agent')
-    expect(container.textContent).not.toContain('Continue in Chat UI')
+    expect(container.textContent).not.toContain('Continue with terminal agent')
+    expect(container.textContent).not.toContain('Continue in chat UI')
   })
 
   it('hides switching a terminal-view tab into chat view', () => {
     const { container } = renderMenu({ canToggleViewMode: true, onToggleViewMode: vi.fn() })
 
-    expect(container.textContent).not.toContain('Continue in Chat UI')
+    expect(container.textContent).not.toContain('Continue in chat UI')
   })
 
   it('keeps the way back for a tab already in chat view, in the chat/CLI move section', () => {
@@ -290,14 +290,14 @@ describe('SortableTabContextMenu', () => {
     const marker = getSurfaceSwitchMarker(container)
 
     expect(
-      getButton(container, 'Continue with Terminal Agent').compareDocumentPosition(marker)
+      getButton(container, 'Continue with terminal agent').compareDocumentPosition(marker)
     ).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     expect(marker.getAttribute('data-leading-separator')).toBe('false')
-    act(() => getButton(container, 'Continue with Terminal Agent').click())
+    act(() => getButton(container, 'Continue with terminal agent').click())
     expect(onToggleViewMode).toHaveBeenCalled()
   })
 
-  it('offers the session-history chat/CLI move right above Pin Tab', () => {
+  it('offers the session-history chat/CLI move right above Pin tab', () => {
     const { container } = renderMenu({ nativeChat: { sessionId: 'orca-chat-1', agent: 'codex' } })
     const marker = getSurfaceSwitchMarker(container)
 
@@ -307,7 +307,7 @@ describe('SortableTabContextMenu', () => {
     expect(getButton(container, 'Split terminal').compareDocumentPosition(marker)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     )
-    expect(marker.compareDocumentPosition(getButton(container, 'Pin Tab'))).toBe(
+    expect(marker.compareDocumentPosition(getButton(container, 'Pin tab'))).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     )
   })
@@ -334,7 +334,7 @@ describe('SortableTabContextMenu', () => {
   it('renders split actions and routes directions to the move path', () => {
     const { container } = renderMenu()
 
-    expect(container.textContent).toContain('Move Tab to Split')
+    expect(container.textContent).toContain('Move tab to split')
     expect(container.textContent).toContain('Split terminal')
 
     act(() => getButton(container, 'Right').click())
@@ -348,15 +348,15 @@ describe('SortableTabContextMenu', () => {
   it('hides terminal-only split actions for structured chat tabs', () => {
     const { container } = renderMenu({ canSplitTerminal: false })
 
-    expect(container.textContent).toContain('Move Tab to Split')
+    expect(container.textContent).toContain('Move tab to split')
     expect(container.textContent).not.toContain('Split terminal')
   })
 
-  it('keeps Close Others available without directional close entries', () => {
+  it('keeps Close others available without directional close entries', () => {
     const onCloseOthers = vi.fn()
     const { container } = renderMenu({ onCloseOthers })
 
-    act(() => getButton(container, 'Close Others').click())
+    act(() => getButton(container, 'Close others').click())
     expect(onCloseOthers).toHaveBeenCalledWith('term-1')
     expect(container.textContent).not.toContain('Close All Tabs To The Left')
     expect(container.textContent).not.toContain('Close All Tabs To The Right')
@@ -378,7 +378,7 @@ describe('SortableTabContextMenu', () => {
     }
     const { container } = renderMenu()
 
-    expect(container.textContent).not.toContain('Move Tab to Split')
+    expect(container.textContent).not.toContain('Move tab to split')
     expect(container.textContent).toContain('Split terminal right')
   })
 

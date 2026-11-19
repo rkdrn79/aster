@@ -126,30 +126,30 @@ describe('ClientHostedBrowserPagePane chrome parity', () => {
     expect(webview.goBack).toHaveBeenCalledTimes(1)
 
     act(() => contextMenu.emit(contextMenuEvent()))
-    act(() => screen.getByRole('menuitem', { name: 'Inspect Page' }).click())
+    act(() => screen.getByRole('menuitem', { name: 'Inspect page' }).click())
     expect(openDevTools).toHaveBeenCalledWith({ browserPageId: 'page-a' })
 
     act(() => contextMenu.emit(contextMenuEvent()))
-    act(() => screen.getByRole('menuitem', { name: 'Copy Page URL' }).click())
+    act(() => screen.getByRole('menuitem', { name: 'Copy page URL' }).click())
     expect(writeClipboardText).toHaveBeenCalledWith('https://example.internal/app')
   })
 
   it('opens Find from the chord in chrome and from the chord forwarded out of the guest', () => {
     renderPane()
-    expect(screen.queryByPlaceholderText('Find in page...')).toBeNull()
+    expect(screen.queryByPlaceholderText('Find in page')).toBeNull()
 
     act(() => {
       window.dispatchEvent(
         new KeyboardEvent('keydown', { key: 'f', metaKey: true, bubbles: true, cancelable: true })
       )
     })
-    expect(screen.getByPlaceholderText('Find in page...')).not.toBeNull()
+    expect(screen.getByPlaceholderText('Find in page')).not.toBeNull()
 
     act(() => screen.getByTitle('Close').click())
-    expect(screen.queryByPlaceholderText('Find in page...')).toBeNull()
+    expect(screen.queryByPlaceholderText('Find in page')).toBeNull()
 
     act(() => findRequests.emit(undefined))
-    expect(screen.getByPlaceholderText('Find in page...')).not.toBeNull()
+    expect(screen.getByPlaceholderText('Find in page')).not.toBeNull()
   })
 
   it('reloads and hard-reloads the retained guest from the forwarded chords', () => {
@@ -207,7 +207,7 @@ describe('ClientHostedBrowserPagePane chrome parity', () => {
     })
     renderPane({ loadError })
 
-    act(() => screen.getByText('Proceed Anyway (Unsafe)').click())
+    act(() => screen.getByText('Proceed anyway (unsafe)').click())
 
     expect(proceedCertificate).toHaveBeenCalledWith({
       browserPageId: 'page-a',
@@ -248,7 +248,7 @@ describe('ClientHostedBrowserPagePane chrome parity', () => {
     cleanup()
     renderPane({ loadError, url: loaded })
 
-    act(() => screen.getByRole('button', { name: 'Copy Address' }).click())
+    act(() => screen.getByRole('button', { name: 'Copy address' }).click())
     expect(writeClipboardText).toHaveBeenCalledWith('javascript:alert(1)')
     // The loaded page is a localhost http URL, so keying off it would offer an HTTPS retry here.
     expect(screen.queryByRole('button', { name: 'Try HTTPS' })).toBeNull()
@@ -259,12 +259,12 @@ describe('ClientHostedBrowserPagePane chrome parity', () => {
 
     act(() => findRequests.emit(undefined))
     act(() => {
-      fireEvent.change(screen.getByPlaceholderText('Find in page...'), {
+      fireEvent.change(screen.getByPlaceholderText('Find in page'), {
         target: { value: 'needle' }
       })
     })
     act(() => {
-      fireEvent.keyDown(screen.getByPlaceholderText('Find in page...'), { key: 'Enter' })
+      fireEvent.keyDown(screen.getByPlaceholderText('Find in page'), { key: 'Enter' })
     })
 
     expect(webview.findInPage).toHaveBeenCalledWith(
@@ -336,9 +336,9 @@ describe('ClientHostedBrowserPagePane chrome parity', () => {
     )
 
     expect(screen.getByText('Client-hosted browser unavailable')).not.toBeNull()
-    // 'Copy Address' belongs to the load-failure overlay alone; the toolbar's own button reads
+    // 'Copy address' belongs to the load-failure overlay alone; the toolbar's own button reads
     // 'Retry' whenever a loadError stands, attached or not.
-    expect(screen.queryByRole('button', { name: 'Copy Address' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Copy address' })).toBeNull()
   })
 
   it('says so when the page asks for a permission Orca denied', () => {

@@ -102,7 +102,7 @@ export function DictationController() {
         action: {
           label: translate(
             'auto.components.dictation.DictationController.bb7f599ee7',
-            'Open Settings'
+            'Open settings'
           ),
           onClick: () => {
             useAppStore.getState().openSettingsTarget({ pane: 'voice', repoId: null })

@@ -275,7 +275,7 @@ export function PRReviewersPanel({
 
   return (
     <section>
-      <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="mb-2 flex items-center justify-between text-[11px] font-medium text-muted-foreground">
         <span>{translate('auto.components.GitHubItemDialog.dc8a092c57', 'Reviewers')}</span>
         <Popover open={open} onOpenChange={handleReviewerPickerOpenChange}>
           <PopoverTrigger asChild>
@@ -283,7 +283,7 @@ export function PRReviewersPanel({
               type="button"
               disabled={submitting || !canRequestReview}
               aria-label={translate('auto.components.GitHubItemDialog.934add88b6', 'Reviewer')}
-              className="rounded p-0.5 text-muted-foreground transition hover:bg-accent hover:text-foreground disabled:opacity-50"
+              className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
             >
               {submitting ? (
                 <LoaderCircle className="size-3 animate-spin" />

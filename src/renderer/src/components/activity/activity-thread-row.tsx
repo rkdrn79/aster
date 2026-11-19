@@ -205,7 +205,7 @@ export const ActivityThreadRow = React.memo(function ActivityThreadRow({
                         )}
                       >
                         <FilledBellIcon
-                          className="size-3 shrink-0 text-amber-500 drop-shadow-sm"
+                          className="size-3 shrink-0 text-status-warning"
                           aria-hidden="true"
                         />
                       </button>

@@ -148,7 +148,7 @@ describe('SourceControlEntryContextMenu', () => {
     renderMenu()
 
     const copyRelativePathItem = items.list.find(
-      (item) => childrenText(item.children) === 'Copy Relative Path'
+      (item) => childrenText(item.children) === 'Copy relative path'
     )
 
     expect(copyRelativePathItem).toBeDefined()

@@ -216,10 +216,10 @@ describe('AddRepoNestedImportStep', () => {
     expect(host.textContent).toContain('No repositories are selected')
     expect(findButton(host, 'No, import separately').disabled).toBe(true)
     expect(findButton(host, 'Yes, import as group').disabled).toBe(true)
-    expect(findButton(host, 'Open as Folder').disabled).toBe(false)
+    expect(findButton(host, 'Open as folder').disabled).toBe(false)
 
     act(() => {
-      findButton(host, 'Open as Folder').click()
+      findButton(host, 'Open as folder').click()
     })
 
     expect(onOpenAsFolder).toHaveBeenCalledTimes(1)

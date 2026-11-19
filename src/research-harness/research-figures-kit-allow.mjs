@@ -2,6 +2,7 @@
 // for some items (a d×d square that carries meaning is not an empty box), for the whole
 // figure, or for one stretch of the page (unused experts leave a gap by design).
 import { PAGE_FRAME_ID } from './research-figures-model.mjs'
+import { warnKit } from './research-figures-cards.mjs'
 
 const unique = (values) => [...new Set(values)]
 
@@ -21,8 +22,31 @@ export const ALLOWABLE_CODES = [
   'text-size',
   'prose',
   'legend',
-  'flat-background'
+  'flat-background',
+  'arrow-chain',
+  'small-picture',
+  'many-bends',
+  'long-return',
+  'monotone-figure',
+  'library-color',
+  'uniform-look',
+  'missing-loop',
+  'margin',
+  'near-miss-align',
+  'dashed-box'
 ]
+
+/** What to do instead for findings that are fixed, never allowed: the common ones agents try. */
+const INSTEAD = {
+  'text-over-shape':
+    "move the text clear (an arrow label: labelPosition 'above' | 'below'; a label: side or a gap)",
+  'small-glyph': 'enlarge it (24 units or more at print), or drop it on a small page',
+  'arrow-through': 'route around the box (via, fromSide/toSide) or move the box',
+  'stub-arrow': 'leave 16 units between the shapes, or move the junction (fork split)',
+  'outside-page': 'move it inside the page, or shrink it',
+  'label-on-head': "move the label off the head (labelPosition 'above' | 'below' | 'tail')",
+  'text-overflow': 'widen the box or shorten the label (fig.measure gives the width)'
+}
 
 export function allowMethods(core) {
   const pageFrame = () => {
@@ -38,9 +62,13 @@ export function allowMethods(core) {
      */
     allow(rule, target) {
       if (!ALLOWABLE_CODES.includes(rule)) {
-        throw new Error(
-          `allow(rule, ids | { x, y, w, h }) takes one of ${ALLOWABLE_CODES.join(', ')}; fix the other findings`
-        )
+        // Why a warning, not a throw: one wrong rule name must not stop the whole drawing.
+        ;(core.warn ?? warnKit)([
+          `allow('${rule}') does nothing: ${rule} is fixed, never allowed${
+            INSTEAD[rule] ? ` (${INSTEAD[rule]})` : ''
+          }. Allowable: ${ALLOWABLE_CODES.join(', ')}`
+        ])
+        return
       }
       if (Array.isArray(target) || typeof target === 'string') {
         for (const id of [target].flat()) {
@@ -92,7 +120,7 @@ export function allowMethods(core) {
   }
 }
 
-/** Drops the page's allowances (fig.reset): a redraw states them again. */
+/** Drops the page's allowances, listed motifs and design brief (fig.reset): a redraw states them again. */
 export function clearAllowances(page) {
   if (!page?.customData) {
     return
@@ -100,4 +128,6 @@ export function clearAllowances(page) {
   page.customData = { ...page.customData }
   delete page.customData.asterAllow
   delete page.customData.asterAllowAreas
+  delete page.customData.asterStructure
+  delete page.customData.asterDesign
 }

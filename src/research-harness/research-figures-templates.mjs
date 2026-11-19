@@ -1,11 +1,14 @@
 // Module templates ML papers draw again and again, composed from the kit in the figure's style:
 // each takes `{ id, x, y, ... }`, draws under ids `<id>-<part>`, and returns those ids with the
 // points where data enters and leaves. Trained parts take the accent and 🔥, frozen ones gray ❄️.
+import { STREAM_TEMPLATES } from './research-figures-templates-streams.mjs'
 import { LOOP_TEMPLATES } from './research-figures-templates-loops.mjs'
 import { AGENT_TEMPLATES } from './research-figures-templates-agents.mjs'
 import { moeTokens } from './research-figures-templates-routing.mjs'
 import { DIT_TEMPLATES } from './research-figures-templates-dit.mjs'
 import { GENERATIVE_TEMPLATES } from './research-figures-templates-generative.mjs'
+import { SCIENCE_TEMPLATES } from './research-figures-templates-science.mjs'
+import { DYNAMIC_TEMPLATES } from './research-figures-templates-4d.mjs'
 import { measureText } from './research-figures-text.mjs'
 import { fitStack } from './research-figures-templates-stack.mjs'
 
@@ -468,8 +471,11 @@ export const TEMPLATES = {
   vq: [vq, 'nearest codebook lookup, z_e → z_q', '{ id, x, y, codes: 5, chosen: 2 }'],
   ...GENERATIVE_TEMPLATES,
   ...DIT_TEMPLATES,
+  ...STREAM_TEMPLATES,
   ...LOOP_TEMPLATES,
-  ...AGENT_TEMPLATES
+  ...AGENT_TEMPLATES,
+  ...SCIENCE_TEMPLATES,
+  ...DYNAMIC_TEMPLATES
 }
 
 /** The template list as text, for `figures kit templates`. */

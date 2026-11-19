@@ -147,7 +147,7 @@ export function WorkspaceDirectorySetting({
     <SearchableSetting
       title={translate(
         'auto.components.settings.GeneralWorkspaceSettingsSection.0e9fc0eadc',
-        'Workspace Directory'
+        'Workspace directory'
       )}
       description={translate(
         'auto.components.settings.GeneralWorkspaceSettingsSection.a246f5ce6f',
@@ -160,7 +160,7 @@ export function WorkspaceDirectorySetting({
         <Label htmlFor={inputId}>
           {translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.0e9fc0eadc',
-            'Workspace Directory'
+            'Workspace directory'
           )}
         </Label>
         {showScopePicker && (

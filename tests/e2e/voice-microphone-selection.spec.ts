@@ -86,7 +86,7 @@ async function prepareVoiceSettings(
   await expect(page.getByPlaceholder('Search settings')).toBeVisible()
   const featureTipDialog = page.getByRole('dialog', { name: 'Voice Dictation is here' })
   if (await featureTipDialog.isVisible().catch(() => false)) {
-    await page.getByRole('button', { name: 'Maybe Later' }).click()
+    await page.getByRole('button', { name: 'Maybe later' }).click()
   }
   await expect(page.getByRole('heading', { name: 'Voice', exact: true })).toBeVisible()
 }

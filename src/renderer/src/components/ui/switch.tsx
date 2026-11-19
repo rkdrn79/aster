@@ -4,9 +4,10 @@ import * as SwitchPrimitive from 'radix-ui/switch'
 import { cn } from '@/lib/utils'
 
 const trackClassName =
-  'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-transparent p-0.5 transition-colors data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30'
+  'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-transparent p-0.5 transition-colors duration-(--duration-fast) data-[state=checked]:bg-primary data-[state=unchecked]:bg-foreground/15 dark:data-[state=unchecked]:bg-foreground/20'
+// Why the spring: the thumb travels 16px; a critically damped curve lands it without a wobble.
 const thumbClassName =
-  'pointer-events-none block size-3.5 translate-x-0 rounded-full bg-background shadow-sm transition-transform data-[state=checked]:translate-x-4 data-[state=checked]:bg-primary-foreground'
+  'pointer-events-none block size-3.5 translate-x-0 rounded-full bg-background shadow-raised transition-[translate,background-color] duration-(--duration-fast) data-[state=checked]:translate-x-4 data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground motion-reduce:transition-colors'
 const compactTrackClassName = 'h-3.5 w-6 border-0 p-0.5'
 const compactThumbClassName = 'size-2.5 data-[state=checked]:translate-x-2.5'
 

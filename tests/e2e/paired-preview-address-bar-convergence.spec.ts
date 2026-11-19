@@ -100,7 +100,7 @@ async function openPreviewFromExplorer(page: Page, fixtureName: string): Promise
   const fixtureRow = page.locator('[data-file-explorer-row]').filter({ hasText: fixtureName })
   await expect(fixtureRow).toBeVisible({ timeout: 30_000 })
   await fixtureRow.click()
-  const openPreviewToSide = page.getByRole('button', { name: 'Open Preview to the Side' })
+  const openPreviewToSide = page.getByRole('button', { name: 'Open preview to the side' })
   await expect(openPreviewToSide).toBeVisible({ timeout: 30_000 })
   await openPreviewToSide.click()
 }

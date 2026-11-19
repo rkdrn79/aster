@@ -33,7 +33,7 @@ export function WorktreeDisplayNameField({
   return (
     <div className="space-y-1">
       <Label htmlFor={inputId} className="text-[11px] font-medium text-muted-foreground">
-        {translate('auto.components.sidebar.WorktreeMetaDialog.ad5e4e514f', 'Display Name')}
+        {translate('auto.components.sidebar.WorktreeMetaDialog.ad5e4e514f', 'Display name')}
       </Label>
       <Input
         id={inputId}
@@ -52,7 +52,7 @@ export function WorktreeDisplayNameField({
         }}
         placeholder={translate(
           'auto.components.sidebar.WorktreeMetaDialog.7f21e0464f',
-          'Custom display name...'
+          'Custom display name'
         )}
         className="h-8 text-xs"
       />

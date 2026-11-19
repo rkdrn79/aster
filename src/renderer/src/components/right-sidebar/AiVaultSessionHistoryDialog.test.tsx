@@ -203,7 +203,7 @@ describe('Session History dialog', () => {
     expect(dialogSearch().value).toBe('auth')
     expect(sidebarSearch.value).toBe('sidebar text')
     expect(
-      screen.getByRole('radiogroup', { name: 'Session History scope: current workspace' })
+      screen.getByRole('radiogroup', { name: 'Session history scope: current workspace' })
     ).toBeInTheDocument()
     expect(useAppStore.getState().aiVaultSearchFocusRequested).toBe(false)
   })

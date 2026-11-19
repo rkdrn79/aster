@@ -90,7 +90,7 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
       <SearchableSetting
         title={translate(
           'auto.components.settings.GeneralUpdateSettingsSection.e1a647adc5',
-          'Check for Updates'
+          'Check for updates'
         )}
         description={
           updateFeedConfigured
@@ -138,7 +138,7 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
             )}
             {translate(
               'auto.components.settings.GeneralUpdateSettingsSection.e1a647adc5',
-              'Check for Updates'
+              'Check for updates'
             )}
           </Button>
 
@@ -166,7 +166,7 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
                 ? translate('research.updates.downloadDmgWithVersion', 'Download DMG (')
                 : translate(
                     'auto.components.settings.GeneralUpdateSettingsSection.42717918f4',
-                    'Download Update ('
+                    'Download update ('
                   )}
               {updateStatus.version})
             </Button>
@@ -175,7 +175,7 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
             updateStatus.retryable !== false ? (
             <Button variant="default" size="sm" onClick={handleRestartToUpdate} className="gap-2">
               <RefreshCw className="size-3.5" />
-              {translate('auto.components.UpdateCard.2c2d3e03ca', 'Try Again')}
+              {translate('auto.components.UpdateCard.2c2d3e03ca', 'Try again')}
             </Button>
           ) : updateStatus.state === 'downloaded' ? (
             <Button
@@ -188,7 +188,7 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
               <Download className="size-3.5" />
               {translate(
                 'auto.components.settings.GeneralUpdateSettingsSection.f44299636f',
-                'Restart to Update ('
+                'Restart to update ('
               )}
               {updateStatus.version})
             </Button>
@@ -244,7 +244,7 @@ export function GeneralUpdateSettingsSection(): React.JSX.Element {
                       )
                   : translate(
                       'auto.components.settings.GeneralUpdateSettingsSection.8311da27ba',
-                      'is available. Click "Download Update" to download it.'
+                      'is available. Click "Download update" to download it.'
                     )}{' '}
               {updateStatus.source !== 'local' && releaseNotesUrl && (
                 <a

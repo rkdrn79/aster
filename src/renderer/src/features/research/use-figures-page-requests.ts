@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useFigureEditorHandle } from './research-figure-editor-handle'
 import { newFigurePromptContext, sendFigureStart } from './research-figure-chat-send'
-import { figurePromptContext } from './research-figure-prompt-context'
+import { figurePromptContext, type FigureRequestHost } from './research-figure-prompt-context'
 import type { FigureReference } from './research-figure-recreate'
 import { AGENT_TAB_ID, openFigureSidePanelTab } from './research-figure-side-panel'
 import {
@@ -10,8 +10,8 @@ import {
 } from './research-figures-agent-prompts'
 import type { FigureMessageContext, FiguresAgentScope } from './research-figures-agent-session'
 import { openFiguresSidePanel } from './research-figures-layout-mode'
-import { newFigureSendTrack } from './research-figures-page-helpers'
-import { createFigure } from './research-figures-store'
+import { newFigureSendTrack, newPlotSendTrack } from './research-figures-page-helpers'
+import { createFigure, expectFigureSelection } from './research-figures-store'
 import type { ProjectFileOwner } from './research-project-files'
 import type { NewFigureRequest } from './ResearchFigureNewDialog'
 
@@ -26,11 +26,13 @@ export function useFiguresPageRequests(input: {
   manuscript: string | null
   agentScope: FiguresAgentScope
   openSlug: string | null
+  /** The open plot's slug; null when a diagram, a file or nothing is open. */
+  openPlot: string | null
   onRecreate: () => void
 }) {
-  const { owner, folder, manuscript, agentScope, openSlug, onRecreate } = input
+  const { owner, folder, manuscript, agentScope, openSlug, openPlot, onRecreate } = input
 
-  function requestHost() {
+  function requestHost(): FigureRequestHost {
     const handle = useFigureEditorHandle.getState().handle
     const open = handle && openSlug !== null && handle.target.slug === openSlug
     return {
@@ -40,7 +42,8 @@ export function useFiguresPageRequests(input: {
       owner,
       manuscript,
       scope: agentScope,
-      save: open ? handle.save : async () => true
+      save: open ? handle.save : async () => true,
+      plot: open ? null : openPlot
     }
   }
 
@@ -56,10 +59,11 @@ export function useFiguresPageRequests(input: {
         target: open ? handle.target : null,
         folder,
         owner,
-        manuscript
+        manuscript,
+        plot: open ? null : openPlot
       })
     )
-  }, [folder, owner, manuscript, openSlug])
+  }, [folder, owner, manuscript, openSlug, openPlot])
 
   async function quickRequest(request: FigureQuickRequest): Promise<string | null> {
     if (!folder) {
@@ -113,10 +117,16 @@ export function useFiguresPageRequests(input: {
       agentScope,
       context,
       { kind: request.start, description: request.description, template: request.template },
-      request.start === 'plot' || request.start === 'blank'
-        ? null
-        : await newFigureSendTrack(owner, folder, request.slug)
+      request.start === 'plot'
+        ? newPlotSendTrack(owner, folder, request.slug)
+        : request.start === 'blank'
+          ? null
+          : await newFigureSendTrack(owner, folder, request.slug)
     )
+    if (request.start === 'plot' && !failure) {
+      // Why: the plot is listed once the agent writes its script; the page then opens it.
+      expectFigureSelection(owner, { kind: 'plot', slug: request.slug })
+    }
     if (request.start !== 'blank') {
       openFigureSidePanelTab(AGENT_TAB_ID)
       openFiguresSidePanel()

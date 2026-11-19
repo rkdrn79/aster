@@ -54,11 +54,11 @@ export function getProviderAccountScope(
       target.kind === 'environment'
         ? translate(
             'auto.components.settings.providerAccountScope.remoteServerCredentialsNewProjects',
-            'Credentials and account checks for this provider are owned by this remote server. To use another host, change Settings > Remote Aster Servers > New projects open on.'
+            'Credentials and account checks for this provider are owned by this remote server. To use another host, change Settings > Remote Aster servers > New projects open on.'
           )
         : translate(
             'auto.components.settings.providerAccountScope.localCredentialsNewProjects',
-            'Credentials and account checks for this provider are owned by this desktop client. To use a server, change Settings > Remote Aster Servers > New projects open on.'
+            'Credentials and account checks for this provider are owned by this desktop client. To use a server, change Settings > Remote Aster servers > New projects open on.'
           )
   }
 }

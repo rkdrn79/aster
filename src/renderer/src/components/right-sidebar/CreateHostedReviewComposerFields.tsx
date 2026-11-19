@@ -1,4 +1,4 @@
-import { CornerDownRight, GitPullRequestArrow, Sparkles } from 'lucide-react'
+import { CornerDownRight, GitPullRequestArrow, RefreshCw } from 'lucide-react'
 import { useId, useState } from 'react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -121,7 +121,7 @@ export function CreateHostedReviewComposerFields({
             aria-hidden="true"
           >
             <div className="pointer-events-auto flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground shadow-xs">
-              <Sparkles className="size-3 animate-pulse text-foreground" />
+              <RefreshCw className="size-3 animate-spin" />
               <span>
                 {translate(
                   'auto.components.right.sidebar.SourceControl.9484270f45',
@@ -179,7 +179,7 @@ export function CreateHostedReviewComposerFields({
                   <span className="text-[11px] font-normal text-muted-foreground">
                     {translate(
                       'auto.components.right.sidebar.CreateHostedReviewComposerFields.ff81473a57',
-                      "Creates a GitHub Stack or extends the parent's existing stack."
+                      "Creates a GitHub stack or extends the parent's existing stack."
                     )}
                   </span>
                 )}

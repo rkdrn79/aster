@@ -1,0 +1,823 @@
+{
+  "title": "Instance-adaptive TS augmentation (plain plan)",
+  "method": "A parametric augmentation network learns per-instance views: a factorization mask h (hard-concrete relaxed Bernoulli per time step from a factorization head), a non-zero transformation mask g (transformation head) and noise η (random time-step masking of the encoder's first hidden layer); both heads share an input layer and a dilated-CNN extractor. The augmenter is trained with a Principle-of-Relevant-Information objective (β·expected L0 of h + mean-embedding discrepancy through the encoder) plus a temporal-consistency loss L_t (λ); the encoder is trained with L_global (InfoNCE) + α·L_local (subsequence contrast). Both are trained from scratch, alternating GAN-style (encoder every step, augmenter every M rounds), each with its own Adam optimizer.",
+  "scope": {
+    "compute": {
+      "hardware": "8x 40 GB GPUs (single machine)"
+    }
+  },
+  "claims": [
+    {
+      "id": "C1",
+      "text": "The good-view definition preserves task information and adds variance",
+      "kind": "mechanism",
+      "evidence": ["Q5", "Q4", "Q7"],
+      "status": "planned"
+    },
+    {
+      "id": "C2",
+      "text": "Task-agnostic, needs no domain knowledge",
+      "kind": "generality",
+      "evidence": ["Q6", "Q8", "Q11"],
+      "status": "planned"
+    },
+    {
+      "id": "C3",
+      "text": "Instance-adaptive, and subsumes common augmentations",
+      "kind": "mechanism",
+      "evidence": ["Q9", "Q4", "Q10", "Q7"],
+      "status": "planned"
+    },
+    {
+      "id": "C4",
+      "text": "Encoder-agnostic",
+      "kind": "generality",
+      "evidence": ["Q2", "Q3"],
+      "status": "planned"
+    },
+    {
+      "id": "C5",
+      "text": "State of the art on forecasting and classification",
+      "kind": "performance",
+      "evidence": ["Q1", "Q12"],
+      "status": "planned"
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "claim": "C5",
+      "text": "E1: do the learned representations beat re-run SSL and adaptive-augmentation baselines on univariate and multivariate forecasting and on UCR/UEA classification?",
+      "hypothesis": "Ours is state of the art on univariate forecasting, multivariate forecasting and classification",
+      "predictionIfFalse": "The method wins only on long horizons or only on ETT, or gains fall within seed std"
+    },
+    {
+      "id": "Q2",
+      "claim": "C4",
+      "text": "E2.1: does replacing each framework's hand-crafted augmentation with our augmentation network (loss, encoder and hyperparameters fixed) improve TS2Vec, CoST, TS-TCC and a SimCLR-style InfoNCE baseline, beyond added capacity or training time?"
+    },
+    {
+      "id": "Q3",
+      "claim": "C4",
+      "text": "E2.2: does the full objective work with dilated-CNN, LSTM, Transformer and PatchTST-style encoders?"
+    },
+    {
+      "id": "Q4",
+      "claim": "C1",
+      "text": "E3.1: on synthetic data with known x* and dataset-dependent optimal augmentations, does our method recover the informative region and approach the oracle?",
+      "hypothesis": "Our method approaches the oracle, and the best fixed augmentation differs across datasets A and B"
+    },
+    {
+      "id": "Q5",
+      "claim": "C1",
+      "text": "E3.2: do the predictions of Propositions 1-3 hold (invertible-only views add no information, label preservation, view variance)?",
+      "hypothesis": "The g-only variant (η off, h ≡ 1) approaches the no-augmentation identity baseline (and may collapse); our views sit at high diversity and high label consistency, while the adversarial generator has high diversity but low consistency"
+    },
+    {
+      "id": "Q6",
+      "claim": "C2",
+      "text": "E3.3: does one pretrained encoder per dataset, with no task-specific retuning, help forecasting, classification and optionally anomaly detection?",
+      "hypothesis": "The same augmentations help both tasks"
+    },
+    {
+      "id": "Q7",
+      "claim": "C1",
+      "text": "E4: which components and design choices of the augmentation network and objectives matter?"
+    },
+    {
+      "id": "Q8",
+      "claim": "C2",
+      "text": "E5.1: how does ours with default hyperparameters compare with the best and the median configuration of a grid search over fixed augmentations?",
+      "hypothesis": "No single fixed augmentation is best on every dataset"
+    },
+    {
+      "id": "Q9",
+      "claim": "C3",
+      "text": "E5.2: does per-instance adaptivity beat one learned global mask per dataset?",
+      "hypothesis": "The instance-independent (per-dataset) variant loses, with the largest gap on the E3.1 synthetic data"
+    },
+    {
+      "id": "Q10",
+      "claim": "C3",
+      "text": "E5.3: do the learned masks recover common augmentations as special cases?",
+      "hypothesis": "On synthetic data with a known correct augmentation, the learned masks resemble it"
+    },
+    {
+      "id": "Q11",
+      "claim": "C2",
+      "text": "E5.4: how sensitive is the method to β, λ, α, M, η masking probability, L and τ?",
+      "hypothesis": "Performance stays flat across reasonable ranges"
+    },
+    {
+      "id": "Q12",
+      "claim": "C5",
+      "text": "E6: what does the method cost (time, memory, parameters, augmenter overhead vs M) and is training stable?"
+    }
+  ],
+  "methodComponents": [
+    { "id": "M1", "name": "factorization mask h (factorization head)", "ablation": "A1" },
+    { "id": "M2", "name": "transformation mask g (transformation head)", "ablation": "A2" },
+    { "id": "M3", "name": "noise η (hidden-layer time-step masking)", "ablation": "A3" },
+    { "id": "M4", "name": "hard-concrete relaxation (τ, γ, ζ)", "ablation": "A10" },
+    {
+      "id": "M5",
+      "name": "shared input layer and dilated-CNN extractor for both heads",
+      "ablation": "A11"
+    },
+    { "id": "M6", "name": "PRI objective instead of adversarial training", "ablation": "A5" },
+    { "id": "M7", "name": "L0 sparsity term β·‖h‖₀", "ablation": "A6" },
+    { "id": "M8", "name": "mean-embedding (MMD-style) discrepancy term", "ablation": "A7" },
+    { "id": "M9", "name": "temporal-consistency loss L_t (λ)", "ablation": "A8" },
+    { "id": "M10", "name": "global InfoNCE loss L_global" },
+    { "id": "M11", "name": "local subsequence contrast L_local (α)", "ablation": "A9" },
+    { "id": "M12", "name": "alternating schedule (augmenter every M rounds)", "ablation": "A12" }
+  ],
+  "baselines": [
+    {
+      "id": "B1",
+      "name": "TS2Vec",
+      "role": "standard-recipe",
+      "why": "contrastive/SSL with fixed augmentations",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        },
+        "notes": "re-run under the identical protocol rather than copying numbers"
+      }
+    },
+    {
+      "id": "B2",
+      "name": "CoST",
+      "role": "standard-recipe",
+      "why": "contrastive/SSL with fixed augmentations",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        },
+        "notes": "re-run under the identical protocol rather than copying numbers"
+      }
+    },
+    {
+      "id": "B3",
+      "name": "TS-TCC",
+      "role": "standard-recipe",
+      "why": "contrastive/SSL with fixed augmentations",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        },
+        "notes": "re-run under the identical protocol rather than copying numbers"
+      }
+    },
+    {
+      "id": "B4",
+      "name": "TNC",
+      "role": "standard-recipe",
+      "why": "contrastive/SSL with fixed augmentations",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        },
+        "notes": "re-run under the identical protocol rather than copying numbers"
+      }
+    },
+    {
+      "id": "B5",
+      "name": "T-Loss",
+      "role": "standard-recipe",
+      "why": "contrastive/SSL with fixed augmentations",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        },
+        "notes": "re-run under the identical protocol rather than copying numbers"
+      }
+    },
+    {
+      "id": "B6",
+      "name": "TF-C",
+      "role": "standard-recipe",
+      "why": "contrastive/SSL with fixed augmentations",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        },
+        "notes": "re-run under the identical protocol rather than copying numbers"
+      }
+    },
+    {
+      "id": "B7",
+      "name": "SimTS",
+      "role": "standard-recipe",
+      "why": "contrastive/SSL with fixed augmentations",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        },
+        "notes": "re-run under the identical protocol rather than copying numbers"
+      }
+    },
+    {
+      "id": "B8",
+      "name": "InfoTS",
+      "role": "closest-prior",
+      "why": "meta-learned augmentation selection; the closest competitor",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        },
+        "notes": "re-run under the identical protocol rather than copying numbers"
+      }
+    },
+    {
+      "id": "B9",
+      "name": "InfoMin-style adversarial view generator",
+      "why": "adaptive/automatic augmentation; adversarial alternative to PRI",
+      "source": "reimplemented",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        },
+        "notes": "re-implemented on the same encoder"
+      }
+    },
+    {
+      "id": "B10",
+      "name": "AD-GCL-style learnable view (edge-drop adapted to time steps), if feasible",
+      "why": "graph-style learnable view method",
+      "source": "reimplemented",
+      "fairness": {
+        "sameData": true,
+        "tuning": {
+          "space": "not given; same tuning budget as our method, search space to be written down before running",
+          "selectionSplit": "val"
+        }
+      }
+    },
+    {
+      "id": "B11",
+      "name": "Supervised end-to-end forecasters (Informer, TCN, FEDformer or PatchTST, LogTrans)",
+      "why": "reference rather than the main comparison"
+    },
+    {
+      "id": "B12",
+      "name": "Each fixed augmentation alone (E3.1)",
+      "role": "standard-recipe"
+    },
+    {
+      "id": "B13",
+      "name": "Best searched fixed-augmentation configuration from the E5.1 grid",
+      "role": "oracle",
+      "why": "the plan calls the best searched configuration the oracle; the median configuration is also reported",
+      "fairness": {
+        "tuning": {
+          "space": "single augmentations and pairwise compositions of jitter, scale, permute, crop, mask, time-warp, magnitude-warp (~30 configurations)"
+        }
+      }
+    },
+    {
+      "id": "B14",
+      "name": "Oracle using the true x* (E3.1 synthetic)",
+      "role": "oracle"
+    },
+    {
+      "id": "B15",
+      "name": "No-augmentation identity baseline (E3.2)"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "D1",
+      "name": "ETTh1",
+      "role": "main",
+      "splits": { "train": "60%", "select": "val 20%", "report": "test 20%" }
+    },
+    {
+      "id": "D2",
+      "name": "ETTh2",
+      "role": "main",
+      "splits": { "train": "60%", "select": "val 20%", "report": "test 20%" }
+    },
+    {
+      "id": "D3",
+      "name": "ETTm1",
+      "role": "main",
+      "splits": { "train": "60%", "select": "val 20%", "report": "test 20%" }
+    },
+    {
+      "id": "D4",
+      "name": "Electricity",
+      "role": "main",
+      "splits": { "train": "70%", "select": "val 10%", "report": "test 20%" }
+    },
+    {
+      "id": "D5",
+      "name": "Weather (target column for univariate)",
+      "role": "main",
+      "splits": { "train": "70%", "select": "val 10%", "report": "test 20%" }
+    },
+    {
+      "id": "D6",
+      "name": "Exchange (multivariate, if budget allows)",
+      "role": "main",
+      "splits": { "train": "70%", "select": "val 10%", "report": "test 20%" }
+    },
+    {
+      "id": "D7",
+      "name": "ILI (multivariate, if budget allows)",
+      "role": "main",
+      "splits": { "train": "70%", "select": "val 10%", "report": "test 20%" }
+    },
+    {
+      "id": "D8",
+      "name": "UCR 128",
+      "role": "main",
+      "splits": { "report": "standard splits" }
+    },
+    {
+      "id": "D9",
+      "name": "UEA 30",
+      "role": "main",
+      "splits": { "report": "standard splits" }
+    },
+    {
+      "id": "D10",
+      "name": "Yahoo or KPI anomaly detection (TS2Vec protocol), optional",
+      "why": "optional generality probe; supports 'regardless of downstream task'"
+    },
+    {
+      "id": "D11",
+      "name": "Synthetic ground-truth data (x = x* + Δx known): motif at a random location; dataset A (amplitude labels) and B (frequency labels)"
+    }
+  ],
+  "metrics": [
+    { "name": "mse", "direction": "minimize" },
+    { "name": "mae", "direction": "minimize" },
+    { "name": "accuracy", "direction": "maximize" },
+    { "name": "mean rank (classification)", "direction": "minimize" },
+    { "name": "IoU or AUROC of π_t vs the ground-truth mask (synthetic)", "direction": "maximize" },
+    {
+      "name": "label consistency (supervised classifier accuracy on generated views)",
+      "direction": "maximize"
+    },
+    {
+      "name": "view diversity (mean pairwise distance between views of one instance)",
+      "direction": "maximize"
+    },
+    {
+      "name": "probe estimate of I(v; y) (MINE/InfoNCE bound or probe accuracy)",
+      "direction": "maximize"
+    }
+  ],
+  "statistics": {
+    "seedsMain": 5,
+    "variance": "std",
+    "test": "paired Wilcoxon signed-rank across datasets/horizons for every 'ours > baseline' statement",
+    "aggregate": "forecasting: average improvement over the best baseline and win counts; classification: average accuracy, mean rank and critical-difference diagram",
+    "multipleComparisons": "Friedman + Nemenyi or Wilcoxon-Holm (critical-difference diagram)",
+    "notes": "5 seeds for forecasting and the main classification table, 3 seeds for ablations; mean ± std"
+  },
+  "hyperparameters": {
+    "selectionSplit": "val",
+    "sensitivity": [
+      { "knob": "beta" },
+      { "knob": "lambda" },
+      { "knob": "alpha" },
+      { "knob": "M" },
+      { "knob": "eta masking probability" },
+      { "knob": "L" },
+      { "knob": "tau" }
+    ],
+    "notes": "same tuning budget for baselines and our method; search space to be written down before running (not given)"
+  },
+  "protocol": {
+    "postprocessing": "frozen encoder; forecasting: ridge regression on the last-timestamp representation predicting the next H steps, ridge α chosen on val, MSE/MAE on z-normalized data; classification: max-pool over time + SVM-RBF with C by grid search",
+    "sharedByAllArms": true,
+    "notes": "follow TS2Vec/CoST conventions so numbers compare directly with published results; horizons H ∈ {24, 48, 168, 336, 720} (ETTm1: {24, 48, 96, 288, 672})"
+  },
+  "stages": [
+    { "id": "S1", "name": "E3.1 synthetic (fast; catches bugs in mask learning)" },
+    { "id": "S2", "name": "E1 on a subset with ours and TS2Vec (go/no-go check)" },
+    { "id": "S3", "name": "full E1" },
+    { "id": "S4", "name": "E2 and E4 in parallel" },
+    { "id": "S5", "name": "E5 and the rest" }
+  ],
+  "matrix": [
+    {
+      "cell": "E3.1.synthetic",
+      "stage": "S1",
+      "question": "Q4",
+      "purpose": "analysis",
+      "tier": "should",
+      "factors": {
+        "method": "ours vs each fixed augmentation alone, InfoTS, the adversarial generator, and an oracle using the true x*",
+        "dataset": "D11: instance-varying motif; dataset A (labels depend on amplitude) and B (labels depend on frequency); optional case where the label depends partly on the noise region"
+      },
+      "cost": {
+        "total": 30,
+        "source": "estimate",
+        "note": "~30 GPU-h stated for E3.1 and E3.2 together"
+      },
+      "expect": "ours approaches the oracle; the best fixed augmentation differs across A and B"
+    },
+    {
+      "cell": "E1.pilot",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "pilot",
+      "factors": {
+        "method": "ours vs TS2Vec",
+        "dataset": "a subset (not specified)"
+      },
+      "expect": "go/no-go check (criterion not stated)"
+    },
+    {
+      "cell": "E1.main",
+      "stage": "S3",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "ours + re-run SSL baselines B1-B10; supervised forecasters B11 as reference",
+        "task": "E1.1 univariate forecasting, E1.2 multivariate forecasting, E1.3 UCR-128/UEA-30 classification",
+        "dataset": "D1-D5 (+D6, D7 if budget allows), D8, D9",
+        "horizon": "{24, 48, 168, 336, 720}; ETTm1 {24, 48, 96, 288, 672}"
+      },
+      "seeds": 5,
+      "cost": {
+        "total": 900,
+        "source": "estimate",
+        "note": "plan states ~600-900 GPU-h for E1.1-E1.3 (ours plus re-run SSL baselines, ~8 methods, 5 seeds); upper end used"
+      }
+    },
+    {
+      "cell": "E2.1.plugin",
+      "stage": "S4",
+      "question": "Q2",
+      "purpose": "generality",
+      "tier": "must",
+      "factors": {
+        "framework": "TS2Vec, CoST, TS-TCC, SimCLR-style InfoNCE",
+        "arm": "original augmentation vs + ours (loss, encoder, hyperparameters fixed)",
+        "dataset": "ETTh1, ETTm1, Electricity multivariate + UEA-30"
+      },
+      "compareTo": ["E2.1.capacity-control"],
+      "seeds": 3,
+      "cost": { "total": 100, "source": "estimate" }
+    },
+    {
+      "cell": "E2.1.capacity-control",
+      "stage": "S4",
+      "question": "Q2",
+      "purpose": "generality",
+      "factors": {
+        "method": "original framework with the same number of extra steps, or with a random untrained augmentation network (heads frozen at initialization)"
+      }
+    },
+    {
+      "cell": "E2.2.backbones",
+      "stage": "S4",
+      "question": "Q3",
+      "purpose": "generality",
+      "tier": "could",
+      "factors": {
+        "encoder": "dilated CNN (default), LSTM, Transformer, PatchTST-style patch Transformer",
+        "objective": "full L_global + α·L_local"
+      },
+      "cost": {
+        "total": 150,
+        "source": "estimate",
+        "note": "~150 GPU-h stated for E2.2, E5.4, E3.3 and E6 together"
+      }
+    },
+    {
+      "cell": "E3.2.propositions",
+      "stage": "S5",
+      "question": "Q5",
+      "purpose": "analysis",
+      "tier": "should",
+      "factors": {
+        "prop1": "v = g(x) alone (η off, h ≡ 1) vs v = η(g(h⊙x))",
+        "prop2": "label consistency of views (supervised classifier trained on originals) and probe estimate of I(v; y) with labels held out from pretraining; views from ours, adversarial/InfoMin generator, fixed augmentations",
+        "prop3": "view diversity vs label consistency for all view generators"
+      },
+      "cost": {
+        "source": "estimate",
+        "note": "included in the ~30 GPU-h stated for E3.1 and E3.2 together"
+      }
+    },
+    {
+      "cell": "E3.3.task-agnostic",
+      "stage": "S5",
+      "question": "Q6",
+      "purpose": "generality",
+      "tier": "could",
+      "factors": {
+        "encoder": "one pretrained encoder per dataset, no task-specific retuning",
+        "task": "forecasting, classification (where labels exist), optionally anomaly detection (D10)"
+      },
+      "cost": {
+        "source": "estimate",
+        "note": "included in the ~150 GPU-h stated for E2.2, E5.4, E3.3 and E6 together"
+      }
+    },
+    {
+      "cell": "E4.ablations",
+      "stage": "S4",
+      "question": "Q7",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": {
+        "variant": "12 variants: w/o h; w/o g; w/o η; random untrained h, g; PRI -> adversarial; w/o β·‖h‖₀; w/o MMD; λ = 0; α = 0; hard concrete -> straight-through or Gumbel-sigmoid; shared heads -> separate backbones; alternating -> joint end-to-end",
+        "dataset": "ETTh1 and Electricity (uni and multi, two horizons each), 10 representative UCR datasets, all UEA"
+      },
+      "seeds": 3,
+      "cost": { "total": 150, "source": "estimate" }
+    },
+    {
+      "cell": "E5.1.aug-search",
+      "stage": "S5",
+      "question": "Q8",
+      "purpose": "analysis",
+      "tier": "should",
+      "factors": {
+        "method": "ours with default hyperparameters only vs grid of single augmentations and pairwise compositions of jitter, scale, permute, crop, mask, time-warp, magnitude-warp (~30 configurations)",
+        "dataset": "~10 datasets"
+      },
+      "seeds": 3,
+      "cost": {
+        "total": 150,
+        "source": "estimate",
+        "note": "~150 GPU-h stated for E5.1 and E5.2 together"
+      }
+    },
+    {
+      "cell": "E5.2.per-dataset-mask",
+      "stage": "S5",
+      "question": "Q9",
+      "purpose": "ablation",
+      "tier": "should",
+      "factors": {
+        "method": "ours with instance-independent h and g (one learnable global mask per dataset)"
+      },
+      "cost": {
+        "source": "estimate",
+        "note": "included in the ~150 GPU-h stated for E5.1 and E5.2 together"
+      }
+    },
+    {
+      "cell": "E5.3.special-cases",
+      "stage": "S5",
+      "question": "Q10",
+      "purpose": "analysis",
+      "factors": {
+        "method": "ours",
+        "measures": "visualized h and g; fraction of contiguous zero-runs (crop-like), variance of g (scale-like), differences across datasets; synthetic data with a known correct augmentation"
+      }
+    },
+    {
+      "cell": "E5.4.sensitivity",
+      "stage": "S5",
+      "question": "Q11",
+      "purpose": "sensitivity",
+      "tier": "could",
+      "factors": {
+        "method": "ours",
+        "sweep": "β, λ, α, M, η masking probability, L, τ",
+        "dataset": "3 datasets"
+      },
+      "cost": {
+        "source": "estimate",
+        "note": "included in the ~150 GPU-h stated for E2.2, E5.4, E3.3 and E6 together"
+      }
+    },
+    {
+      "cell": "E6.efficiency",
+      "stage": "S5",
+      "question": "Q12",
+      "purpose": "cost",
+      "tier": "could",
+      "factors": {
+        "method": "ours vs TS2Vec, CoST, InfoTS"
+      },
+      "cost": {
+        "source": "estimate",
+        "note": "included in the ~150 GPU-h stated for E2.2, E5.4, E3.3 and E6 together"
+      }
+    }
+  ],
+  "ablations": [
+    {
+      "id": "A1",
+      "component": "M1",
+      "structure": "remove",
+      "levels": ["h ≡ 1"],
+      "tests": "role of factorization / informative part",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A2",
+      "component": "M2",
+      "structure": "remove",
+      "levels": ["g ≡ 1"],
+      "tests": "role of the transformation",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A3",
+      "component": "M3",
+      "structure": "remove",
+      "levels": ["w/o η"],
+      "tests": "role of the noise term (Prop 1/3)",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A4",
+      "structure": "swap",
+      "levels": ["random h, g (untrained network)"],
+      "tests": "whether learning matters",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A5",
+      "component": "M6",
+      "structure": "swap",
+      "levels": ["L_PRI -> adversarial (min-MI) objective"],
+      "tests": "PRI vs InfoMin",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A6",
+      "component": "M7",
+      "structure": "remove",
+      "levels": ["w/o β·‖h‖₀"],
+      "tests": "sparsity pressure",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A7",
+      "component": "M8",
+      "structure": "remove",
+      "levels": ["w/o MMD term"],
+      "tests": "fidelity term",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A8",
+      "component": "M9",
+      "structure": "remove",
+      "levels": ["λ = 0"],
+      "tests": "temporal consistency of masks",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A9",
+      "component": "M11",
+      "structure": "remove",
+      "levels": ["α = 0"],
+      "tests": "local contrast",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A10",
+      "component": "M4",
+      "structure": "swap",
+      "levels": ["straight-through or Gumbel-sigmoid"],
+      "tests": "relaxation choice",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A11",
+      "component": "M5",
+      "structure": "swap",
+      "levels": ["separate backbones"],
+      "tests": "architecture",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A12",
+      "component": "M12",
+      "structure": "swap",
+      "levels": ["joint end-to-end"],
+      "tests": "training schedule",
+      "cells": ["E4.ablations"]
+    },
+    {
+      "id": "A13",
+      "structure": "swap",
+      "levels": ["one learnable global mask per dataset (instance-independent h, g)"],
+      "tests": "per-instance vs per-dataset",
+      "cells": ["E5.2.per-dataset-mask"]
+    },
+    {
+      "id": "A14",
+      "component": ["M1", "M3"],
+      "structure": "remove",
+      "levels": ["v = g(x) alone (η off, h ≡ 1)"],
+      "tests": "Prop 1: invertible-only views carry no new information",
+      "cells": ["E3.2.propositions"]
+    }
+  ],
+  "costMeasurements": [
+    {
+      "id": "K1",
+      "what": [
+        "wall-clock pretraining time",
+        "peak memory",
+        "parameter count",
+        "augmentation-network overhead as a function of M"
+      ],
+      "methods": ["ours", "B1", "B2", "B8"],
+      "cell": "E6.efficiency"
+    },
+    {
+      "id": "K2",
+      "what": ["compute cost of each approach (augmentation search vs learned)"],
+      "cell": "E5.1.aug-search"
+    }
+  ],
+  "analysis": [
+    {
+      "id": "N1",
+      "kind": "mechanism-probe",
+      "question": "Does h overlap the true motif region (IoU or AUROC of π_t vs the ground-truth mask)?",
+      "cells": ["E3.1.synthetic"]
+    },
+    {
+      "id": "N2",
+      "kind": "mechanism-probe",
+      "question": "Where do the view generators sit on view diversity vs label consistency?",
+      "cells": ["E3.2.propositions"]
+    },
+    {
+      "id": "N3",
+      "kind": "qualitative",
+      "question": "What do h and g look like for sample instances, and how do mask statistics differ across datasets?",
+      "cells": ["E5.3.special-cases"]
+    },
+    {
+      "id": "N4",
+      "kind": "failure-cases",
+      "question": "Training stability: loss curves, fraction of active mask over training, and collapse cases (h -> 0 or h -> 1) with how often they happen across seeds",
+      "cells": ["E6.efficiency"]
+    }
+  ],
+  "decisionPoints": [
+    {
+      "after": "S3",
+      "if": "the method wins clearly on forecasting but only ties on classification",
+      "then": "scope the claim accordingly"
+    },
+    {
+      "after": "S5",
+      "if": "E3.3 is not convincing",
+      "then": "soften 'regardless of downstream task' to 'without access to downstream labels or task specification'"
+    },
+    {
+      "after": "S5",
+      "if": "the method is sensitive to β (E5.4)",
+      "then": "say so and give a default rule"
+    }
+  ],
+  "risks": [
+    {
+      "text": "The propositions assume labels are independent of Δx; real datasets can violate this",
+      "mitigation": "E3.1 includes a case where the label depends partly on the 'noise' region"
+    },
+    {
+      "text": "'Regardless of downstream task' is a strong phrase",
+      "mitigation": "unless E3.3 is convincing, soften it to 'without access to downstream labels or task specification'"
+    },
+    {
+      "text": "Reviewers will ask about hyperparameter fairness, given the 'no trial-and-error' claim",
+      "mitigation": "tune on validation only, with the same tuning budget for baselines and ours; write down the search space now"
+    }
+  ]
+}

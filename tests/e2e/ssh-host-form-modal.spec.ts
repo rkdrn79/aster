@@ -15,7 +15,7 @@ test.use({ seedTestRepo: false })
 const HOST_PREFIX = `e2e-ssh-modal-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
 
 async function dismissTransientAnnouncement(page: Page): Promise<void> {
-  const maybeLaterButton = page.getByRole('button', { name: 'Maybe Later' })
+  const maybeLaterButton = page.getByRole('button', { name: 'Maybe later' })
   // Why: isVisible() is one-shot (its timeout is ignored); the retrying assertion
   // gives a late-rendering announcement a chance to appear before we move on.
   const visible = await expect(maybeLaterButton)
@@ -175,7 +175,7 @@ test.describe('SSH host add/edit modal', () => {
     await expect(editDialog.getByText('Editing')).toBeVisible()
     await expect(editDialog.getByText(createdLabel, { exact: true })).toBeVisible()
     await expect(editDialog.getByText('alice@created.example.test:2222')).toBeVisible()
-    await expect(editDialog.getByRole('button', { name: 'Save Changes' })).toBeInViewport()
+    await expect(editDialog.getByRole('button', { name: 'Save changes' })).toBeInViewport()
 
     // Advanced starts collapsed for a target without advanced fields.
     await expect(editDialog.getByRole('button', { name: 'Advanced' })).toHaveAttribute(
@@ -188,7 +188,7 @@ test.describe('SSH host add/edit modal', () => {
       'open'
     )
     await expect(editDialog.getByRole('heading', { name: 'Edit SSH host' })).toBeInViewport()
-    await expect(editDialog.getByRole('button', { name: 'Save Changes' })).toBeInViewport()
+    await expect(editDialog.getByRole('button', { name: 'Save changes' })).toBeInViewport()
 
     // Dirty outside-click must not discard the draft.
     await editDialog.locator('#ssh-target-label').fill(`${createdLabel}-dirty`)

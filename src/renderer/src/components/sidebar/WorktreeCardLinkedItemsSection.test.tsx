@@ -136,7 +136,7 @@ describe('workspace linked references in hover details', () => {
     }
     const { container } = render(<Fixture onManage={vi.fn()} referenceDetails={details} />)
     expect(screen.getByText('Merged sibling')).toBeTruthy()
-    expect(screen.getByText('State: Merged')).toBeTruthy()
+    expect(screen.getByText('State: merged')).toBeTruthy()
     expect(screen.getByText('Target: release')).toBeTruthy()
     expect(screen.getByText('State: In Progress')).toBeTruthy()
     expect(screen.getAllByText('Checks: Passing')).toHaveLength(1)
@@ -146,12 +146,12 @@ describe('workspace linked references in hover details', () => {
     ).find((node) => node.textContent?.includes('Merged sibling'))
     const icon = siblingRow?.querySelector('svg')
     expect(icon?.classList.contains('lucide-git-merge')).toBe(true)
-    expect(icon?.classList.contains('dark:text-purple-400/70')).toBe(true)
+    expect(icon?.classList.contains('text-foreground/70')).toBe(true)
   })
   it('shows grouped peers and only each review’s own known checks', () => {
     const { container } = render(<Fixture onManage={vi.fn()} />)
     expect(screen.getByText('Reviews · 2')).toBeTruthy()
-    expect(screen.getByText('Issues & tasks · 2')).toBeTruthy()
+    expect(screen.getByText('Issues and tasks · 2')).toBeTruthy()
     expect(screen.getAllByText('Active review')).toHaveLength(1)
     expect(screen.getByText('MR !42 · GitLab · gitlab.example.com/team/orca')).toBeTruthy()
     expect(screen.getByText('ENG-215 · Linear · acme')).toBeTruthy()

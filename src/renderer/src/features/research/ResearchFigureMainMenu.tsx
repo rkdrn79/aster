@@ -7,12 +7,14 @@ import {
   History,
   LifeBuoy,
   Magnet,
+  LockOpen,
   Palette,
   RectangleHorizontal
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { PAGE_FRAME_ID } from '../../../../research-harness/research-figures-model.mjs'
 import { figureCommand } from './research-figure-commands'
+import { unlockElements } from './research-figure-lock'
 
 const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 const mod = isMac ? '⌘' : 'Ctrl+'
@@ -81,6 +83,18 @@ export function ResearchFigureMainMenu({
         onSelect={() => setSnap(!snap)}
       >
         Snap to objects
+      </MainMenu.Item>
+      <MainMenu.Item
+        icon={<LockOpen />}
+        onSelect={() => {
+          const current = api()
+          const count = current ? unlockElements(current) : 0
+          if (!count) {
+            toast('Nothing on the figure is locked.')
+          }
+        }}
+      >
+        Unlock all
       </MainMenu.Item>
       <MainMenu.Separator />
       <MainMenu.Item icon={<Download />} onSelect={() => figureCommand('export')}>

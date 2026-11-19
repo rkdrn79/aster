@@ -14,6 +14,7 @@ import { useResearchRecords } from './research-records-store'
 import { useResearchLibrary } from './research-library-store'
 import { researchConversationHome } from './research-conversation-home'
 import { researchBackgroundTabIsHidden } from './research-background-tab'
+import { researchChatIsSubtask } from './research-chat-branches'
 import { useResearchSlackBackgroundTasks } from './research-slack-background-tasks'
 import {
   researchWritingEditorTabIds,
@@ -46,6 +47,14 @@ export function researchHiddenTabIds(
       return [tab.id]
     }
     if (workerTabIds.has(tab.id)) {
+      return [tab.id]
+    }
+    // A subtask reports back to its chat; it opens from there, never from the Workbench.
+    if (
+      owner &&
+      tab.contentType === 'agent-session' &&
+      researchChatIsSubtask(records, { hostId: owner, workspaceId: tab.worktreeId }, tab.entityId)
+    ) {
       return [tab.id]
     }
     return tab.contentType === 'agent-session' &&

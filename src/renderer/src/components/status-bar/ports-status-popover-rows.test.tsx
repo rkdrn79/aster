@@ -123,12 +123,12 @@ describe('status bar port row open routing', () => {
       root.render(<PortRow port={externalPort} activeWorktreeId={null} external />)
     })
     const openButton = container.querySelector<HTMLButtonElement>(
-      'button[aria-label="Open in Browser"]'
+      'button[aria-label="Open in browser"]'
     )
     if (!openButton) {
-      throw new Error('expected Open in Browser button')
+      throw new Error('expected Open in browser button')
     }
-    expect(container.textContent).toContain('Open in Browser. Shift+Ctrl+click for system browser')
+    expect(container.textContent).toContain('Open in browser. Shift+Ctrl+click for system browser')
     return openButton
   }
 

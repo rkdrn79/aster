@@ -119,7 +119,7 @@ export function ResearchRebuttalDraftField({
   )
 
   return (
-    <div className={cn('flex min-h-0 flex-col gap-1.5', className)}>
+    <div className={cn('flex min-h-0 flex-col gap-2', className)}>
       <div className={cn('flex items-center justify-between gap-2', hideLabel && 'sr-only')}>
         <div className="flex min-w-0 items-center gap-2">
           <Label htmlFor={id}>{label}</Label>

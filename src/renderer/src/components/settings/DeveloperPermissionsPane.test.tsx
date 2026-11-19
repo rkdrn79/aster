@@ -85,7 +85,7 @@ it('requests Local Network access without claiming a permission verdict', async 
   )
   expect(row?.textContent).toContain('Managed by macOS')
   expect(row?.textContent).toContain("macOS does not report this permission's current status")
-  expect(requestButton?.textContent).toContain('Request Access')
+  expect(requestButton?.textContent).toContain('Request access')
   expect(settingsButton?.textContent).toContain('Open System Settings')
 
   await act(async () => requestButton?.click())

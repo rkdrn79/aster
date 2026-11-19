@@ -68,30 +68,29 @@ export function SettingsSection({
 
   return (
     <section id={id} data-settings-section={id} className={cn('scroll-mt-8 space-y-6', className)}>
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border/60 pb-5">
-        <div className="min-w-0 space-y-2">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0 space-y-1.5">
           <h2
-            className="flex flex-wrap items-center gap-2 text-2xl font-semibold leading-tight text-foreground"
+            className="flex flex-wrap items-center gap-2 text-[20px] font-semibold leading-7 tracking-[-0.015em] text-foreground"
             onClick={onTitleClick}
           >
             {title}
             {badge ? (
-              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.05em] text-muted-foreground">
+              <span className="text-xs font-normal tracking-normal text-muted-foreground">
                 {badge}
               </span>
             ) : null}
             {badgeAccessory}
           </h2>
-          <p className="max-w-3xl text-sm leading-6 text-muted-foreground">{description}</p>
+          <p className="max-w-3xl text-[13px] leading-5 text-muted-foreground">{description}</p>
         </div>
         {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
       </div>
-      {/* Why: body content sits in a visually distinct band — a soft card with
-          rounded corners and tight inner padding — so each row group reads as
-          contained inside the section, not as a continuation of the sidebar. */}
+      {/* Why: the rows sit in one calm grouped card, a surface step up from the page, so a
+          section reads as a single block of choices rather than a loose list. */}
       <div
         className={cn(
-          'rounded-xl border border-border/50 bg-card/50 px-7 py-6 shadow-xs',
+          'rounded-2xl border border-border/70 bg-card px-5 py-3 dark:border-transparent',
           bodyClassName
         )}
       >

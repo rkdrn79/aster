@@ -213,7 +213,7 @@ describe('removing a managed server host', () => {
     expect(removeTarget).not.toHaveBeenCalled()
     expect(document.body.textContent).toContain('Aster runs on Build box')
     const open = Array.from(document.body.querySelectorAll('button')).find(
-      (button) => button.textContent === 'Open Remote Aster Servers'
+      (button) => button.textContent === 'Open Remote Aster servers'
     )
     await act(async () => {
       open?.click()

@@ -43,7 +43,7 @@ function FoldedToolContent({ tool }: { tool: BrowserChromeFoldedTool }): React.J
         <span className="ml-auto flex items-center gap-2">
           {showActiveCheck ? <Check className="size-3.5 text-foreground" /> : null}
           {tool.count ? (
-            <span className="flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] leading-4 text-primary-foreground">
+            <span className="min-w-4 text-center text-[10px] tabular-nums text-muted-foreground">
               {tool.count}
             </span>
           ) : tool.shortcut ? (

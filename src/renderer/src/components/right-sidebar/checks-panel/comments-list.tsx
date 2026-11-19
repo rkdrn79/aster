@@ -5,8 +5,8 @@ import {
   Plus,
   SendHorizontal,
   SlidersHorizontal,
-  Sparkles,
-  X
+  X,
+  Bot
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -118,7 +118,7 @@ export function PRCommentsList(props: PRCommentsListProps): React.JSX.Element {
                       }
                       onClick={() => onResolveSelectedCommentsWithAI?.(selectableGroups)}
                     >
-                      <Sparkles className="size-3" />
+                      <Bot className="size-3" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="top" sideOffset={4}>

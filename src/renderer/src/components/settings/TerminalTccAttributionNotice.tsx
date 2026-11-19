@@ -80,7 +80,7 @@ export function TerminalTccAttributionNotice(props: {
         >
           {translate(
             'auto.components.settings.TerminalTccAttributionNotice.openManageSessions',
-            'Open Manage Sessions'
+            'Open Manage sessions'
           )}
         </Button>
       )}

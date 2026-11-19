@@ -106,10 +106,13 @@ export function ResearchEvidenceCheck({ scope }: { scope: AgentReviewScope }): R
     : []
 
   return (
-    <section aria-label="Evidence check" className="space-y-2 border-t border-border pt-4">
+    <section
+      aria-label="Evidence check"
+      className="space-y-2 rounded-xl bg-muted/60 px-4 py-4 dark:bg-muted/45"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
-          <h2 className="text-xs font-semibold">Evidence check</h2>
+          <h2 className="text-sm font-medium">Evidence check</h2>
           {result ? <Badge variant="outline">{VERDICT_LABELS[result.verdict]}</Badge> : null}
           {result ? (
             <time dateTime={result.checkedAt} className="text-xs text-muted-foreground">
@@ -136,7 +139,7 @@ export function ResearchEvidenceCheck({ scope }: { scope: AgentReviewScope }): R
       ) : null}
       {!verify ? (
         <p className="text-xs text-muted-foreground">
-          This Aster build cannot run the evidence check.
+          This Aster build cannot run the evidence check
         </p>
       ) : null}
       {error ? (

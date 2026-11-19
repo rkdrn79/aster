@@ -2,7 +2,6 @@ import { forwardRef } from 'react'
 import type { ClaudeUsageSummary } from '../../../../shared/claude-usage-types'
 import type { CodexUsageSummary } from '../../../../shared/codex-usage-types'
 import {
-  BackgroundGlows,
   CardFooter,
   formatCost,
   formatDateRange,
@@ -61,7 +60,7 @@ export const ShareUsageCard = forwardRef<HTMLDivElement, ShareUsageCardProps>(
         style={{
           width: 480,
           padding: '28px 28px 24px',
-          background: 'linear-gradient(145deg, #111111 0%, #0a0a0a 50%, #0d0d1a 100%)',
+          background: '#0f0f0f',
           borderRadius: 16,
           border: '1px solid rgba(255, 255, 255, 0.08)',
           color: '#fafafa',
@@ -71,7 +70,6 @@ export const ShareUsageCard = forwardRef<HTMLDivElement, ShareUsageCardProps>(
           overflow: 'hidden'
         }}
       >
-        <BackgroundGlows />
         <CardHeader providerLabel={providerLabel} range={range} />
 
         <div
@@ -122,7 +120,7 @@ function CardHeader(props: { providerLabel: string; range: string }): React.JSX.
           <div style={{ fontSize: 14, fontWeight: 600, color: '#fafafa', lineHeight: 1.2 }}>
             {translate('auto.components.stats.ShareUsageCard.0eb31e79ee', 'Aster IDE')}
           </div>
-          <div style={{ fontSize: 10, color: '#555', letterSpacing: 0.3 }}>
+          <div style={{ fontSize: 10, color: '#555' }}>
             {props.providerLabel}{' '}
             {translate('auto.components.stats.ShareUsageCard.da62578d9d', 'Usage')}
           </div>
@@ -136,8 +134,7 @@ function CardHeader(props: { providerLabel: string; range: string }): React.JSX.
             color: '#a1a1a1',
             background: 'rgba(255, 255, 255, 0.06)',
             padding: '3px 8px',
-            borderRadius: 6,
-            letterSpacing: 0.3
+            borderRadius: 6
           }}
         >
           {RANGE_LABELS[props.range] ?? props.range}
@@ -156,9 +153,9 @@ function StatsGrid(props: {
     {
       value: formatCost(props.summary.estimatedCostUsd ?? null),
       label: translate('auto.components.stats.ShareUsageCard.beb6f24f37', 'Est. cost'),
-      bg: 'rgba(20, 71, 230, 0.1)',
-      border: '1px solid rgba(20, 71, 230, 0.2)',
-      valueColor: '#93b4ff',
+      bg: 'rgba(255, 255, 255, 0.04)',
+      border: '1px solid rgba(255, 255, 255, 0.06)',
+      valueColor: '#fafafa',
       valueFontSize: 16
     },
     {
@@ -210,9 +207,7 @@ function StatsGrid(props: {
           >
             {card.value}
           </div>
-          <div style={{ fontSize: 10, color: '#666', marginTop: 2, letterSpacing: 0.2 }}>
-            {card.label}
-          </div>
+          <div style={{ fontSize: 10, color: '#666', marginTop: 2 }}>{card.label}</div>
         </div>
       ))}
     </div>
@@ -230,9 +225,7 @@ function ChartHeader(props: {
           style={{
             fontSize: 11,
             fontWeight: 500,
-            color: '#555',
-            letterSpacing: 0.3,
-            textTransform: 'uppercase' as const
+            color: '#555'
           }}
         >
           {translate('auto.components.stats.ShareUsageCard.66c83284cf', 'Daily tokens')}

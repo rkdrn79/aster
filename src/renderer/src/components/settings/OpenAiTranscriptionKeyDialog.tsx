@@ -40,7 +40,7 @@ export function OpenAiTranscriptionKeyDialog({
           <DialogTitle>
             {translate(
               'auto.components.settings.OpenAiTranscriptionKeyDialog.439e91879e',
-              'OpenAI Transcription'
+              'OpenAI transcription'
             )}
           </DialogTitle>
           <DialogDescription>
@@ -54,7 +54,7 @@ export function OpenAiTranscriptionKeyDialog({
           <Label htmlFor="openai-speech-api-key">
             {translate(
               'auto.components.settings.OpenAiTranscriptionKeyDialog.16015322f9',
-              'API Key'
+              'API key'
             )}
           </Label>
           <Input
@@ -93,7 +93,7 @@ export function OpenAiTranscriptionKeyDialog({
             <Button variant="outline" disabled={pending} onClick={onClear}>
               {translate(
                 'auto.components.settings.OpenAiTranscriptionKeyDialog.07b26f2742',
-                'Clear Key'
+                'Clear key'
               )}
             </Button>
           )}
@@ -101,7 +101,7 @@ export function OpenAiTranscriptionKeyDialog({
             {pending ? <Loader2 className="size-4 animate-spin" /> : null}
             {translate(
               'auto.components.settings.OpenAiTranscriptionKeyDialog.fa83512e48',
-              'Save Key'
+              'Save key'
             )}
           </Button>
         </DialogFooter>

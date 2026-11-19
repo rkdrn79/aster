@@ -1,11 +1,11 @@
 import { z } from 'zod'
 import {
   RESEARCH_PROPOSAL_STATES,
-  researchProposalListSchema,
   researchProposalSchema,
   type ResearchProposal,
   type ResearchProposalList
 } from '../../shared/research/research-proposals'
+import { decideResearchProposal, listResearchProposals } from './research-decision-calls'
 import { authorizedProjectPath, callHarness, handle } from './research-harness-ipc'
 
 const EXPERIMENT_SLUG = /^[\p{L}\p{N}][\p{L}\p{N}-]{0,63}$/u
@@ -34,36 +34,29 @@ const decidedSchema = z.object({ proposal: researchProposalSchema })
 /** Local catalog projects only; a decision or handoff from the app is always the user's. */
 export function registerResearchProposalsIpcHandlers(): void {
   handle('researchProposals:list', listSchema, async (input): Promise<ResearchProposalList> =>
-    researchProposalListSchema.parse(
-      await callHarness(
-        'research-proposals.mjs',
-        'listProposals',
-        await authorizedProjectPath(input.workspacePath),
-        input.experiment,
-        { state: input.state ?? 'all' }
-      )
+    listResearchProposals(
+      {
+        listProposals: (project, experiment, options) =>
+          callHarness('research-proposals.mjs', 'listProposals', project, experiment, options)
+      },
+      await authorizedProjectPath(input.workspacePath),
+      input.experiment,
+      input.state ?? 'all'
     )
   )
   handle(
     'researchProposals:decide',
     decideSchema,
-    async (input): Promise<{ proposal: ResearchProposal }> => {
-      const { proposal } = decidedSchema.parse(
-        await callHarness(
-          'research-proposals.mjs',
-          'decideProposal',
-          await authorizedProjectPath(input.workspacePath),
-          {
-            experiment: input.experiment,
-            id: input.id,
-            decision: input.decision,
-            note: input.note || null,
-            by: 'user'
-          }
-        )
+    async (input): Promise<{ proposal: ResearchProposal }> => ({
+      proposal: await decideResearchProposal(
+        {
+          decideProposal: (project, decision) =>
+            callHarness('research-proposals.mjs', 'decideProposal', project, decision)
+        },
+        await authorizedProjectPath(input.workspacePath),
+        input
       )
-      return { proposal }
-    }
+    })
   )
   handle(
     'researchProposals:handoff',

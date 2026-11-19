@@ -131,12 +131,12 @@ describe('ArtifactCollection', () => {
     const items = [artifact('first', 'First artifact'), artifact('second', 'Second artifact')]
     renderCollection(items)
 
-    await userEvent.type(screen.getByPlaceholderText('Search...'), 'second')
+    await userEvent.type(screen.getByPlaceholderText('Search'), 'second')
     expect(screen.getByRole('button', { name: /Second artifact/ })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /First artifact/ })).not.toBeInTheDocument()
 
-    await userEvent.clear(screen.getByPlaceholderText('Search...'))
-    await userEvent.type(screen.getByPlaceholderText('Search...'), 'nothing')
+    await userEvent.clear(screen.getByPlaceholderText('Search'))
+    await userEvent.type(screen.getByPlaceholderText('Search'), 'nothing')
     expect(screen.queryByRole('button', { name: /Second artifact/ })).not.toBeInTheDocument()
     expect(screen.getByText('No matches')).toBeInTheDocument()
   })

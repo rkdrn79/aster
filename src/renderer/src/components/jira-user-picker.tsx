@@ -124,7 +124,7 @@ export function JiraUserPicker({
           type="button"
           disabled={disabled}
           aria-label={label}
-          className="flex h-8 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-2 text-left text-[12px] transition hover:bg-muted/40 disabled:opacity-50"
+          className="flex h-8 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-2 text-left text-[12px] transition-colors hover:bg-muted/40 disabled:opacity-50"
         >
           <span className={value ? 'truncate' : 'truncate text-muted-foreground'}>
             {triggerLabel}

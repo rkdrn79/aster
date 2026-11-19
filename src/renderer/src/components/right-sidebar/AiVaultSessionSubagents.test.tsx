@@ -111,7 +111,7 @@ describe('SessionSubagentsSection', () => {
       element.getAttribute('title')
     )
 
-    expect(titles).toEqual(['Running task', 'View Log'])
+    expect(titles).toEqual(['Running task', 'View log'])
     expect(container.querySelector('[data-slot="tooltip-trigger"]')).not.toBeNull()
   })
 
@@ -149,7 +149,7 @@ describe('independent child resume', () => {
       <SessionSubagentsSection session={makeSession({ agent: 'omp' })} resume={resume} />
     )
     await act(async () => {})
-    fireEvent.click(getByRole('button', { name: 'Resume in Folder' }))
+    fireEvent.click(getByRole('button', { name: 'Resume in folder' }))
     expect(resume.getState).toHaveBeenCalledWith(child)
     expect(resume.onResume).toHaveBeenCalledExactlyOnceWith(child, 'folder:repo')
   })
@@ -179,7 +179,7 @@ describe('independent child resume', () => {
       <SessionSubagentsSection session={makeSession()} resume={resume} />
     )
     await act(async () => {})
-    const button = getByRole('button', { name: 'Resume in New Tab' })
+    const button = getByRole('button', { name: 'Resume in new tab' })
     expect(button.hasAttribute('disabled')).toBe(true)
     fireEvent.click(button)
     expect(resume.onResume).not.toHaveBeenCalled()
@@ -220,7 +220,7 @@ describe('nested OMP history', () => {
       parentFilePath: child.filePath
     })
     expect(view.queryByText('Research')).not.toBeNull()
-    fireEvent.click(view.getAllByRole('button', { name: 'Resume in Folder' })[1])
+    fireEvent.click(view.getAllByRole('button', { name: 'Resume in folder' })[1])
     expect(resume.onResume).toHaveBeenCalledExactlyOnceWith(grandchild, 'folder:repo')
   })
 
@@ -331,7 +331,7 @@ describe('nested OMP history', () => {
     expect(view.queryByText('Could not load all subagents.')).not.toBeNull()
     fireEvent.click(view.getByRole('button', { name: 'Retry' }))
     await act(async () => {})
-    expect(view.queryByText('No subagents found.')).not.toBeNull()
+    expect(view.queryByText('No subagents found')).not.toBeNull()
     expect(view.queryByText('Worker')).toBeNull()
   })
 

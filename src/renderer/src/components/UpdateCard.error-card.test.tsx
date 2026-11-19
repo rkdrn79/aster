@@ -117,7 +117,7 @@ describe('UpdateCard staged install recovery', () => {
     expect(screen.getByText('PID 12345')).toBeTruthy()
     expect(screen.getByText(/its server keeps running without a browser/)).toBeTruthy()
     expect(screen.queryByText('Diagnostic process IDs: 12345')).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Download Manually' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Download manually' })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Show details' }))
     expect(screen.getByText('Diagnostic process IDs: 12345')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Retry installation' }))
@@ -142,14 +142,14 @@ describe('UpdateCard staged install recovery', () => {
     })
     expect(screen.getByText(title)).toBeTruthy()
     expect(screen.getByText(guidance)).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Download Manually' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Download manually' })).toBeNull()
   })
 
   it('shows preparation feedback without another install button while recovery runs', () => {
     renderWithInitialStatus({ state: 'downloaded', version: '1.4.200', installing: true })
     expect(screen.getByText('Preparing your update')).toBeTruthy()
     expect(screen.getByText(new RegExp(`Checking running ${PRODUCT_NAME} instances`))).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Restart to Update' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Restart to update' })).toBeNull()
     expect(quitAndInstall).not.toHaveBeenCalled()
   })
 
@@ -166,18 +166,18 @@ describe('UpdateCard staged install recovery', () => {
       })
 
       expect(screen.getByText(/process IDs: 12345/)).toBeTruthy()
-      fireEvent.click(screen.getByRole('button', { name: 'Try Again' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
       expect(quitAndInstall).toHaveBeenCalledTimes(1)
       expect(download).not.toHaveBeenCalled()
-      expect(screen.queryByRole('button', { name: 'Retry Download' })).toBeNull()
-      expect(screen.queryByRole('button', { name: 'Choose Another Build' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Retry download' })).toBeNull()
+      expect(screen.queryByRole('button', { name: 'Choose another build' })).toBeNull()
     }
   )
 
   it('keeps the download retry for errors from older hosts without an install action', () => {
     renderWithInitialStatus({ state: 'error', version: '1.4.200', message: 'Download failed' })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Retry Download' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Retry download' }))
     expect(download).toHaveBeenCalledTimes(1)
     expect(quitAndInstall).not.toHaveBeenCalled()
   })
@@ -191,7 +191,7 @@ describe('UpdateCard Windows signature failures', () => {
 
     act(() => useAppStore.getState().setUpdateStatus({ state: 'error', message }))
 
-    expect(screen.getByText("Update Wasn't Installed")).toBeTruthy()
+    expect(screen.getByText("Update wasn't installed")).toBeTruthy()
     expect(screen.getByText(/Don't install this download/)).toBeTruthy()
     expect(screen.queryByText(message)).toBeNull()
 
@@ -207,11 +207,11 @@ describe('UpdateCard Windows signature failures', () => {
 
     act(() => useAppStore.getState().setUpdateStatus({ state: 'error', message }))
 
-    expect(screen.getByText('Update Verification Blocked')).toBeTruthy()
+    expect(screen.getByText('Update verification blocked')).toBeTruthy()
     expect(screen.queryByText(message)).toBeNull()
     expect(screen.queryByText(/Windows verifies the installer/)).toBeNull()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Retry Download' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Retry download' }))
     expect(download).toHaveBeenCalledTimes(1)
 
     fireEvent.click(screen.getByRole('button', { name: 'Show details' }))
@@ -229,7 +229,7 @@ describe('UpdateCard Windows signature failures', () => {
 
     act(() => useAppStore.getState().setUpdateStatus({ state: 'error', message }))
 
-    expect(screen.getByText("Update Wasn't Installed")).toBeTruthy()
+    expect(screen.getByText("Update wasn't installed")).toBeTruthy()
     // The generic restart advice must not be prefixed onto a security stop.
     expect(screen.queryByText(/Quit and reopen Orca/)).toBeNull()
   })
@@ -285,9 +285,9 @@ describe('UpdateCard local builds', () => {
         source: 'local'
       })
     )
-    expect(screen.getByText('Local Build Error')).toBeTruthy()
-    expect(screen.queryByRole('button', { name: 'Download Manually' })).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Choose Another Build' }))
+    expect(screen.getByText('Local build error')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Download manually' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Choose another build' }))
     expect(check).toHaveBeenCalledWith({ localBuild: true })
   })
 })
@@ -318,12 +318,12 @@ describe('UpdateCard Linux package-install recovery', () => {
 
     showPackageRecovery()
 
-    expect(screen.getByText('Manual Install Required')).toBeTruthy()
-    expect(screen.queryByText('Update Error')).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Retry Download' })).toBeNull()
-    expect(screen.getByRole('button', { name: 'Copy Install Command' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Show Package' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Download Manually' })).toBeTruthy()
+    expect(screen.getByText('Manual install required')).toBeTruthy()
+    expect(screen.queryByText('Update error')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Retry download' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Copy install command' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Show package' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Download manually' })).toBeTruthy()
     expect(quitAndInstall).not.toHaveBeenCalled()
   })
 
@@ -334,8 +334,8 @@ describe('UpdateCard Linux package-install recovery', () => {
       recovery: PACKAGE_RECOVERY
     })
 
-    expect(screen.getByText('Manual Install Required')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Download Manually' }))
+    expect(screen.getByText('Manual install required')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Download manually' }))
     expect(openUrl).toHaveBeenCalledWith('https://github.com/stablyai/orca/releases/tag/v1.4.200')
   })
 
@@ -343,7 +343,7 @@ describe('UpdateCard Linux package-install recovery', () => {
     renderWithInitialStatus({ state: 'available', version: '1.4.199', changelog: null })
     showPackageRecovery()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Download Manually' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Download manually' }))
     expect(openUrl).toHaveBeenCalledWith('https://github.com/stablyai/orca/releases/tag/v1.4.200')
   })
 
@@ -356,16 +356,16 @@ describe('UpdateCard Linux package-install recovery', () => {
 
     showPackageRecovery({ ...PACKAGE_RECOVERY, reason })
 
-    expect(screen.getByText('Manual Install Required')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Copy Install Command' })).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Show Package' })).toBeTruthy()
+    expect(screen.getByText('Manual install required')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Copy install command' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Show package' })).toBeTruthy()
   })
 
   it('drives the copy action through the real preload surface', async () => {
     renderAfterAvailableStatus()
     showPackageRecovery()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Copy Install Command' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy install command' }))
     await flushActions()
 
     expect(getInstructions).toHaveBeenCalledTimes(1)
@@ -383,10 +383,10 @@ describe('UpdateCard Linux package-install recovery', () => {
     renderAfterAvailableStatus()
     showPackageRecovery()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Copy Install Command' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy install command' }))
     await flushActions()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Download Manually' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Download manually' }))
     expect(openUrl).toHaveBeenCalledWith('https://github.com/stablyai/orca/releases/tag/v1.4.200')
   })
 
@@ -399,13 +399,13 @@ describe('UpdateCard Linux package-install recovery', () => {
     renderAfterAvailableStatus()
     showPackageRecovery()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Copy Install Command' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy install command' }))
     await flushActions()
-    expect(screen.queryByRole('button', { name: 'Copy Install Command' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Copy install command' })).toBeNull()
 
     showPackageRecovery({ ...PACKAGE_RECOVERY, version: '1.4.201' })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Copy Install Command' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy install command' }))
     await flushActions()
     expect(getInstructions).toHaveBeenCalledTimes(2)
     expect(writeClipboardText).toHaveBeenCalledTimes(1)
@@ -421,11 +421,11 @@ describe('UpdateCard Linux package-install recovery', () => {
       retryable: false
     })
 
-    expect(screen.getByText('Update Error')).toBeTruthy()
+    expect(screen.getByText('Update error')).toBeTruthy()
     expect(screen.getByText(message)).toBeTruthy()
-    expect(screen.queryByText('Manual Install Required')).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Retry Download' })).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Download Manually' }))
+    expect(screen.queryByText('Manual install required')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Retry download' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Download manually' }))
     expect(openUrl).toHaveBeenCalledWith('https://github.com/stablyai/orca/releases/tag/v1.4.200')
   })
 
@@ -434,9 +434,9 @@ describe('UpdateCard Linux package-install recovery', () => {
 
     act(() => useAppStore.getState().setUpdateStatus({ state: 'error', message: 'ENOSPC' }))
 
-    expect(screen.getByText('Update Error')).toBeTruthy()
-    expect(screen.queryByText('Manual Install Required')).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: 'Retry Download' }))
+    expect(screen.getByText('Update error')).toBeTruthy()
+    expect(screen.queryByText('Manual install required')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Retry download' }))
     expect(download).toHaveBeenCalledTimes(1)
   })
 
@@ -447,7 +447,7 @@ describe('UpdateCard Linux package-install recovery', () => {
 
     act(() => useAppStore.getState().setUpdateStatus({ state: 'error', message }))
 
-    expect(screen.getByText('Update Error')).toBeTruthy()
+    expect(screen.getByText('Update error')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Show details' }))
     expect(screen.getByText(message)).toBeTruthy()
   })
@@ -461,9 +461,9 @@ describe('UpdateCard Linux package-install recovery', () => {
         .setUpdateStatus({ state: 'error', message: 'net::ERR_HTTP2_PROTOCOL_ERROR' })
     )
 
-    expect(screen.getByText('HTTP/2 Download Blocked')).toBeTruthy()
-    expect(screen.queryByText('Manual Install Required')).toBeNull()
-    expect(screen.getByRole('button', { name: 'Enable & Restart' })).toBeTruthy()
+    expect(screen.getByText('HTTP/2 download blocked')).toBeTruthy()
+    expect(screen.queryByText('Manual install required')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Enable and restart' })).toBeTruthy()
   })
 
   it('relaunches once when Enable & Restart is double-clicked', async () => {
@@ -477,7 +477,7 @@ describe('UpdateCard Linux package-install recovery', () => {
 
     // Why: the shared card marks the pending action aria-disabled, so the second click still
     // reaches the handler and only its own guard can stop a double relaunch.
-    const enable = screen.getByRole('button', { name: 'Enable & Restart' })
+    const enable = screen.getByRole('button', { name: 'Enable and restart' })
     fireEvent.click(enable)
 
     const pending = screen.getByRole('button', { name: 'Restarting...' })
@@ -527,7 +527,7 @@ describe('UpdateCard recovery keyboard and motion', () => {
     fireEvent.keyDown(screen.getByRole('complementary'), { key: 'Escape' })
 
     expect(useAppStore.getState().updateCardCollapsed).toBe(true)
-    expect(screen.queryByText('Manual Install Required')).toBeNull()
+    expect(screen.queryByText('Manual install required')).toBeNull()
   })
 
   it('plays the exit animation before minimizing when motion is allowed', () => {
@@ -556,7 +556,7 @@ describe('UpdateCard recovery keyboard and motion', () => {
     renderAfterAvailableStatus()
     showPackageRecovery()
 
-    const copyButton = screen.getByRole('button', { name: 'Copy Install Command' })
+    const copyButton = screen.getByRole('button', { name: 'Copy install command' })
     copyButton.focus()
     expect(document.activeElement).toBe(copyButton)
 

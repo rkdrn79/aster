@@ -19,8 +19,9 @@ import { structuredAgentSessionDraftScopeKey } from '@/components/native-chat/na
 import { returnMessageToComposer } from '@/components/native-chat/structured-agent-session-message-hand-back'
 import { useResearchRecords } from './research-records-store'
 import {
-  researchChatBranchFamily,
   researchChatBranchName,
+  researchChatFamilyCopies,
+  researchSubtaskName,
   withResearchChatBranch,
   type ResearchChatScope
 } from './research-chat-branches'
@@ -53,7 +54,24 @@ export type ResearchChatBranchRequest =
       resend?: string
     }
 
-export type ResearchChatBranchOutcome = { sessionId: string } | { error: string }
+/** What the copy is for: `branch` opens in place of this chat, `fork` keeps working in the
+ *  background (on `prompt`, when given), `subtask` works on `task` and reports back here. `name`
+ *  replaces the name Aster would give a branch or fork. */
+export type ResearchChatCopyRequest =
+  | { kind: 'branch'; name?: string }
+  | { kind: 'fork'; name?: string; prompt?: string }
+  | { kind: 'subtask'; task: string }
+
+export type ResearchChatBranchOutcome = { sessionId: string; name: string } | { error: string }
+
+/** What a subtask's copy is asked: the task, and to end with what the chat it came from needs. */
+export function researchSubtaskPrompt(task: string): string {
+  return [
+    `Subtask: ${task.trim()}`,
+    '',
+    'Work on this side task on your own, using the conversation above as context. When you are done, end with a short, self-contained summary of the result: it goes back to the main conversation.'
+  ].join('\n')
+}
 
 const pending = new Set<string>()
 const listeners = new Set<() => void>()
@@ -88,11 +106,12 @@ function editableBlocks(
 
 export async function branchResearchChat(
   source: ResearchChatBranchSource,
-  request: ResearchChatBranchRequest
+  request: ResearchChatBranchRequest,
+  copy: ResearchChatCopyRequest = { kind: 'branch' }
 ): Promise<ResearchChatBranchOutcome> {
   const key = pendingKey(source)
   if (pending.has(key)) {
-    return { error: 'A branch of this chat is already being made.' }
+    return { error: 'A copy of this chat is already being made.' }
   }
   if (!isTuiAgent(source.agent)) {
     return { error: researchChatBranchReasonCopy('unsupported', source.agent) }
@@ -112,22 +131,34 @@ export async function branchResearchChat(
       return { error: researchChatBranchReasonCopy(prepared.reason, agent) }
     }
     await useResearchRecords.getState().load()
-    const family = researchChatBranchFamily(
-      useResearchRecords.getState().document,
-      source,
-      source.sessionId
-    )
-    const resend = request.at === 'message' ? request.resend : undefined
+    const document = useResearchRecords.getState().document
+    const name =
+      copy.kind === 'subtask'
+        ? researchSubtaskName(copy.task)
+        : copy.name?.trim() ||
+          researchChatBranchName(
+            source.label,
+            copy.kind,
+            researchChatFamilyCopies(document, source, source.sessionId, copy.kind)
+          )
+    const prompt =
+      copy.kind === 'subtask'
+        ? researchSubtaskPrompt(copy.task)
+        : copy.kind === 'fork' && copy.prompt?.trim()
+          ? copy.prompt.trim()
+          : request.at === 'message'
+            ? request.resend
+            : undefined
     const launched = await launchResearchChat({
       hostId: source.hostId,
       workspaceId: source.workspaceId,
       agent,
-      label: researchChatBranchName(source.label, family.length),
+      label: name,
       activate: false,
       ...(prepared.providerSessionId
         ? { resumeFrom: { providerSessionId: prepared.providerSessionId } }
         : {}),
-      ...(resend ? { prompt: resend } : {})
+      ...(prompt ? { prompt } : {})
     })
     if ('error' in launched) {
       return launched
@@ -144,13 +175,15 @@ export async function branchResearchChat(
         parentSessionId: source.sessionId,
         // `through` names the last message it keeps; `message`, the person's message it starts at.
         messageNumber: prepared.keptMessages + (request.at === 'message' ? 1 : 0),
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        ...(copy.kind === 'branch' ? {} : { kind: copy.kind }),
+        ...(copy.kind === 'subtask' ? { task: copy.task.trim().slice(0, 4000) } : {})
       })
     )
-    return launched
+    return { sessionId: launched.sessionId, name }
   } catch (cause) {
     return {
-      error: `The branch could not be made. ${cause instanceof Error ? cause.message : String(cause)}`
+      error: `This chat could not be copied. ${cause instanceof Error ? cause.message : String(cause)}`
     }
   } finally {
     pending.delete(key)

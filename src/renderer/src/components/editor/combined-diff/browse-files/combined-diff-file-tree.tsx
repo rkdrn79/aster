@@ -221,7 +221,7 @@ export function CombinedDiffFileTree({
     >
       <div className="sticky top-0 z-20 shrink-0 bg-background">
         <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+          <div className="text-[11px] font-medium text-muted-foreground">
             {translate('auto.components.editor.CombinedDiffFileTree.481e63ca52', 'Files')}
           </div>
           <Button
@@ -245,7 +245,7 @@ export function CombinedDiffFileTree({
               onChange={(event) => setQuery(event.target.value)}
               placeholder={translate(
                 'auto.components.editor.CombinedDiffFileTree.4cc7b83ffe',
-                'Filter files...'
+                'Filter files'
               )}
               className="h-8 pl-7 text-xs"
             />
@@ -266,7 +266,7 @@ export function CombinedDiffFileTree({
               </Button>
             </PopoverTrigger>
             <PopoverContent align="end" side="bottom" sideOffset={6} className="w-56 p-0">
-              <div className="border-b border-border px-3 py-2 text-xs font-semibold text-foreground">
+              <div className="border-b border-border px-3 py-2 text-xs font-medium text-foreground">
                 {translate(
                   'auto.components.editor.CombinedDiffFileTree.c00020f081',
                   'File extensions'
@@ -328,7 +328,7 @@ export function CombinedDiffFileTree({
           <div className="px-3 py-6 text-center text-xs text-muted-foreground">
             {translate(
               'auto.components.editor.CombinedDiffFileTree.f984289373',
-              'No files match the current filters.'
+              'No files match the current filters'
             )}
           </div>
         ) : mode === 'all' || mode === 'uncommitted' ? (
@@ -346,7 +346,7 @@ export function CombinedDiffFileTree({
               }
               return (
                 <div key={group.area} className="py-1">
-                  <div className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+                  <div className="px-3 pb-1 text-[11px] font-medium text-muted-foreground">
                     {group.label}
                   </div>
                   <CombinedDiffFileTreeRows
@@ -359,10 +359,10 @@ export function CombinedDiffFileTree({
             })}
             {mode === 'all' && (branchVisibleRows?.rows ?? branchRows).length > 0 ? (
               <div className="py-1">
-                <div className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+                <div className="px-3 pb-1 text-[11px] font-medium text-muted-foreground">
                   {translate(
                     'auto.components.editor.CombinedDiffFileTree.39b6b9e4e4',
-                    'Committed on Branch'
+                    'Committed on branch'
                   )}
                 </div>
                 <CombinedDiffFileTreeRows

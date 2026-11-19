@@ -278,7 +278,7 @@ describe('WorktreeCard compact hover ownership', () => {
     })
     expect(container.querySelectorAll('[data-open="true"]')).toHaveLength(1)
     expect(titleRoot.textContent).toContain('Reviews · 1')
-    expect(titleRoot.textContent).toContain('Issues & tasks · 1')
+    expect(titleRoot.textContent).toContain('Issues and tasks · 1')
     expect(titleRoot.textContent).toContain('58941')
   })
 })

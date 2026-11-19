@@ -34,15 +34,15 @@ export function DeleteWorktreeDialogFooter({
 }): JSX.Element {
   const label = isDeleting
     ? canForceDelete
-      ? 'Force Deleting...'
+      ? 'Force deleting...'
       : 'Deleting...'
     : isBatchDelete
-      ? `Delete ${worktreeCount} Workspaces`
+      ? `Delete ${worktreeCount} workspaces`
       : canDeleteAllLineage
-        ? `Delete ${lineageDeleteTargetCount} Workspaces`
+        ? `Delete ${lineageDeleteTargetCount} workspaces`
         : canForceDelete
-          ? 'Force Delete'
-          : 'Delete Workspace'
+          ? 'Force delete'
+          : 'Delete workspace'
 
   return (
     <>

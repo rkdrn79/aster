@@ -209,7 +209,7 @@ export function ForgetSshWorkspaceDialog(): React.JSX.Element | null {
               {busy === 'reconnect' ? <Loader2 className="size-3.5 animate-spin" /> : null}
               {translate(
                 'auto.components.sidebar.ForgetSshWorkspaceDialog.reconnectAndDelete',
-                'Reconnect & Delete'
+                'Reconnect and delete'
               )}
             </Button>
           ) : null}

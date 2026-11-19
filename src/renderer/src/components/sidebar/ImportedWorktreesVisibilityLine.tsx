@@ -216,7 +216,7 @@ export default function ImportedWorktreesVisibilityLine({
                     {group.path}
                   </TooltipContent>
                 </Tooltip>
-                <span className="shrink-0 rounded-full border border-worktree-sidebar-border px-1.5 py-0.5 text-[10px] leading-none text-muted-foreground">
+                <span className="shrink-0 text-[11px] leading-none text-muted-foreground tabular-nums">
                   {group.worktrees.length}
                 </span>
               </div>

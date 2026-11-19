@@ -22,12 +22,15 @@ export function ResearchGpuFillBar({
       aria-label={label}
       title={label}
       className={cn(
-        'h-2 overflow-hidden rounded-full bg-muted',
+        'h-1.5 overflow-hidden rounded-full bg-foreground/8',
         unavailable && 'opacity-40',
         className
       )}
     >
-      <div className="h-full rounded-full bg-status-success" style={{ width: `${percent}%` }} />
+      <div
+        className="h-full rounded-full bg-status-success transition-transform duration-(--duration-slow) ease-out-quint motion-reduce:transition-none"
+        style={{ transform: `translateX(${percent - 100}%)` }}
+      />
     </div>
   )
 }

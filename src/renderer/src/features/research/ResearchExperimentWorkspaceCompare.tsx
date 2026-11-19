@@ -19,7 +19,7 @@ import { metricGroupLabel } from './research-metric-label'
 function SettingsDiff({ entries }: { entries: ComparedRun[] }): React.JSX.Element {
   const keys = changedConfigKeys(entries.map((entry) => entry.config))
   if (!keys.length) {
-    return <p className="text-sm text-muted-foreground">No setting differences found.</p>
+    return <p className="text-sm text-muted-foreground">No setting differences found</p>
   }
   return (
     <div className="overflow-x-auto">
@@ -67,7 +67,7 @@ function MarkdownSummary({ packet, ready }: { packet: string; ready: boolean }):
         Markdown summary
       </summary>
       <div className="mt-2 space-y-2">
-        <pre className="scrollbar-sleek max-h-72 overflow-auto rounded-md bg-muted p-3 whitespace-pre-wrap">
+        <pre className="scrollbar-sleek max-h-72 overflow-auto rounded-lg bg-muted/70 p-3 whitespace-pre-wrap dark:bg-muted/55">
           {packet}
         </pre>
         <Button size="xs" variant="outline" disabled={!ready} onClick={() => void copy()}>
@@ -177,27 +177,29 @@ export function ResearchExperimentWorkspaceCompare({
       {activeMetric ? (
         <section className="space-y-3" aria-label="Curves">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Curves
-            </h2>
+            <h2 className="text-[15px] font-medium">Curves</h2>
             {curveNote ? <p className="text-xs text-muted-foreground">{curveNote}</p> : null}
           </div>
-          <div className="flex flex-wrap gap-1">
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="xs"
+            aria-label="Metric"
+            value={activeMetric}
+            onValueChange={(value) => value && setSelectedMetric(value)}
+          >
             {metricNames.slice(0, 8).map((group) => (
-              <Button
-                size="xs"
-                key={group}
-                variant={activeMetric === group ? 'secondary' : 'ghost'}
-                onClick={() => setSelectedMetric(group)}
-              >
+              <ToggleGroupItem key={group} value={group}>
                 {metricGroupLabel(group)}
-              </Button>
+              </ToggleGroupItem>
             ))}
-          </div>
+          </ToggleGroup>
           {axisLabels.length === 1 && condition?.condition !== 'different' ? (
             <ResearchMetricCurve
               xLabel={axisLabels[0] ?? 'unknown'}
               valueLabel={metricGroupLabel(activeMetric)}
+              // Why: the baseline is the reference line; the first Run compared with it leads.
+              leadId={entries.find(({ run }) => run.id !== baselineRunId)?.run.id}
               series={entries.map(({ run, observation }) => ({
                 id: run.id,
                 name: runLabel(run),
@@ -218,9 +220,7 @@ export function ResearchExperimentWorkspaceCompare({
       ) : null}
       {entries.length ? (
         <section className="space-y-3" aria-label="Settings">
-          <h2 className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Settings
-          </h2>
+          <h2 className="text-[15px] font-medium">Settings</h2>
           <SettingsDiff entries={entries} />
         </section>
       ) : null}

@@ -44,7 +44,7 @@ export function NodeDistMirrorSettingField({
       <Label htmlFor="settings-node-dist-mirror-url">
         {translate(
           'auto.components.settings.AdvancedNetworkSettingsSection.nodeDistMirrorLabel',
-          'Node.js Download Mirror'
+          'Node.js download mirror'
         )}
       </Label>
       <Input

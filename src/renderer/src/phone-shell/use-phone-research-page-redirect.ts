@@ -21,6 +21,18 @@ export function usePhoneResearchPageRedirect(activeView: TopLevelView): void {
     } else if (activeView === 'research-library') {
       tab = 'files'
       usePhoneNavigation.getState().setFilesView('papers')
+    } else if (activeView === 'research-figures' || activeView === 'research-rebuttal') {
+      // Why: the phone reads both through its own screens; the desktop pages edit on a canvas.
+      const entry = byWorkspaceId.get(useAppStore.getState().activeWorktreeId ?? '')
+      tab = entry ? 'home' : null
+      screen = entry
+        ? {
+            kind: activeView === 'research-figures' ? 'figures' : 'rebuttal',
+            worktreeId: entry.workspace.id,
+            title: activeView === 'research-figures' ? 'Figures' : 'Rebuttal',
+            subtitle: entry.project.name
+          }
+        : null
     } else if (activeView === 'research-experiments') {
       tab = 'home'
       const entry = byWorkspaceId.get(useAppStore.getState().activeWorktreeId ?? '')

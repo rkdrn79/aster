@@ -116,7 +116,7 @@ async function addAndActivateRepo(orcaPage: Page, repoPath: string): Promise<str
   // assert the user-visible panel before timing its render. Clicking the
   // already-active activity button races the first cold status scan and tests
   // Playwright's two-frame actionability window instead of panel readiness.
-  const sourceControlButton = orcaPage.getByRole('button', { name: /^Source Control/ })
+  const sourceControlButton = orcaPage.getByRole('button', { name: /^Source control/ })
   await expect(sourceControlButton).toBeVisible()
   await expect
     .poll(() => orcaPage.evaluate(() => window.__store?.getState().rightSidebarTab))

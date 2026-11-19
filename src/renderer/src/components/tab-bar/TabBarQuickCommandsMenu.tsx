@@ -341,7 +341,7 @@ export function TabBarQuickCommandsMenu({
                 autoFocus
                 placeholder={translate(
                   'auto.components.tab.bar.TabBarQuickCommandsButton.f3a8c2d1e7',
-                  'Search quick commands...'
+                  'Search quick commands'
                 )}
                 value={query}
                 onValueChange={(nextQuery) => {

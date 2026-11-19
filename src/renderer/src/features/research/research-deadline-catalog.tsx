@@ -83,7 +83,7 @@ export function ResearchDeadlineCatalog({
       aria-label="Conferences"
     >
       <div className="space-y-2 px-3 pt-3">
-        <p className="px-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+        <p className="px-1 text-xs font-medium text-muted-foreground">
           Conferences · {tracked.size} tracked
         </p>
         <label className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export function ResearchDeadlineCatalog({
           </p>
         )}
       </div>
-      <footer className="border-t border-border px-3 py-2 text-2xs text-muted-foreground">
+      <footer className="px-3 pt-1 pb-3 text-2xs text-muted-foreground">
         {failed.length ? (
           <p className="mb-1 text-status-warning">
             {failed.map((entry) => CONFERENCE_SOURCES[entry.source].name).join(', ')} could not be

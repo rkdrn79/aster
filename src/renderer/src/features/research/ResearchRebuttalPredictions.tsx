@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, ListPlus, Lightbulb, X, Zap } from 'lucide-react'
+import { AlertTriangle, ListPlus, Lightbulb, PenLine, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import {
@@ -9,6 +9,7 @@ import {
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 import { openPredictions } from './research-rebuttal-view'
 import type { RebuttalActions } from './use-research-rebuttal-actions'
+import { RAISED_CARD } from './research-surface-classes'
 
 const LIKELIHOOD_LABELS: Record<RebuttalPrediction['likelihood'], string> = {
   high: 'Likely',
@@ -42,14 +43,16 @@ function PredictionCard({
     <article
       aria-label={`Predicted concern ${prediction.id}`}
       className={cn(
-        'space-y-1.5 rounded-md border border-border bg-background p-2.5',
-        stale && 'border-dashed'
+        RAISED_CARD,
+        'space-y-2 p-3',
+        stale &&
+          'bg-transparent shadow-none ring-0 outline-1 -outline-offset-1 outline-border outline-dashed'
       )}
     >
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-2xs text-muted-foreground">
         <span
           className={cn(
-            'rounded-sm px-1 py-px font-medium',
+            'rounded px-1 py-px font-medium',
             prediction.likelihood === 'high'
               ? 'bg-foreground text-background'
               : 'bg-muted text-foreground'
@@ -63,7 +66,7 @@ function PredictionCard({
         {cluster ? <span className="font-mono">{cluster}</span> : null}
         {stale ? (
           <span className="inline-flex items-center gap-1 text-status-warning">
-            <AlertTriangle className="size-3" aria-hidden /> Reply changed since this was predicted
+            <AlertTriangle className="size-4" aria-hidden /> Reply changed since this was predicted
           </span>
         ) : null}
         {prediction.status === 'handed-off' ? <span>Sent to the Rebuttal agent</span> : null}
@@ -110,7 +113,7 @@ function PredictionCard({
             }
             onClick={() => void run(() => actions.strengthen(prediction.id))}
           >
-            <Zap aria-hidden /> Strengthen the reply
+            <PenLine aria-hidden /> Strengthen the reply
           </Button>
         </div>
       )}
@@ -142,7 +145,7 @@ export function ResearchRebuttalPredictions({
   return (
     <section aria-label={`Predicted next concerns of ${reviewerId}`} className="space-y-2">
       <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-        <Lightbulb className="size-3.5 text-muted-foreground" aria-hidden />
+        <Lightbulb className="size-4 text-muted-foreground" aria-hidden />
         <h3 className="font-medium">What {reviewerId} may raise next</h3>
         <span className="text-muted-foreground">
           Simulated from {reviewerId}&apos;s review, not the real reviewer.

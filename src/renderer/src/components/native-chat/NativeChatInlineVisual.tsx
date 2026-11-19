@@ -123,7 +123,7 @@ export function NativeChatInlineVisual({
                   aria-label={openLabel}
                   onClick={() => openNativeChatVisualFile(owner.worktreeId, state.document.path)}
                 >
-                  <SquareArrowOutUpRight />
+                  <SquareArrowOutUpRight className="size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top" sideOffset={4}>

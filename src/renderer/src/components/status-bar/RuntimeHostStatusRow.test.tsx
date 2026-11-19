@@ -59,7 +59,7 @@ describe('RuntimeHostStatusRow', () => {
     )
 
     expect(markup).toContain('Dev Box')
-    expect(markup).toContain('Remote Server')
+    expect(markup).toContain('Remote server')
     expect(markup).toContain('Disconnected')
     expect(markup).toContain('Last closed: 1006')
     expect(markup).toContain('Connect')

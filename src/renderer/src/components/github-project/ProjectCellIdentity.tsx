@@ -16,7 +16,7 @@ export function ProjectTitleCell({
     return (
       <div className="flex items-center gap-2 text-muted-foreground">
         <Lock className="size-3.5" />
-        <span className="italic">
+        <span>
           {translate('auto.components.github.project.ProjectCell.af5d8c912a', 'Restricted item')}
         </span>
       </div>

@@ -109,9 +109,9 @@ function makeRepo(overrides: Partial<Repo> = {}): Repo {
 }
 
 async function clickAddProject(): Promise<void> {
-  const button = mocks.buttons.find((entry) => entry.label.includes('Add Project'))
+  const button = mocks.buttons.find((entry) => entry.label.includes('Add project'))
   if (!button?.onClick) {
-    throw new Error('Add Project button not found')
+    throw new Error('Add project button not found')
   }
   await button.onClick()
 }
@@ -164,7 +164,7 @@ describe('AddProjectFromFolderDialog', () => {
     )
   })
 
-  it('leaves local non-Git folders on the existing Open as Folder confirmation path', async () => {
+  it('leaves local non-Git folders on the existing Open as folder confirmation path', async () => {
     mocks.state.addRepoPath.mockImplementation(async (folderPath: string) => {
       mocks.state.openModal('confirm-non-git-folder', { folderPath })
       return null
@@ -247,7 +247,7 @@ describe('AddProjectFromFolderDialog', () => {
     const { default: AddProjectFromFolderDialog } = await import('./AddProjectFromFolderDialog')
 
     renderToStaticMarkup(<AddProjectFromFolderDialog />)
-    const addPromise = getButton('Add Project').onClick?.()
+    const addPromise = getButton('Add project').onClick?.()
     await Promise.resolve()
     expect(mocks.state.fetchWorktrees).toHaveBeenCalledWith(repo.id, {
       requireAuthoritative: true,

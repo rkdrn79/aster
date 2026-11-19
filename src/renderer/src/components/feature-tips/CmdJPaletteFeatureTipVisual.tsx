@@ -143,7 +143,7 @@ export function CmdJPaletteFeatureTipVisual(): JSX.Element {
                 </span>
               ) : null}
               <span
-                className={`inline-flex h-7 min-w-7 items-center justify-center rounded-md border border-border/80 px-2 text-xs font-semibold text-muted-foreground shadow-xs transition-[transform,background-color] duration-150 ease-out ${
+                className={`inline-flex h-7 min-w-7 items-center justify-center rounded-md border border-border/80 px-2 text-xs font-medium text-muted-foreground shadow-xs transition-[transform,background-color] duration-150 ${
                   isPressed
                     ? 'translate-y-[1.5px] bg-foreground/[0.18]'
                     : 'translate-y-0 bg-foreground/[0.08]'
@@ -176,7 +176,7 @@ export function CmdJPaletteFeatureTipVisual(): JSX.Element {
               {!reducedMotion && (phase === 'open' || phase === 'typing') ? (
                 // Why: this tip can sit open while Orca is idle; keep the
                 // caret static so the preview does not wake the compositor.
-                <span className="ml-px inline-block h-[14px] w-px -translate-y-px align-middle bg-foreground/75" />
+                <span className="ml-px inline-block h-3.5 w-px -translate-y-px align-middle bg-foreground/75" />
               ) : null}
             </span>
           </div>
@@ -199,7 +199,7 @@ export function CmdJPaletteFeatureTipVisual(): JSX.Element {
                   )}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <span className="block truncate text-[12.5px] font-semibold tracking-[-0.01em] text-foreground">
+                  <span className="block truncate text-[12.5px] font-medium text-foreground">
                     {result.name}
                   </span>
                   <span className="block truncate text-[10px] text-muted-foreground/70">
@@ -215,7 +215,7 @@ export function CmdJPaletteFeatureTipVisual(): JSX.Element {
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-dashed border-border/60 bg-muted/25 text-muted-foreground/70">
                   <Plus size={13} aria-hidden="true" />
                 </div>
-                <div className="min-w-0 flex-1 truncate text-[12.5px] font-semibold tracking-[-0.01em] text-foreground">
+                <div className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-foreground">
                   {translate(
                     'auto.components.feature.tips.CmdJPaletteFeatureTipVisual.ab94e16d44',
                     'Create worktree "{{value0}}"',

@@ -76,7 +76,7 @@ describe('VoiceDictationTipDialog', () => {
   it('uses the established feature-tip layout and durable copy', () => {
     const html = renderDialog()
 
-    expect(html).toContain('TIP')
+    expect(html).toContain('>Tip<')
     expect(html).toContain('Dictate into any pane')
     expect(html).not.toContain('Turn speech into text wherever')
     expect(html).not.toContain('is here')

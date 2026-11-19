@@ -73,8 +73,8 @@ export const NativeChatPickerMenu = memo(function NativeChatPickerMenu({
       {showSkillsHeading ? <PickerGroupHeading kind="skills" /> : null}
       {autocomplete.skillStatus === 'loading' ? (
         <PickerStatus>
-          <LoadingSpinner className="size-3.5" />
-          {translate('components.native-chat.composer.loadingSkills', 'Loading skills...')}
+          <LoadingSpinner className="size-4" />
+          {translate('components.native-chat.composer.loadingSkills', 'Loading skills…')}
         </PickerStatus>
       ) : null}
       {autocomplete.skillStatus === 'error' ? (
@@ -85,9 +85,9 @@ export const NativeChatPickerMenu = memo(function NativeChatPickerMenu({
               type="button"
               onPointerDown={(event) => event.preventDefault()}
               onClick={onRetry}
-              className="flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-0.5 text-foreground hover:bg-accent hover:text-accent-foreground"
+              className="flex shrink-0 items-center gap-1 rounded-sm px-1 py-0.5 text-foreground hover:bg-accent hover:text-accent-foreground"
             >
-              <RotateCcw className="size-3" />
+              <RotateCcw className="size-4" />
               {translate('components.native-chat.composer.retrySkills', 'Retry')}
             </button>
           ) : null}
@@ -110,7 +110,7 @@ export const NativeChatPickerMenu = memo(function NativeChatPickerMenu({
       {noMatches ? <PickerStatus>{emptyText}</PickerStatus> : null}
       <div aria-live="polite" className="sr-only">
         {autocomplete.skillStatus === 'loading'
-          ? translate('components.native-chat.composer.loadingSkills', 'Loading skills...')
+          ? translate('components.native-chat.composer.loadingSkills', 'Loading skills…')
           : autocomplete.skillStatus === 'error'
             ? skillErrorText
             : emptyText
@@ -149,7 +149,7 @@ function getPickerEmptyText(
 
 function PickerGroupHeading({ kind }: { kind: 'commands' | 'skills' }): React.JSX.Element {
   return (
-    <div className="px-2 pb-1 pt-1.5 text-2xs font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+    <div className="px-2 pb-1 pt-2 text-2xs font-medium text-muted-foreground">
       {kind === 'commands'
         ? translate('components.native-chat.composer.commands', 'Commands')
         : translate('components.native-chat.composer.skills', 'Skills')}
@@ -159,7 +159,7 @@ function PickerGroupHeading({ kind }: { kind: 'commands' | 'skills' }): React.JS
 
 function PickerStatus({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground">
+    <div className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground">
       {children}
     </div>
   )
@@ -195,10 +195,10 @@ function PickerOption({
       onChoose={() => onChoose(item)}
     >
       {item.kind === 'skill' ? (
-        <Package className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+        <Package className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
       ) : null}
       <span className="min-w-0 flex-1">
-        <span className="flex min-w-0 items-baseline gap-1.5">
+        <span className="flex min-w-0 items-baseline gap-2">
           <span className="min-w-0 truncate font-mono text-chat-code font-medium">
             {item.token}
           </span>
@@ -235,7 +235,7 @@ function PickerListbox({
     <div
       id={id}
       role="listbox"
-      className="scrollbar-sleek absolute bottom-full left-0 right-0 z-20 mb-1 max-h-72 overflow-y-auto rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-[0_10px_24px_rgba(0,0,0,0.18)]"
+      className="scrollbar-sleek absolute bottom-full left-0 right-0 z-20 mb-1 max-h-72 overflow-y-auto rounded-xl bg-popover p-1 text-popover-foreground shadow-floating"
     >
       {children}
     </div>
@@ -271,7 +271,7 @@ function PickerOptionButton({
         }
       }}
       className={cn(
-        'flex w-full items-start gap-2 rounded-md border border-transparent px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground',
+        'flex w-full items-start gap-2 rounded-lg border border-transparent px-2 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground',
         selected && 'border-border bg-accent text-accent-foreground'
       )}
     >
@@ -287,7 +287,7 @@ function getPickerAnnotation(item: NativeChatPickerItem): string | null {
   if (item.kind === 'command' && item.skillCollision) {
     return translate(
       'components.native-chat.composer.skillCommandCollision',
-      'Also a skill name - agent decides'
+      'Also a skill name — the agent decides'
     )
   }
   if (item.kind === 'skill' && item.sources.length > 1) {
@@ -295,7 +295,7 @@ function getPickerAnnotation(item: NativeChatPickerItem): string | null {
     // makes i18next resolve plural-suffixed keys that these locales don't define.
     return translate(
       'components.native-chat.composer.skillMultipleSources',
-      '{{sourceCount}} sources - agent resolves',
+      '{{sourceCount}} sources — the agent picks one',
       { sourceCount: item.sources.length }
     )
   }
@@ -335,7 +335,7 @@ export const NativeChatMentionMenu = memo(function NativeChatMentionMenu({
     files.length > 0
       ? null
       : mention.loading
-        ? translate('components.native-chat.composer.loadingFiles', 'Loading files...')
+        ? translate('components.native-chat.composer.loadingFiles', 'Loading files…')
         : mention.failed
           ? translate('components.native-chat.composer.filesLoadFailed', "Couldn't load files")
           : translate('components.native-chat.composer.noFiles', 'No matching files')
@@ -353,7 +353,7 @@ export const NativeChatMentionMenu = memo(function NativeChatMentionMenu({
           >
             <FileTypeIcon
               filePath={path}
-              className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
+              className="mt-0.5 size-4 shrink-0 text-muted-foreground"
             />
             <FilenameFirstPath path={path} />
           </PickerOptionButton>
@@ -361,7 +361,7 @@ export const NativeChatMentionMenu = memo(function NativeChatMentionMenu({
       })}
       {statusText ? (
         <PickerStatus>
-          {mention.loading ? <LoadingSpinner className="size-3.5" /> : null}
+          {mention.loading ? <LoadingSpinner className="size-4" /> : null}
           {statusText}
         </PickerStatus>
       ) : null}

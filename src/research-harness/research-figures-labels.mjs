@@ -2,6 +2,7 @@
 import { ARROWHEAD_LENGTH } from './research-figures-draw.mjs'
 import { elementBounds } from './research-figures-geometry.mjs'
 import { glyphBounds } from './research-figures-text.mjs'
+import { hasInlineMath } from './research-figures-type.mjs'
 
 /** A linear element's points in scene coordinates. */
 export function absolutePoints(element) {
@@ -43,8 +44,8 @@ export function headLength(arrow, atStart = false) {
   return Math.min(ARROWHEAD_LENGTH[type] ?? 15, last / 2)
 }
 
-/** The box a head covers, grown by `margin`; null without a head. */
-export function headBox(arrow, atStart = false, margin = 0) {
+/** The triangle a head covers (tip, then its two base corners); null without a head. */
+export function headTriangle(arrow, atStart = false) {
   const length = headLength(arrow, atStart)
   if (!length) {
     return null
@@ -55,11 +56,19 @@ export function headBox(arrow, atStart = false, margin = 0) {
   const ux = (tip[0] - before[0]) / span
   const uy = (tip[1] - before[1]) / span
   const half = length * 0.45
-  const corners = [
+  return [
     tip,
     [tip[0] - ux * length - uy * half, tip[1] - uy * length + ux * half],
     [tip[0] - ux * length + uy * half, tip[1] - uy * length - ux * half]
   ]
+}
+
+/** The box a head covers, grown by `margin`; null without a head. */
+export function headBox(arrow, atStart = false, margin = 0) {
+  const corners = headTriangle(arrow, atStart)
+  if (!corners) {
+    return null
+  }
   const xs = corners.map((corner) => corner[0])
   const ys = corners.map((corner) => corner[1])
   const x = Math.min(...xs) - margin
@@ -90,19 +99,30 @@ export function arrowLabelBox(arrow, ink, { segment, side } = {}) {
   const uy = (chosen.b[1] - chosen.a[1]) / (chosen.length || 1)
   const along = (clearStart + (chosen.length - clearEnd)) / 2
   const mid = [chosen.a[0] + ux * along, chosen.a[1] + uy * along]
-  const gap = 4 + (arrow.strokeWidth ?? 2) / 2
   const room = chosen.length - clearStart - clearEnd
+  // Why: a label wider than the clear part hangs over a head; it then sits past the head's
+  // half-width, so its ink never touches the triangle (label-on-head).
+  const reach = chosen.horizontal ? ink.width / 2 : ink.height / 2
+  const overHead =
+    (index === runs.length - 1 && along + reach > chosen.length - headLength(arrow, false)) ||
+    (index === 0 && along - reach < headLength(arrow, true))
+  const headHalf = Math.max(headLength(arrow, false), headLength(arrow, true)) * 0.45
+  const gap = Math.max(4 + (arrow.strokeWidth ?? 2) / 2, overHead ? headHalf + 4 : 0)
   if (chosen.horizontal) {
     return {
       x: mid[0] - ink.width / 2,
       y: side === 'below' ? mid[1] + gap : mid[1] - gap - ink.height,
-      room
+      room,
+      run: chosen,
+      along
     }
   }
   return {
     x: side === 'left' ? mid[0] - gap - ink.width : mid[0] + gap,
     y: mid[1] - ink.height / 2,
-    room
+    room,
+    run: chosen,
+    along
   }
 }
 
@@ -135,4 +155,34 @@ export function inkBox(elements) {
   const right = Math.max(...boxes.map((box) => box.x + box.width))
   const bottom = Math.max(...boxes.map((box) => box.y + box.height))
   return { x, y, width: right - x, height: bottom - y }
+}
+
+/** Math in a line: a TeX macro, a script or braces. */
+const MATH_MARK = /[\\_^{}]/
+/** A line of short symbols (Q, K, V, z_t) rather than words. */
+const symbolsOnly = (words) =>
+  words.every((word) => word.replace(/[^\p{L}\p{N}]/gu, '').length <= 2)
+
+/**
+ * An arrow or lane label as label items: a line of several words prints in the figure's font
+ * unless it holds math (`$…$` among words, a TeX macro, a script) or is only symbols (K, V); a
+ * single token keeps the box rule (softmax prints as a word, BAx as math). "Env Feedback\n
+ * Execution Errors" prints as two lines of words.
+ */
+export function flowLabel(label) {
+  if (Array.isArray(label)) {
+    return label
+  }
+  const text = String(label ?? '')
+  if (hasInlineMath(text)) {
+    return [text]
+  }
+  return text.split('\n').flatMap((line, index) => {
+    const words = line.trim().split(/\s+/).filter(Boolean)
+    const item =
+      MATH_MARK.test(line) || words.length < 2 || symbolsOnly(words)
+        ? { tex: line, auto: true }
+        : line.replaceAll('$', '\\$')
+    return index ? ['\n', item] : [item]
+  })
 }

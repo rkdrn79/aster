@@ -108,7 +108,7 @@ test('draws and copies a screenshot from a client-hosted browser without replaci
       contentType: 'image/png'
     })
     await client.app.evaluate(({ clipboard }) => clipboard.clear())
-    await overlay.getByRole('button', { name: 'Copy Markup', exact: true }).click()
+    await overlay.getByRole('button', { name: 'Copy markup', exact: true }).click()
     await expect(overlay).toHaveCount(0)
     expect(await client.app.evaluate(({ clipboard }) => clipboard.readImage().isEmpty())).toBe(
       false

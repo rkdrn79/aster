@@ -183,7 +183,7 @@ it('shows the whole history and no offer while the box is empty', async () => {
 it('keeps sort off the filter menu, which is filters only', async () => {
   await typeQuery('')
 
-  await userEvent.click(screen.getByRole('button', { name: 'Session History view options' }))
+  await userEvent.click(screen.getByRole('button', { name: 'Session history view options' }))
 
   expect(await screen.findByRole('menuitem', { name: 'Select all' })).toBeTruthy()
   expect(screen.queryByText('Sort')).toBeNull()

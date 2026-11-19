@@ -159,7 +159,7 @@ export function CommitMessageAiPane({
     matchesSettingsSearch(searchQuery, {
       title: translate(
         'auto.components.settings.CommitMessageAiPane.d5b45a3628',
-        'Show Source Control AI actions'
+        'Show source control AI actions'
       ),
       description: translate(
         'auto.components.settings.CommitMessageAiPane.7bcad2b200',
@@ -180,7 +180,7 @@ export function CommitMessageAiPane({
         key="enabled"
         title={translate(
           'auto.components.settings.CommitMessageAiPane.d5b45a3628',
-          'Show Source Control AI actions'
+          'Show source control AI actions'
         )}
         description={translate(
           'auto.components.settings.CommitMessageAiPane.7bcad2b200',
@@ -193,7 +193,7 @@ export function CommitMessageAiPane({
           <Label>
             {translate(
               'auto.components.settings.CommitMessageAiPane.d5b45a3628',
-              'Show Source Control AI actions'
+              'Show source control AI actions'
             )}
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -206,7 +206,7 @@ export function CommitMessageAiPane({
         <Switch
           aria-label={translate(
             'auto.components.settings.CommitMessageAiPane.d5b45a3628',
-            'Show Source Control AI actions'
+            'Show source control AI actions'
           )}
           checked={config.enabled}
           onCheckedChange={onToggleEnabled}
@@ -315,7 +315,7 @@ export function CommitMessageAiPane({
         <h3 className="text-sm font-semibold">
           {translate(
             'auto.components.settings.CommitMessageAiPane.ad66ff886d',
-            'Source Control AI defaults'
+            'Source control AI defaults'
           )}
         </h3>
         <p className="text-xs text-muted-foreground">{ownership.description}</p>

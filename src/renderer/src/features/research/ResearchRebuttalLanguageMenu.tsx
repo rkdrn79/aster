@@ -95,7 +95,7 @@ export function ResearchRebuttalLanguageMenu({
                 ? `Translate ${todo} ${todo === 1 ? 'item' : 'items'} now`
                 : 'Everything is translated'}
             </DropdownMenuItem>
-            <p className="px-2 pt-1 pb-1.5 text-2xs leading-4 text-muted-foreground">
+            <p className="px-2 pt-1 pb-2 text-2xs leading-4 text-muted-foreground">
               The Rebuttal agent translates replies as it writes them, and the rest once it is idle
               and you have stopped typing. Same setting as the Library.
             </p>

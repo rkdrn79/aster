@@ -96,7 +96,7 @@ describe('RunningTerminalCloseDialog', () => {
     expect(document.body.textContent).toContain('dev server')
 
     await act(async () => {
-      getButton('Stop and Close').click()
+      getButton('Stop and close').click()
     })
 
     expect(updateSettings).not.toHaveBeenCalled()
@@ -112,7 +112,7 @@ describe('RunningTerminalCloseDialog', () => {
     expect(document.body.textContent).toContain(
       'This terminal will not resume automatically. Cancel and put the workspace to sleep to resume it later.'
     )
-    expect(getButton('Stop Agent')).toBeTruthy()
+    expect(getButton('Stop agent')).toBeTruthy()
   })
 
   // Why: this queue opens after an async probe while the pinned queue opens synchronously,
@@ -160,7 +160,7 @@ describe('RunningTerminalCloseDialog', () => {
 
     advancePastGuard()
     await act(async () => {
-      getButton('Stop and Close').click()
+      getButton('Stop and close').click()
     })
 
     expect(updateSettings).not.toHaveBeenCalled()
@@ -186,7 +186,7 @@ describe('RunningTerminalCloseDialog', () => {
       getCheckbox().click()
     })
     await act(async () => {
-      getButton('Stop and Close').click()
+      getButton('Stop and close').click()
     })
 
     expect(updateSettings).toHaveBeenCalledWith({
@@ -223,7 +223,7 @@ describe('RunningTerminalCloseDialog', () => {
 
     advancePastGuard()
     await act(async () => {
-      getButton('Stop and Close').click()
+      getButton('Stop and close').click()
     })
 
     expect(nextOnConfirm).toHaveBeenCalledTimes(1)

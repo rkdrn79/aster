@@ -24,6 +24,7 @@ import {
   figureSelectionText
 } from './research-figure-selection-items'
 import type { FiguresAgentScope } from './research-figures-agent-session'
+import { figureSceneText } from './research-figures-export'
 import type { ProjectFileOwner } from './research-project-files'
 import {
   ASK_CHIPS,
@@ -130,7 +131,14 @@ export default function ResearchFigureEditor(props: Props): React.JSX.Element {
       attachApi(api)
       attachSettling(api)
       useFigureEditorHandle.setState({
-        handle: { api, target, save, exportNow, noteUserInput }
+        handle: {
+          api,
+          target,
+          sceneText: () => figureSceneText(api),
+          save,
+          exportNow,
+          noteUserInput
+        }
       })
       void loadSavedFigureParts(owner, folder).then((items) =>
         api.updateLibrary({ libraryItems: items, merge: true })

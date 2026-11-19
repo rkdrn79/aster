@@ -3,6 +3,8 @@ import { Check, ExternalLink, FilePenLine, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { RebuttalPaperChange } from '../../../../research-harness/research-rebuttal-records.mjs'
 import { RebuttalDiff } from './ResearchRebuttalProposalCard'
+import { NOTICE_CARD, TAG_CHIP } from './research-surface-classes'
+import { cn } from '@/lib/utils'
 
 type Props = {
   change: RebuttalPaperChange
@@ -37,12 +39,9 @@ export function ResearchRebuttalPaperChangeCard({
         ? 'Rejected'
         : null
   return (
-    <section
-      aria-label={`Paper change ${change.id}`}
-      className="space-y-2 rounded-md border border-border bg-muted/40 p-2.5"
-    >
+    <section aria-label={`Paper change ${change.id}`} className={cn(NOTICE_CARD, 'space-y-2 p-3')}>
       <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-        <FilePenLine className="size-3.5 text-muted-foreground" aria-hidden />
+        <FilePenLine className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         <span className="font-medium">Paper change</span>
         <span
           className="min-w-0 truncate font-mono text-2xs text-muted-foreground"
@@ -52,9 +51,7 @@ export function ResearchRebuttalPaperChangeCard({
         </span>
         {settled ? <span className="ml-auto text-2xs text-muted-foreground">{settled}</span> : null}
         {change.promise ? (
-          <span className="rounded-sm bg-muted px-1 py-px font-mono text-3xs text-muted-foreground">
-            {change.promise}
-          </span>
+          <span className={cn(TAG_CHIP, 'font-mono')}>{change.promise}</span>
         ) : null}
       </header>
       <RebuttalDiff before={change.find} after={change.replace} />
@@ -65,7 +62,7 @@ export function ResearchRebuttalPaperChangeCard({
         </p>
       ) : null}
       {change.status === 'pending' && !readOnly ? (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex items-center justify-end gap-2">
           <Button size="xs" variant="ghost" disabled={busy} onClick={() => void run(onReject)}>
             <X aria-hidden /> Reject
           </Button>
@@ -74,7 +71,7 @@ export function ResearchRebuttalPaperChangeCard({
               <ExternalLink aria-hidden /> Open in Writing
             </Button>
           ) : null}
-          <Button size="xs" variant="outline" disabled={busy} onClick={() => void run(onApprove)}>
+          <Button size="xs" disabled={busy} onClick={() => void run(onApprove)}>
             <Check aria-hidden /> Approve and apply
           </Button>
         </div>

@@ -22,7 +22,7 @@ export function SourceControlPanel() {
       <div className="flex items-center justify-center h-full text-xs text-muted-foreground px-4 text-center">
         {translate(
           'auto.components.right.sidebar.SourceControl.e131cd7128',
-          'Source Control is only available for Git repositories'
+          'Source control is only available for Git repositories'
         )}
       </div>
     )

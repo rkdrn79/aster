@@ -110,7 +110,7 @@ export function AutomationListToolbar({
           data-contextual-tour-target="automations-create"
         >
           <Plus className="size-4" />
-          {translate('auto.components.automations.AutomationsPage.newAutomation', 'New Automation')}
+          {translate('auto.components.automations.AutomationsPage.newAutomation', 'New automation')}
         </Button>
       </div>
     </div>

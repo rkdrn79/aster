@@ -35,13 +35,13 @@ export function MobileSettingsPane(): React.JSX.Element {
       </SearchableSetting>
 
       <SearchableSetting
-        title="Show Mobile in More Menu"
+        title="Show Mobile in More menu"
         description="List Mobile under More in the Code layout sidebar."
         keywords={getMobileSidebarShortcutSearchEntry().keywords}
       >
         {/* Why: the in-page removal toast points users to Settings > Mobile. */}
         <SettingsSwitchRow
-          label="Show Mobile in More Menu"
+          label="Show Mobile in More menu"
           description="List Mobile under More in the Code layout sidebar."
           checked={showMobileButton}
           onChange={() => updateSettings({ showMobileButton: !showMobileButton })}

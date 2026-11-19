@@ -13,7 +13,7 @@ describe('getDeleteWorktreeToastCopy', () => {
   it('uses direct guidance when force delete is available', () => {
     expect(getDeleteWorktreeToastCopy('feature/foo', 'dirty', 'branch has changes')).toEqual({
       title: 'Failed to delete workspace feature/foo',
-      description: 'It has changed files. Use Force Delete to delete it anyway.',
+      description: 'It has changed files. Use Force delete to delete it anyway.',
       isDestructive: false
     })
   })
@@ -29,12 +29,12 @@ describe('getDeleteWorktreeToastCopy', () => {
     ).toEqual({
       title: 'Failed to delete workspace feature/foo',
       description:
-        'Aster could not confirm every terminal in this workspace has exited, so it stopped before deleting any files. Use Force Delete to remove it anyway.',
+        'Aster could not confirm every terminal in this workspace has exited, so it stopped before deleting any files. Use Force delete to remove it anyway.',
       isDestructive: false
     })
   })
 
-  // Why: Force Delete proceeds on a proven-live PTY too, so the copy must not describe
+  // Why: Force delete proceeds on a proven-live PTY too, so the copy must not describe
   // that as an unconfirmed exit — the user is killing a terminal Orca watched running.
   it('names the running terminals when verification proved they are still live', () => {
     expect(
@@ -45,7 +45,7 @@ describe('getDeleteWorktreeToastCopy', () => {
     ).toEqual({
       title: 'Failed to delete workspace feature/foo',
       description:
-        'This workspace still has running terminals, so Aster stopped before deleting any files. Force Delete will kill them and discard any uncommitted work they hold.',
+        'This workspace still has running terminals, so Aster stopped before deleting any files. Force delete will kill them and discard any uncommitted work they hold.',
       isDestructive: false
     })
   })
@@ -61,12 +61,12 @@ describe('getDeleteWorktreeToastCopy', () => {
     ).toEqual({
       title: 'Failed to delete workspace feature/foo',
       description:
-        'Aster could not confirm every agent session in this workspace has closed, so it stopped before deleting any files. Use Force Delete to remove it anyway.',
+        'Aster could not confirm every agent session in this workspace has closed, so it stopped before deleting any files. Use Force delete to remove it anyway.',
       isDestructive: false
     })
   })
 
-  // Why: the same split the PTY pair above draws. Force Delete proceeds either way, and telling a
+  // Why: the same split the PTY pair above draws. Force delete proceeds either way, and telling a
   // user "could not confirm" about a conversation Orca watched stay attached asks them to waive a
   // doubt that does not exist — the work in that conversation goes with the delete.
   it('names the running agent sessions when the close left them attached', () => {
@@ -78,7 +78,7 @@ describe('getDeleteWorktreeToastCopy', () => {
     ).toEqual({
       title: 'Failed to delete workspace feature/foo',
       description:
-        'This workspace still has running agent sessions that Aster could not close, so it stopped before deleting any files. Force Delete will discard any work they hold.',
+        'This workspace still has running agent sessions that Aster could not close, so it stopped before deleting any files. Force delete will discard any work they hold.',
       isDestructive: false
     })
   })
@@ -94,7 +94,7 @@ describe('getDeleteWorktreeToastCopy', () => {
     ).toEqual({
       title: 'Failed to delete workspace feature/foo',
       description:
-        'Aster could not confirm every terminal in this workspace has exited, so it stopped before deleting any files. Use Force Delete to remove it anyway.',
+        'Aster could not confirm every terminal in this workspace has exited, so it stopped before deleting any files. Use Force delete to remove it anyway.',
       isDestructive: false
     })
   })
@@ -110,7 +110,7 @@ describe('getDeleteWorktreeToastCopy', () => {
     ).toEqual({
       title: 'Failed to delete workspace feature/foo',
       description:
-        'Aster could not confirm every terminal in this workspace has exited, so it stopped before deleting any files. Use Force Delete to remove it anyway.',
+        'Aster could not confirm every terminal in this workspace has exited, so it stopped before deleting any files. Use Force delete to remove it anyway.',
       isDestructive: false
     })
   })
@@ -125,7 +125,7 @@ describe('getDeleteWorktreeToastCopy', () => {
     ).toEqual({
       title: 'Failed to delete workspace feature/foo',
       description:
-        'Git already forgot this workspace, but its directory is still on disk. Use Force Delete to remove the orphaned directory.',
+        'Git already forgot this workspace, but its directory is still on disk. Use Force delete to remove the orphaned directory.',
       isDestructive: false
     })
   })
@@ -139,7 +139,7 @@ describe('getDeleteWorktreeToastCopy', () => {
       )
     ).toEqual({
       title: 'Failed to delete workspace feature/foo',
-      description: 'Git already removed this workspace. Use Force Delete to clear it from Aster.',
+      description: 'Git already removed this workspace. Use Force delete to clear it from Aster.',
       isDestructive: false
     })
   })

@@ -130,14 +130,14 @@ afterEach(() => {
   vi.clearAllMocks()
 })
 
-describe('Jira project filters in Has Workspace mode', () => {
+describe('Jira project filters in Has workspace mode', () => {
   it('disables project changes while linked and restores the existing choice on a preset', async () => {
     render(<TaskPage />)
     const picker = screen.getByRole('combobox', { name: 'Jira project' })
     expect(picker).toBeEnabled()
     expect(picker).toHaveTextContent('ALP · Alpha')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Has Workspace' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Has workspace' }))
     expect(picker).toBeDisabled()
     fireEvent.click(picker)
     expect(screen.queryByRole('option')).not.toBeInTheDocument()
@@ -151,7 +151,7 @@ describe('Jira project filters in Has Workspace mode', () => {
     fireEvent.click(await screen.findByRole('option', { name: 'All Jira projects' }))
     expect(picker).toHaveTextContent('All Jira projects')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Has Workspace' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Has workspace' }))
     expect(picker).toBeDisabled()
     expect(picker).toHaveTextContent('All Jira projects')
     fireEvent.click(screen.getByRole('button', { name: 'All' }))

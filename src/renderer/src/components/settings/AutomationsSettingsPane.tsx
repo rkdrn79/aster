@@ -19,7 +19,7 @@ export function AutomationsSettingsPane({
       <SettingsSwitchRow
         label={translate(
           'auto.components.settings.automations.showButton',
-          'Show Automations Button'
+          'Show Automations button'
         )}
         description={translate(
           'auto.components.settings.automations.showButtonDescription',
@@ -37,7 +37,7 @@ export function AutomationsSettingsPane({
           <h3 className="text-sm font-medium">
             {translate(
               'auto.components.settings.automations.howItWorksTitle',
-              'How Automations work'
+              'How automations work'
             )}
           </h3>
           <p className="text-xs leading-relaxed text-muted-foreground">

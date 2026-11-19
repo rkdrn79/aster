@@ -95,6 +95,12 @@ describe('the tracked agent turn', () => {
     expect(phase()).toBe('Drawing · round 2')
     tool('Bash', 'node "$H/cli.mjs" figures check --figure method-overview')
     expect(phase()).toBe('Checking the preview · round 2/3')
+    // Careful drawing's art director rounds go past three: the count goes on without "of 3".
+    for (const round of [3, 4]) {
+      tool('Bash', `node paper/figures/src/method-overview.figure.mjs --round ${round}`)
+      tool('Bash', 'node "$H/cli.mjs" figures preview --figure method-overview')
+    }
+    expect(phase()).toBe('Checking the preview · round 4')
     noteFigureAgentStatus('chat-a', { status: 'idle', turnOutcome: 'success' })
     expect(turnOf()?.phase).toBe('done')
     // Ended but not settled yet: the canvas still treats file changes as the agent's.

@@ -20,6 +20,8 @@ import {
 } from './research-navigation'
 import { useResearchActiveProject } from './research-home-projects'
 import { ExperimentExplorer } from './ExperimentExplorer'
+import { isWebClientLocation } from '@/lib/web-client-location'
+import { PhoneDrawerExperiments } from '@/phone-shell/PhoneDrawerExperiments'
 import { ResearchWorkspaceChats } from './ResearchWorkspaceChats'
 import { ResearchHomeNavigation } from './ResearchHomeNavigation'
 import { ResearchOptionsMenu } from './ResearchOptionsMenu'
@@ -94,7 +96,7 @@ function ResearchProjectNavigation(): React.JSX.Element {
         ) : (
           <div className="flex items-center gap-2 px-2 text-worktree-sidebar-foreground">
             <ResearchComputeProjectDot color={null} />
-            <span className="min-w-0 flex-1 truncate text-base font-semibold">
+            <span className="min-w-0 flex-1 truncate text-base font-medium">
               {translate('research.navigation.project', 'Project')}
             </span>
             <ResearchOptionsMenu />
@@ -174,11 +176,17 @@ function ResearchProjectNavigation(): React.JSX.Element {
             experimentsOpen ? 'ml-4 border-l border-worktree-sidebar-border pl-2' : 'hidden'
           }
         >
-          <ExperimentExplorer
-            actionsHost={experimentActionsHost}
-            expanded={experimentsOpen}
-            onExpand={() => setSectionOpen('experiments', true)}
-          />
+          {/* Why: a browser has no copy of the desktop's experiment records; its host reads the
+              project's own catalog. */}
+          {isWebClientLocation() ? (
+            <PhoneDrawerExperiments />
+          ) : (
+            <ExperimentExplorer
+              actionsHost={experimentActionsHost}
+              expanded={experimentsOpen}
+              onExpand={() => setSectionOpen('experiments', true)}
+            />
+          )}
         </div>
         {items.map(({ view, section, label, Icon }) => {
           const open = sections[section]

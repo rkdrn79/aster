@@ -90,7 +90,7 @@ export function TaskPageGitHubReviewerPicker({
         />
         <span className="min-w-0 flex-1">
           <span className="block truncate">
-            <span className="font-semibold text-foreground">{reviewer.login}</span>
+            <span className="font-medium text-foreground">{reviewer.login}</span>
             {reviewer.name ? (
               <span className="ml-1 font-normal text-muted-foreground">{reviewer.name}</span>
             ) : null}
@@ -124,7 +124,7 @@ export function TaskPageGitHubReviewerPicker({
       }}
     >
       <div className="border-b border-border/70 px-3 py-2">
-        <div className="text-[13px] font-semibold text-foreground">
+        <div className="text-[13px] font-medium text-foreground">
           {translate('auto.components.TaskPage.62c7bd789f', 'Request up to 15 reviewers')}
         </div>
       </div>
@@ -178,7 +178,7 @@ export function TaskPageGitHubReviewerPicker({
           <>
             {suggestedReviewerRows.length > 0 ? (
               <>
-                <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-semibold text-foreground">
+                <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-medium text-foreground">
                   {translate('auto.components.TaskPage.3ace2e6bcf', 'Suggestions')}
                 </div>
                 {suggestedReviewerRows.map((reviewer, index) =>
@@ -189,7 +189,7 @@ export function TaskPageGitHubReviewerPicker({
                 )}
               </>
             ) : null}
-            <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-semibold text-foreground">
+            <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-medium text-foreground">
               {translate('auto.components.TaskPage.67755a83a1', 'Everyone else')}
             </div>
             {everyoneElseReviewerRows.length > 0 ? (
@@ -201,7 +201,7 @@ export function TaskPageGitHubReviewerPicker({
               )
             ) : (
               <div className="px-3 py-2 text-[13px] text-muted-foreground">
-                {translate('auto.components.TaskPage.8a22eb3f7b', 'No matching reviewers.')}
+                {translate('auto.components.TaskPage.8a22eb3f7b', 'No matching reviewers')}
               </div>
             )}
           </>
@@ -209,7 +209,7 @@ export function TaskPageGitHubReviewerPicker({
           <div className="px-3 py-2 text-[13px] text-muted-foreground">
             {reviewerMetadataError ??
               (hasReviewerMetadata
-                ? translate('auto.components.TaskPage.8a22eb3f7b', 'No matching reviewers.')
+                ? translate('auto.components.TaskPage.8a22eb3f7b', 'No matching reviewers')
                 : translate(
                     'auto.components.TaskPage.9e03c17847',
                     'Open the PR details to view current reviewers.'

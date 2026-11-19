@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sparkles } from 'lucide-react'
+import { Bot } from 'lucide-react'
 import {
   Accordion,
   AccordionContent,
@@ -176,7 +176,7 @@ export function PRCommentGroupView({
       <ContextMenuTrigger asChild>{content}</ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuItem onSelect={() => onQueueForAgent()}>
-          <Sparkles />
+          <Bot />
           {translate(
             'auto.components.right.sidebar.checks.panel.content.f8a2c91d04',
             'Queue for agent'

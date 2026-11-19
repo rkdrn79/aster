@@ -110,7 +110,7 @@ export function ResearchWorkbench(): React.JSX.Element {
       {workspaceMismatch && experiment ? (
         <div
           role="status"
-          className="flex items-center gap-3 border-b border-border px-6 py-1.5 text-xs text-muted-foreground"
+          className="flex items-center gap-3 border-b border-border px-6 py-2 text-xs text-muted-foreground"
         >
           <span className="min-w-0 flex-1 truncate">
             {experiment.name} belongs to another workspace.

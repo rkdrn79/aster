@@ -3,7 +3,7 @@ import { createLocalizedCatalog } from '@/i18n/localized-catalog'
 
 export const getStatsPaneSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.stats.stats.search.cb2430ae6a', 'Stats & Usage'),
+    title: translate('auto.components.stats.stats.search.cb2430ae6a', 'Stats and usage'),
     description: translate(
       'auto.components.stats.stats.search.26bb901fcd',
       'Aster stats plus Claude, Codex, OpenCode, Muse token analytics and Grok subscription usage.'

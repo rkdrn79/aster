@@ -256,7 +256,7 @@ export function NativeChatInterruptedContinueButton({
             }
             disabled={disabled}
           >
-            <Play />
+            <Play className="size-4" />
             {translate('components.native-chat.interruptedContinue.continue', 'Continue')}
           </Button>
         </TooltipTrigger>

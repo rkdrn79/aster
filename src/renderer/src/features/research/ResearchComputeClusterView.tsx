@@ -26,10 +26,10 @@ export function ResearchComputeClusterView({
   return (
     <Collapsible>
       <CollapsibleTrigger variant="row">
-        <span className="flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+        <span className="flex items-center gap-2 text-[15px] font-medium">
           <ChevronRight
             aria-hidden
-            className="size-3.5 transition-transform group-data-[state=open]:rotate-90"
+            className="size-4 text-muted-foreground transition-transform duration-(--duration-base) ease-out-quint group-data-[state=open]:rotate-90 motion-reduce:transition-none"
           />
           Partitions, nodes and GPUs
         </span>

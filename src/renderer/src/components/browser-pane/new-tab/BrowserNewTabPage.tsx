@@ -130,7 +130,7 @@ function BrowserNewTabPageLayout({
             <Globe className="size-5" />
           </div>
           <p className="text-base font-semibold text-foreground">
-            {translate('auto.components.browser.pane.BrowserPane.366bf5d62c', 'New Tab')}
+            {translate('auto.components.browser.pane.BrowserPane.366bf5d62c', 'New tab')}
           </p>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
             {translate(
@@ -202,9 +202,7 @@ function BrowserNewTabSection({
 }): React.JSX.Element {
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="px-2 text-2xs font-semibold tracking-[0.05em] text-muted-foreground uppercase">
-        {label}
-      </h2>
+      <h2 className="px-2 text-2xs font-medium text-muted-foreground">{label}</h2>
       {children}
     </section>
   )

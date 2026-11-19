@@ -85,7 +85,7 @@ export function ShareSkillsSettingsPane(): React.JSX.Element {
           isWebClient
             ? translate(
                 'auto.components.settings.shareSkills.allowAgentPublishingWebDescription',
-                'Desktop only. Open Settings → Share Skills on the host device to change this setting.'
+                'Desktop only. Open Settings → Share skills on the host device to change this setting.'
               )
             : translate(
                 'auto.components.settings.shareSkills.allowAgentPublishingDescription',
@@ -99,7 +99,7 @@ export function ShareSkillsSettingsPane(): React.JSX.Element {
 
       {!isWebClient ? (
         <SettingsSwitchRow
-          label={translate('auto.components.settings.shareSkills.showButton', 'Show Skills Button')}
+          label={translate('auto.components.settings.shareSkills.showButton', 'Show Skills button')}
           description={translate(
             'auto.components.settings.shareSkills.showButtonDescription',
             'Show the Skills shortcut in the sidebar.'

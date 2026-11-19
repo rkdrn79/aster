@@ -115,7 +115,7 @@ function LinkedItemRow({
         reviewState && live?.state ? (
           <span
             className={cn(
-              'inline-flex h-5 shrink-0 items-center rounded-full border px-2 text-2xs font-medium',
+              'inline-flex h-5 shrink-0 items-center rounded-sm border px-2 text-2xs font-medium',
               getReviewStateTone(live.state)
             )}
           >

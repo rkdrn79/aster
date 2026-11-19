@@ -16,14 +16,14 @@ export function NativeChatInstallTile(props: {
       aria-hidden
       className={cn(
         'flex shrink-0 items-center justify-center border',
-        large ? 'size-14 rounded-2xl' : 'size-9 rounded-xl',
+        large ? 'size-14 rounded-xl' : 'size-9 rounded-lg',
         failed
           ? 'border-chat-warning/30 bg-chat-warning/10 text-chat-warning'
           : 'border-border bg-accent'
       )}
     >
       {failed ? (
-        <TriangleAlert className={large ? 'size-6' : 'size-4.5'} />
+        <TriangleAlert className={large ? 'size-6' : 'size-4'} />
       ) : (
         <AgentIcon agent={agentTypeToIconAgent(agent)} size={large ? 28 : 20} />
       )}

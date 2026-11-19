@@ -97,7 +97,7 @@ export function BrowserUseSetup({
       <div className="flex items-center justify-between gap-4 py-2">
         <div className="space-y-0.5">
           <p className="text-sm font-medium">
-            {translate('auto.components.settings.BrowserUsePane.b8a1f2d84d', 'Agent Browser Use')}
+            {translate('auto.components.settings.BrowserUsePane.b8a1f2d84d', 'Agent browser use')}
           </p>
           <p className="text-xs text-muted-foreground">
             {translate(
@@ -119,7 +119,7 @@ export function BrowserUseSetup({
       <div className="flex items-center justify-between gap-3">
         <div className="space-y-0.5">
           <p className="text-sm font-semibold">
-            {translate('auto.components.settings.BrowserUsePane.b8a1f2d84d', 'Agent Browser Use')}
+            {translate('auto.components.settings.BrowserUsePane.b8a1f2d84d', 'Agent browser use')}
           </p>
           <p className="text-xs text-muted-foreground">
             {translate(
@@ -153,7 +153,7 @@ export function BrowserUseSetup({
         <SearchableSetting
           title={translate(
             'auto.components.settings.BrowserUsePane.2d6ead9ab2',
-            'Install Browser Use Skill'
+            'Install browser use skill'
           )}
           description={translate(
             'auto.components.settings.BrowserUsePane.68ea76eb71',

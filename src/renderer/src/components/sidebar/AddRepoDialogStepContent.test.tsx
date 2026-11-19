@@ -121,7 +121,7 @@ describe('AddRepoDialogStepContent nested imports', () => {
     const html = renderStepContent({ nestedSelectedPaths: new Set() })
 
     expect(html).toContain('No repositories are selected')
-    expect(html).toContain('Open as Folder')
+    expect(html).toContain('Open as folder')
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>No, import separately<\/button>/)
     expect(html).toMatch(/<button[^>]*disabled=""[^>]*>Yes, import as group<\/button>/)
   })

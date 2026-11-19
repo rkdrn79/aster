@@ -382,7 +382,7 @@ describe('TerminalThemeCatalogSection', () => {
     expect(updateSettings).toHaveBeenCalledWith({ terminalUseSeparateLightTheme: false })
   })
 
-  it('collapses light customization with a transition while matching dark mode', () => {
+  it('collapses light customization while matching dark mode', () => {
     const element = renderCatalog(
       makeSettings({ terminalUseSeparateLightTheme: false }),
       vi.fn(),
@@ -390,10 +390,8 @@ describe('TerminalThemeCatalogSection', () => {
     )
     const preview = findElementByTypeName(element, 'TerminalSettingsPreview')
     const matchDarkModeSwitch = findElementByTypeName(element, 'SettingsSwitchRow')
-    const transitionRegion = findElementByClassSubstring(
-      element,
-      'transition-[grid-template-rows,padding-top]'
-    )
+    // Why: the region opens and closes without animating its rows (layout never animates).
+    const transitionRegion = findElementByClassSubstring(element, 'grid overflow-hidden')
 
     expect(matchDarkModeSwitch?.props?.label).toBe('Match dark mode')
     expect(transitionRegion?.props?.className).toContain('grid-rows-[0fr]')

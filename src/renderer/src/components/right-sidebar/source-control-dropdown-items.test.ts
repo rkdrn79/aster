@@ -100,7 +100,7 @@ describe('resolveDropdownItems', () => {
     expect(byKind.fetch.disabled).toBe(false)
   })
 
-  it('does not offer Publish Branch when HEAD is detached', () => {
+  it('does not offer Publish branch when HEAD is detached', () => {
     const items = resolveDropdownItems(
       inputs({
         upstreamStatus: { hasUpstream: false, ahead: 0, behind: 0 },
@@ -112,12 +112,12 @@ describe('resolveDropdownItems', () => {
       items.filter((e) => e.kind !== 'separator').map((e) => [e.kind, e])
     )
     expect(byKind.push.title).toBe('Check out a branch before pushing commits')
-    expect(byKind.publish.label).toBe('No Branch')
+    expect(byKind.publish.label).toBe('No branch')
     expect(byKind.publish.title).toBe('Check out a branch before publishing commits')
     expect(byKind.publish.disabled).toBe(true)
   })
 
-  it('disables Publish Branch when branch already has an upstream', () => {
+  it('disables Publish branch when branch already has an upstream', () => {
     const items = resolveDropdownItems(
       inputs({
         upstreamStatus: { hasUpstream: true, ahead: 0, behind: 0 }
@@ -137,7 +137,7 @@ describe('resolveDropdownItems', () => {
       items.filter((e) => e.kind !== 'separator').map((e) => [e.kind, e])
     )
     expect(byKind.push.label).toBe('Push (3)')
-    expect(byKind.force_push.label).toBe('Force Push (3)')
+    expect(byKind.force_push.label).toBe('Force push (3)')
     expect(byKind.pull.label).toBe('Pull (2)')
     expect(byKind.sync.label).toBe('Sync (↓2 ↑3)')
   })
@@ -192,12 +192,12 @@ describe('resolveDropdownItems', () => {
     expect(byKind.push.label).toBe('Push (14)')
     expect(byKind.push.disabled).toBe(false)
     expect(byKind.push.title).toBe('Try a regular push; git may require force push')
-    expect(byKind.force_push.label).toBe('Force Push (4)')
+    expect(byKind.force_push.label).toBe('Force push (4)')
     expect(byKind.force_push.disabled).toBe(false)
     expect(byKind.force_push.title).toBe(
       'Remote only has older copies of local commits. Force push 4 branch commits with lease to update origin/feature.'
     )
-    expect(byKind.commit_push.label).toBe('Commit & Force Push')
+    expect(byKind.commit_push.label).toBe('Commit & force push')
     expect(byKind.commit_push.disabled).toBe(false)
     expect(byKind.commit_push.title).toBe('Commit staged changes and force push with lease')
     expect(byKind.pull.disabled).toBe(false)
@@ -208,15 +208,15 @@ describe('resolveDropdownItems', () => {
     expect(byKind.fast_forward.title).toBe(
       'Nothing new to fast-forward — remote only has older copies of local commits'
     )
-    expect(byKind.commit_sync.label).toBe('Commit & Sync')
+    expect(byKind.commit_sync.label).toBe('Commit & sync')
     expect(byKind.commit_sync.disabled).toBe(true)
     expect(byKind.commit_sync.title).toBe(
-      'Use Commit & Force Push — remote only has older copies of local commits'
+      'Use Commit & force push — remote only has older copies of local commits'
     )
     expect(byKind.sync.disabled).toBe(true)
-    expect(byKind.sync.title).toBe('Use Force Push — remote only has older copies of local commits')
-    expect(byKind.create_pr.hint).toBe('Force Push first')
-    expect(byKind.push_create_pr.label).toBe('Force Push before PR')
+    expect(byKind.sync.title).toBe('Use force push — remote only has older copies of local commits')
+    expect(byKind.create_pr.hint).toBe('Force push first')
+    expect(byKind.push_create_pr.label).toBe('Force push before PR')
     expect(byKind.push_create_pr.disabled).toBe(false)
   })
 
@@ -237,7 +237,7 @@ describe('resolveDropdownItems', () => {
 
     expect(byKind.push.label).toBe('Push (1)')
     expect(byKind.push.disabled).toBe(false)
-    expect(byKind.force_push.label).toBe('Force Push (1)')
+    expect(byKind.force_push.label).toBe('Force push (1)')
     expect(byKind.force_push.disabled).toBe(false)
     expect(byKind.force_push.title).toBe(
       'Force push 1 local commit with lease to update origin/feature.'
@@ -252,7 +252,7 @@ describe('resolveDropdownItems', () => {
       items.filter((e) => e.kind !== 'separator').map((e) => [e.kind, e])
     )
     expect(byKind.push.label).toBe('Push')
-    expect(byKind.force_push.label).toBe('Force Push')
+    expect(byKind.force_push.label).toBe('Force push')
     expect(byKind.pull.label).toBe('Pull')
     expect(byKind.sync.label).toBe('Sync')
     expect(byKind.push.disabled).toBe(false)
@@ -423,7 +423,7 @@ describe('resolveDropdownItems', () => {
     )
     expect(byKind.push.title).toBe('Push this branch and set an upstream if needed')
     expect(byKind.push.disabled).toBe(false)
-    expect(byKind.force_push.label).toBe('Force Push (2)')
+    expect(byKind.force_push.label).toBe('Force push (2)')
     expect(byKind.force_push.title).toBe(
       'Force push 2 branch commits with lease and set an upstream if needed.'
     )
@@ -473,7 +473,7 @@ describe('resolveDropdownItems', () => {
     )
   })
 
-  it('shows Publish Branch when an unpublished branch has no commits ahead', () => {
+  it('shows Publish branch when an unpublished branch has no commits ahead', () => {
     const items = resolveDropdownItems(
       inputs({
         upstreamStatus: { hasUpstream: false, ahead: 0, behind: 0 },
@@ -483,12 +483,12 @@ describe('resolveDropdownItems', () => {
     const byKind = Object.fromEntries(
       items.filter((e) => e.kind !== 'separator').map((e) => [e.kind, e])
     )
-    expect(byKind.publish.label).toBe('Publish Branch')
+    expect(byKind.publish.label).toBe('Publish branch')
     expect(byKind.publish.title).toBe('Publish this branch to origin')
     expect(byKind.publish.disabled).toBe(false)
   })
 
-  it('keeps Publish Branch available for an unpublished dirty branch with no commits', () => {
+  it('keeps Publish branch available for an unpublished dirty branch with no commits', () => {
     const items = resolveDropdownItems(
       inputs({
         stagedCount: 1,
@@ -499,7 +499,7 @@ describe('resolveDropdownItems', () => {
     const byKind = Object.fromEntries(
       items.filter((e) => e.kind !== 'separator').map((e) => [e.kind, e])
     )
-    expect(byKind.publish.label).toBe('Publish Branch')
+    expect(byKind.publish.label).toBe('Publish branch')
     expect(byKind.publish.title).toBe('Publish this branch to origin')
     expect(byKind.publish.disabled).toBe(false)
   })
@@ -523,12 +523,12 @@ describe('resolveDropdownItems', () => {
     expect(byKind.pull.title).toBe('PR is already merged')
     expect(byKind.fast_forward.title).toBe('PR is already merged')
     expect(byKind.sync.title).toBe('PR is already merged')
-    expect(byKind.publish.label).toBe('PR Status')
+    expect(byKind.publish.label).toBe('PR status')
     expect(byKind.publish.title).toBe('PR is already merged')
     expect(byKind.publish.disabled).toBe(true)
   })
 
-  it('offers Push instead of Publish Branch when an open linked review has no upstream', () => {
+  it('offers Push instead of Publish branch when an open linked review has no upstream', () => {
     const items = resolveDropdownItems(
       inputs({
         stagedCount: 1,
@@ -545,9 +545,9 @@ describe('resolveDropdownItems', () => {
     expect(byKind.commit_push.disabled).toBe(false)
     expect(byKind.push.title).toBe('Push updates to the linked review branch')
     expect(byKind.push.disabled).toBe(false)
-    expect(byKind.force_push.label).toBe('Force Push (1)')
+    expect(byKind.force_push.label).toBe('Force push (1)')
     expect(byKind.force_push.disabled).toBe(false)
-    expect(byKind.publish.label).toBe('Linked Review')
+    expect(byKind.publish.label).toBe('Linked review')
     expect(byKind.publish.title).toBe('Linked review branch already exists')
     expect(byKind.publish.disabled).toBe(true)
   })
@@ -597,7 +597,7 @@ describe('resolveDropdownItems', () => {
     expect(byKind.push.disabled).toBe(true)
     expect(byKind.force_push.title).toBe('Linked review branch target is unavailable')
     expect(byKind.force_push.disabled).toBe(true)
-    expect(byKind.publish.label).toBe('Linked Review')
+    expect(byKind.publish.label).toBe('Linked review')
     expect(byKind.publish.title).toBe('Linked review branch target is unavailable')
     expect(byKind.publish.disabled).toBe(true)
   })
@@ -612,7 +612,7 @@ describe('resolveDropdownItems', () => {
     const byKind = Object.fromEntries(
       items.filter((e) => e.kind !== 'separator').map((e) => [e.kind, e])
     )
-    expect(byKind.publish.label).toBe('PR Status')
+    expect(byKind.publish.label).toBe('PR status')
     expect(byKind.publish.title).toBe('Checking PR status…')
     expect(byKind.publish.disabled).toBe(true)
   })
@@ -631,8 +631,8 @@ describe('resolveDropdownItems', () => {
     const byKind = Object.fromEntries(
       items.filter((e) => e.kind !== 'separator').map((e) => [e.kind, e])
     )
-    expect(byKind.commit_push.label).toBe('Commit & Push')
-    expect(byKind.commit_sync.label).toBe('Commit & Sync')
+    expect(byKind.commit_push.label).toBe('Commit & push')
+    expect(byKind.commit_sync.label).toBe('Commit & sync')
     // Sanity check: plain counterparts still carry counts.
     expect(byKind.push.label).toBe('Push (2)')
     expect(byKind.sync.label).toBe('Sync (↓3 ↑2)')
@@ -698,7 +698,7 @@ describe('resolveDropdownItems with an unhydrated linked-review push target', ()
     )
   }
 
-  it('enables Push and Force Push when the real upstream is the same-repo review head', () => {
+  it('enables Push and Force push when the real upstream is the same-repo review head', () => {
     const byKind = pipeline({
       branchName: 'mobile-resume-suspected-fixes',
       upstreamStatus: {

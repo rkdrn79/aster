@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { GitBranch, PencilLine, Split } from 'lucide-react'
+import { GitBranch, GitFork, PencilLine, Split } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,33 +9,55 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
 import { NativeChatBranchContext, nativeChatBranchRowBlock } from './native-chat-branch-context'
+import { NATIVE_CHAT_ROW_ACTION_CLASS } from './native-chat-row-action'
 
 // Styled like the copy and rewind buttons beside it in the same hover strip.
-const BUTTON_CLASS =
-  'flex size-6 shrink-0 items-center justify-center rounded-md text-chat-foreground-faint transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-disabled:opacity-50 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground'
+const BUTTON_CLASS = NATIVE_CHAT_ROW_ACTION_CLASS
 
+/** One line each, so Branch (switch to a copy), Fork (a copy in the background) and Rewind
+ *  (change this chat) never read alike. */
 export function nativeChatBranchLabels() {
   return {
     branchFromHere: translate('components.native-chat.branch.fromHere', 'Branch from here'),
+    forkFromHere: translate('components.native-chat.branch.forkFromHere', 'Fork from here'),
     editAndBranch: translate('components.native-chat.branch.editAndBranch', 'Edit and branch'),
     branchChat: translate('components.native-chat.branch.chat', 'Branch chat'),
-    agentHint: translate(
+    forkChat: translate('components.native-chat.branch.forkChat', 'Fork to background'),
+    menu: translate('components.native-chat.branch.menu', 'Branch or fork'),
+    branchHint: translate(
       'components.native-chat.branch.agentHint',
-      'New chat with everything up to this reply. This chat stays as it is.'
+      'A new chat up to this reply, and you switch to it. This chat stays.'
+    ),
+    forkHint: translate(
+      'components.native-chat.branch.forkHint',
+      'The same copy, left in the background while you stay here.'
     ),
     askAgainHint: translate(
       'components.native-chat.branch.askAgainHint',
-      'New chat up to here that asks this again.'
+      'A new chat up to here that asks this again, and you switch to it.'
+    ),
+    forkAskAgainHint: translate(
+      'components.native-chat.branch.forkAskAgainHint',
+      'Asks this again in a background copy while you stay here.'
     ),
     editHint: translate(
       'components.native-chat.branch.editHint',
-      'New chat up to here, with this message ready to change.'
+      'A new chat up to here, with this message ready to change.'
+    ),
+    branchChatHint: translate(
+      'components.native-chat.branch.chatHint',
+      'A new chat with this conversation, and you switch to it.'
+    ),
+    forkChatHint: translate(
+      'components.native-chat.branch.forkChatHint',
+      'A copy that keeps working while you stay here.'
     )
   }
 }
 
-/** The quiet hover action that branches at one message: one click on the agent's reply, a small
- *  menu on the person's own (edit it, or ask it again). Shown disabled with its reason. */
+/** The quiet hover action on a message: a small menu to branch there (switch to the copy) or fork
+ *  there (leave it in the background), and on the person's own message, to edit and branch. Shown
+ *  disabled with its reason when it can't run. */
 export function NativeChatBranchAction({
   messageId,
   kind
@@ -49,33 +71,23 @@ export function NativeChatBranchAction({
   }
   const labels = nativeChatBranchLabels()
   const block = nativeChatBranchRowBlock(branch, messageId)
-  if (kind === 'agent' || block) {
+  if (block) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
           <button
             type="button"
             className={BUTTON_CLASS}
-            aria-label={labels.branchFromHere}
-            aria-description={block ?? labels.agentHint}
-            aria-disabled={Boolean(block)}
+            aria-label={labels.menu}
+            aria-description={block}
+            aria-disabled
             data-native-chat-branch-action={kind}
-            onClick={() => {
-              if (!block) {
-                branch.branchFrom(messageId)
-              }
-            }}
           >
-            <GitBranch className="size-3.5" />
+            <GitBranch className="size-4" />
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" sideOffset={4} className="max-w-64">
-          {block ?? (
-            <>
-              <span className="font-medium">{labels.branchFromHere}</span>
-              <span className="block text-background/70">{labels.agentHint}</span>
-            </>
-          )}
+          {block}
         </TooltipContent>
       </Tooltip>
     )
@@ -88,36 +100,70 @@ export function NativeChatBranchAction({
             <button
               type="button"
               className={BUTTON_CLASS}
-              aria-label={translate('components.native-chat.branch.menu', 'Branch')}
+              aria-label={labels.menu}
               data-native-chat-branch-action={kind}
             >
-              <GitBranch className="size-3.5" />
+              <GitBranch className="size-4" />
             </button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
         <TooltipContent side="top" sideOffset={4}>
-          {translate('components.native-chat.branch.menuHint', 'Branch into a new chat')}
+          {labels.menu}
         </TooltipContent>
       </Tooltip>
-      <DropdownMenuContent align="end" className="w-64">
-        <NativeChatBranchMenuRow
-          icon={<PencilLine />}
-          label={labels.editAndBranch}
-          hint={labels.editHint}
-          onSelect={() => branch.editAndBranch(messageId)}
-        />
-        <NativeChatBranchMenuRow
-          icon={<Split />}
-          label={labels.branchFromHere}
-          hint={labels.askAgainHint}
-          onSelect={() => branch.branchFrom(messageId)}
-        />
+      <DropdownMenuContent data-native-chat-surface="" align="end" className="w-72">
+        <NativeChatBranchRows messageId={messageId} kind={kind} />
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
 
-/** A branch row with its one-line meaning, or its reason when it can't run. */
+/** The rows for one message, shared by its hover menu and the chat's right-click menu. */
+export function NativeChatBranchRows({
+  messageId,
+  kind,
+  disabledReason = null
+}: {
+  messageId: string
+  kind: 'user' | 'agent'
+  disabledReason?: string | null
+}): React.JSX.Element | null {
+  const branch = useContext(NativeChatBranchContext)
+  if (!branch) {
+    return null
+  }
+  const labels = nativeChatBranchLabels()
+  const user = kind === 'user'
+  return (
+    <>
+      {user ? (
+        <NativeChatBranchMenuRow
+          icon={<PencilLine />}
+          label={labels.editAndBranch}
+          hint={labels.editHint}
+          disabledReason={disabledReason}
+          onSelect={() => branch.editAndBranch(messageId)}
+        />
+      ) : null}
+      <NativeChatBranchMenuRow
+        icon={user ? <Split /> : <GitBranch />}
+        label={labels.branchFromHere}
+        hint={user ? labels.askAgainHint : labels.branchHint}
+        disabledReason={disabledReason}
+        onSelect={() => branch.branchFrom(messageId)}
+      />
+      <NativeChatBranchMenuRow
+        icon={<GitFork />}
+        label={labels.forkFromHere}
+        hint={user ? labels.forkAskAgainHint : labels.forkHint}
+        disabledReason={disabledReason}
+        onSelect={() => branch.forkFrom(messageId)}
+      />
+    </>
+  )
+}
+
+/** A copy row with its one-line meaning, or its reason when it can't run. */
 export function NativeChatBranchMenuRow({
   icon,
   label,

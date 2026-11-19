@@ -1,0 +1,414 @@
+{
+  "cat": {
+    "set": "fluent",
+    "file": "fluent/cat.svg",
+    "title": "Cat",
+    "tags": [
+      "cat",
+      "animal",
+      "pet",
+      "image",
+      "example"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Cat/Flat/cat_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "dog": {
+    "set": "fluent",
+    "file": "fluent/dog.svg",
+    "title": "Dog",
+    "tags": [
+      "dog",
+      "animal",
+      "pet",
+      "image",
+      "example"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Dog/Flat/dog_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "bird": {
+    "set": "fluent",
+    "file": "fluent/bird.svg",
+    "title": "Bird",
+    "tags": [
+      "bird",
+      "animal",
+      "image",
+      "example"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Bird/Flat/bird_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "airplane": {
+    "set": "fluent",
+    "file": "fluent/airplane.svg",
+    "title": "Airplane",
+    "tags": [
+      "airplane",
+      "plane",
+      "aircraft",
+      "vehicle",
+      "flight"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Airplane/Flat/airplane_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "bicycle": {
+    "set": "fluent",
+    "file": "fluent/bicycle.svg",
+    "title": "Bicycle",
+    "tags": [
+      "bicycle",
+      "bike",
+      "vehicle",
+      "cycling"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Bicycle/Flat/bicycle_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "satellite": {
+    "set": "fluent",
+    "file": "fluent/satellite.svg",
+    "title": "Satellite",
+    "tags": [
+      "satellite",
+      "space",
+      "orbit",
+      "remote",
+      "sensing",
+      "earth",
+      "observation"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Satellite/Flat/satellite_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "factory": {
+    "set": "fluent",
+    "file": "fluent/factory.svg",
+    "title": "Factory",
+    "tags": [
+      "factory",
+      "industry",
+      "manufacturing",
+      "plant"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Factory/Flat/factory_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "house": {
+    "set": "fluent",
+    "file": "fluent/house.svg",
+    "title": "House",
+    "tags": [
+      "house",
+      "home",
+      "building",
+      "household"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/House/Flat/house_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "hospital": {
+    "set": "fluent",
+    "file": "fluent/hospital.svg",
+    "title": "Hospital",
+    "tags": [
+      "hospital",
+      "clinic",
+      "medicine",
+      "healthcare",
+      "building"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Hospital/Flat/hospital_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "microbe": {
+    "set": "fluent",
+    "file": "fluent/microbe.svg",
+    "title": "Microbe (bacterium, virus)",
+    "tags": [
+      "microbe",
+      "bacterium",
+      "bacteria",
+      "virus",
+      "pathogen",
+      "germ"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "accent": "the subject part",
+      "neutral": "the rest"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Microbe/Flat/microbe_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "pill": {
+    "set": "fluent",
+    "file": "fluent/pill.svg",
+    "title": "Pill (drug)",
+    "tags": [
+      "pill",
+      "drug",
+      "medicine",
+      "capsule",
+      "pharma"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "accent": "the subject part",
+      "neutral": "the rest"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Pill/Flat/pill_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "tree": {
+    "set": "fluent",
+    "file": "fluent/tree.svg",
+    "title": "Tree",
+    "tags": [
+      "tree",
+      "nature",
+      "plant",
+      "outdoor",
+      "environment"
+    ],
+    "style": "flat",
+    "projection": "front",
+    "roles": {
+      "neutral": "all of it"
+    },
+    "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Deciduous%20tree/Flat/deciduous_tree_flat.svg",
+    "licence": "MIT (Microsoft Fluent Emoji)",
+    "credit": null
+  },
+  "robot-arm-line": {
+    "set": "carbon",
+    "file": "carbon/robot-arm-line.svg",
+    "title": "Industrial robot arm (line)",
+    "tags": [
+      "robot",
+      "arm",
+      "robotics",
+      "manipulator",
+      "industrial",
+      "line"
+    ],
+    "style": "line",
+    "projection": "front",
+    "roles": {
+      "ink": "the line art"
+    },
+    "lineWeight": 0.02,
+    "source": "https://raw.githubusercontent.com/carbon-design-system/carbon/f615c75c44f550522a81456cb31c25ad2196cbf2/packages/pictograms/src/svg/robotics.svg",
+    "licence": "Apache-2.0 (IBM Carbon Design System pictograms)",
+    "credit": null
+  },
+  "microscope-line": {
+    "set": "carbon",
+    "file": "carbon/microscope-line.svg",
+    "title": "Microscope (line)",
+    "tags": [
+      "microscope",
+      "lab",
+      "biology",
+      "imaging",
+      "line"
+    ],
+    "style": "line",
+    "projection": "front",
+    "roles": {
+      "ink": "the line art"
+    },
+    "lineWeight": 0.02,
+    "source": "https://raw.githubusercontent.com/carbon-design-system/carbon/f615c75c44f550522a81456cb31c25ad2196cbf2/packages/pictograms/src/svg/microscope.svg",
+    "licence": "Apache-2.0 (IBM Carbon Design System pictograms)",
+    "credit": null
+  },
+  "dna-line": {
+    "set": "carbon",
+    "file": "carbon/dna-line.svg",
+    "title": "DNA (line)",
+    "tags": [
+      "dna",
+      "genome",
+      "gene",
+      "sequence",
+      "biology",
+      "line"
+    ],
+    "style": "line",
+    "projection": "front",
+    "roles": {
+      "ink": "the line art"
+    },
+    "lineWeight": 0.02,
+    "source": "https://raw.githubusercontent.com/carbon-design-system/carbon/f615c75c44f550522a81456cb31c25ad2196cbf2/packages/pictograms/src/svg/dna.svg",
+    "licence": "Apache-2.0 (IBM Carbon Design System pictograms)",
+    "credit": null
+  },
+  "electric-car-line": {
+    "set": "carbon",
+    "file": "carbon/electric-car-line.svg",
+    "title": "Electric car (line)",
+    "tags": [
+      "car",
+      "vehicle",
+      "electric",
+      "driving",
+      "line"
+    ],
+    "style": "line",
+    "projection": "front",
+    "roles": {
+      "ink": "the line art"
+    },
+    "lineWeight": 0.02,
+    "source": "https://raw.githubusercontent.com/carbon-design-system/carbon/f615c75c44f550522a81456cb31c25ad2196cbf2/packages/pictograms/src/svg/electric--car.svg",
+    "licence": "Apache-2.0 (IBM Carbon Design System pictograms)",
+    "credit": null
+  },
+  "globe-line": {
+    "set": "carbon",
+    "file": "carbon/globe-line.svg",
+    "title": "Globe (line)",
+    "tags": [
+      "globe",
+      "world",
+      "earth",
+      "web",
+      "line"
+    ],
+    "style": "line",
+    "projection": "front",
+    "roles": {
+      "ink": "the line art"
+    },
+    "lineWeight": 0.02,
+    "source": "https://raw.githubusercontent.com/carbon-design-system/carbon/f615c75c44f550522a81456cb31c25ad2196cbf2/packages/pictograms/src/svg/globe.svg",
+    "licence": "Apache-2.0 (IBM Carbon Design System pictograms)",
+    "credit": null
+  },
+  "drone-line": {
+    "set": "carbon",
+    "file": "carbon/drone-line.svg",
+    "title": "Drone (line)",
+    "tags": [
+      "drone",
+      "uav",
+      "quadcopter",
+      "aerial",
+      "robot",
+      "line"
+    ],
+    "style": "line",
+    "projection": "front",
+    "roles": {
+      "ink": "the line art"
+    },
+    "lineWeight": 0.02,
+    "source": "https://raw.githubusercontent.com/carbon-design-system/carbon/f615c75c44f550522a81456cb31c25ad2196cbf2/packages/pictograms/src/svg/drone.svg",
+    "licence": "Apache-2.0 (IBM Carbon Design System pictograms)",
+    "credit": null
+  },
+  "data-scientist-line": {
+    "set": "carbon",
+    "file": "carbon/data-scientist-line.svg",
+    "title": "Data scientist (line)",
+    "tags": [
+      "person",
+      "scientist",
+      "analyst",
+      "user",
+      "line"
+    ],
+    "style": "line",
+    "projection": "front",
+    "roles": {
+      "ink": "the line art"
+    },
+    "lineWeight": 0.02,
+    "source": "https://raw.githubusercontent.com/carbon-design-system/carbon/f615c75c44f550522a81456cb31c25ad2196cbf2/packages/pictograms/src/svg/data--scientist.svg",
+    "licence": "Apache-2.0 (IBM Carbon Design System pictograms)",
+    "credit": null
+  },
+  "flask-line": {
+    "set": "carbon",
+    "file": "carbon/flask-line.svg",
+    "title": "Erlenmeyer flask (line)",
+    "tags": [
+      "flask",
+      "chemistry",
+      "lab",
+      "experiment",
+      "line"
+    ],
+    "style": "line",
+    "projection": "front",
+    "roles": {
+      "ink": "the line art"
+    },
+    "lineWeight": 0.02,
+    "source": "https://raw.githubusercontent.com/carbon-design-system/carbon/f615c75c44f550522a81456cb31c25ad2196cbf2/packages/pictograms/src/svg/erlenmeyer--flask.svg",
+    "licence": "Apache-2.0 (IBM Carbon Design System pictograms)",
+    "credit": null
+  }
+}

@@ -91,11 +91,11 @@ export function DiffSectionHeader({
             }}
             title={translate(
               'auto.components.editor.EditorPanelHeader.fb8331694e',
-              'Open Preview to the Side'
+              'Open preview to the side'
             )}
             aria-label={translate(
               'auto.components.editor.EditorPanelHeader.fb8331694e',
-              'Open Preview to the Side'
+              'Open preview to the side'
             )}
           >
             <Eye className="size-3.5" />

@@ -181,7 +181,7 @@ export function AutomationListLocalRow({
         disabled={!canRunNow}
         label={
           automationRunAvailability.canRunNow
-            ? translate('auto.components.automations.AutomationsPage.2faecab10b', 'Run Now')
+            ? translate('auto.components.automations.AutomationsPage.2faecab10b', 'Run now')
             : automationRunAvailability.message
         }
         onSelect={() => onRunNow(row)}
@@ -300,7 +300,7 @@ export function AutomationListLocalRow({
                 <Play className="size-3.5" />
                 <span className="min-w-0 truncate">
                   {automationRunAvailability.canRunNow
-                    ? translate('auto.components.automations.AutomationsPage.2faecab10b', 'Run Now')
+                    ? translate('auto.components.automations.AutomationsPage.2faecab10b', 'Run now')
                     : automationRunAvailability.message}
                 </span>
               </DropdownMenuItem>

@@ -192,7 +192,7 @@ export function GitHubRateLimitPanel({
             <Gauge className="size-4" />
             {translate(
               'auto.components.github.github.rate.limit.display.58c5f88216',
-              'GitHub API Budget'
+              'GitHub API budget'
             )}
           </div>
           <p className="text-xs text-muted-foreground">
@@ -214,7 +214,7 @@ export function GitHubRateLimitPanel({
           type="button"
           onClick={() => void refresh(true)}
           disabled={isFetching}
-          className="inline-flex size-7 items-center justify-center rounded-md border border-border bg-secondary text-secondary-foreground transition hover:bg-accent disabled:opacity-50"
+          className="inline-flex size-7 items-center justify-center rounded-md border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-accent disabled:opacity-50"
           aria-label={translate(
             'auto.components.github.github.rate.limit.display.d12d3d6f33',
             'Refresh GitHub API budget'

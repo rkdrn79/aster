@@ -168,13 +168,13 @@ export function AgentSessionContinuationDialog({
             <MessageSquarePlus className="size-4" />
             {translate(
               'components.agentSessionContinuation.dialogTitle',
-              'Hand Off to Another Agent'
+              'Hand off to another agent'
             )}
           </DialogTitle>
           <DialogDescription className="text-xs">
             {translate(
               'components.agentSessionContinuation.dialogDescription',
-              'Start a fresh Agent session from this stopping point. The original session stays unchanged.'
+              'Start a fresh agent session from this stopping point. The original session stays unchanged.'
             )}
           </DialogDescription>
         </DialogHeader>
@@ -220,21 +220,21 @@ export function AgentSessionContinuationDialog({
               <p className="text-[11px] text-muted-foreground">
                 {translate(
                   'components.agentSessionContinuation.detectingAgents',
-                  'Detecting Agents on this workspace host…'
+                  'Detecting agents on this workspace host…'
                 )}
               </p>
             ) : detectionFailed ? (
               <p className="text-[11px] text-destructive">
                 {translate(
                   'components.agentSessionContinuation.detectionFailed',
-                  'Could not detect Agents on this workspace host.'
+                  'Could not detect agents on this workspace host.'
                 )}
               </p>
             ) : agents.length === 0 ? (
               <p className="text-[11px] text-muted-foreground">
                 {translate(
                   'components.agentSessionContinuation.noAgents',
-                  'No enabled Agents were detected on this workspace host.'
+                  'No enabled agents were detected on this workspace host.'
                 )}
               </p>
             ) : null}
@@ -259,7 +259,7 @@ export function AgentSessionContinuationDialog({
                 <SelectItem value="focused">
                   {translate(
                     'components.agentSessionContinuation.modeFocused',
-                    'Focused handoff (Recommended)'
+                    'Focused handoff (recommended)'
                   )}
                 </SelectItem>
                 <SelectItem value="full" disabled={!hasFullContext}>
@@ -278,7 +278,7 @@ export function AgentSessionContinuationDialog({
                   )
                 : translate(
                     'components.agentSessionContinuation.modeFullDescription',
-                    'Asks the new Agent to read the complete saved session before continuing. This can take longer and use significant context, plan usage, or API credits.'
+                    'Asks the new agent to read the complete saved session before continuing. This can take longer and use significant context, plan usage, or API credits.'
                   )}
             </p>
           </div>
@@ -309,7 +309,7 @@ export function AgentSessionContinuationDialog({
             {showStarting ? <Loader2 className="size-3.5 animate-spin" /> : null}
             {starting
               ? translate('components.agentSessionContinuation.starting', 'Starting…')
-              : translate('components.agentSessionContinuation.startSession', 'Start New Session')}
+              : translate('components.agentSessionContinuation.startSession', 'Start new session')}
           </Button>
         </DialogFooter>
       </DialogContent>

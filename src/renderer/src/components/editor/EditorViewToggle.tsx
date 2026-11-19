@@ -35,7 +35,7 @@ const DEFAULT_VIEW_MODE_METADATA: Record<EditorToggleValue, ViewModeMetadata> = 
   },
   rich: {
     get label() {
-      return translate('auto.components.editor.EditorViewToggle.aff15f94f5', 'Rich Editor')
+      return translate('auto.components.editor.EditorViewToggle.aff15f94f5', 'Rich editor')
     },
     icon: Pencil
   },

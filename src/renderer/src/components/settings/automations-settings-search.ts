@@ -4,7 +4,7 @@ import { translateSearchKeyword } from './settings-search-keywords'
 
 export const getAutomationsSettingsSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.automations.showButton', 'Show Automations Button'),
+    title: translate('auto.components.settings.automations.showButton', 'Show Automations button'),
     description: translate(
       'auto.components.settings.automations.showButtonDescription',
       'Show the Automations shortcut in the sidebar.'

@@ -202,7 +202,7 @@ function LoopStartBody({
       <DialogHeader>
         <DialogTitle>Start research loop</DialogTitle>
         <DialogDescription>
-          An agent runs experiments toward your objective and stops at the budget.
+          An agent runs experiments toward your objective and stops at the budget
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-4">
@@ -298,7 +298,7 @@ function LoopStartBody({
             maxLength={4000}
           />
           <p className="text-xs text-muted-foreground">
-            Sent to the agent as an execution limit; this does not reserve a GPU.
+            Sent to the agent as an execution limit; this does not reserve a GPU
           </p>
         </Field>
         <Field label="Agent">
@@ -318,7 +318,7 @@ function LoopStartBody({
             </SelectContent>
           </Select>
           {menu.state === 'settled' && !agents.length ? (
-            <p className="text-xs text-muted-foreground">Install Claude Code or Codex first.</p>
+            <p className="text-xs text-muted-foreground">Install Claude Code or Codex first</p>
           ) : null}
         </Field>
         {error ? (

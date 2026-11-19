@@ -321,7 +321,7 @@ export function NativeChatResumeOnRestartModal(): React.JSX.Element | null {
                   'Select all chats'
                 )}
               >
-                <span className="min-w-0 truncate text-xs font-semibold text-muted-foreground">
+                <span className="min-w-0 truncate text-xs font-medium text-muted-foreground">
                   {selectAllLabel}
                 </span>
                 <span className="ml-auto shrink-0 pl-2 text-[11px] tabular-nums text-muted-foreground">

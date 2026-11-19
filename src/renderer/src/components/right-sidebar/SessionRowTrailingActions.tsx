@@ -115,7 +115,7 @@ export function SessionRowTrailingActions({
                   size="icon-xs"
                   aria-label={translate(
                     'auto.components.right.sidebar.AiVaultSessionRow.jumpToOriginalPane',
-                    'Jump to Original Pane'
+                    'Jump to original pane'
                   )}
                   draggable={false}
                   onClick={(event) => {
@@ -131,7 +131,7 @@ export function SessionRowTrailingActions({
               <TooltipContent side="top" sideOffset={4}>
                 {translate(
                   'auto.components.right.sidebar.AiVaultSessionRow.jumpToOriginalPane',
-                  'Jump to Original Pane'
+                  'Jump to original pane'
                 )}
               </TooltipContent>
             </Tooltip>
@@ -185,7 +185,7 @@ export function SessionRowTrailingActions({
                   size="icon-xs"
                   aria-label={translate(
                     'components.agentSessionContinuation.handOffToAnotherAgent',
-                    'Hand Off to Another Agent'
+                    'Hand off to another agent'
                   )}
                   draggable={false}
                   onClick={(event) => {
@@ -201,7 +201,7 @@ export function SessionRowTrailingActions({
               <TooltipContent side="top" sideOffset={4}>
                 {translate(
                   'components.agentSessionContinuation.handOffToAnotherAgent',
-                  'Hand Off to Another Agent'
+                  'Hand off to another agent'
                 )}
               </TooltipContent>
             </Tooltip>
@@ -248,7 +248,7 @@ export function SessionRowTrailingActions({
                   size="icon-xs"
                   aria-label={translate(
                     'auto.components.right.sidebar.AiVaultSessionRow.moreSessionActions',
-                    'More Session Actions'
+                    'More session actions'
                   )}
                   draggable={false}
                   data-testid="ai-vault-session-more-actions"
@@ -261,7 +261,7 @@ export function SessionRowTrailingActions({
             <TooltipContent side="top" sideOffset={4}>
               {translate(
                 'auto.components.right.sidebar.AiVaultSessionRow.moreActions',
-                'More Actions'
+                'More actions'
               )}
             </TooltipContent>
           </Tooltip>

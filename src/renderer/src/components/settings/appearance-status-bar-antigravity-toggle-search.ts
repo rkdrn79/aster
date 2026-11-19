@@ -13,7 +13,7 @@ export function getAntigravityStatusBarToggleSearchEntry(): {
     id: 'antigravity',
     title: translate(
       'auto.components.settings.appearance.search.antigravityUsageTitle',
-      'Antigravity Usage'
+      'Antigravity usage'
     ),
     description: translate(
       'auto.components.settings.appearance.search.antigravityUsageDescription',

@@ -211,12 +211,13 @@
           "hiddenCount": "{{value0}} hidden"
         },
         "ActivityThreadContextMenu": {
-          "clearMany_one": "Clear {{count}} Agent from List",
-          "clearMany_other": "Clear {{count}} Agents from List",
-          "markManyRead_one": "Mark {{count}} Agent Read",
-          "markManyRead_other": "Mark {{count}} Agents Read",
-          "markManyUnread_one": "Mark {{count}} Agent Unread",
-          "markManyUnread_other": "Mark {{count}} Agents Unread"
+          "clearMany_one": "Clear {{count}} agent from list",
+          "clearMany_other": "Clear {{count}} agents from list",
+          "copyPath": "Copy path",
+          "markManyRead_one": "Mark {{count}} agent read",
+          "markManyRead_other": "Mark {{count}} agents read",
+          "markManyUnread_one": "Mark {{count}} agent unread",
+          "markManyUnread_other": "Mark {{count}} agents unread"
         }
       },
       "artifacts": {
@@ -885,7 +886,7 @@
             "383cf92c73": "tree",
             "3a231c845b": "unknown",
             "424ee0e5bf": "error",
-            "48a003c1b1": "Staged Changes",
+            "48a003c1b1": "Staged changes",
             "522f44dce5": "Untracked Files",
             "527e130b6f": "Stop generating",
             "77afaa8152": "All",
@@ -1191,9 +1192,6 @@
           "fa882a3e6b": "Show the Automations button at the top of the left sidebar.",
           "statusBarCount": "{{value0}} indicators visible.",
           "workspaceCardLayoutGuidance": "Managed from the workspace sidebar."
-        },
-        "AutoRenameBranchFromWorkSetting": {
-          "ef787db0e3": "Auto-Rename Branch"
         },
         "AutoRenameBranchPromptEditor": {
           "0691753cf2": "Unsaved changes",
@@ -1646,12 +1644,12 @@
           "description": "{{name}} no longer accepts this computer. On {{name}}, open Settings → Remote Aster Servers → Share this host, create a link for another Aster client, then paste it here."
         },
         "Settings": {
-          "084d8fac5b": "Privacy & Security",
+          "084d8fac5b": "Privacy and security",
           "2309068a6f": "destructive",
-          "23931df7e8": "Remote Hosts",
-          "23c6874fdf": "AI Capabilities",
+          "23931df7e8": "Remote hosts",
+          "23c6874fdf": "AI capabilities",
           "8bd117d669": "Interface",
-          "9abb9be3bc": "Set Up",
+          "9abb9be3bc": "Set up",
           "b5ee17826b": "Pair remote Aster runtimes for persistent sessions, richer remote state, and web or mobile handoff.",
           "dd72ed437a": "Choose which task providers appear in the Tasks page and sidebar.",
           "e1578cd4bc": "Workflows",
@@ -1760,8 +1758,8 @@
         "WarpThemeImportModal": {
           "found_theme_one": "Found 1 theme",
           "found_theme_other": "Found {{value0}} themes",
-          "import_theme_one": "Import 1 Theme",
-          "import_theme_other": "Import {{value0}} Themes"
+          "import_theme_one": "Import 1 theme",
+          "import_theme_other": "Import {{value0}} themes"
         },
         "WslCliRegistration": {
           "41a1480d3e": "install",
@@ -1852,15 +1850,6 @@
           "enableDescription": "Add Artifacts to the sidebar so you can open and delete shared files.",
           "openArtifactsDescription": "View and delete links shared through your account.",
           "signInRequired": "Sign in is required to upload and manage artifacts."
-        },
-        "auto": {
-          "rename": {
-            "branch": {
-              "search": {
-                "427f2cd1eb": "Auto-Rename Branch"
-              }
-            }
-          }
         },
         "bitbucket": {
           "credentials": {
@@ -2013,8 +2002,7 @@
           "terminalQuickCommands": "Commands are saved on this client, then scoped globally or to a project setup so they run from the selected terminal context."
         },
         "shareSkills": {
-          "refreshLinks": "Refresh",
-          "showButton": "Show Skills button"
+          "refreshLinks": "Refresh"
         },
         "ssh": {
           "search": {
@@ -2167,8 +2155,8 @@
           "5e1b8d3f62": "Hide external worktrees permanently"
         },
         "PreservedBranchBatchReviewDialog": {
-          "a0f9863597_one": "Force Delete {{count}} Branch",
-          "a0f9863597_other": "Force Delete {{count}} Branches"
+          "a0f9863597_one": "Force delete {{count}} branch",
+          "a0f9863597_other": "Force delete {{count}} branches"
         },
         "ProjectGroupDeleteDialog": {
           "897e5d3d4c": "Delete Group and Remove Projects",
@@ -2333,14 +2321,14 @@
               "toast": {
                 "0e0379f24a_one": "{{count}} branch kept",
                 "0e0379f24a_other": "{{count}} branches kept",
-                "6310412304_one": "Review {{count}} Branch",
-                "6310412304_other": "Review {{count}} Branches",
+                "6310412304_one": "Review {{count}} branch",
+                "6310412304_other": "Review {{count}} branches",
                 "a3cdd9d9e6_one": "Git kept {{count}} local branch because it may contain unmerged commits. Kept branches do not retain workspace folders; their commits remain in the repository. Aster may continue freeing workspace disk space in the background.",
                 "a3cdd9d9e6_other": "Git kept {{count}} local branches because they may contain unmerged commits. Kept branches do not retain workspace folders; their commits remain in the repository. Aster may continue freeing workspace disk space in the background.",
                 "cea24c2b7d_one": "{{count}} workspace removed",
                 "cea24c2b7d_other": "{{count}} workspaces removed",
-                "d42f1f14e0_one": "Retry {{count}} Branch",
-                "d42f1f14e0_other": "Retry {{count}} Branches"
+                "d42f1f14e0_one": "Retry {{count}} branch",
+                "d42f1f14e0_other": "Retry {{count}} branches"
               }
             }
           }
@@ -2843,6 +2831,18 @@
           "MobileDriverOverlay": {
             "3eed73394f": "Your keyboard is paused"
           },
+          "TerminalContextMenu": {
+            "06c2b0f043": "Equalize pane sizes",
+            "20e565d865": "Split terminal right",
+            "2cf85a6a55": "Copy pane ID",
+            "39809d152f": "Set title…",
+            "8a7ddb8b8a": "Fork agent session…",
+            "8c17d6786d": "Close pane",
+            "925f49f210": "Expand pane",
+            "98bccf4fa2": "Split terminal down",
+            "copyTerminalId": "Copy terminal ID",
+            "df766809e0": "Collapse pane"
+          },
           "TerminalErrorToast": {
             "hostTerminalCap": "The host is already running as many terminals as Aster allows. Close a terminal you no longer need, then try again.",
             "ptyAllocationLimit": "Your system cannot allocate any more pty devices. Close some terminals you are not using, in Aster or another program, then try again.",
@@ -3123,7 +3123,7 @@
       "composer": {
         "effort": "Effort",
         "imageUnsupported": "Image paste is not supported for this agent.",
-        "placeholder": "Ask anything, @ to mention files, / for commands"
+        "placeholder": "Message the agent, @ for files, / for commands"
       },
       "failureWords": {
         "accountSwitchInProgress": "{{agent}}'s setup is changing on this host. Try again after it finishes.",
@@ -3256,6 +3256,9 @@
       },
       "resumeInNewChat": {
         "cannotResume": "This {{agent}} conversation can't be resumed in a native chat."
+      },
+      "rewind": {
+        "confirmation": "Discard this message and everything after it? The message returns to the composer so you can edit and resend it. File changes on disk are kept."
       },
       "state": {
         "empty": {
@@ -3408,6 +3411,18 @@
           "reviewStatus": "See issue state, review status, and CI checks on every worktree",
           "startWorkspaceFromIssue": "Start a workspace from any GitHub issue or pull request, prefilled with its title and context"
         }
+      }
+    },
+    "tab": {
+      "bar": {
+        "SortableTabContextMenu": {
+          "switchToTerminalView": "Continue with terminal agent"
+        }
+      }
+    },
+    "terminalPane": {
+      "TerminalContextMenu": {
+        "copySessionId": "Copy session ID"
       }
     },
     "workspace": {

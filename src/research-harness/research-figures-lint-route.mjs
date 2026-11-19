@@ -1,9 +1,11 @@
 // Lint for routes and rows: slanted connectors, routes with many bends or along another shape's
 // edge, stub, chained or hidden arrows, boxes that almost line up, and uneven spacing.
+import { distanceToBounds, elementBounds } from './research-figures-geometry.mjs'
 import { absolutePoints } from './research-figures-labels.mjs'
 import { AXIS, SNAP, boxOf, routeObstacles, segmentMeets } from './research-figures-route.mjs'
 
 const SIBLINGS = new Set(['rectangle', 'ellipse', 'diamond', 'image'])
+const visible = (color) => Boolean(color) && color !== 'transparent'
 /** Gaps further apart than this are a choice (a label sits there), not a slip. */
 const SPACING = 4
 /** Offsets up to this many units (1 pt) are not a near miss: they do not show at print. */
@@ -13,6 +15,10 @@ const ELLIPSIS = /^\s*(?:⋯|…|⋮|\.{3}|·{3})\s*$/
 const round = (value) => Math.round(value * 10) / 10
 
 /** A path without repeated or straight-through points: what is left are its corners. */
+/** The shortest arrow with a head (a head and a shaft) and the shortest headless trunk. */
+const STUB_ARROW = 12
+const STUB_TRUNK = 4
+
 function corners(points) {
   const kept = []
   for (const point of points) {
@@ -63,7 +69,7 @@ function routeChecks(elements, add) {
         'warning',
         'many-bends',
         arrow,
-        `bends ${path.length - 2} times; move the shapes so one bend (at most two) reaches, or drop its via`
+        `bends ${path.length - 2} times; move the shapes so one bend (at most two) reaches, or drop its via (fig.allow('many-bends', [id]) for a deliberate long return path)`
       )
     }
     if (path.length < 3) {
@@ -301,14 +307,18 @@ function alignChecks(boxes, elements, add) {
           (box) => box.parent === a.parent && offsetsOf(a, box, axis)[0][1] < SNAP
         )
       )
-      if (!joined.has(`${a.id}|${b.id}`) && run.size < 3) {
+      const linkedPair = joined.has(`${a.id}|${b.id}`)
+      if (!linkedPair && run.size < 3) {
         continue
       }
+      // Why a warning when nothing joins them: items in two groups that only happen to stack
+      // (a row above, a column below) are not a slip the reader sees.
       add(
-        'error',
+        linkedPair ? 'error' : 'warning',
         'near-miss-align',
         b.element,
-        `${b.id} and ${a.id} are ${round(offset)} units apart (${name}) in their ${axis === 0 ? 'row' : 'column'}; line them up exactly (fig.align, fig.row, fig.column)`
+        `${b.id} and ${a.id} are ${round(offset)} units apart (${name}) in their ${axis === 0 ? 'row' : 'column'}; line them up exactly (fig.align, fig.row, fig.column)${linkedPair ? '' : `, or, when they belong to different groups, move one 8 units or more off or fig.allow('near-miss-align', ['${b.id}'])`}`,
+        { also: a.element }
       )
     }
   }
@@ -410,37 +420,92 @@ function lengthInside(points, box) {
   return total
 }
 
+/** The angle in degrees between the last run of one path and the first run of another. */
+function turnAngle(points, next) {
+  const a = [points.at(-1)[0] - points.at(-2)[0], points.at(-1)[1] - points.at(-2)[1]]
+  const b = [next[1][0] - next[0][0], next[1][1] - next[0][1]]
+  const norm = Math.hypot(...a) * Math.hypot(...b) || 1
+  return (Math.acos(Math.max(-1, Math.min(1, (a[0] * b[0] + a[1] * b[1]) / norm))) * 180) / Math.PI
+}
+
+/**
+ * Whether two arrows that meet tip to end meet at something, not in mid-line: both bound to the
+ * same shape (a dot, a node, a box), a drawn shape at the meeting point, or two slanted vectors
+ * drawn head to tail at an angle (a step, then a projection), as geometry figures draw sums.
+ */
+function joinedAt(arrow, other, side, points, meeting, nodes) {
+  const shape = arrow.endBinding?.elementId
+  if (shape && other.arrow[side]?.elementId === shape) {
+    return true
+  }
+  const tip = points.at(-1)
+  if (
+    nodes.some(
+      (node) =>
+        Math.min(node.width, node.height) <= 48 &&
+        distanceToBounds(tip, elementBounds(node)) <= 4 &&
+        distanceToBounds(meeting, elementBounds(node)) <= 4
+    )
+  ) {
+    return true
+  }
+  const slanted = (element) => element.customData?.asterDiagonal || element.customData?.asterCurve
+  if (side === 'startBinding' && slanted(arrow) && slanted(other.arrow) && points.length > 1) {
+    return turnAngle(points, other.points) > 20
+  }
+  return false
+}
+
 /** Stub arrows, arrows chained head to tail, arrows a later filled shape covers, \frac labels. */
 function arrowChecks(elements, add) {
   const arrows = elements.filter((element) => element.type === 'arrow')
   const index = new Map(elements.map((element, position) => [element.id, position]))
   const ends = arrows.map((arrow) => ({ arrow, points: absolutePoints(arrow) }))
+  const nodes = elements.filter(
+    (element) =>
+      SIBLINGS.has(element.type) &&
+      !element.customData?.asterPanel &&
+      !element.customData?.asterContainer &&
+      (visible(element.strokeColor) || visible(element.backgroundColor))
+  )
   for (const { arrow, points } of ends) {
     const length = runLength(points)
-    if (points.length > 1 && length < 12) {
+    // Why less for a line with no head: a fork's trunk to its junction dot only has to show; 12
+    // is a head and a shaft, which the kit leaves between shapes 16 units apart (its end gaps).
+    const headless = !arrow.endArrowhead && !arrow.startArrowhead
+    if (points.length > 1 && length < (headless ? STUB_TRUNK : STUB_ARROW)) {
+      const ends = (arrow.startBinding?.gap ?? 0) + (arrow.endBinding?.gap ?? 0)
       add(
         'warning',
         'stub-arrow',
         arrow,
-        `is ${Math.round(length)} units long, little more than its head; lengthen it (move the shapes apart) or drop it`
+        headless
+          ? `is a ${Math.round(length)}-unit line, too short to show; move its junction farther out (fork or merge split: { x } or { y }) or leave more room between the shapes`
+          : `is ${Math.round(length)} units long${ends ? ` between shapes ${Math.round(length + ends)} apart` : ''}, little more than its head; leave 16 units (8 pt) or more between the shapes it joins, or drop it`
       )
     }
-    if (arrow.endArrowhead) {
+    // Why not a U-Net's own skips: fig.unet nests them on one edge on purpose (round 15: the
+    // agent had to allow arrow-chain for the template's drawing).
+    // Why not fig.skipArcs either: dense skip arcs land on one plane together by design.
+    const together = arrow.customData?.asterLink?.unet || arrow.customData?.asterLink?.skipArcs
+    if (arrow.endArrowhead && !together) {
       const tip = points.at(-1)
       // Why both: a head at another arrow's start, or two heads meeting tip to tip.
       const next = ends.find(
         (other) =>
           other.arrow !== arrow &&
-          (Math.hypot(other.points[0][0] - tip[0], other.points[0][1] - tip[1]) < 6 ||
+          ((Math.hypot(other.points[0][0] - tip[0], other.points[0][1] - tip[1]) < 6 &&
+            !joinedAt(arrow, other, 'startBinding', points, other.points[0], nodes)) ||
             (other.arrow.endArrowhead &&
-              Math.hypot(other.points.at(-1)[0] - tip[0], other.points.at(-1)[1] - tip[1]) < 6))
+              Math.hypot(other.points.at(-1)[0] - tip[0], other.points.at(-1)[1] - tip[1]) < 6 &&
+              !joinedAt(arrow, other, 'endBinding', points, other.points.at(-1), nodes)))
       )
       if (next) {
         add(
           'warning',
           'arrow-chain',
           arrow,
-          `ends where ${next.arrow.id} starts or ends, a head in the middle of a line; draw one arrow (via) or end both at a shape or a junction`
+          `ends where ${next.arrow.id} starts or ends, a head in the middle of a line; draw one arrow (via) or end both at a shape or a junction (a dot), or fig.allow('arrow-chain', ids) for vectors drawn head to tail`
         )
       }
     }

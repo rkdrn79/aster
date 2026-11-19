@@ -160,7 +160,7 @@ export function FirstPromptCard({
 
   return (
     <section className="space-y-1.5">
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
         <span className="text-muted-foreground/80">
           <TextCursorInput className="size-3" />
         </span>
@@ -168,7 +168,7 @@ export function FirstPromptCard({
       </div>
       <div className="rounded-md border border-border/70 bg-foreground/[0.04] px-2.5 py-2">
         <div className="mb-1 flex items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+          <div className="flex min-w-0 items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
             <span>
               {translate('auto.components.right.sidebar.AiVaultSessionDetails.userRole', 'You')}
             </span>

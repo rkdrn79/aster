@@ -141,7 +141,7 @@ export function SidebarProjectFilterPanel({
           selectedRepos.length > 0
             ? translate(
                 'auto.components.sidebar.SidebarRepositoryFilterSection.5a273fbfce',
-                'Add project...'
+                'Add project'
               )
             : translate(
                 'auto.components.sidebar.SidebarRepositoryFilterSection.83a820fa71',

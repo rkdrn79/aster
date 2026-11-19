@@ -88,9 +88,7 @@ export function TabStripSubagentsIndicator({
       </PopoverTrigger>
       <PopoverContent align="start" className="w-80 max-w-[calc(100vw-1rem)]">
         <div className="p-1">
-          <p className="px-2 pt-1.5 pb-1 text-2xs font-semibold tracking-widest text-muted-foreground uppercase">
-            Subagents
-          </p>
+          <p className="px-2 pt-1.5 pb-1 text-xs font-medium text-muted-foreground">Subagents</p>
           <ul
             role="list"
             aria-label="Subagents"

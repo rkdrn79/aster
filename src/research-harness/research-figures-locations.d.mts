@@ -23,8 +23,11 @@ export type ListedFigure = FigureFolderListing['figures'][number] & {
   location: FigureLocation
 }
 export type ListedFigureFile = FigureFolderListing['others'][number] & { folder: string }
+/** A plot of the working folder: `src/<slug>.plot.py` and what running it writes. */
+export type ListedPlot = FigureFolderListing['plots'][number] & { folder: string }
 export type FigureListing = {
   figures: ListedFigure[]
+  plots: ListedPlot[]
   others: ListedFigureFile[]
   /** Older figures with the same name as a working one: not opened, never touched. */
   shadowed: { slug: string; folder: string }[]

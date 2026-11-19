@@ -2,6 +2,7 @@ import { FlaskConical } from 'lucide-react'
 import { useDeadlineClock } from '@/features/research/use-deadline-clock'
 import { usePhoneNavigation } from './phone-navigation-store'
 import {
+  usePhoneLiveOverviewPolling,
   usePhoneResearchOverviewRefresh,
   usePhoneResearchOverviews
 } from './phone-research-overviews'
@@ -29,6 +30,7 @@ export function PhoneRunsScreen(): React.JSX.Element {
     project.workspaces[0] ? [{ project, worktreeId: project.workspaces[0].id }] : []
   )
   usePhoneResearchOverviewRefresh(primaries.map((entry) => entry.worktreeId))
+  usePhoneLiveOverviewPolling(primaries.map((entry) => entry.worktreeId))
   const overviews = usePhoneResearchOverviews((state) => state.byWorktreeId)
   const multipleProjects = primaries.length > 1
   const rows = primaries

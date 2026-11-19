@@ -1,7 +1,7 @@
 import { useRef, type ReactNode } from 'react'
 import { History, MessageSquareText, Shapes } from 'lucide-react'
 import { create } from 'zustand'
-import { cn } from '@/lib/utils'
+import { ResearchSegmentedTrack, researchSegmentClass } from './research-segmented-track'
 import type { FiguresAgentScope } from './research-figures-agent-session'
 import type { ProjectFileOwner } from './research-project-files'
 
@@ -10,8 +10,10 @@ export type FigureSidePanelContext = {
   owner: ProjectFileOwner
   /** Project-relative working folder, e.g. `.aster/figures`; null while it loads. */
   folder: string | null
-  /** The open editable figure; null for none or a read-only plot. */
+  /** The open editable figure; null for none, a plot or a read-only file. */
   slug: string | null
+  /** The open plot; null when no plot is open. */
+  plot?: string | null
   manuscript: string | null
   scope: FiguresAgentScope
 }
@@ -141,52 +143,53 @@ export function ResearchFigureSidePanel({
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div
-        ref={listRef}
-        role="tablist"
-        aria-label="Figure side panel"
-        className="flex shrink-0 items-center gap-0.5 border-b border-border px-2 py-1"
-        onKeyDown={onKeyDown}
-      >
-        {tabs.map((tab) => {
-          const selected = tab.id === active
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              data-tab-id={tab.id}
-              id={`figure-side-tab-${tab.id}`}
-              aria-label={tab.label}
-              aria-selected={selected}
-              aria-controls={`figure-side-panel-${tab.id}`}
-              tabIndex={selected ? 0 : -1}
-              className={cn(
-                'rounded-md px-2 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
-                selected && 'bg-accent text-foreground'
-              )}
-              onClick={() => openFigureSidePanelTab(tab.id)}
-            >
-              {tab.label}
-            </button>
-          )
-        })}
+      <div className="flex shrink-0 items-center px-3 pt-3 pb-2">
+        <ResearchSegmentedTrack
+          ref={listRef}
+          role="tablist"
+          aria-label="Figure side panel"
+          className="w-full"
+          onKeyDown={onKeyDown}
+        >
+          {tabs.map((tab) => {
+            const selected = tab.id === active
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                data-tab-id={tab.id}
+                data-state={selected ? 'active' : 'inactive'}
+                id={`figure-side-tab-${tab.id}`}
+                aria-label={tab.label}
+                aria-selected={selected}
+                aria-controls={`figure-side-panel-${tab.id}`}
+                tabIndex={selected ? 0 : -1}
+                className={researchSegmentClass(selected, 'flex-1')}
+                onClick={() => openFigureSidePanelTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            )
+          })}
+        </ResearchSegmentedTrack>
       </div>
       <div
         role="tabpanel"
         id={`figure-side-panel-${AGENT_TAB_ID}`}
         aria-labelledby={`figure-side-tab-${AGENT_TAB_ID}`}
-        className="min-h-0 flex-1 flex-col"
+        className="research-pane-in min-h-0 flex-1 flex-col"
         style={{ display: active === AGENT_TAB_ID ? 'flex' : 'none' }}
       >
         {agent}
       </div>
       {current && current.id !== AGENT_TAB_ID ? (
         <div
+          key={current.id}
           role="tabpanel"
           id={`figure-side-panel-${current.id}`}
           aria-labelledby={`figure-side-tab-${current.id}`}
-          className="flex min-h-0 flex-1 flex-col"
+          className="research-pane-in flex min-h-0 flex-1 flex-col"
         >
           {current.render ? current.render(context) : <Placeholder id={current.id} />}
         </div>

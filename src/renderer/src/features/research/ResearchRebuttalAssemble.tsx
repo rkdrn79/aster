@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Check, Copy, Save } from 'lucide-react'
+import { Save } from 'lucide-react'
+import { CopyCheckIcon } from '@/components/ui/animated-check'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
@@ -20,6 +21,8 @@ import { ResearchRebuttalPdfPanel } from './ResearchRebuttalPdfPanel'
 import { writeRebuttalOutput } from './research-rebuttal-mutations'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 import type { RebuttalActions } from './use-research-rebuttal-actions'
+import { ResearchProgressBar } from './research-progress-bar'
+import { RAISED_CARD } from './research-surface-classes'
 
 type Output = 'replies' | 'general' | 'pdf'
 
@@ -43,22 +46,20 @@ export function CharMeter({ chars, limit }: { chars: number; limit: number }): R
   const ratio = limit > 0 ? chars / limit : 0
   return (
     <div className="flex min-w-36 items-center gap-2">
-      <div
+      <ResearchProgressBar
         role="meter"
         aria-label="Characters used"
         aria-valuemin={0}
         aria-valuemax={limit}
         aria-valuenow={chars}
-        className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"
-      >
-        <div
-          className={cn(
-            'h-full rounded-full',
-            ratio > 1 ? 'bg-destructive' : ratio > 0.9 ? 'bg-status-warning' : 'bg-foreground/45'
-          )}
-          style={{ width: `${Math.min(100, ratio * 100)}%` }}
-        />
-      </div>
+        className="h-1.5 flex-1"
+        fills={[
+          {
+            fraction: ratio,
+            tone: ratio > 1 ? 'danger' : ratio > 0.9 ? 'warning' : 'muted'
+          }
+        ]}
+      />
       <span
         className={cn(
           'shrink-0 text-xs tabular-nums',
@@ -91,8 +92,8 @@ function OutputCard({
 }): React.JSX.Element {
   const [copied, setCopied] = useState(false)
   return (
-    <article aria-label={title} className="rounded-lg border border-border bg-card">
-      <header className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border px-3 py-2">
+    <article aria-label={title} className={cn(RAISED_CARD, 'overflow-hidden')}>
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 pt-3 pb-2">
         <h3 className="min-w-0 flex-1 truncate text-sm font-medium">{title}</h3>
         <CharMeter chars={chars} limit={limit} />
         <Button
@@ -105,28 +106,28 @@ function OutputCard({
             })
           }
         >
-          {copied ? <Check aria-hidden /> : <Copy aria-hidden />} {copied ? 'Copied' : 'Copy'}
+          <CopyCheckIcon copied={copied} /> {copied ? 'Copied' : 'Copy'}
         </Button>
       </header>
       {chars > limit ? (
-        <p className="border-b border-border px-3 py-1.5 text-xs text-destructive">
+        <p className="mx-4 mt-1 rounded-lg bg-destructive/8 px-3 py-2 text-xs text-destructive">
           {(chars - limit).toLocaleString()} characters over the limit. Shorten the answers below or
           ask the agent to check against limits.
         </p>
       ) : null}
       {missing.length ? (
-        <p className="border-b border-border px-3 py-1.5 text-xs text-status-warning">
+        <p className="mx-4 mt-1 rounded-lg bg-status-warning/10 px-3 py-2 text-xs text-status-warning">
           No answer yet for {missing.join(', ')}.
         </p>
       ) : null}
       {children}
-      <pre className="scrollbar-sleek max-h-96 overflow-auto px-3 py-2.5 font-sans text-sm leading-6 whitespace-pre-wrap break-words">
+      <pre className="scrollbar-sleek max-h-96 overflow-auto px-4 pt-2 pb-4 font-sans text-sm leading-6 whitespace-pre-wrap break-words">
         {text || 'Nothing to send yet.'}
       </pre>
       {translation ? (
         <section
           aria-label={`${translation.label} translation`}
-          className="mx-3 mb-3 border-l-2 border-border pl-2.5"
+          className="mx-4 mb-4 border-l-2 border-border pl-3"
         >
           <p className="text-3xs font-medium text-muted-foreground">
             {translation.label} · for reading only, not sent
@@ -287,7 +288,7 @@ export function ResearchRebuttalAssemble({
                 missing={reply.missing}
               >
                 {reply.round > 1 ? null : (
-                  <details className="border-b border-border px-3 py-2">
+                  <details className="mx-4 rounded-lg bg-muted/50 px-3 py-2 dark:bg-muted/40">
                     <summary className="cursor-pointer text-xs text-muted-foreground select-none">
                       Opening{reviewer?.opening ? '' : ' (none)'}
                     </summary>
@@ -299,7 +300,7 @@ export function ResearchRebuttalAssemble({
                       value={reviewer?.opening ?? ''}
                       readOnly={readOnly}
                       rows={3}
-                      placeholder="One or two sentences before the answers, e.g. thanks and the main change."
+                      placeholder="One or two sentences before the answers, e.g. thanks and the main change"
                       actions={actions}
                     />
                   </details>
@@ -308,7 +309,7 @@ export function ResearchRebuttalAssemble({
             )
           })
         ) : (
-          <p className="text-sm text-muted-foreground">Add reviews to assemble replies.</p>
+          <p className="text-sm text-muted-foreground">Add reviews to assemble replies</p>
         )
       ) : output === 'general' ? (
         <>
@@ -319,7 +320,7 @@ export function ResearchRebuttalAssemble({
               label="Intro"
               value={meta.general.intro}
               readOnly={readOnly}
-              placeholder="Thank the reviewers once and name the main changes."
+              placeholder="Thank the reviewers once and name the main changes"
               actions={actions}
             />
             <ResearchRebuttalSlotField
@@ -328,7 +329,7 @@ export function ResearchRebuttalAssemble({
               label="Closing"
               value={meta.general.closing}
               readOnly={readOnly}
-              placeholder="Optional closing sentence."
+              placeholder="Optional closing sentence"
               actions={actions}
             />
           </div>

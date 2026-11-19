@@ -26,7 +26,7 @@ test.describe('Terminal Panes', () => {
   registerTerminalPaneMountReadiness()
 
   test('Always-on pane header split button hover stays transparent', async ({ orcaPage }) => {
-    const splitButton = orcaPage.getByRole('button', { name: 'Split Terminal Right' })
+    const splitButton = orcaPage.getByRole('button', { name: 'Split terminal right' })
     await expect(splitButton).toBeVisible()
     await splitButton.hover()
 

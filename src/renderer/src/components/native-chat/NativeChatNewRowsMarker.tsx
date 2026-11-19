@@ -63,7 +63,7 @@ export function NativeChatNewRowsMarker({
       ref={ref}
       role="separator"
       aria-label={label}
-      className="flex items-center gap-3 text-2xs font-semibold uppercase tracking-[0.05em] text-chat-unread transition-opacity duration-300 ease-out starting:opacity-0 motion-reduce:transition-none"
+      className="flex items-center gap-3 text-2xs font-medium text-chat-unread transition-opacity duration-300 ease-out-quint starting:opacity-0 motion-reduce:transition-none"
     >
       <span>{label}</span>
       <span aria-hidden className="h-px flex-1 bg-chat-unread/50" />

@@ -265,6 +265,7 @@ function NativeChatMarkdownImagePreview({
               <TooltipContent side="bottom">{actionsLabel}</TooltipContent>
             </Tooltip>
             <DropdownMenuContent
+              data-native-chat-surface=""
               align="end"
               onCloseAutoFocus={(event) => {
                 if (handingOff.current || !open) {

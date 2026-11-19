@@ -151,8 +151,9 @@ export function makeAttention(spec, random = Math.random) {
     )
   // Why per position: rows and columns named by their tokens read without a note beside them.
   const positions = spec.labels ?? []
-  const rowWidth = Math.max(0, ...positions.map((value) => measureText(value, size).width))
-  const colFits = positions.every((value) => measureText(value, size).width <= cell + 2)
+  const family = styleOf(spec).fontFamily
+  const rowWidth = Math.max(0, ...positions.map((value) => measureText(value, size, family).width))
+  const colFits = positions.every((value) => measureText(value, size, family).width <= cell + 2)
   for (const [index, value] of positions.entries()) {
     labels.push(
       ...text(`row${index}`, value, { x: x - 4, align: 'right', cy: y + (index + 0.5) * cell })

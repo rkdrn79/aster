@@ -27,6 +27,14 @@ import * as organizeCli from './research-organize-cli.mjs'
 import * as ratingsCli from './research-ratings-cli.mjs'
 import * as rebuttalCli from './research-rebuttal-cli.mjs'
 import * as figuresCli from './research-figures-cli.mjs'
+import * as figuresPlotCli from './research-figures-plot-cli.mjs'
+import * as libraryCli from './research-library-cli.mjs'
+import * as figuresRefsCli from './research-figures-refs-cli.mjs'
+import * as figuresCarefulCli from './research-figures-careful-cli.mjs'
+import * as figuresArtCli from './research-figures-art-cli.mjs'
+import * as planCli from './research-plan-cli.mjs'
+import * as papersCli from './research-papers-cli.mjs'
+import * as writingCli from './research-writing-cli.mjs'
 import * as wandbCli from './research-wandb-cli.mjs'
 import { HarnessError, harnessErrorCode } from './research-harness-error.mjs'
 import { appendLoopNote, readLoopLedger } from './research-loop-ledger.mjs'
@@ -406,7 +414,15 @@ const laneClis = [
   analysisCli,
   wandbCli,
   rebuttalCli,
-  figuresCli
+  figuresCli,
+  figuresPlotCli,
+  figuresRefsCli,
+  figuresCarefulCli,
+  figuresArtCli,
+  planCli,
+  papersCli,
+  writingCli,
+  libraryCli
 ]
 const usage = coreUsage + laneClis.map((cli) => cli.usage).join('')
 const allCommands = Object.assign({}, ...laneClis.map((cli) => cli.commands), commands)
@@ -422,12 +438,13 @@ async function main(argv) {
       return
     }
     const command = allCommands[name]
-    // Why: `figures` or `figures --help` alone prints that group's commands.
-    const group = laneClis.find((cli) =>
+    // Why: `figures` or `figures --help` alone prints that group's commands, from every module
+    // that has some (diagrams and plots both live under figures).
+    const group = laneClis.filter((cli) =>
       Object.keys(cli.commands).some((key) => key.startsWith(`${name} `))
     )
-    if (!command && group) {
-      process.stdout.write(group.usage)
+    if (!command && group.length) {
+      process.stdout.write(group.map((cli) => cli.usage).join(''))
       return
     }
     if (!command) {

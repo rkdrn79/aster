@@ -199,6 +199,7 @@ test('an automatic loss lands on no closed outline and keeps its note on the pag
 test('loss links never cross a solid arrow, else the kit says where to put the loss', async () => {
   await withFigure(async (file) => {
     const fig = await openFigure(file)
+    fig.style(undefined, { look: 'preset' })
     fig.box({ id: 'p', label: 'prediction', x: 100, y: 60 })
     fig.box({ id: 't', label: 'target', x: 100, y: 260 })
     fig.box({ id: 'src', label: 'input', x: 400, y: 160 })

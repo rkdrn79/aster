@@ -17,8 +17,12 @@ function surface(overrides: Partial<NativeChatBranchSurface> = {}): NativeChatBr
     openerIds: new Set(['user-1']),
     isLatest: () => true,
     branchFrom: vi.fn(),
+    forkFrom: vi.fn(),
     editAndBranch: vi.fn(),
     branchChat: vi.fn(),
+    forkChat: vi.fn(),
+    subtask: vi.fn(),
+    rewindLatest: null,
     ...overrides
   }
 }
@@ -45,45 +49,67 @@ function row(role: NativeChatMessage['role'], branch: NativeChatBranchSurface, b
 }
 
 describe('Branch on a message', () => {
-  it("branches from the agent's reply in one click, next to its other hover actions", () => {
+  it("offers Branch and Fork on the agent's reply, next to its other hover actions", async () => {
     const branch = surface()
     row('assistant', branch)
-    const button = screen.getByRole('button', { name: 'Branch from here' })
-    expect(button).toHaveAttribute(
-      'aria-description',
-      'New chat with everything up to this reply. This chat stays as it is.'
-    )
-    fireEvent.click(button)
-    expect(branch.branchFrom).toHaveBeenCalledWith('reply-1')
-    const target = readNativeChatContextMenuTarget(button, {
+    const trigger = screen.getByRole('button', { name: 'Branch or fork' })
+    const target = readNativeChatContextMenuTarget(trigger, {
       root: null,
       composer: null,
       messageList: null,
       linkContext: null
     })
     expect(target.branchItem).toEqual({ id: 'reply-1', kind: 'agent' })
-  })
-
-  it("offers Edit and branch and Branch from here on the person's own message", async () => {
-    const branch = surface()
-    row('user', branch)
-    const trigger = screen.getByRole('button', { name: 'Branch' })
     act(() => {
       fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false })
+    })
+    expect(screen.queryByText('Edit and branch')).toBeNull()
+    expect(
+      await screen.findByText('A new chat up to this reply, and you switch to it. This chat stays.')
+    ).toBeTruthy()
+    fireEvent.click(await screen.findByText('Fork from here'))
+    expect(branch.forkFrom).toHaveBeenCalledWith('reply-1')
+    cleanup()
+    row('assistant', branch)
+    act(() => {
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'Branch or fork' }), {
+        button: 0,
+        ctrlKey: false
+      })
+    })
+    fireEvent.click(await screen.findByText('Branch from here'))
+    expect(branch.branchFrom).toHaveBeenCalledWith('reply-1')
+  })
+
+  it("offers Edit and branch, Branch from here and Fork from here on the person's message", async () => {
+    const branch = surface()
+    row('user', branch)
+    const trigger = screen.getByRole('button', { name: 'Branch or fork' })
+    act(() => {
+      fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false })
+    })
+    expect(
+      await screen.findByText('Asks this again in a background copy while you stay here.')
+    ).toBeTruthy()
+    fireEvent.click(await screen.findByText('Fork from here'))
+    expect(branch.forkFrom).toHaveBeenCalledWith('user-1')
+    // A fresh row, so the closed menu's fade-out is not what is clicked.
+    cleanup()
+    row('user', branch)
+    act(() => {
+      fireEvent.pointerDown(screen.getByRole('button', { name: 'Branch or fork' }), {
+        button: 0,
+        ctrlKey: false
+      })
     })
     fireEvent.click(await screen.findByText('Edit and branch'))
     expect(branch.editAndBranch).toHaveBeenCalledWith('user-1')
-    act(() => {
-      fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false })
-    })
-    fireEvent.click(await screen.findByText('Branch from here'))
-    expect(branch.branchFrom).toHaveBeenCalledWith('user-1')
   })
 
   it('shows the action disabled with its one-line reason, and runs nothing', async () => {
     const branch = surface({ disabledReason: "Gemini chats can't branch yet." })
     row('user', branch)
-    const button = screen.getByRole('button', { name: 'Branch from here' })
+    const button = screen.getByRole('button', { name: 'Branch or fork' })
     expect(button).toHaveAttribute('aria-disabled', 'true')
     act(() => button.focus())
     expect(await screen.findByRole('tooltip')).toHaveTextContent("Gemini chats can't branch yet.")
@@ -97,7 +123,7 @@ describe('Branch on a message', () => {
       isLatest: () => false
     })
     row('assistant', branch)
-    expect(screen.getByRole('button', { name: 'Branch from here' })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: 'Branch or fork' })).toHaveAttribute(
       'aria-description',
       'OpenCode chats can branch only from the latest message.'
     )
@@ -105,6 +131,6 @@ describe('Branch on a message', () => {
 
   it('draws nothing on a row not offered Branch, or with no branch surface', () => {
     row('assistant', surface(), false)
-    expect(screen.queryByRole('button', { name: 'Branch from here' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Branch or fork' })).toBeNull()
   })
 })

@@ -286,7 +286,7 @@ export function CommentRow({
           <div
             className={cn(
               'mt-1 flex flex-col gap-1.5',
-              presentation.useCardLayout ? 'px-3 pb-3' : isReply ? 'pl-5' : 'pl-[22px]'
+              presentation.useCardLayout ? 'px-3 pb-3' : isReply ? 'pl-5' : 'pl-6'
             )}
           >
             <textarea

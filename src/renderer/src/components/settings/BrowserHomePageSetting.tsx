@@ -22,7 +22,7 @@ export function BrowserHomePageSetting({
     <SearchableSetting
       title={translate(
         'auto.components.settings.BrowserHomePageSetting.70224e37b1',
-        'Default Home Page'
+        'Default home page'
       )}
       description={translate(
         'auto.components.settings.BrowserHomePageSetting.6a37540f4b',
@@ -35,7 +35,7 @@ export function BrowserHomePageSetting({
         <Label>
           {translate(
             'auto.components.settings.BrowserHomePageSetting.70224e37b1',
-            'Default Home Page'
+            'Default home page'
           )}
         </Label>
         <p className="text-xs text-muted-foreground">

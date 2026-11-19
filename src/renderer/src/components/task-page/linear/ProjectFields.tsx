@@ -56,7 +56,7 @@ export function TaskPageLinearProjectFields({
       <input
         value={newLinearProjectDescription}
         onChange={(event) => setNewLinearProjectDescription(event.target.value)}
-        placeholder={translate('auto.components.TaskPage.579f98afcd', 'Add a short summary...')}
+        placeholder={translate('auto.components.TaskPage.579f98afcd', 'Add a short summary')}
         disabled={newLinearProjectSubmitting}
         className="w-full border-none bg-transparent p-0 text-sm text-foreground outline-none placeholder:text-muted-foreground/45 focus:outline-none focus:ring-0 focus-visible:ring-0"
       />
@@ -75,7 +75,7 @@ export function TaskPageLinearProjectFields({
             </button>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-48 p-1">
-            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="px-2 py-1 text-[10px] font-medium text-muted-foreground">
               {translate('auto.components.TaskPage.c8d5bec5f7', 'Priority')}
             </div>
             {[0, 1, 2, 3, 4].map((priority) => (
@@ -118,7 +118,7 @@ export function TaskPageLinearProjectFields({
             </button>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-64 p-1">
-            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="px-2 py-1 text-[10px] font-medium text-muted-foreground">
               {translate('auto.components.TaskPage.34da8ac06c', 'Lead')}
             </div>
             {newLinearProjectMembers.loading ? (
@@ -201,7 +201,7 @@ export function TaskPageLinearProjectFields({
             </button>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-64 p-1">
-            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="px-2 py-1 text-[10px] font-medium text-muted-foreground">
               {translate('auto.components.TaskPage.d6cda23ef1', 'Members')}
             </div>
             {newLinearProjectMembers.loading ? (
@@ -269,7 +269,7 @@ export function TaskPageLinearProjectFields({
             </button>
           </PopoverTrigger>
           <PopoverContent align="start" className="w-64 p-1">
-            <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="px-2 py-1 text-[10px] font-medium text-muted-foreground">
               {translate('auto.components.TaskPage.d0ca4aa1d0', 'Labels')}
             </div>
             {newLinearProjectLabels.loading ? (
@@ -361,7 +361,7 @@ export function TaskPageLinearProjectFields({
           onChange={(event) => setNewLinearProjectContent(event.target.value)}
           placeholder={translate(
             'auto.components.TaskPage.cf72580c04',
-            'Write a description, project brief, or collect ideas...'
+            'Write a description, project brief, or collect ideas'
           )}
           rows={8}
           disabled={newLinearProjectSubmitting}

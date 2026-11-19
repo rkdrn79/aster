@@ -240,7 +240,7 @@ export default function TaskProjectSourceCombobox({
             autoFocus
             placeholder={translate(
               'auto.components.task.project.source.combobox.searchProjects',
-              'Search projects...'
+              'Search projects'
             )}
             value={query}
             onValueChange={setQuery}

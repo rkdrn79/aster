@@ -51,7 +51,7 @@ const sleepingStatusIconClassName = 'size-[13px] text-muted-foreground'
 // Why: a left-edge badge overlays unread on the status glyph without widening
 // the lane or indenting the title; ring-sidebar cuts the dot out from busy icons.
 const newCardUnreadAlertClassName =
-  'pointer-events-none absolute left-0 top-1/2 size-[6px] -translate-y-1/2 rounded-full bg-amber-500 ring-2 ring-sidebar'
+  'pointer-events-none absolute left-0 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-status-warning ring-2 ring-sidebar'
 
 function overlayNewCardUnreadStatus(
   status: React.JSX.Element,
@@ -220,7 +220,7 @@ export function WorktreeCardStatusSlot({
             onPointerDown={onPointerDown}
             onClick={onToggleUnread}
             className={cn(
-              'group/unread relative flex cursor-pointer items-center justify-center rounded transition-all',
+              'group/unread relative flex cursor-pointer items-center justify-center rounded transition-[background-color,transform]',
               newCardStyle && showStatus ? 'size-5' : 'size-4',
               'hover:bg-accent/80 active:scale-95',
               'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
@@ -247,7 +247,7 @@ export function WorktreeCardStatusSlot({
                 <span className="sr-only">{actionLabel}</span>
               )
             ) : isUnread ? (
-              <FilledBellIcon className="size-[13px] text-amber-500 drop-shadow-sm" />
+              <FilledBellIcon className="size-[13px] text-status-warning" />
             ) : showStatus ? (
               <>
                 <StatusIndicator

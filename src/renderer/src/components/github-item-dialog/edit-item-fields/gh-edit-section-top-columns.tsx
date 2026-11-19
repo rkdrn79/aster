@@ -77,7 +77,7 @@ export function GHEditSectionTopColumns({
   return (
     <aside className="grid grid-cols-2 gap-x-6 gap-y-5 text-[13px] sm:grid-cols-4">
       <section className="min-w-0">
-        <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+        <div className="mb-2 text-[11px] font-medium text-muted-foreground">
           {translate('auto.components.GitHubItemDialog.00ccdf9b5a', 'Status')}
         </div>
         <GHEditSectionStatusPopover
@@ -120,7 +120,7 @@ export function GHEditSectionTopColumns({
       />
       <section className="min-w-0">
         {/* Why: property columns are metadata only; the primary open/start CTA lives solely in the issue header. */}
-        <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+        <div className="mb-2 text-[11px] font-medium text-muted-foreground">
           {translate('auto.components.GitHubItemDialog.2e4d806c92', 'Workspace')}
         </div>
         {attachedWorkspaceLabel ? (

@@ -78,7 +78,7 @@ function resolvePrimaryActionLabel(
   if (decision.labelIntent === 'force_push') {
     return translate(
       'auto.components.right.sidebar.source.control.primary.action.390abeab93',
-      'Force Push'
+      'Force push'
     )
   }
   if (decision.labelIntent === 'create_pr') {
@@ -100,7 +100,7 @@ function resolvePrimaryActionLabel(
     case 'stage':
       return translate(
         'auto.components.right.sidebar.source.control.primary.action.18a0fca877',
-        'Stage All'
+        'Stage all'
       )
     case 'push':
       return translate(
@@ -120,7 +120,7 @@ function resolvePrimaryActionLabel(
     case 'publish':
       return translate(
         'auto.components.right.sidebar.source.control.primary.action.7b4d02e6b8',
-        'Publish Branch'
+        'Publish branch'
       )
     case 'create_pr_intent':
       return resolvePrimaryActionLabel({ ...decision, labelIntent: 'create_pr' }, inputs)
@@ -143,7 +143,7 @@ function resolvePrimaryActionTitle(
     case 'force_push_in_progress':
       return translate(
         'auto.components.right.sidebar.source.control.primary.action.74fc171e99',
-        'Force Push in progress…'
+        'Force push in progress…'
       )
     case 'action_in_progress':
       return translate(

@@ -56,7 +56,7 @@ export function CmdJPaletteTipDialog({
     >
       <DialogHeader className="gap-4 text-left">
         <div>
-          {/* Why: uppercase eyebrow reads as a category label, not a feature launch. */}
+          {/* Why: the eyebrow tag reads as a category label, not a feature launch. */}
           <FeatureTipEyebrow label={tip.eyebrow} />
           {/* Why: flow the shortcut chip as inline text (not a flex item) so the
                 short Mac label (⌘⇧J) stays on one line, while a wide label like

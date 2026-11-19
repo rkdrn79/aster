@@ -36,7 +36,7 @@ const NATIVE_CHAT_TOOL_GLYPHS: Record<NativeChatToolIconName, LucideIcon> = {
   brain: Brain
 }
 
-/** The fixed 16px slot with a 14px glyph, which keeps every row left-aligned
+/** The fixed 16px slot and glyph, which keeps every row left-aligned
  *  including rows whose category this vocabulary doesn't model. */
 function NativeChatGlyphSlot({
   glyph: Glyph,
@@ -47,7 +47,7 @@ function NativeChatGlyphSlot({
 }): React.JSX.Element {
   return (
     <span className={cn('flex size-4 shrink-0 items-center justify-center', className)}>
-      <Glyph aria-hidden className="size-3.5" />
+      <Glyph aria-hidden className="size-4" />
     </span>
   )
 }

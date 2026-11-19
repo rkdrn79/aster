@@ -92,10 +92,10 @@ export function useWorktreeJumpPaletteListEntries({
         id: `__header_open_tabs__${idSuffix}`,
         type: 'section-header',
         label: hasQuery
-          ? translate('auto.components.WorktreeJumpPalette.50a1d11d5b', 'Open Tabs')
+          ? translate('auto.components.WorktreeJumpPalette.50a1d11d5b', 'Open tabs')
           : translate(
               'auto.components.WorktreeJumpPalette.recentChatsTerminalsHeader',
-              'Recent Chats & Terminals'
+              'Recent chats & terminals'
             )
       })
     }
@@ -110,7 +110,7 @@ export function useWorktreeJumpPaletteListEntries({
           ? translate('auto.components.WorktreeJumpPalette.worktreesHeader', 'Workspaces')
           : translate(
               'auto.components.WorktreeJumpPalette.recentWorktreesHeader',
-              'Recent Workspaces'
+              'Recent workspaces'
             )
       })
     }
@@ -142,7 +142,7 @@ export function useWorktreeJumpPaletteListEntries({
             type: 'section-header',
             label: translate(
               'auto.components.WorktreeJumpPalette.projectsGroupsHeader',
-              'Projects & Groups'
+              'Projects & groups'
             )
           })
         }

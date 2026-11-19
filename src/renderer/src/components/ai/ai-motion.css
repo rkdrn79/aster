@@ -1,0 +1,50 @@
+/* ── AI surfaces ─────────────────────────────────────────
+   Motion for agent work: one ease-out curve, no overshoot and no loops. The step check draws
+   itself when a step finishes, and entrances rise once. Opacity only under reduced motion. */
+
+@keyframes ai-step-fill {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* Entrances (a sent message, an approval or question card) fade and rise 8px, once. */
+@keyframes ai-rise {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+
+.ai-rise {
+  animation: ai-rise 360ms var(--ease-out-quint) both;
+}
+
+/* Approval cards outside the chat draw lucide at the chat's weight. */
+[data-slot='tool-approval'] .lucide {
+  stroke-width: 1.5;
+}
+
+/* The finished step's disc grows in under its check (the check itself uses draw-stroke). */
+.ai-step-fill {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ai-step-fill var(--duration-base) var(--ease-out-quint) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-step-fill {
+    animation: none;
+  }
+  .ai-rise {
+    animation-name: ai-fade;
+    animation-duration: 140ms;
+  }
+}
+
+@keyframes ai-fade {
+  from {
+    opacity: 0;
+  }
+}

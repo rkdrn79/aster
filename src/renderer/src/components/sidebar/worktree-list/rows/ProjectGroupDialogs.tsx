@@ -35,8 +35,8 @@ export function SidebarWorktreeListDialogs({
         open={nameDialog !== null}
         title={
           nameDialog?.type === 'rename'
-            ? translate('auto.components.sidebar.WorktreeList.f9dc6cc5d3', 'Rename Project Group')
-            : translate('auto.components.sidebar.WorktreeList.13757c053c', 'New Project Group')
+            ? translate('auto.components.sidebar.WorktreeList.f9dc6cc5d3', 'Rename project group')
+            : translate('auto.components.sidebar.WorktreeList.13757c053c', 'New project group')
         }
         description={
           nameDialog?.type === 'rename'

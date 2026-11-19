@@ -22,7 +22,7 @@ export type JobTraceState = {
 export const STATE_TONE: Record<GitLabWorkItem['state'], string> = {
   opened: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
   closed: 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
-  merged: 'bg-violet-500/15 text-violet-700 dark:text-violet-300',
+  merged: 'bg-muted text-foreground',
   locked: 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
   draft: 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
 }
@@ -65,7 +65,7 @@ export function StateBadge({ state }: { state: GitLabWorkItem['state'] }): React
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide',
+        'inline-flex items-center rounded-sm px-2 py-0.5 text-[10px] font-medium capitalize',
         STATE_TONE[state]
       )}
     >
@@ -146,8 +146,8 @@ export function CommentCard({
           ) : null}
           <span className="font-medium text-foreground">{comment.author}</span>
           {comment.isResolved ? (
-            <span className="rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
-              {translate('auto.components.GitLabItemDialog.f23ea85341', 'resolved')}
+            <span className="rounded-sm bg-status-success-background px-1.5 py-0.5 text-[10px] font-medium text-status-success">
+              {translate('auto.components.GitLabItemDialog.f23ea85341', 'Resolved')}
             </span>
           ) : null}
         </div>
@@ -214,7 +214,7 @@ export function PipelineJobRow({
         <span className="min-w-0 truncate text-xs text-muted-foreground">{job.stage}</span>
         <span
           className={cn(
-            'rounded-full px-2 py-0.5 text-center text-[10px] font-medium uppercase tracking-wide',
+            'rounded-sm px-2 py-0.5 text-center text-[10px] font-medium capitalize',
             jobStatusTone(job.status)
           )}
         >

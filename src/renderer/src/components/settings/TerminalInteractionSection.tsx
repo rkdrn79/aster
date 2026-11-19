@@ -59,7 +59,7 @@ export function TerminalInteractionSection({
       <SettingsSubsectionHeader
         title={translate(
           'auto.components.settings.TerminalPane.45721f3e67',
-          'Terminal Interaction'
+          'Terminal interaction'
         )}
         description={translate(
           'auto.components.settings.TerminalPane.96fe15def8',
@@ -71,7 +71,7 @@ export function TerminalInteractionSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalPane.scrollSpeed.title',
-            'Scroll Speed'
+            'Scroll speed'
           )}
           description={translate(
             'auto.components.settings.TerminalPane.scrollSpeed.description',
@@ -96,7 +96,7 @@ export function TerminalInteractionSection({
                 <Label>
                   {translate(
                     'auto.components.settings.TerminalPane.scrollSpeed.title',
-                    'Scroll Speed'
+                    'Scroll speed'
                   )}
                 </Label>
                 <p className="max-w-xl text-xs text-muted-foreground">
@@ -213,7 +213,7 @@ export function TerminalInteractionSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalPane.8eefeaa3da',
-            'Focus Follows Mouse'
+            'Focus follows mouse'
           )}
           description={translate(
             'auto.components.settings.TerminalPane.9129b7e805',
@@ -224,7 +224,7 @@ export function TerminalInteractionSection({
           <SettingsSwitchRow
             label={translate(
               'auto.components.settings.TerminalPane.8eefeaa3da',
-              'Focus Follows Mouse'
+              'Focus follows mouse'
             )}
             description={translate(
               'auto.components.settings.TerminalPane.9129b7e805',
@@ -240,7 +240,7 @@ export function TerminalInteractionSection({
         </SearchableSetting>
 
         <SearchableSetting
-          title={translate('auto.components.settings.TerminalPane.902f5dee1f', 'Copy on Select')}
+          title={translate('auto.components.settings.TerminalPane.902f5dee1f', 'Copy on select')}
           description={translate(
             'components.settings.TerminalInteraction.copyOnSelectDescription',
             'Automatically copy text you select in a terminal or chat to the clipboard.'
@@ -261,7 +261,7 @@ export function TerminalInteractionSection({
           ]}
         >
           <SettingsSwitchRow
-            label={translate('auto.components.settings.TerminalPane.902f5dee1f', 'Copy on Select')}
+            label={translate('auto.components.settings.TerminalPane.902f5dee1f', 'Copy on select')}
             description={translate(
               'components.settings.TerminalInteraction.copyOnSelectDescription',
               'Automatically copy text you select in a terminal or chat to the clipboard.'
@@ -278,7 +278,7 @@ export function TerminalInteractionSection({
         <SearchableSetting
           title={translate(
             'components.settings.TerminalInteraction.copyTrimsGutter',
-            'Trim Gutter on Copy'
+            'Trim gutter on copy'
           )}
           description={translate(
             'components.settings.TerminalInteraction.copyTrimsGutterDescription',
@@ -300,7 +300,7 @@ export function TerminalInteractionSection({
           <SettingsSwitchRow
             label={translate(
               'components.settings.TerminalInteraction.copyTrimsGutter',
-              'Trim Gutter on Copy'
+              'Trim gutter on copy'
             )}
             description={translate(
               'components.settings.TerminalInteraction.copyTrimsGutterDescription',
@@ -319,7 +319,7 @@ export function TerminalInteractionSection({
           id={OSC52_CLIPBOARD_SETTING_ID}
           title={translate(
             'auto.components.settings.TerminalPane.3338dcf8c1',
-            'Allow TUI Clipboard Writes (OSC 52)'
+            'Allow TUI clipboard writes (OSC 52)'
           )}
           description={translate(
             'auto.components.settings.TerminalPane.69c64a479c',
@@ -344,7 +344,7 @@ export function TerminalInteractionSection({
           <SettingsSwitchRow
             label={translate(
               'auto.components.settings.TerminalPane.3338dcf8c1',
-              'Allow TUI Clipboard Writes (OSC 52)'
+              'Allow TUI clipboard writes (OSC 52)'
             )}
             description={translate(
               'auto.components.settings.TerminalPane.6e6480a7df',

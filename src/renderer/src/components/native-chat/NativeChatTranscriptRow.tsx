@@ -62,7 +62,7 @@ export const NativeChatTranscriptRow = memo(function NativeChatTranscriptRow({
   const branch = useContext(NativeChatBranchContext)
   // A subagent's section is set off from the conversation it sits in.
   const sectionClassName = cn(
-    slot.depth > 0 && 'border-l-2 border-border/60 pl-3',
+    slot.depth > 0 && 'border-l border-border pl-3',
     slot.depth > 1 && 'ml-4'
   )
   if (slot.kind === 'subagent') {

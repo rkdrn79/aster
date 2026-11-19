@@ -161,7 +161,7 @@ test('parts take ids, sizes and labels, and fit multi-line labels', () => {
   assert.equal(elbow.elbowed, false)
   assert.equal(elbow.points.length, 4)
   const green = buildFigurePart('process', { id: 'p', color: 'green' })[0]
-  assert.deepEqual([green.backgroundColor, green.strokeColor], ['#c8e5c1', 'transparent'])
+  assert.deepEqual([green.backgroundColor, green.strokeColor], ['#cbe8c4', 'transparent'])
 })
 
 test('figures preview waits for the render of the current file and explains a miss', async () => {

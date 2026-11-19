@@ -31,7 +31,7 @@ export function TerminalQuickCommandActionToggle({
         className={cn(QUICK_COMMAND_TOGGLE_ITEM_CLASS, 'w-full justify-center')}
         aria-label={translate(
           'auto.components.terminal.quick.commands.TerminalQuickCommandActionToggle.b5ea4d64f6',
-          'Terminal Command'
+          'Terminal command'
         )}
       >
         {translate(
@@ -44,7 +44,7 @@ export function TerminalQuickCommandActionToggle({
         className={cn(QUICK_COMMAND_TOGGLE_ITEM_CLASS, 'w-full justify-center')}
         aria-label={translate(
           'auto.components.terminal.quick.commands.TerminalQuickCommandActionToggle.b0d58e37ed',
-          'Agent Prompt'
+          'Agent prompt'
         )}
       >
         {translate(

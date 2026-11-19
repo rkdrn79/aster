@@ -197,14 +197,14 @@ describe('CommitArea', () => {
     expect(markupWin).toContain('Enter')
   })
 
-  it('renders no tooltip on enabled Stage All — the label already states the action', () => {
+  it('renders no tooltip on enabled Stage all — the label already states the action', () => {
     const props = baseProps()
     const markup = renderCommitArea({
       ...props,
       primaryAction: {
         kind: 'stage',
         disabled: false,
-        label: 'Stage All',
+        label: 'Stage all',
         title: 'Stage all changes'
       }
     })
@@ -385,7 +385,7 @@ describe('CommitArea', () => {
       sourceControlAiActionsVisible: false
     })
 
-    expect(markup).not.toContain('AI Fix')
+    expect(markup).not.toContain('AI fix')
     expect(markup).not.toContain('Fix commit failure with AI')
     expect(markup).toContain('Commit blocked')
   })
@@ -575,7 +575,7 @@ describe('CommitArea', () => {
     expect(button).not.toContain('lucide-check')
   })
 
-  it('keeps Stage All as the commit-area primary when review prep can stage changes', () => {
+  it('keeps Stage all as the commit-area primary when review prep can stage changes', () => {
     const input = buildInputs({
       stagedCount: 0,
       hasUnstagedChanges: true,
@@ -595,7 +595,7 @@ describe('CommitArea', () => {
     const markup = renderCommitArea(baseProps(input))
 
     const stageAllButton = firstButton(markup)
-    expect(stageAllButton).toContain('Stage All')
+    expect(stageAllButton).toContain('Stage all')
     expect(stageAllButton).toContain('data-variant="outline"')
     expect(stageAllButton).not.toContain('disabled=""')
     expect(stageAllButton).toContain('lucide-plus')
@@ -649,7 +649,7 @@ describe('CommitArea', () => {
       }
     })
 
-    expect(markup).not.toContain('lucide-sparkles')
+    expect(markup).not.toContain('lucide-pen-line')
     expect(markup).not.toContain('animate-spin')
     expect(markup).toContain('Generating commit message…')
   })
@@ -761,7 +761,7 @@ describe('ConflictSummaryCard', () => {
     expect(buttonContaining(rebaseMarkup, 'Abort rebase')).toContain('data-variant="outline"')
   })
 
-  it('renders the Sparkles icon on the idle Resolve with AI button', () => {
+  it('renders the agent icon on the idle Resolve with AI button', () => {
     const markup = renderToStaticMarkup(
       <ConflictSummaryCard
         conflictOperation="merge"
@@ -774,8 +774,8 @@ describe('ConflictSummaryCard', () => {
     )
 
     expect(markup).toContain('Resolve with AI')
-    expect(markup).toContain('lucide-sparkles')
-    expect(markup).not.toMatch(/\blucide-sparkle(?!s)\b/)
+    expect(markup).toContain('lucide-bot')
+    expect(markup).not.toContain('lucide-sparkles')
   })
 
   it('hides Resolve with AI when Source Control AI actions are hidden', () => {

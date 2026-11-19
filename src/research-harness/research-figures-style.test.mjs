@@ -256,7 +256,7 @@ test('boxes take a math line; arrows bind to math, keep labels off heads, start 
 test('data glyphs: tokens with patches, frames on a time axis, masks, features, attention, loss', async () => {
   await withFigure(async (file, project) => {
     const fig = await openFigure(file)
-    fig.style('neutral', { accent: 'blue' })
+    fig.style('neutral', { accent: 'blue', look: 'preset' })
     const strip = fig.tokens({
       id: 'seq',
       x: 20,

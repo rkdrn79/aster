@@ -165,7 +165,7 @@ export function AddRepoNestedImportStep({
               {showOpenAsFolderSpinner ? <Loader2 className="size-3.5 animate-spin" /> : null}
               {translate(
                 'auto.components.sidebar.AddRepoNestedImportStep.e52454b7f6',
-                'Open as Folder'
+                'Open as folder'
               )}
             </Button>
           ) : null}

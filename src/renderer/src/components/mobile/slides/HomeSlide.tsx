@@ -154,7 +154,7 @@ export function HomeSlide({ tapping }: { tapping: boolean }): React.JSX.Element 
         </div>
 
         <div className="mp-section-label" style={{ marginTop: 14 }}>
-          {translate('auto.components.mobile.slides.HomeSlide.0b00c98506', 'Quick Actions')}
+          {translate('auto.components.mobile.slides.HomeSlide.0b00c98506', 'Quick actions')}
         </div>
         <div className="mp-quick-actions">
           <div className="mp-quick-action">
@@ -162,7 +162,7 @@ export function HomeSlide({ tapping }: { tapping: boolean }): React.JSX.Element 
               <QrSmallIcon />
             </div>
             <div className="mp-quick-action-label">
-              {translate('auto.components.mobile.slides.HomeSlide.4405f3c440', 'Pair Desktop')}
+              {translate('auto.components.mobile.slides.HomeSlide.4405f3c440', 'Pair desktop')}
             </div>
           </div>
           <div className="mp-quick-action">
@@ -170,7 +170,7 @@ export function HomeSlide({ tapping }: { tapping: boolean }): React.JSX.Element 
               <PlusIcon />
             </div>
             <div className="mp-quick-action-label">
-              {translate('auto.components.mobile.slides.HomeSlide.e27fdaee51', 'New Workspace')}
+              {translate('auto.components.mobile.slides.HomeSlide.e27fdaee51', 'New workspace')}
             </div>
           </div>
         </div>

@@ -130,7 +130,7 @@ export function TitlebarLeftControls({
                   void updateSettings({ showTitlebarAppName: false })
                 }}
               >
-                {translate('auto.App.e81217c1b7', 'Hide App Name')}
+                {translate('auto.App.e81217c1b7', 'Hide app name')}
               </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>

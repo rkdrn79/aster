@@ -72,7 +72,7 @@ function ConclusionEditor({
             close()
           }
         }}
-        placeholder="What the Runs show, how sure you are, and what they do not show."
+        placeholder="What the Runs show, how sure you are, and what they do not show"
         className="min-h-24"
         maxLength={4000}
       />
@@ -162,7 +162,7 @@ export function ResearchExperimentNotebookConclusion({
       ) : conclusion ? (
         <p className="whitespace-pre-wrap text-sm">{conclusion}</p>
       ) : (
-        <p className="text-sm text-muted-foreground">Not concluded yet.</p>
+        <p className="text-sm text-muted-foreground">Not concluded yet</p>
       )}
     </NotebookSection>
   )

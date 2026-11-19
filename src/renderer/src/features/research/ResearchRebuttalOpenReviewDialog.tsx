@@ -128,9 +128,9 @@ export function ResearchRebuttalOpenReviewForm({
                 {result.title}
               </p>
             ) : null}
-            <ul className="scrollbar-sleek max-h-72 divide-y divide-border overflow-auto rounded-lg border border-border">
+            <ul className="scrollbar-sleek max-h-72 divide-y divide-border overflow-auto rounded-lg bg-muted/50 dark:bg-muted/40">
               {result.reviews.map((review) => (
-                <li key={review.noteId} className="flex items-start gap-2.5 px-3 py-2">
+                <li key={review.noteId} className="flex items-start gap-2 px-3 py-2">
                   <Checkbox
                     className="mt-0.5"
                     checked={chosen.has(review.noteId)}

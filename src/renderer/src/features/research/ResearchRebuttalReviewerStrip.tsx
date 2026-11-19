@@ -31,7 +31,7 @@ export function ResearchRebuttalReviewerStrip({
     return null
   }
   return (
-    <div className="shrink-0 space-y-1 border-b border-border px-4 py-1.5">
+    <div className="shrink-0 space-y-2 px-4 pb-2">
       <ResearchRebuttalRegroupList
         records={regroups}
         archive={snapshot.archive}

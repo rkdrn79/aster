@@ -42,7 +42,7 @@ export function buildRemoteSettingsSections(
       ? [
           {
             id: 'ssh',
-            title: translate('auto.hooks.useSettingsNavigationMetadata.94a5afe910', 'SSH Hosts'),
+            title: translate('auto.hooks.useSettingsNavigationMetadata.94a5afe910', 'SSH hosts'),
             description: translate(
               'auto.hooks.useSettingsNavigationMetadata.31e57d1c70',
               'Use existing machines over SSH for files, terminals, Git, and workspaces.'
@@ -57,7 +57,7 @@ export function buildRemoteSettingsSections(
       id: 'servers',
       title: translate(
         'auto.hooks.useSettingsNavigationMetadata.de0c2907a1',
-        'Remote Aster Servers'
+        'Remote Aster servers'
       ),
       description: isWebClient
         ? `Connect this browser to a saved ${PRODUCT_NAME} server.`
@@ -72,7 +72,7 @@ export function buildRemoteSettingsSections(
             id: 'developer-permissions',
             title: translate(
               'auto.hooks.useSettingsNavigationMetadata.d91ae31fbd',
-              'macOS Permissions'
+              'macOS permissions'
             ),
             description: translate(
               'auto.hooks.useSettingsNavigationMetadata.65ec7d1968',
@@ -88,7 +88,7 @@ export function buildRemoteSettingsSections(
       id: 'privacy',
       title: translate(
         'auto.hooks.useSettingsNavigationMetadata.3618579df6',
-        'Privacy & Telemetry'
+        'Privacy and telemetry'
       ),
       description: translate(
         'auto.hooks.useSettingsNavigationMetadata.8400cfe1c1',
@@ -119,7 +119,7 @@ export function buildRemoteSettingsSections(
       ? [
           {
             id: 'dev',
-            title: translate('auto.hooks.useSettingsNavigationMetadata.dev', 'Dev Tools'),
+            title: translate('auto.hooks.useSettingsNavigationMetadata.dev', 'Dev tools'),
             description: translate(
               'auto.hooks.useSettingsNavigationMetadata.devDescription',
               'Dev-only tools for exercising UI states.'

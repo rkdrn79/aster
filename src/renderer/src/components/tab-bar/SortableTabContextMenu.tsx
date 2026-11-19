@@ -181,7 +181,7 @@ export function SortableTabContextMenu({
               <SquareTerminal className="size-3.5 shrink-0" />
               {translate(
                 'components.tab.bar.SortableTabContextMenu.switchToTerminalView',
-                'Continue with Terminal Agent'
+                'Continue with terminal agent'
               )}
             </DropdownMenuItem>
           </>
@@ -201,8 +201,8 @@ export function SortableTabContextMenu({
             <Pin className="size-3.5 shrink-0" />
           )}
           {isPinned
-            ? translate('auto.components.tab.bar.SortableTabContextMenu.417722e9c2', 'Unpin Tab')
-            : translate('auto.components.tab.bar.SortableTabContextMenu.60f958ec75', 'Pin Tab')}
+            ? translate('auto.components.tab.bar.SortableTabContextMenu.417722e9c2', 'Unpin tab')
+            : translate('auto.components.tab.bar.SortableTabContextMenu.60f958ec75', 'Pin tab')}
         </DropdownMenuItem>
         <CopyTabIdMenuItem unifiedTabId={unifiedTabId} />
         <DropdownMenuSeparator />
@@ -213,18 +213,18 @@ export function SortableTabContextMenu({
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => onCloseOthers(tab.id)} disabled={tabCount <= 1}>
           <ListX className="size-3.5" />
-          {translate('auto.components.tab.bar.SortableTabContextMenu.8d16f9cd30', 'Close Others')}
+          {translate('auto.components.tab.bar.SortableTabContextMenu.8d16f9cd30', 'Close others')}
         </DropdownMenuItem>
         <CloseSplitPaneMenuItem onCloseSplitPane={onCloseSplitPane} />
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={onRenameOpen}>
           <Pencil className="size-3.5" />
-          {translate('auto.components.tab.bar.SortableTabContextMenu.2f697b3c31', 'Change Title')}
+          {translate('auto.components.tab.bar.SortableTabContextMenu.2f697b3c31', 'Change title')}
           {renameShortcut ? <DropdownMenuShortcut>{renameShortcut}</DropdownMenuShortcut> : null}
         </DropdownMenuItem>
         <div className="px-2 pt-1.5 pb-1">
           <div className="text-xs font-medium text-muted-foreground mb-1.5">
-            {translate('auto.components.tab.bar.SortableTabContextMenu.35e8892fd0', 'Tab Color')}
+            {translate('auto.components.tab.bar.SortableTabContextMenu.35e8892fd0', 'Tab color')}
           </div>
           <div className="flex flex-wrap gap-2">
             {TAB_COLORS.map((color) => {

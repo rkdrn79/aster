@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Check, Copy } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { CopyCheckIcon } from '@/components/ui/animated-check'
 import { translate } from '@/i18n/i18n'
+import { NATIVE_CHAT_ROW_ACTION_CLASS } from './native-chat-row-action'
 
 /**
  * Per-message copy affordance for the native chat. Copies the message's text to
- * the clipboard and briefly swaps the icon to a check tint as success feedback —
+ * the clipboard and briefly turns the icon into a drawn check as success feedback —
  * matching the app's other inline copy buttons (icon swap, no toast). Uses
  * Electron's clipboard IPC, which wraps navigator.clipboard.writeText and avoids
  * the silent failures navigator.clipboard hits inside some renderer contexts.
@@ -57,13 +58,9 @@ export function NativeChatCopyButton({
       onClick={handleCopy}
       aria-label={label}
       title={label}
-      className={cn(
-        'flex size-6 shrink-0 items-center justify-center rounded-md text-chat-foreground-faint transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-        copied && 'text-status-success',
-        className
-      )}
+      className={cn(NATIVE_CHAT_ROW_ACTION_CLASS, copied && 'text-status-success', className)}
     >
-      {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+      <CopyCheckIcon copied={copied} />
     </button>
   )
 }

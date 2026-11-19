@@ -144,7 +144,7 @@ describe('useOsc52ClipboardDefaultOnNotice', () => {
 
     const options = toastInfoMock.mock.calls[0]?.[1]
     expect(options.description).toContain('Zellij')
-    expect(options.action.label).toBe('Open Setting')
+    expect(options.action.label).toBe('Open setting')
 
     // Why assert unspent first: without it, a revert to clear-at-enqueue satisfies the
     // count below and the action's own clear becomes deletable with nothing going red.

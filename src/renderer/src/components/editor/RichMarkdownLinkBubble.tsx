@@ -154,7 +154,7 @@ function LinkEditInput({
       }}
       placeholder={translate(
         'auto.components.editor.RichMarkdownLinkBubble.7b0b945fdc',
-        'Paste or type a link…'
+        'Paste or type a link'
       )}
       className="rich-markdown-link-input"
     />

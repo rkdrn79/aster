@@ -22,20 +22,13 @@ export function NativeChatEmptyState({
 }): React.JSX.Element {
   const copy = emptyStateCopy(kind, { message, headline }, agent, retrying)
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
-      <div
-        className={
-          kind === 'error'
-            ? 'flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive'
-            : 'flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground'
-        }
-      >
-        {kind === 'error' ? (
-          <TriangleAlert className="size-6" />
-        ) : (
-          <MessageSquare className="size-6" />
-        )}
-      </div>
+    <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-6 text-center">
+      {/* A plain mark that says what happened, not a decorated badge. */}
+      {kind === 'error' ? (
+        <TriangleAlert aria-hidden className="size-4 text-destructive" />
+      ) : (
+        <MessageSquare aria-hidden className="size-4 text-chat-foreground-faint" />
+      )}
       <p className="text-sm font-medium text-chat-foreground-strong">{copy.title}</p>
       {copy.subtitle ? (
         <p className="max-w-sm text-balance text-xs text-chat-foreground-faint">{copy.subtitle}</p>

@@ -6,13 +6,13 @@ import { DOUBLE_COLUMN_MAX_HEIGHT_IN } from './research-figures-model.mjs'
 import { SPARSE_SHARE, blankShare, spaceChecks } from './research-figures-lint-space.mjs'
 import { backgroundChecks, emptyBoxChecks } from './research-figures-lint-boxes.mjs'
 import {
-  figureStyle,
+  pageStyle,
   hasRedLoss,
   isLossRed,
   isLossRole,
   isSemanticColor
 } from './research-figures-style.mjs'
-import { colorChecks } from './research-figures-lint-color.mjs'
+import { colorChecks, isDataSwatch } from './research-figures-lint-color.mjs'
 
 const SHAPES = new Set(['rectangle', 'ellipse', 'diamond'])
 /** Units of white space a figure keeps along the page edge. */
@@ -131,6 +131,8 @@ function swatchesOf(elements, glyph) {
       element.width <= 24 &&
       element.height <= 24 &&
       !glyph(element) &&
+      // Why: a pixel colour an arrow meets is data; a key's swatch stands alone.
+      !isDataSwatch(element) &&
       !['asterStep', 'asterMark', 'asterBadge', 'asterIcon', 'asterLegend'].some(
         (key) => element.customData?.[key]
       ) &&
@@ -193,7 +195,7 @@ function textChecks(elements, add, allowed) {
       'warning',
       'legend',
       paired[0],
-      `a legend inside the figure (${ids.slice(0, 4).join(', ')}${ids.length > 4 ? ', …' : ''}); label the elements themselves and let the caption explain colours, or, when three or four roles need a key, draw it with fig.legend; fig.allow('legend', ids) when these swatches are not a key`
+      `a hand-made legend (${ids.slice(0, 4).join(', ')}${ids.length > 4 ? ', …' : ''}); label the elements themselves and let the caption explain colours, or, when the request asks for a key or three or four roles need one, draw it with fig.legend (box, dot, line and arrow-role swatches; the lint knows it); fig.allow('legend', ids) when these swatches are not a key (a colour that is data: box({ swatch: true }))`
     )
   }
 }
@@ -321,10 +323,13 @@ function pageChecks(elements, page, add, { sized = false, gaps = [] } = {}) {
   }
 }
 
-/** A short dashed link prints solid. */
+/** A short dashed link prints solid (a legend's dashed swatch is a sample, not a link). */
 function sizeChecks(elements, add) {
   for (const arrow of elements.filter(
-    (element) => element.type === 'arrow' && element.strokeStyle === 'dashed'
+    (element) =>
+      element.type === 'arrow' &&
+      element.strokeStyle === 'dashed' &&
+      !element.customData?.asterLegend
   )) {
     const points = arrow.points ?? []
     const length = points
@@ -392,7 +397,7 @@ function textSizeChecks(elements, style, add) {
 
 /** Style warnings for a figure drawn from scratch; a recreation keeps its reference's look. */
 export function lookChecks(elements, page, add, pageFrame = null, allowed = () => new Set()) {
-  const style = figureStyle(page?.style, page?.accent)
+  const style = pageStyle(page)
   // Why: the agent may resize only a page it sized itself (figures new, fig.setPage).
   const sized = page?.sizeBy === 'agent'
   const gaps = (pageFrame?.customData?.asterAllowAreas ?? [])

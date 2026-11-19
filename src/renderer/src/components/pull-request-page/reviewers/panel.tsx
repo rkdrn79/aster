@@ -261,7 +261,7 @@ export function PRReviewersPanel({
 
   return (
     <section>
-      <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="mb-2 flex items-center justify-between text-[11px] font-medium text-muted-foreground">
         <span>{translate('auto.components.PullRequestPage.00d3be6bcd', 'Reviewers')}</span>
         <ReviewerPicker
           open={open}

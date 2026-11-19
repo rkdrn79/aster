@@ -1,12 +1,13 @@
 // Layout warnings about arrows and labels: a label on an arrowhead, an arrow through a box it
 // does not join, and text crossing the slanted edge of a polygon such as a trapezoid.
 import {
+  boxPolygonDistance,
   elementBounds,
   overlaps,
   pointInPolygon,
   segmentCrossesBox
 } from './research-figures-geometry.mjs'
-import { absolutePoints, headBox } from './research-figures-labels.mjs'
+import { absolutePoints, headBox, headTriangle } from './research-figures-labels.mjs'
 import { glyphBounds } from './research-figures-text.mjs'
 
 const OBSTACLES = new Set(['rectangle', 'ellipse', 'diamond', 'image'])
@@ -26,18 +27,67 @@ function contains(bounds, point) {
 /** A label's ink: text by its glyphs, typeset math and icons by their box. */
 const inkOf = (element) => (element.type === 'text' ? glyphBounds(element) : elementBounds(element))
 
-function headChecks(arrows, texts, add) {
+/** Closer than this to a head's triangle, a label reads as sitting on it. */
+const HEAD_CLEARANCE = 2.5
+
+/** Which way to move a free label off a head: away from the head's middle, in whole units. */
+function awayFrom(ink, triangle) {
+  const cx = (triangle[0][0] + triangle[1][0] + triangle[2][0]) / 3
+  const cy = (triangle[0][1] + triangle[1][1] + triangle[2][1]) / 3
+  const dx = ink.x + ink.width / 2 - cx
+  const dy = ink.y + ink.height / 2 - cy
+  const horizontal = Math.abs(dx) * ink.height >= Math.abs(dy) * ink.width
+  const xs = triangle.map((point) => point[0])
+  const ys = triangle.map((point) => point[1])
+  const shift = horizontal
+    ? dx >= 0
+      ? Math.max(...xs) + HEAD_CLEARANCE + 1 - ink.x
+      : ink.x + ink.width - (Math.min(...xs) - HEAD_CLEARANCE - 1)
+    : dy >= 0
+      ? Math.max(...ys) + HEAD_CLEARANCE + 1 - ink.y
+      : ink.y + ink.height - (Math.min(...ys) - HEAD_CLEARANCE - 1)
+  const side = horizontal ? (dx >= 0 ? 'right' : 'left') : dy >= 0 ? 'down' : 'up'
+  return `${Math.max(1, Math.ceil(shift))} units ${side}`
+}
+
+/**
+ * A label on an arrowhead: its ink within HEAD_CLEARANCE of the head's triangle (not of the
+ * triangle's bounding box, which for a slanted head is twice its area and flagged labels set
+ * beside it). An arrow's own label moves with labelSegment / labelSide; a free label by hand.
+ */
+function headChecks(arrows, texts, add, byId = new Map()) {
+  const ownerOf = (element) => element?.customData?.asterKit ?? element?.id
   for (const arrow of arrows) {
-    for (const box of [headBox(arrow, false, 3), headBox(arrow, true, 3)].filter(Boolean)) {
-      const touching = texts.find((text) => overlaps(inkOf(text), box, 0))
-      if (touching) {
-        add(
-          'warning',
-          'label-on-head',
-          touching,
-          `touches the head of ${arrow.id}; move the label (labelSegment, labelSide) or lengthen the arrow`
-        )
+    for (const [triangle, binding] of [
+      [headTriangle(arrow, false), arrow.endBinding],
+      [headTriangle(arrow, true), arrow.startBinding]
+    ].filter(([triangle]) => triangle)) {
+      // Why: a head pointing at its own target (a math label it ends on, the label of the box
+      // it enters) is how an arrow reads "into z_T", not a label in the way.
+      const target = byId.get(binding?.elementId)
+      const aimed = (text) =>
+        Boolean(target) &&
+        (text.id === target.id ||
+          text.containerId === target.id ||
+          ownerOf(text) === ownerOf(target))
+      const touching = texts.find(
+        (text) => !aimed(text) && boxPolygonDistance(inkOf(text), triangle) < HEAD_CLEARANCE
+      )
+      if (!touching) {
+        continue
       }
+      const own =
+        touching.id.startsWith(`${arrow.id}-label`) ||
+        touching.customData?.asterKit === arrow.id ||
+        touching.containerId === arrow.id
+      add(
+        'warning',
+        'label-on-head',
+        touching,
+        own
+          ? `touches the head of ${arrow.id}; move the label (labelPosition: 'tail' | 'below', labelSegment) or lengthen the arrow`
+          : `touches the head of ${arrow.id}; move ${touching.customData?.asterKit ?? touching.id} about ${awayFrom(inkOf(touching), triangle)}, or end the arrow short of it`
+      )
     }
   }
 }
@@ -100,6 +150,7 @@ function polygonChecks(elements, texts, add) {
     const points = element.points ?? []
     return (
       element.type === 'line' &&
+      !element.customData?.asterGlyphPart &&
       points.length > 3 &&
       Math.hypot(points[0][0] - points.at(-1)[0], points[0][1] - points.at(-1)[1]) < 1 &&
       (visible(element.backgroundColor) || visible(element.strokeColor))
@@ -215,11 +266,13 @@ function blocking(start, end, labels) {
  * a title or a label sits on every direct route, it names it (move it, or leave a lane).
  */
 function detourChecks(arrows, labels, add) {
-  // Why not side, aux or loss lines: residuals and EMA links go around the blocks by design.
+  // Why not side, aux or loss lines: residuals and EMA links go around the blocks by design;
+  // nor curves: a self-loop or an arc bends away from the straight line on purpose.
   for (const arrow of arrows.filter(
     (element) =>
       !SIDE_ROLES.has(element.customData?.asterLine) &&
-      !SIDE_ROLES.has(element.customData?.asterRole)
+      !SIDE_ROLES.has(element.customData?.asterRole) &&
+      !element.customData?.asterCurve
   )) {
     const points = absolutePoints(arrow)
     if (points.length < 2) {
@@ -267,7 +320,7 @@ export function layoutChecks(elements, add) {
       Math.hypot(points[0][0] - points.at(-1)[0], points[0][1] - points.at(-1)[1]) >= 1
     )
   })
-  headChecks(arrows, labels, add)
+  headChecks(arrows, labels, add, new Map(elements.map((element) => [element.id, element])))
   detourChecks(arrows, labels, add)
   markChecks(elements, arrows, labels, add)
   textCrossChecks([...arrows, ...lines], labels, add)

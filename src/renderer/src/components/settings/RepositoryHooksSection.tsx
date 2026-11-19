@@ -112,7 +112,7 @@ export function RepositoryHooksSection({
         <h2 className="text-sm font-semibold">
           {translate(
             'auto.components.settings.RepositoryHooksSection.ff082fe7c6',
-            'Worktree Hooks'
+            'Worktree hooks'
           )}
         </h2>
         <p className="text-xs text-muted-foreground">
@@ -125,7 +125,7 @@ export function RepositoryHooksSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.RepositoryHooksSection.52b31baf02',
-          'Setup Script'
+          'Setup script'
         )}
         description={translate(
           'auto.components.settings.RepositoryHooksSection.30d555acd2',
@@ -157,7 +157,7 @@ export function RepositoryHooksSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.RepositoryHooksSection.fb6bebcf7e',
-          'When to Run Setup'
+          'When to run setup'
         )}
         description={translate(
           'auto.components.settings.RepositoryHooksSection.63e1783173',
@@ -178,7 +178,7 @@ export function RepositoryHooksSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.RepositoryHooksSection.9a100323ff',
-          'Archive Script'
+          'Archive script'
         )}
         description={translate(
           'auto.components.settings.RepositoryHooksSection.b91a0f297d',
@@ -217,7 +217,7 @@ export function RepositoryHooksSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.RepositoryHooksSection.13394103bd',
-          'Custom GitHub Issue Command'
+          'Custom GitHub issue command'
         )}
         description={translate(
           'auto.components.settings.RepositoryHooksSection.2cc27dc12b',

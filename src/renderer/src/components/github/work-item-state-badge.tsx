@@ -37,7 +37,7 @@ export function WorkItemStateBadge({
   return (
     <span
       className={cn(
-        'inline-flex h-5 items-center rounded-full border px-2 text-[11px] font-medium',
+        'inline-flex h-5 items-center rounded-sm border px-2 text-[11px] font-medium',
         getWorkItemStateTone(item, closedIssue),
         className
       )}

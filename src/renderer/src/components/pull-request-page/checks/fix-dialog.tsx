@@ -39,7 +39,7 @@ export function ChecksFixDialog({
         }
       }}
       actionId="fixChecks"
-      title={translate('auto.components.PullRequestPage.a053bdd082', 'Fix Broken Checks With AI')}
+      title={translate('auto.components.PullRequestPage.a053bdd082', 'Fix broken checks with AI')}
       description={translate(
         'auto.components.PullRequestPage.ddfd42f460',
         'Review the prompt before starting an agent.'

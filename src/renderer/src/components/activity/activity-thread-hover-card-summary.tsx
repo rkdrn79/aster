@@ -122,7 +122,7 @@ export function ActivityThreadHoverCardSummary({
             <span className="inline-flex shrink-0">
               <AgentTypeIcon agentType={thread.agentType} size={14} />
             </span>
-            <span className="truncate text-[12px] font-semibold text-foreground">
+            <span className="truncate text-[12px] font-medium text-foreground">
               {formatAgentTypeLabel(thread.agentType)}
             </span>
           </div>
@@ -141,7 +141,7 @@ export function ActivityThreadHoverCardSummary({
           </div>
         </div>
 
-        <div className="break-words text-[13px] font-semibold leading-snug text-foreground">
+        <div className="break-words text-[13px] font-medium leading-snug text-foreground">
           {taskTitle}
         </div>
 
@@ -181,12 +181,12 @@ export function ActivityThreadHoverCardSummary({
             {repo ? (
               <div className="flex shrink-0 items-center gap-1 rounded-[4px] border border-border bg-accent px-1.5 py-0.5 dark:border-border/60 dark:bg-accent/50">
                 <RepoBadgeMark color={repo.badgeColor} />
-                <span className="max-w-[7rem] truncate text-[10px] font-semibold lowercase text-foreground">
+                <span className="max-w-[7rem] truncate text-[10px] font-medium lowercase text-foreground">
                   {repo.displayName}
                 </span>
               </div>
             ) : null}
-            <span className="truncate text-[12.5px] font-semibold text-foreground">
+            <span className="truncate text-[12.5px] font-medium text-foreground">
               {workspaceTitle}
             </span>
           </div>

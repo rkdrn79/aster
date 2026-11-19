@@ -1,3 +1,4 @@
+import './research-pane-motion.css'
 import { useEffect, useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { BookOpen, Download, FileUp, Plus } from 'lucide-react'
@@ -163,7 +164,7 @@ function ResearchLibraryWorkspace({ scope }: { scope: LibraryScope }): React.JSX
         result.malformed ||
         result.truncated
       ) {
-        toast.warning('Some Library papers still have no PDF.', {
+        toast.warning('Some Library papers still have no PDF', {
           description: [
             result.failed ? `${result.failed} downloads failed` : null,
             result.notAttempted ? `${result.notAttempted} left for the next import` : null,
@@ -348,7 +349,7 @@ function ResearchLibraryWorkspace({ scope }: { scope: LibraryScope }): React.JSX
               </div>
             }
           >
-            Add the papers this project builds on.
+            Add the papers this project builds on
           </ResearchEmptyState>
         </ResearchPageBody>
       )}

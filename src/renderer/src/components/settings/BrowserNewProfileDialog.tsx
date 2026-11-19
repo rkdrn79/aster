@@ -37,7 +37,7 @@ export function BrowserNewProfileDialog({
       <DialogContent className="sm:max-w-sm" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="text-base">
-            {translate('auto.components.settings.BrowserPane.8481ee0331', 'New Browser Profile')}
+            {translate('auto.components.settings.BrowserPane.8481ee0331', 'New browser profile')}
           </DialogTitle>
         </DialogHeader>
         <form

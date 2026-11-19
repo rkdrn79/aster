@@ -6,6 +6,8 @@ import type { FigureTarget } from './research-figures-export'
 export type FigureEditorHandle = {
   api: ExcalidrawImperativeAPI
   target: FigureTarget
+  /** The canvas as the figure file's text, read now (without loading the editor chunk). */
+  sceneText: () => string
   save: () => Promise<boolean>
   /** Writes the exports again from the file as last saved. */
   exportNow: () => Promise<void>

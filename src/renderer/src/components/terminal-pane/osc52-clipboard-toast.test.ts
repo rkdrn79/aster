@@ -53,7 +53,7 @@ describe('showOsc52ClipboardBlockedToast', () => {
     const options = toastInfoMock.mock.calls[0]?.[1]
     expect(options).toMatchObject({
       action: {
-        label: 'Open Setting'
+        label: 'Open setting'
       }
     })
 

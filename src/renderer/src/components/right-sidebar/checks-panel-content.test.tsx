@@ -108,7 +108,7 @@ describe('MergeConflictNotice', () => {
     const markup = renderNotice(makePR())
 
     expect(markup).not.toContain('Resolve with AI')
-    expect(markup).not.toContain('lucide-sparkles')
+    expect(markup).not.toContain('lucide-git-merge')
   })
 
   it('renders the single conflict AI action in the triage strip', () => {
@@ -124,7 +124,7 @@ describe('MergeConflictNotice', () => {
     )
 
     expect(markup).toContain('Resolve')
-    expect(markup).toContain('lucide-sparkles')
+    expect(markup).toContain('lucide-git-merge')
     expect(markup).not.toContain('Resolve with AI')
   })
 
@@ -139,7 +139,7 @@ describe('MergeConflictNotice', () => {
 
     expect(markup).toContain('Conflicts block this MR')
     expect(markup).toContain('Resolve')
-    expect(markup).toContain('lucide-sparkles')
+    expect(markup).toContain('lucide-git-merge')
   })
 
   it('renders the CI fix action for failing non-conflict checks', () => {
@@ -157,7 +157,7 @@ describe('MergeConflictNotice', () => {
     expect(markup).toContain('1 failing check')
     expect(markup).toContain('Fix')
     expect(markup).toContain('data-variant="outline"')
-    expect(markup).toContain('lucide-sparkles')
+    expect(markup).toContain('lucide-wrench')
     expect(markup).not.toContain('Fix with AI')
     expect(markup).not.toContain('Resolve')
   })
@@ -416,7 +416,7 @@ describe('PRCommentsList', () => {
 
     expect(markup).toContain('aria-label="Start conversation"')
     expect(markup).toContain('lucide-plus')
-    expect(markup).not.toContain('Start conversation...')
+    expect(markup).not.toContain('placeholder="Start conversation"')
     expect(markup).not.toContain('No comments yet')
     expect(markup).not.toContain('Add a comment')
     expect((markup.match(/lucide-message-square/g) ?? []).length).toBe(1)
@@ -443,7 +443,7 @@ describe('getFailedChecksForDetails', () => {
 
 describe('CheckJobLogTail', () => {
   it.each([
-    ['completed', 'failure', 'No log excerpt is available.'],
+    ['completed', 'failure', 'No log excerpt is available'],
     ['in_progress', null, 'Log output is not available yet.'],
     ['completed', 'success', null],
     ['completed', 'skipped', null]

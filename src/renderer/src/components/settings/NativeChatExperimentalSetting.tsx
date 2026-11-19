@@ -45,7 +45,7 @@ export function NativeChatExperimentalSetting({
           disabled={requiredByResearch}
           ariaLabel={translate(
             'auto.components.settings.ExperimentalPane.nativeChat.toggleLabel',
-            'Toggle Chat UI'
+            'Toggle chat UI'
           )}
           onChange={() =>
             updateSettings({

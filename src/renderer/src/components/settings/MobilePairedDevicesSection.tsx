@@ -19,7 +19,7 @@ export function MobilePairedDevicesSection({
   return (
     <div>
       <h3 className="mb-2 text-sm font-medium">
-        {translate('auto.components.settings.MobilePane.d7ce676270', 'Paired Devices')}
+        {translate('auto.components.settings.MobilePane.d7ce676270', 'Paired devices')}
       </h3>
       {devices.length === 0 ? (
         <p className="text-muted-foreground text-sm">

@@ -17,7 +17,7 @@ export function renderServersSettingsSection(context: SettingsRenderContext): Re
     <RuntimeServersPageProvider>
       <SettingsSection
         id="servers"
-        title={translate('auto.components.settings.Settings.bd0181eeca', 'Remote Aster Servers')}
+        title={translate('auto.components.settings.Settings.bd0181eeca', 'Remote Aster servers')}
         description={
           model.isWebClient
             ? translate(
@@ -59,7 +59,7 @@ export function renderSshSettingsSection(context: SettingsRenderContext): React.
     <SshHostsHeaderSlotProvider>
       <SettingsSection
         id="ssh"
-        title={translate('auto.components.settings.Settings.9b02492d1f', 'SSH Hosts')}
+        title={translate('auto.components.settings.Settings.9b02492d1f', 'SSH hosts')}
         description={translate(
           'auto.components.settings.Settings.c2ee313198',
           'Use existing machines over SSH for files, terminals, Git, and workspaces.'
@@ -82,7 +82,7 @@ export function renderDeveloperPermissionsSettingsSection(
   return model.showDesktopOnlySettings && model.isMac ? (
     <SettingsSection
       id="developer-permissions"
-      title={translate('auto.components.settings.Settings.65660d4548', 'macOS Permissions')}
+      title={translate('auto.components.settings.Settings.65660d4548', 'macOS permissions')}
       description={translate(
         'auto.components.settings.Settings.9b83cc62c2',
         'macOS privacy access for terminal-launched developer tools.'
@@ -106,7 +106,7 @@ export function renderPrivacySettingsSection(
   return (
     <SettingsSection
       id="privacy"
-      title={translate('auto.components.settings.Settings.d7e3f62d70', 'Privacy & Telemetry')}
+      title={translate('auto.components.settings.Settings.d7e3f62d70', 'Privacy and telemetry')}
       description={translate(
         'auto.components.settings.Settings.c1b43dc4e2',
         'Anonymous usage data and telemetry controls.'

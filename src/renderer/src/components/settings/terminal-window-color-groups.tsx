@@ -57,7 +57,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.a2d9f095a7',
-            'Cursor Text'
+            'Cursor text'
           )
         },
         get description() {
@@ -72,7 +72,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.40c3cfd30a',
-            'Selection Background'
+            'Selection background'
           )
         },
         get description() {
@@ -87,7 +87,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.8b450b5305',
-            'Selection Foreground'
+            'Selection foreground'
           )
         },
         get description() {
@@ -100,7 +100,7 @@ export const COLOR_OVERRIDE_GROUPS: {
       {
         key: 'bold',
         get label() {
-          return translate('auto.components.settings.TerminalWindowSection.862e463f7f', 'Bold Text')
+          return translate('auto.components.settings.TerminalWindowSection.862e463f7f', 'Bold text')
         },
         get description() {
           // Why: xterm.js ITheme has no bold color slot (xtermjs/xterm.js#6032); the value is
@@ -115,7 +115,7 @@ export const COLOR_OVERRIDE_GROUPS: {
   },
   {
     get label() {
-      return translate('auto.components.settings.TerminalWindowSection.68e9f07de0', 'ANSI Normal')
+      return translate('auto.components.settings.TerminalWindowSection.68e9f07de0', 'ANSI normal')
     },
     keys: [
       {
@@ -218,7 +218,7 @@ export const COLOR_OVERRIDE_GROUPS: {
   },
   {
     get label() {
-      return translate('auto.components.settings.TerminalWindowSection.1be593d3e8', 'ANSI Bright')
+      return translate('auto.components.settings.TerminalWindowSection.1be593d3e8', 'ANSI bright')
     },
     keys: [
       {
@@ -226,7 +226,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.260d69ce9a',
-            'Bright Black'
+            'Bright black'
           )
         },
         get description() {
@@ -241,7 +241,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.32b1b6acd7',
-            'Bright Red'
+            'Bright red'
           )
         },
         get description() {
@@ -256,7 +256,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.7dafd57730',
-            'Bright Green'
+            'Bright green'
           )
         },
         get description() {
@@ -271,7 +271,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.936a326be3',
-            'Bright Yellow'
+            'Bright yellow'
           )
         },
         get description() {
@@ -286,7 +286,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.66820332fa',
-            'Bright Blue'
+            'Bright blue'
           )
         },
         get description() {
@@ -301,7 +301,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.e56e7d6ea0',
-            'Bright Magenta'
+            'Bright magenta'
           )
         },
         get description() {
@@ -316,7 +316,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.f94adc4113',
-            'Bright Cyan'
+            'Bright cyan'
           )
         },
         get description() {
@@ -331,7 +331,7 @@ export const COLOR_OVERRIDE_GROUPS: {
         get label() {
           return translate(
             'auto.components.settings.TerminalWindowSection.16948119cb',
-            'Bright White'
+            'Bright white'
           )
         },
         get description() {

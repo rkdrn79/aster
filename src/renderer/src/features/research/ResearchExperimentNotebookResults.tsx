@@ -111,30 +111,30 @@ export function ResearchExperimentNotebookResults({
           <table className="w-full text-left text-sm">
             <thead className="text-xs text-muted-foreground">
               <tr className="border-b border-border">
-                <th className="py-1.5 pr-3 font-normal">Run</th>
-                <th className="py-1.5 pr-3 font-normal">State</th>
+                <th className="py-2 pr-3 font-normal">Run</th>
+                <th className="py-2 pr-3 font-normal">State</th>
                 {metric ? (
                   <th
-                    className="py-1.5 pr-3 text-right font-normal"
+                    className="py-2 pr-3 text-right font-normal"
                     title={metric.direction === 'maximize' ? 'Higher is better' : 'Lower is better'}
                   >
                     {metric.label} {metric.direction === 'maximize' ? '↑' : '↓'}
                   </th>
                 ) : null}
                 {showDelta ? (
-                  <th className="py-1.5 pr-3 text-right font-normal">vs {baselineName}</th>
+                  <th className="py-2 pr-3 text-right font-normal">vs {baselineName}</th>
                 ) : null}
-                {table.grouped ? <th className="py-1.5 text-right font-normal">Seeds</th> : null}
+                {table.grouped ? <th className="py-2 text-right font-normal">Seeds</th> : null}
               </tr>
             </thead>
             <tbody>
               {rows.map((row) => (
                 <tr
                   key={row.key}
-                  className="cursor-pointer border-b border-border/60 hover:bg-accent"
+                  className="cursor-pointer border-b border-border hover:bg-accent"
                   onClick={() => workspace.openRun(row.lead.id)}
                 >
-                  <td className="max-w-64 py-1.5 pr-3">
+                  <td className="max-w-64 py-2 pr-3">
                     <button
                       type="button"
                       className="max-w-full truncate rounded-sm text-left font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -146,15 +146,22 @@ export function ResearchExperimentNotebookResults({
                       {row.name}
                     </button>
                   </td>
-                  <td className="py-1.5 pr-3 text-xs text-muted-foreground">
+                  <td className="py-2 pr-3 text-xs text-muted-foreground">
                     <ResearchRunStatusLine facts={statusOf(row.lead)} />
                   </td>
                   {metric ? (
                     <td
-                      className="py-1.5 pr-3 text-right font-mono tabular-nums"
+                      className="py-2 pr-3 text-right font-mono tabular-nums"
                       title={row.step !== null ? `step ${row.step}` : undefined}
                     >
-                      {row.value === null ? '—' : formatMetricInColumn(row.value, decimals)}
+                      {row.value === null ? (
+                        '—'
+                      ) : (
+                        // The signature: a figure traced to its Run (surfaces.css → traced-number).
+                        <span className="traced-number">
+                          {formatMetricInColumn(row.value, decimals)}
+                        </span>
+                      )}
                       {row.spread !== null ? (
                         <span className="text-muted-foreground">
                           {' '}
@@ -164,7 +171,7 @@ export function ResearchExperimentNotebookResults({
                     </td>
                   ) : null}
                   {showDelta ? (
-                    <td className="py-1.5 pr-3 text-right font-mono tabular-nums text-muted-foreground">
+                    <td className="py-2 pr-3 text-right font-mono tabular-nums text-muted-foreground">
                       {row.isBaseline
                         ? 'baseline'
                         : row.delta === null
@@ -173,7 +180,7 @@ export function ResearchExperimentNotebookResults({
                     </td>
                   ) : null}
                   {table.grouped ? (
-                    <td className="py-1.5 text-right tabular-nums text-muted-foreground">
+                    <td className="py-2 text-right tabular-nums text-muted-foreground">
                       {row.seeds}
                     </td>
                   ) : null}

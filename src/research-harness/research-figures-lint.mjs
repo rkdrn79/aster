@@ -1,4 +1,6 @@
 // Layout lint for figure scenes: what would print wrong, with the element ids to fix.
+import { labelImageChecks } from './research-figures-lint-overlay.mjs'
+import { gradTargetChecks } from './research-figures-lint-grad.mjs'
 import {
   PAGE_FRAME_ID,
   PAPER_STYLE,
@@ -20,16 +22,30 @@ import {
   inkHeight,
   measureText,
   missingGlyphs,
+  MONO_FONT,
   ROUNDED_FONT
 } from './research-figures-text.mjs'
 import { unbracedScript } from './research-figures-type.mjs'
 import { layoutChecks } from './research-figures-lint-layout.mjs'
 import { lossLinkChecks } from './research-figures-lint-loss.mjs'
 import { runLabelChecks } from './research-figures-lint-boxes.mjs'
+import {
+  literalMathChecks,
+  pageFitChecks,
+  structureChecks,
+  uniformLookChecks
+} from './research-figures-lint-structure.mjs'
 import { lookChecks } from './research-figures-lint-look.mjs'
 import { panelChecks, printScale } from './research-figures-lint-panels.mjs'
 import { chipChecks, faintChecks, glyphSizeChecks } from './research-figures-lint-print.mjs'
 import { routeLintChecks } from './research-figures-lint-route.mjs'
+import { illustrationChecks } from './research-figures-lint-illustration.mjs'
+import { scienceChecks } from './research-figures-lint-science.mjs'
+import { perspectiveChecks } from './research-figures-lint-perspective.mjs'
+import { paperLookChecks } from './research-figures-lint-paper.mjs'
+import { returnChecks } from './research-figures-lint-return.mjs'
+import { designChecks } from './research-figures-lint-design.mjs'
+import { PAPER_SERIF_IDS } from './research-figures-paper-fonts.mjs'
 
 const SHAPES = new Set(['rectangle', 'ellipse', 'diamond'])
 /** How far outside an area a neighbour may be and still be listed for connecting arrows. */
@@ -72,12 +88,15 @@ function textChecks(element, byId, add, recreating, scale) {
         : `fontSize ${element.fontSize} prints under ${smallest / 2} pt`
     )
   }
-  if (![PAPER_STYLE.fontFamily, ROUNDED_FONT].includes(element.fontFamily)) {
+  // Why code cards: fig.code sets its lines in Cascadia (3) so indentation lines up.
+  const code = element.fontFamily === MONO_FONT && element.customData?.asterCode
+  const known = [PAPER_STYLE.fontFamily, ROUNDED_FONT].includes(element.fontFamily)
+  if (!known && !PAPER_SERIF_IDS.has(element.fontFamily) && !code) {
     add(
       'warning',
       'font',
       element,
-      `fontFamily ${element.fontFamily}; the paper font is 9 (6, Nunito, in the illustrative style)`
+      `fontFamily ${element.fontFamily}; the paper font is 9 (6, Nunito, in the illustrative style; 20 or 21 in the paper look)`
     )
   }
   const container = element.containerId ? byId.get(element.containerId) : null
@@ -88,12 +107,18 @@ function textChecks(element, byId, add, recreating, scale) {
     const height = inkHeight(element.text ?? '', element.fontSize ?? 16, element.lineHeight)
     const room = boundTextRoom(container)
     const inside = room.height + BOUND_TEXT_PADDING * 2
-    if (width > room.width + 0.5 || height > inside + 0.5) {
+    // Why no slack in width: Excalidraw wraps a line a hair wider than the room ("Segmentatio"
+    // / "n"), so 86.4 units of text in an 86-unit room is already two lines.
+    if (width > room.width + 0.01 || height > inside + 0.5) {
       add(
         'error',
         'text-overflow',
         element,
-        `"${element.text}" needs ${round(width)} wide and ${round(height)} tall but ${container.id} leaves ${round(room.width)} × ${round(inside)}; widen or heighten the box`
+        `"${element.text}" needs ${round(width)} wide and ${round(height)} tall but ${container.id} leaves ${round(room.width)} × ${round(inside)}; ${
+          container.type === 'rectangle' && width > room.width + 0.01
+            ? `make the box w: ${Math.ceil(width + BOUND_TEXT_PADDING * 2 + 1)} or more (the label plus 5 units each side), or shorten the label`
+            : 'widen or heighten the box'
+        }`
       )
     }
     if (!(container.boundElements ?? []).some((bound) => bound?.id === element.id)) {
@@ -105,6 +130,24 @@ function textChecks(element, byId, add, recreating, scale) {
       )
     }
   }
+}
+
+/**
+ * Typeset math under 7 pt at print: the label size the kit's TeX runs record. Its scripts print
+ * at about 70% of it, so a 14-unit label's are 4.9 pt. One finding per label.
+ */
+function mathSizeChecks(element, add, scale, warned) {
+  const size = element.customData?.asterTexSize
+  if (!element.customData?.asterTex || !Number.isFinite(size) || size * scale >= 14 - 0.01) {
+    return
+  }
+  warned()
+  add(
+    'warning',
+    'small-math',
+    element,
+    `"${element.customData.asterMath}" is set at ${size} units, ${round((size * scale) / 2)} pt at print (its scripts ${round((size * scale * 0.7) / 2)} pt); set math at ${Math.ceil(16 / scale)} or more (8 pt). In a crowded schematic, fewer panels or a larger page give it room (fig.teaserGrid sizes them)`
+  )
 }
 
 function arrowChecks(element, byId, add) {
@@ -227,8 +270,14 @@ export function lintFigureScene(scene, { area: areaId } = {}) {
   )
   const pageAllowed = new Set(pageFrame?.customData?.asterAllow ?? [])
   // Why extra: a finding about a stretch of the page carries its regions for the lint PNG.
-  const add = (level, code, element, message, extra = {}) => {
-    if (pageAllowed.has(code) || (element && allowedCodes(element, byId).has(code))) {
+  const add = (level, code, element, message, { also = null, ...extra } = {}) => {
+    // Why errors stay: near-miss-align may be allowed between unrelated items (a warning), never
+    // between two an arrow joins (an error: its elbow would show).
+    const fixed = level === 'error' && code === 'near-miss-align'
+    // Why `also`: a finding about a pair is allowed when either item allows it (round 14 agents
+    // allowed the other item of a near-miss and the warning stayed).
+    const allowedOn = (item) => item && allowedCodes(item, byId).has(code)
+    if (!fixed && (pageAllowed.has(code) || allowedOn(element) || allowedOn(also))) {
       return
     }
     const list = level === 'error' ? errors : level === 'note' ? notes : warnings
@@ -261,6 +310,7 @@ export function lintFigureScene(scene, { area: areaId } = {}) {
     )
   const texts = []
   const warnedTex = new Set()
+  const warnedMath = new Set()
   for (const element of elements) {
     if (!inScope(element) || element.id === PAGE_FRAME_ID) {
       continue
@@ -303,6 +353,10 @@ export function lintFigureScene(scene, { area: areaId } = {}) {
         `"${tex}": ^( or _( scripts only the "("; write ^{(i)}`
       )
     }
+    const label = element.customData?.asterKit ?? element.id
+    if (element.type === 'image' && !recreating && !warnedMath.has(label)) {
+      mathSizeChecks(element, add, scale, () => warnedMath.add(label))
+    }
     if (element.type === 'text') {
       textChecks(element, byId, add, recreating, scale)
       if (!element.containerId) {
@@ -315,8 +369,11 @@ export function lintFigureScene(scene, { area: areaId } = {}) {
     if (SHAPES.has(element.type)) {
       shapeBindingChecks(element, byId, add)
     }
-    // Why these pass: photos, typeset math and icons are drawn on purpose; a pasted image is not.
-    const drawn = ['asterPhoto', 'asterTex', 'asterIcon'].some((key) => element.customData?.[key])
+    // Why these pass: photos, typeset math, icons, plots and illustrations are drawn on purpose;
+    // a pasted image is not.
+    const drawn = ['asterPhoto', 'asterTex', 'asterIcon', 'asterPlot', 'asterIllustration'].some(
+      (key) => element.customData?.[key]
+    )
     if (element.type === 'image' && !drawn) {
       add(
         'warning',
@@ -356,17 +413,23 @@ export function lintFigureScene(scene, { area: areaId } = {}) {
     // Why one finding: a label over a glyph crosses each of its cells; it is one overlap.
     if (crossed.length) {
       const items = [...new Set(crossed.map((shape) => shape.customData?.asterKit ?? shape.id))]
+      // Why: an arrow's label wider than its run (a short gap between panels) has its own fixes.
+      const arrowOwner = owner && byId.get(owner)?.type === 'arrow' ? owner : null
+      const fix = arrowOwner
+        ? `; ${arrowOwner}'s label is wider than the room beside its run: shorten it, break it ('Co-Fine-\\nTune'), labelPosition: 'below' | 'head' | 'tail', or widen the gap`
+        : ''
       add(
         'warning',
         'text-over-shape',
         element,
         crossed.length === 1
-          ? `crosses the edge of ${crossed[0].id}`
-          : `crosses the edges of ${crossed.length} shapes of ${items.slice(0, 3).join(', ')}${items.length > 3 ? ', …' : ''}; move it clear of them`
+          ? `crosses the edge of ${crossed[0].id}${fix}`
+          : `crosses the edges of ${crossed.length} shapes of ${items.slice(0, 3).join(', ')}${items.length > 3 ? ', …' : ''}; move it clear of them${fix}`
       )
     }
   }
   const scoped = elements.filter((element) => inScope(element) && element.id !== PAGE_FRAME_ID)
+  labelImageChecks(scoped, add)
   layoutChecks(scoped, add)
   runLabelChecks(scoped, add)
   routeLintChecks(scoped, add, (element) => allowedCodes(element, byId))
@@ -375,12 +438,22 @@ export function lintFigureScene(scene, { area: areaId } = {}) {
     chipChecks(scoped, add, scale)
     glyphSizeChecks(scoped, add, scale)
     faintChecks(scoped, add)
+    illustrationChecks(scoped, scene.files ?? {}, add, scale, page)
   }
   if (!recreating) {
     lossLinkChecks(scoped, add)
   }
+  scienceChecks(scoped, page, add, scale)
+  perspectiveChecks(scoped, add, scale)
   if (!recreating && !area) {
     lookChecks(scoped, page, add, pageFrame, (element) => allowedCodes(element, byId))
+    structureChecks(scoped, pageFrame, add)
+    gradTargetChecks(scoped, add)
+    uniformLookChecks(scoped, add)
+    literalMathChecks(scoped, add)
+    paperLookChecks(scoped, page, add)
+    returnChecks(scoped, page, add)
+    designChecks(elements, add)
   }
   if (!area) {
     const used = new Set(
@@ -396,6 +469,17 @@ export function lintFigureScene(scene, { area: areaId } = {}) {
       }
     }
   }
+  if (!recreating && !area) {
+    pageFitChecks(page, { errors, warnings, notes }, add, scoped)
+  }
+  // Why: one photo, one size to aim for; small-thumbnail's is the larger of the two.
+  const thumbnails = new Set(
+    warnings.filter((entry) => entry.code === 'small-thumbnail').flatMap((entry) => entry.ids)
+  )
+  const kept = warnings.filter(
+    (entry) => !(entry.code === 'small-glyph' && thumbnails.has(entry.id))
+  )
+  warnings.splice(0, warnings.length, ...kept)
   return { errors, warnings, notes }
 }
 

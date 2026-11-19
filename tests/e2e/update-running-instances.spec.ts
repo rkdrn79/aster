@@ -32,7 +32,7 @@ for (const theme of ['dark', 'light'] as const) {
       })
     }, diagnostic)
     const card = orcaPage.getByRole('complementary', { name: /^Update (error|waiting)$/ })
-    await expect(card.getByRole('heading', { name: 'Update Error' })).toBeVisible()
+    await expect(card.getByRole('heading', { name: 'Update error' })).toBeVisible()
     await card.screenshot({
       path: testInfo.outputPath(`before-${theme}.png`),
       animations: 'disabled'
@@ -58,7 +58,7 @@ for (const theme of ['dark', 'light'] as const) {
     await expect(card.getByRole('heading', { name: 'Your update is ready' })).toBeVisible()
     await expect(card.getByText('Background browser', { exact: true })).toHaveCount(2)
     await expect(card.getByText(/Connected devices will disconnect/)).toBeVisible()
-    await expect(card.getByRole('button', { name: 'Download Manually' })).toHaveCount(0)
+    await expect(card.getByRole('button', { name: 'Download manually' })).toHaveCount(0)
     await expect(card.getByText(diagnostic, { exact: true })).toHaveCount(0)
     const later = card.getByRole('button', { name: 'Later', exact: true })
     const bounds = await later.boundingBox()
@@ -107,7 +107,7 @@ for (const theme of ['dark', 'light'] as const) {
     const preparing = orcaPage.getByRole('heading', { name: 'Preparing your update', exact: true })
     await expect(preparing).toBeVisible()
     await expect(
-      orcaPage.getByRole('button', { name: 'Restart to Update', exact: true })
+      orcaPage.getByRole('button', { name: 'Restart to update', exact: true })
     ).toHaveCount(0)
     await orcaPage.getByRole('complementary').screenshot({
       path: testInfo.outputPath(`preparing-${theme}.png`),

@@ -138,7 +138,7 @@ export function MiniMaxCredentials({
       <SearchableSetting
         title={translate(
           'auto.components.settings.AccountsPane.21d6eb141e',
-          'MiniMax Session Cookie'
+          'MiniMax session cookie'
         )}
         description={translate(
           'auto.components.settings.AccountsPane.33bba5ad83',
@@ -152,7 +152,7 @@ export function MiniMaxCredentials({
             <Label htmlFor="minimax-cookie">
               {translate(
                 'auto.components.settings.AccountsPane.21d6eb141e',
-                'MiniMax Session Cookie'
+                'MiniMax session cookie'
               )}
             </Label>
             <Badge
@@ -185,7 +185,7 @@ export function MiniMaxCredentials({
           protection={miniMaxCookieProtection}
           credentialName={translate(
             'auto.components.settings.AccountsPane.21d6eb141e',
-            'MiniMax Session Cookie'
+            'MiniMax session cookie'
           )}
         />
         {cookieNotice ? <p className="text-xs text-muted-foreground">{cookieNotice}</p> : null}

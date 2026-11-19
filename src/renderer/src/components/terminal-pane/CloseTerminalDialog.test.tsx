@@ -81,7 +81,7 @@ describe('CloseTerminalDialog', () => {
     )
 
     await act(async () => {
-      clickButton('Stop and Close')
+      clickButton('Stop and close')
     })
 
     expect(onConfirm).toHaveBeenCalledWith(false)
@@ -104,7 +104,7 @@ describe('CloseTerminalDialog', () => {
       checkbox?.click()
     })
     await act(async () => {
-      clickButton('Stop Agent')
+      clickButton('Stop agent')
     })
 
     expect(onConfirm).toHaveBeenCalledWith(true)

@@ -297,7 +297,7 @@ export function CreateFromPicker({
                 onValueChange={setQuery}
                 placeholder={translate(
                   'auto.components.automations.CreateFromPicker.f061f49e3f',
-                  'Search repo branches...'
+                  'Search repo branches'
                 )}
               />
               <CommandList id={listId} className="max-h-72">

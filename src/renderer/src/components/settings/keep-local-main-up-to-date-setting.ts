@@ -6,7 +6,7 @@ import { translate } from '@/i18n/i18n'
 export function getKeepLocalMainUpToDateTitle(): string {
   return translate(
     'auto.components.settings.keep.local.main.up.to.date.setting.f8bda25f29',
-    'Keep Local Main Up to Date'
+    'Keep local main up to date'
   )
 }
 

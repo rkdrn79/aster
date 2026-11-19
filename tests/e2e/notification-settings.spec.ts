@@ -19,7 +19,7 @@ async function openNotificationSettings(
   await expect(page.getByPlaceholder('Search settings')).toBeVisible({ timeout: 10_000 })
   const featureTipDialog = page.getByRole('dialog', { name: 'Voice Dictation is here' })
   if (await featureTipDialog.isVisible().catch(() => false)) {
-    await page.getByRole('button', { name: 'Maybe Later' }).click()
+    await page.getByRole('button', { name: 'Maybe later' }).click()
   }
   await expect(
     page

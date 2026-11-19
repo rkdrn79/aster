@@ -75,7 +75,7 @@ export function ActivityThreadListToolbar({
                 onChange={(event) => onQueryChange(event.target.value)}
                 placeholder={translate(
                   'auto.components.activity.ActivityPrototypePage.795cbf26e2',
-                  'Filter...'
+                  'Filter'
                 )}
                 className={cn(
                   'h-7 w-full pl-6 text-[11px] shadow-none focus-visible:ring-0',

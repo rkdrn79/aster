@@ -114,7 +114,7 @@ function WorktreePortRow({ port }: { port: WorkspacePort }): React.JSX.Element {
   const canStop = canStopWorkspacePort(port)
   const openBrowserLabel = translate(
     'auto.components.sidebar.WorktreeCardPorts.33bc7d7495',
-    'Open in Browser'
+    'Open in browser'
   )
 
   const handleOpen = useCallback(
@@ -228,7 +228,7 @@ function WorktreePortRow({ port }: { port: WorkspacePort }): React.JSX.Element {
 
   return (
     <div className="group/port grid min-w-0 grid-cols-[3.25rem_minmax(0,1fr)] items-center gap-1.5 rounded-md px-1.5 py-1 hover:bg-accent/50">
-      <span className="select-text font-mono text-[12px] font-semibold tabular-nums text-foreground">
+      <span className="select-text font-mono text-[12px] font-medium tabular-nums text-foreground">
         {port.port}
       </span>
       <div className="relative flex h-5 min-w-0 items-center">
@@ -271,7 +271,7 @@ function WorktreePortRow({ port }: { port: WorkspacePort }): React.JSX.Element {
           <PortAction
             label={translate(
               'auto.components.sidebar.WorktreeCardPorts.2f854442ff',
-              'Stop Process'
+              'Stop process'
             )}
             disabled={!canStop}
             onClick={handleStop}
@@ -295,10 +295,10 @@ export function WorktreeCardPortsDetails({
     <WorktreeCardDetailSection>
       {/* Count lives inline after the label (not on the right, which is the action zone);
           the "Go to Worktree" action is omitted here since the card is already scoped to its worktree. */}
-      <div className="flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 px-1 text-[11px] font-medium text-muted-foreground">
         <Plug className="size-3" />
         <span>
-          {translate('auto.components.sidebar.WorktreeCardPorts.3240f320d7', 'Live Ports')}{' '}
+          {translate('auto.components.sidebar.WorktreeCardPorts.3240f320d7', 'Live ports')}{' '}
           <span className="font-normal tabular-nums text-muted-foreground/70">
             ({ports.length})
           </span>

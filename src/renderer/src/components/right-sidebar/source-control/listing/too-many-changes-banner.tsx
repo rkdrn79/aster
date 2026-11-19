@@ -98,7 +98,7 @@ export function TooManyChangesBanner({
           >
             {translate(
               'auto.components.right.sidebar.source.control.primary.action.18a0fca877',
-              'Stage All'
+              'Stage all'
             )}
           </Button>
         ) : null}

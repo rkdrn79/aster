@@ -243,7 +243,7 @@ describe('WorktreeCard compact hover details', () => {
     expect(markup).toContain('data-hover-open-delay="100"')
     expect(markup).toContain('PR #456')
     expect(markup).toContain('Fix stale GH PR')
-    expect(markup).toContain('Live Ports')
+    expect(markup).toContain('Live ports')
     expect(markup).toContain('58941')
     expect(markup).not.toContain('data-worktree-card-meta-row=""')
     expect(markup).toContain('aria-label="1 live port"')
@@ -295,7 +295,7 @@ describe('WorktreeCard compact hover details', () => {
     expect(markup).toContain('Issue #123')
     expect(markup).toContain('ENG-123 · Linear')
     expect(markup).toContain('Reviewer handoff note')
-    expect(markup).toContain('Live Ports')
+    expect(markup).toContain('Live ports')
     expect(markup).toContain('58941')
     expect(markup).not.toContain('data-worktree-card-meta-row=""')
   }, 30_000)
@@ -489,7 +489,7 @@ describe('WorktreeCard compact hover details', () => {
     expect(markup.match(/Readable identity only/g)).toHaveLength(2)
     expect(markup).toContain('feature/local-branch')
     expect(markup).not.toContain('Workspace metadata')
-    expect(markup).not.toContain('Live Ports')
+    expect(markup).not.toContain('Live ports')
   })
 
   it('does not duplicate workspace identity when trimmed title equals branch', async () => {

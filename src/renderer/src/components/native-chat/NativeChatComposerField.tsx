@@ -252,27 +252,30 @@ export function NativeChatComposerField({
                   }
                 : notice
             )}
-            className="mb-1.5"
+            className="mb-2"
           />
           <div
             className={cn(
               // Why: always-on hairline (token-level border, not focus ring) —
               // no focus/click border flash. The box is a container, not a
-              // focus target.
-              'rounded-xl border border-chat-composer-border p-1.5 shadow-xs',
-              'bg-chat-composer-surface',
+              // focus target: while it holds focus the hairline only deepens,
+              // over the fast duration, and the raised shadow carries the depth.
+              // Nested radius: the corner controls' 8px plus this box's 8px padding.
+              'rounded-[calc(var(--radius-md)+--spacing(2))] border border-chat-composer-border p-2 shadow-raised',
+              'bg-chat-composer-surface transition-[border-color,box-shadow] duration-(--duration-fast) ease-out-quint',
+              'focus-within:border-(--chat-focus-ring)/45',
               // Why (#10481): the native caret blink invalidates paint up to the
               // nearest containment boundary; without this the whole transcript
               // re-rasterizes twice a second. Pickers are siblings and every menu
               // and tooltip in here is a Radix portal, so nothing floating clips.
               // Tightest descendant is the attachment remove button, which
-              // overhangs its thumbnail by 6px and clears this box's padding by
-              // 4px — keep that slack if the padding below ever shrinks.
+              // overhangs its thumbnail by 4px and stays 4px inside this box's
+              // padding — keep that slack if the padding below ever shrinks.
               '[contain:paint]'
             )}
           >
             {imageAttachments.length > 0 ? (
-              <div className="mb-2 flex flex-wrap gap-2 px-1 pt-1.5">
+              <div className="mb-2 flex flex-wrap gap-2 px-1 pt-2">
                 {imageAttachments.map((attachment, index) => (
                   <NativeChatImageAttachmentPreview
                     key={attachment.id}
@@ -344,13 +347,14 @@ export function NativeChatComposerField({
                       ? placeholderOverride
                       : nativeChatComposerPlaceholder(hasPty, canSend, afterStop)))
               }
-              // Why: coarse-pointer min-height follows the app's touch target convention.
+              // Why: coarse-pointer min-height follows the app's touch target convention, and its
+              // 16px text keeps iOS from zooming the page in when the field takes focus.
               // Editable content grows naturally; the 8lh cap (plus
               // py-1) turns further growth into internal scrolling, and scrollbar-sleek
               // keeps that gutter off the heavy native scrollbar. Both are layout-driven,
               // so re-wrap on window/pane resize is handled without a measure pass.
               className={cn(
-                'min-h-12 w-full bg-transparent px-2 py-1 text-sm text-chat-foreground-strong outline-none pointer-coarse:min-h-14',
+                'min-h-12 w-full bg-transparent px-2 py-1 text-sm text-chat-foreground-strong outline-none pointer-coarse:min-h-14 pointer-coarse:text-base',
                 'max-h-[calc(8lh+0.5rem)] overflow-y-auto scrollbar-sleek',
                 // Why: the editor is a contenteditable, which `:disabled` never matches.
                 'placeholder:text-chat-foreground-faint [&[contenteditable=false]]:cursor-not-allowed [&[contenteditable=false]]:opacity-50'

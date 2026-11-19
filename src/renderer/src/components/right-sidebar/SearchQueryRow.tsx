@@ -36,7 +36,9 @@ export function SearchQueryRow({
 }: SearchQueryRowProps): React.JSX.Element {
   return (
     <div
-      className="flex h-8 items-center gap-1 rounded-md border border-border bg-input/50 px-2 focus-within:border-ring focus-within:ring-1 focus-within:ring-ring"
+      // Why these classes: the same field as the shared Input, so the explorer's two queries match
+      // every other text box.
+      className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-raised px-2.5 shadow-xs transition-[box-shadow,border-color] duration-150 focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/25 dark:bg-input/30"
       data-ignore-file-explorer-keys="true"
     >
       <SearchIcon className="size-3.5 shrink-0 text-muted-foreground" />
@@ -75,7 +77,7 @@ export function SearchQueryRow({
       <ToggleButton
         active={caseSensitive}
         onClick={onToggleCaseSensitive}
-        title={translate('auto.components.right.sidebar.SearchHeader.464ae3974f', 'Match Case')}
+        title={translate('auto.components.right.sidebar.SearchHeader.464ae3974f', 'Match case')}
       >
         <CaseSensitive className="size-3.5" />
       </ToggleButton>
@@ -84,7 +86,7 @@ export function SearchQueryRow({
         onClick={onToggleWholeWord}
         title={translate(
           'auto.components.right.sidebar.SearchHeader.4567e6e0b6',
-          'Match Whole Word'
+          'Match whole word'
         )}
       >
         <WholeWord className="size-3.5" />
@@ -94,7 +96,7 @@ export function SearchQueryRow({
         onClick={onToggleRegex}
         title={translate(
           'auto.components.right.sidebar.SearchHeader.6234a5ef85',
-          'Use Regular Expression'
+          'Use regular expression'
         )}
       >
         <Regex className="size-3.5" />

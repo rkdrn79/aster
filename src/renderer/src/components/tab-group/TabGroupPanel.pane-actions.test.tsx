@@ -62,7 +62,7 @@ afterEach(cleanup)
 describe('TabGroupPanel Pane Actions menu', () => {
   it('closes without restoring focus to the old group', async () => {
     const view = render(panel(true))
-    const trigger = view.getByRole('button', { name: 'Pane Actions' })
+    const trigger = view.getByRole('button', { name: 'Pane actions' })
     act(() => {
       fireEvent.pointerDown(trigger, {
         button: 0,

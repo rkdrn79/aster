@@ -1,0 +1,293 @@
+/* ── Motion ──────────────────────────────────────────────
+   One easing for everything, cubic-bezier(0.22, 1, 0.36, 1), and no overshoot or bounce. Hover,
+   press and toggles take 120-180 ms; menus, popovers and tooltips 200 ms; dialogs, sheets and
+   layout changes 320 ms. Floating surfaces fade and rise a few pixels from their trigger. Nothing
+   loops except live work. Under prefers-reduced-motion only short fades remain
+   (STYLEGUIDE → Animation). */
+
+:root {
+  /* Press, and moving between neighbouring tooltips. */
+  --duration-instant: 120ms;
+  /* Hover, colour, toggles, the sliding segment highlight, exits. */
+  --duration-fast: 160ms;
+  /* Menus, popovers, tooltips, the switch thumb. */
+  --duration-base: 200ms;
+  /* Dialogs, sheets, toasts and layout changes. */
+  --duration-slow: 320ms;
+}
+
+/* Theme variables, so ease-* and animate-* utilities exist for page code, and every Tailwind
+   transition (transition-colors, ease-out, ease-in-out…) runs on the same curve. */
+@theme static {
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  --default-transition-duration: 160ms;
+  /* Kept as names so existing ease-spring / spring-pop call sites stay valid; both are the one
+     curve now (the 3% overshoot is gone). Prefer ease-out-quint in new code. */
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring-pop: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-pop-in: pop-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-check-in: check-in 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Fade and rise from the trigger: --pop-from-x/y is the offset on the trigger's side. */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--pop-from-x, 0px), var(--pop-from-y, -6px));
+  }
+}
+
+@keyframes pop-out {
+  to {
+    opacity: 0;
+    transform: translate(var(--pop-from-x, 0px), calc(var(--pop-from-y, -6px) / 2));
+  }
+}
+
+@keyframes text-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0% 0;
+  }
+}
+
+@keyframes draw-stroke {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes check-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes dialog-out {
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--pop-from-x, 0px), var(--pop-from-y, 4px));
+  }
+}
+
+@keyframes fade-in-only {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out-only {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Floating surfaces (menus, popovers, selects, hover cards) grow from their trigger: each
+   primitive sets origin-(--radix-…-transform-origin); data-side says which way to nudge. */
+@utility motion-floating {
+  &[data-side='top'] {
+    --pop-from-y: 6px;
+  }
+  &[data-side='left'] {
+    --pop-from-x: 6px;
+    --pop-from-y: 0px;
+  }
+  &[data-side='right'] {
+    --pop-from-x: -6px;
+    --pop-from-y: 0px;
+  }
+  &[data-state='open'] {
+    animation: pop-in var(--duration-base) var(--ease-out-quint) both;
+  }
+  &[data-state='closed'] {
+    animation: pop-out var(--duration-fast) var(--ease-out-quint) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &[data-state='open'] {
+      animation: fade-in-only var(--duration-fast) var(--ease-out-quint) both;
+    }
+    &[data-state='closed'] {
+      animation: fade-out-only var(--duration-fast) var(--ease-out-quint) both;
+    }
+  }
+}
+
+/* Dialogs and the command palette rise 8px and settle; their scrim only fades. */
+@utility motion-dialog {
+  &[data-state='open'] {
+    animation: dialog-in var(--duration-slow) var(--ease-out-quint) both;
+  }
+  &[data-state='closed'] {
+    animation: dialog-out var(--duration-fast) var(--ease-out-quint) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &[data-state='open'] {
+      animation: fade-in-only var(--duration-fast) var(--ease-out-quint) both;
+    }
+    &[data-state='closed'] {
+      animation: fade-out-only var(--duration-fast) var(--ease-out-quint) both;
+    }
+  }
+}
+
+@utility motion-fade {
+  &[data-state='open'] {
+    animation: fade-in-only var(--duration-base) var(--ease-out-quint) both;
+  }
+  &[data-state='closed'] {
+    animation: fade-out-only var(--duration-fast) var(--ease-out-quint) both;
+  }
+}
+
+/* Tooltips: the first one fades and rises 4px from its control; moving to the next control
+   (instant-open) only fades, so a row of tooltips reads as one label following the pointer. */
+@utility motion-tooltip {
+  &[data-side='bottom'] {
+    --pop-from-y: -4px;
+  }
+  &[data-side='left'] {
+    --pop-from-x: 4px;
+    --pop-from-y: 0px;
+  }
+  &[data-side='right'] {
+    --pop-from-x: -4px;
+    --pop-from-y: 0px;
+  }
+  &[data-state='delayed-open'] {
+    animation: tooltip-in var(--duration-base) var(--ease-out-quint) both;
+  }
+  &[data-state='instant-open'] {
+    animation: fade-in-only var(--duration-instant) var(--ease-out-quint) both;
+  }
+  &[data-state='closed'] {
+    animation: fade-out-only var(--duration-instant) var(--ease-out-quint) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &[data-state='delayed-open'] {
+      animation: fade-in-only var(--duration-fast) var(--ease-out-quint) both;
+    }
+  }
+}
+
+/* "Thinking…" text: a soft highlight sweeps through the letters. A still, readable label under
+   reduced motion. */
+@utility text-shimmer {
+  color: transparent;
+  background-image: linear-gradient(
+    100deg,
+    var(--shimmer-base, var(--muted-foreground)) 38%,
+    var(--shimmer-highlight, var(--foreground)) 50%,
+    var(--shimmer-base, var(--muted-foreground)) 62%
+  );
+  background-size: 260% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: text-shimmer 2.2s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    color: var(--shimmer-base, var(--muted-foreground));
+    background-image: none;
+  }
+}
+
+/* An SVG stroke drawing itself once: pair with pathLength="1" on the path. */
+@utility draw-stroke {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: draw-stroke 260ms var(--ease-out-quint) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Pressable controls give way a little under the pointer; hover never scales or lifts. */
+@utility press-scale {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out-quint);
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+    transition-duration: var(--duration-instant);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &:active:not(:disabled) {
+      transform: none;
+    }
+  }
+}
+
+/* The highlight behind the selected tab or segment (segment-indicator.tsx positions it). Only its
+   transform moves: a change of selection starts the box over the old item, scaled to its size, and
+   settles on the new one, so width and height never animate. */
+[data-slot='segment-indicator'] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: 0 0;
+  transform: translate(var(--segment-x, 0), var(--segment-y, 0))
+    scale(var(--segment-sx, 1), var(--segment-sy, 1));
+  width: var(--segment-w, 0);
+  height: var(--segment-h, 0);
+}
+
+[data-segment-indicator='placed'] > [data-slot='segment-indicator'],
+[data-segment-indicator='ready'] > [data-slot='segment-indicator'] {
+  opacity: 1;
+}
+
+[data-segment-indicator='ready'] > [data-slot='segment-indicator'] {
+  transition: transform var(--duration-fast) var(--ease-out-quint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-segment-indicator='ready'] > [data-slot='segment-indicator'] {
+    transition: none;
+  }
+}
+
+/* Loading placeholders breathe; under reduced motion they stay still. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse {
+    animation: none;
+  }
+}
+
+/* tw-animate-css enter/exit (sheets, the rich tooltip, a few page entrances) fall back to `ease`;
+   give them the one curve. An explicit ease-* utility still wins (utilities layer). */
+@layer base {
+  [class*='animate-in'],
+  [class*='animate-out'] {
+    --tw-ease: var(--ease-out-quint);
+  }
+}
+
+/* Icons: one set (lucide) at stroke 1.5. Icons that ask for another stroke on purpose keep it. */
+svg.lucide[stroke-width='2'] {
+  stroke-width: 1.5;
+}

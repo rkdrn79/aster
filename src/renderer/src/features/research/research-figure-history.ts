@@ -5,21 +5,28 @@ import { diffFigureElements } from './research-figure-diff'
 import { useFigureEditorHandle } from './research-figure-editor-handle'
 import type { FigureTarget } from './research-figures-export'
 import {
-  deleteProjectPath,
-  isMissingProjectFile,
+  FIGURE_HISTORY_PER_FIGURE,
+  entryFiles,
+  fileStamp,
+  historyRoot,
+  pruneProject,
+  readIndex,
+  removeEntryFiles,
+  serialized,
+  writeIndex,
+  type FigureCheckpointKind,
+  type FigureHistoryEntry
+} from './research-figure-history-index'
+import {
   listProjectDirectory,
   moveProjectPath,
   projectOwnerKey,
-  projectRecordRoot,
   readProjectFile,
   readProjectText,
   writeProjectBinary,
   writeProjectText,
   type ProjectFileOwner
 } from './research-project-files'
-
-/** Why a version was kept: before an agent request, after its turn, a human save, a restore. */
-export type FigureCheckpointKind = 'before-send' | 'agent-result' | 'my-edit' | 'before-restore'
 
 export const FIGURE_CHECKPOINT_LABELS: Record<FigureCheckpointKind, string> = {
   'before-send': 'Before send',
@@ -28,33 +35,19 @@ export const FIGURE_CHECKPOINT_LABELS: Record<FigureCheckpointKind, string> = {
   'before-restore': 'Before restore'
 }
 
-export type FigureHistoryEntry = {
-  /** `<iso>-<kind>`, the stem of its files. */
-  id: string
-  at: string
-  kind: FigureCheckpointKind
-  /** The request, or what the person did. */
-  what: string
-  sha: string
-  bytes: number
-  /** Element changes since the version it was compared to; null when not compared. */
-  deltas: { added: number; changed: number; removed: number } | null
-  thumbnail: boolean
-}
+export {
+  FIGURE_HISTORY_PER_FIGURE,
+  FIGURE_HISTORY_PROJECT_BYTES,
+  PLOT_VERSION_FILES,
+  type FigureCheckpointKind,
+  type FigureHistoryEntry
+} from './research-figure-history-index'
 
 /** Moves whenever a version is kept or dropped, so open History lists reload. */
 export const useFigureHistoryRevision = create<{ revision: number }>(() => ({ revision: 0 }))
 
 function bumpRevision(): void {
   useFigureHistoryRevision.setState((state) => ({ revision: state.revision + 1 }))
-}
-
-export const FIGURE_HISTORY_PER_FIGURE = 30
-export const FIGURE_HISTORY_PROJECT_BYTES = 20 * 1024 * 1024
-const INDEX_FILE = 'index.json'
-
-async function historyRoot(owner: ProjectFileOwner): Promise<string> {
-  return `${await projectRecordRoot(owner)}/cache/figures/history`
 }
 
 /**
@@ -87,107 +80,6 @@ export async function moveFigureHistory(
   useFigureHistoryRevision.setState((state) => ({ revision: state.revision + 1 }))
 }
 
-function entryFiles(folder: string, id: string): { scene: string; thumbnail: string } {
-  return { scene: `${folder}/${id}.excalidraw`, thumbnail: `${folder}/${id}.png` }
-}
-
-function isEntry(value: unknown): value is FigureHistoryEntry {
-  if (!value || typeof value !== 'object') {
-    return false
-  }
-  return ['id', 'at', 'sha', 'kind'].every((key) => typeof Reflect.get(value, key) === 'string')
-}
-
-async function readIndex(owner: ProjectFileOwner, folder: string): Promise<FigureHistoryEntry[]> {
-  try {
-    const value: unknown = JSON.parse(await readProjectText(owner, `${folder}/${INDEX_FILE}`))
-    const entries: unknown = value && typeof value === 'object' ? Reflect.get(value, 'entries') : []
-    return Array.isArray(entries) ? entries.filter(isEntry) : []
-  } catch (error) {
-    if (isMissingProjectFile(error) || error instanceof SyntaxError) {
-      return []
-    }
-    throw error
-  }
-}
-
-async function writeIndex(
-  owner: ProjectFileOwner,
-  folder: string,
-  entries: readonly FigureHistoryEntry[]
-): Promise<void> {
-  await writeProjectText(
-    owner,
-    `${folder}/${INDEX_FILE}`,
-    `${JSON.stringify({ version: 1, entries }, null, 1)}\n`
-  )
-}
-
-async function removeEntryFiles(owner: ProjectFileOwner, folder: string, id: string) {
-  const files = entryFiles(folder, id)
-  await Promise.all(
-    [files.scene, files.thumbnail].map((path) =>
-      deleteProjectPath(owner, path).catch(() => undefined)
-    )
-  )
-}
-
-const queues = new Map<string, Promise<unknown>>()
-
-/** One history write at a time per project, so two checkpoints never race on an index. */
-function serialized<T>(owner: ProjectFileOwner, task: () => Promise<T>): Promise<T> {
-  const key = projectOwnerKey(owner)
-  const run = (queues.get(key) ?? Promise.resolve()).then(task, task)
-  queues.set(
-    key,
-    run.catch(() => undefined)
-  )
-  return run
-}
-
-function fileStamp(at: string): string {
-  return at.replace(/[:.]/g, '-')
-}
-
-/** Drops the oldest versions until every figure keeps 30 and the project 20 MB. */
-async function pruneProject(owner: ProjectFileOwner, keep: string): Promise<void> {
-  const root = await historyRoot(owner)
-  const folders = ((await listProjectDirectory(owner, root)) ?? []).filter(
-    (entry) => entry.isDirectory
-  )
-  const all: { folder: string; entry: FigureHistoryEntry }[] = []
-  const indexes = new Map<string, FigureHistoryEntry[]>()
-  for (const { name } of folders) {
-    const folder = `${root}/${name}`
-    const entries = await readIndex(owner, folder)
-    indexes.set(folder, entries)
-    all.push(...entries.map((entry) => ({ folder, entry })))
-  }
-  let total = all.reduce((sum, { entry }) => sum + entry.bytes, 0)
-  if (total <= FIGURE_HISTORY_PROJECT_BYTES) {
-    return
-  }
-  const changed = new Set<string>()
-  for (const { folder, entry } of all.sort((a, b) => a.entry.at.localeCompare(b.entry.at))) {
-    if (total <= FIGURE_HISTORY_PROJECT_BYTES) {
-      break
-    }
-    if (entry.id === keep) {
-      continue
-    }
-    await removeEntryFiles(owner, folder, entry.id)
-    indexes.set(
-      folder,
-      (indexes.get(folder) ?? []).filter((kept) => kept.id !== entry.id)
-    )
-    changed.add(folder)
-    total -= entry.bytes
-  }
-  for (const folder of changed) {
-    await writeIndex(owner, folder, indexes.get(folder) ?? [])
-  }
-}
-
 export type FigureSnapshotInput = {
   kind: FigureCheckpointKind
   what: string
@@ -197,62 +89,101 @@ export type FigureSnapshotInput = {
   compareTo?: string | null
 }
 
+/** What a version's files took, as `keepFigureVersion`'s writer reports it. */
+export type FigureVersionFiles = { bytes: number; thumbnail: boolean; plot?: string[] }
+
 /**
- * Keeps a version of a figure. Returns the newest entry instead when the text is the same as it,
- * and null when the history could not be written (a checkpoint never blocks a save or a request).
+ * Keeps a version of a figure or plot: `write` puts its files in the history folder under `id`.
+ * Returns the newest entry instead when `sha` is the newest's, and null when the history could
+ * not be written (a checkpoint never blocks a save or a request). The caps apply after each one.
  */
-export function snapshotFigure(
-  target: FigureTarget,
-  input: FigureSnapshotInput
+export function keepFigureVersion(
+  owner: ProjectFileOwner,
+  slug: string,
+  input: {
+    kind: FigureCheckpointKind
+    what: string
+    sha: string
+    deltas?: FigureHistoryEntry['deltas']
+    write: (folder: string, id: string) => Promise<FigureVersionFiles>
+  }
 ): Promise<FigureHistoryEntry | null> {
-  return serialized(target.owner, async () => {
-    const { owner, slug } = target
+  return serialized(owner, async () => {
     const folder = await figureHistoryFolder(owner, slug)
-    const sha = await sceneSha256(input.text)
     const entries = await readIndex(owner, folder)
-    if (entries[0]?.sha === sha) {
+    if (entries[0]?.sha === input.sha) {
       return entries[0]
     }
     const at = new Date().toISOString()
     const id = `${fileStamp(at)}-${input.kind}`
-    const files = entryFiles(folder, id)
-    const parsed = parseFigureText(input.text)
-    const compact = parsed.issues.length ? input.text : JSON.stringify(JSON.parse(input.text))
-    await writeProjectText(owner, files.scene, compact)
-    let thumbnailBytes = 0
-    try {
-      const { figureThumbnailPng } = await import('./research-figure-history-render')
-      const png = await figureThumbnailPng(input.text)
-      if (png) {
-        await writeProjectBinary(owner, files.thumbnail, png)
-        thumbnailBytes = png.length
-      }
-    } catch {
-      // Why: a version without a picture still restores.
-    }
-    const compared = input.compareTo ? parseFigureText(input.compareTo) : null
-    const diff = compared ? diffFigureElements(compared.elements, parsed.elements) : null
+    const written = await input.write(folder, id)
     const entry: FigureHistoryEntry = {
       id,
       at,
       kind: input.kind,
       what: input.what.replace(/\s+/g, ' ').trim().slice(0, 140),
-      sha,
-      bytes: new TextEncoder().encode(compact).length + thumbnailBytes,
-      deltas: diff
-        ? { added: diff.added.length, changed: diff.changed.length, removed: diff.removed.length }
-        : null,
-      thumbnail: thumbnailBytes > 0
+      sha: input.sha,
+      bytes: written.bytes,
+      deltas: input.deltas ?? null,
+      thumbnail: written.thumbnail,
+      ...(written.plot ? { plot: written.plot } : {})
     }
     const next = [entry, ...entries]
     for (const old of next.splice(FIGURE_HISTORY_PER_FIGURE)) {
-      await removeEntryFiles(owner, folder, old.id)
+      await removeEntryFiles(owner, folder, old)
     }
     await writeIndex(owner, folder, next)
     await pruneProject(owner, id)
     bumpRevision()
     return entry
   }).catch(() => null)
+}
+
+/**
+ * Keeps a version of a figure. Returns the newest entry instead when the text is the same as it,
+ * and null when the history could not be written (a checkpoint never blocks a save or a request).
+ */
+export async function snapshotFigure(
+  target: FigureTarget,
+  input: FigureSnapshotInput
+): Promise<FigureHistoryEntry | null> {
+  const { owner, slug } = target
+  const parsed = parseFigureText(input.text)
+  const compared = input.compareTo ? parseFigureText(input.compareTo) : null
+  let diff: ReturnType<typeof diffFigureElements> | null = null
+  try {
+    diff = compared ? diffFigureElements(compared.elements, parsed.elements) : null
+  } catch {
+    // Why: a version without its counts still restores.
+  }
+  return keepFigureVersion(owner, slug, {
+    kind: input.kind,
+    what: input.what,
+    sha: await sceneSha256(input.text),
+    deltas: diff
+      ? { added: diff.added.length, changed: diff.changed.length, removed: diff.removed.length }
+      : null,
+    write: async (folder, id) => {
+      const files = entryFiles(folder, id)
+      const compact = parsed.issues.length ? input.text : JSON.stringify(JSON.parse(input.text))
+      await writeProjectText(owner, files.scene, compact)
+      let thumbnailBytes = 0
+      try {
+        const { figureThumbnailPng } = await import('./research-figure-history-render')
+        const png = await figureThumbnailPng(input.text)
+        if (png) {
+          await writeProjectBinary(owner, files.thumbnail, png)
+          thumbnailBytes = png.length
+        }
+      } catch {
+        // Why: a version without a picture still restores.
+      }
+      return {
+        bytes: new TextEncoder().encode(compact).length + thumbnailBytes,
+        thumbnail: thumbnailBytes > 0
+      }
+    }
+  })
 }
 
 /** A figure's kept versions, newest first. */

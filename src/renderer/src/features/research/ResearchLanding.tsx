@@ -49,9 +49,9 @@ export function ResearchLanding(): React.JSX.Element {
       ) : null}
       <ResearchPageBody>
         <div className="mx-auto grid w-full max-w-7xl min-w-0 items-start gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(19rem,0.8fr)]">
-          <section aria-label="Projects" className="min-w-0 space-y-3">
+          <section aria-label="Projects" className="min-w-0 space-y-4">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-sm font-semibold">Projects</h2>
+              <h2 className="text-[15px] font-medium">Projects</h2>
               <span className="text-xs tabular-nums text-muted-foreground">
                 {projects.length} {projects.length === 1 ? 'project' : 'projects'}
               </span>
@@ -68,7 +68,7 @@ export function ResearchLanding(): React.JSX.Element {
               {projects.length === 0 ? (
                 <div className="sm:col-span-2">
                   <ResearchEmptyState icon={FolderPlus} title="No projects yet">
-                    Add the folder or Git repository with your research code.
+                    Add the folder or Git repository with your research code
                   </ResearchEmptyState>
                 </div>
               ) : null}

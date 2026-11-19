@@ -6,7 +6,7 @@ import { PullRequestIcon } from '../../checks-panel/check-presentation'
 
 function hostedReviewStateClass(review: HostedReviewInfo): string {
   if (review.state === 'merged') {
-    return 'text-purple-500/80'
+    return 'text-foreground/80'
   }
   if (review.state === 'open') {
     return 'text-emerald-500/80'

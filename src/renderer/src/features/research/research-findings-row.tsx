@@ -34,7 +34,7 @@ export function ResearchFindingSeverityLabel({
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center gap-1.5',
+        'inline-flex shrink-0 items-center gap-2',
         severity === 'info' ? 'text-muted-foreground' : 'font-medium text-foreground'
       )}
     >
@@ -69,13 +69,13 @@ function EvidenceItem({
           >
             <ChevronRight
               aria-hidden
-              className="size-3 shrink-0 transition-transform group-data-[state=open]:rotate-90 motion-reduce:transition-none"
+              className="size-4 shrink-0 transition-transform group-data-[state=open]:rotate-90 motion-reduce:transition-none"
             />
             <span className="truncate">{text}</span>
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <pre className="scrollbar-sleek mt-1 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-2 font-mono text-2xs text-foreground">
+          <pre className="scrollbar-sleek mt-1 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-muted/70 px-3 py-2 font-mono text-2xs text-foreground dark:bg-muted/55">
             {evidence.excerpt}
           </pre>
         </CollapsibleContent>
@@ -111,7 +111,7 @@ export function ResearchFindingRow({
   return (
     <li
       className={cn(
-        'space-y-1.5 rounded-md border-l-2 px-3 py-2',
+        'space-y-2 rounded-md border-l-2 px-3 py-2',
         open ? OPEN_EDGE[finding.severity] : 'border-l-transparent'
       )}
     >

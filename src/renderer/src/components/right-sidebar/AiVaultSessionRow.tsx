@@ -117,8 +117,8 @@ export function VaultSessionRow({
     : (): void => onRequestDelete?.(session)
   const draggable = !resumeDisabled && !onPick
   const detailsTooltip = detailsExpanded
-    ? translate('auto.components.right.sidebar.AiVaultSessionRow.hideDetails', 'Hide Details')
-    : translate('auto.components.right.sidebar.AiVaultSessionRow.showDetails', 'Show Details')
+    ? translate('auto.components.right.sidebar.AiVaultSessionRow.hideDetails', 'Hide details')
+    : translate('auto.components.right.sidebar.AiVaultSessionRow.showDetails', 'Show details')
   const startResumeDrag = useCallback(
     (event: React.DragEvent<HTMLElement>): void => {
       event.stopPropagation()
@@ -152,7 +152,7 @@ export function VaultSessionRow({
     <div
       className={cn(
         'group/session-row flex w-full min-w-0 cursor-pointer flex-col border-b border-sidebar-border px-3 py-2 text-left transition-colors hover:bg-sidebar-accent/55',
-        !detailsExpanded && 'min-h-[98px]'
+        !detailsExpanded && 'min-h-24'
       )}
       onClick={(event) => {
         // Radix portals this row's menus out of its DOM, but React still

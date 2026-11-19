@@ -61,7 +61,7 @@ describe('TooManyChangesBanner', () => {
     expect(toastErrorMock).toHaveBeenCalledWith('Could not refresh Source Control. Try again.')
   })
 
-  it('offers a whole-worktree Stage All while the listing is capped', () => {
+  it('offers a whole-worktree Stage all while the listing is capped', () => {
     // Why: once the capped prefix is all staged, no section or primary Stage All can reach the rest.
     const onStageAllChanges = vi.fn().mockResolvedValue(undefined)
     const props = {
@@ -91,17 +91,17 @@ describe('TooManyChangesBanner', () => {
       />
     )
 
-    fireEvent.click(screen.getByRole('button', { name: 'Stage All' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Stage all' }))
     expect(onStageAllChanges).toHaveBeenCalledTimes(1)
 
     view.rerender(
       <SourceControlContentStatus {...props} repositoryHuge={{ limit: 1_000 }} isExecutingBulk />
     )
-    expect(screen.getByRole('button', { name: 'Stage All' }).hasAttribute('disabled')).toBe(true)
+    expect(screen.getByRole('button', { name: 'Stage all' }).hasAttribute('disabled')).toBe(true)
 
     view.rerender(
       <SourceControlContentStatus {...props} repositoryHuge={undefined} isExecutingBulk={false} />
     )
-    expect(screen.queryByRole('button', { name: 'Stage All' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Stage all' })).toBeNull()
   })
 })

@@ -295,7 +295,7 @@ describe('provider usage error copy', () => {
 
     expect(getProviderUsageStatusLabel(p)).toBe('Sign in again')
     expect(getProviderUsageErrorMessage(p)).toBe(
-      'The selected Claude account needs you to sign in again. Open Settings > AI Provider Accounts, or choose System default.'
+      'The selected Claude account needs you to sign in again. Open Settings > AI provider accounts, or choose System default.'
     )
   })
 

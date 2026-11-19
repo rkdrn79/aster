@@ -77,7 +77,7 @@ function StarNagToast({
 
   const actionLabel =
     status === 'starred'
-      ? translate('auto.components.star.nag.StarNagToastHost.starredThanks', 'Starred — thank you!')
+      ? translate('auto.components.star.nag.StarNagToastHost.starredThanks', 'Starred — thank you')
       : status === 'opened'
         ? translate('auto.components.star.nag.StarNagToastHost.githubOpened', 'GitHub opened')
         : busy
@@ -115,7 +115,7 @@ function StarNagToast({
             <div className="text-sm font-semibold">
               {translate(
                 'auto.components.star.nag.StarNagToastHost.onboardingCompleted',
-                'Onboarding completed!'
+                'Onboarding completed'
               )}
             </div>
           </div>

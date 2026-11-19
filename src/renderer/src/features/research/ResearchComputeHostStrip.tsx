@@ -123,7 +123,7 @@ export function ResearchComputeHostStrip({
         return (
           <div
             key={host.targetId}
-            className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-xs"
+            className="flex h-8 items-center gap-2 rounded-lg bg-card py-1 pr-2 pl-3 text-xs shadow-raised"
             title={addresses.get(host.targetId)}
           >
             <span
@@ -135,7 +135,7 @@ export function ResearchComputeHostStrip({
               )}
             />
             <span className="max-w-48 truncate font-medium">{host.label}</span>
-            <Badge variant="outline">{status.label}</Badge>
+            <Badge variant="secondary">{status.label}</Badge>
           </div>
         )
       })}
@@ -167,8 +167,8 @@ export function ResearchComputeHostStrip({
           </div>
           <HostListOverflowNote hiddenCount={rows.hiddenCount} />
           <DropdownMenuSeparator />
-          <p className="px-2 py-1.5 text-xs text-muted-foreground">
-            Hosts that are not connected are read over your ssh config, read-only.
+          <p className="px-2 py-2 text-xs text-muted-foreground">
+            Hosts that are not connected are read over your ssh config, read-only
           </p>
         </DropdownMenuContent>
       </DropdownMenu>

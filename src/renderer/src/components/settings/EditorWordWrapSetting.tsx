@@ -17,7 +17,7 @@ export function EditorWordWrapSetting({
     <SearchableSetting
       title={translate(
         'auto.components.settings.GeneralEditorSettingsSection.7ddd66fede',
-        'Editor Word Wrap'
+        'Editor word wrap'
       )}
       description={translate(
         'auto.components.settings.GeneralEditorSettingsSection.9b18de6eea',
@@ -30,7 +30,7 @@ export function EditorWordWrapSetting({
         <Label>
           {translate(
             'auto.components.settings.GeneralEditorSettingsSection.7ddd66fede',
-            'Editor Word Wrap'
+            'Editor word wrap'
           )}
         </Label>
         <p className="text-xs text-muted-foreground">
@@ -43,7 +43,7 @@ export function EditorWordWrapSetting({
       <SettingsSegmentedControl
         ariaLabel={translate(
           'auto.components.settings.GeneralEditorSettingsSection.7ddd66fede',
-          'Editor Word Wrap'
+          'Editor word wrap'
         )}
         value={settings.editorWordWrap === false ? 'off' : 'on'}
         onChange={(option) => updateSettings({ editorWordWrap: option === 'on' })}

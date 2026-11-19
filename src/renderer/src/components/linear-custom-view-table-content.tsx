@@ -108,7 +108,7 @@ export function LinearCustomViewTableContent({
               }
             }}
             className={cn(
-              'group/row grid min-h-12 cursor-pointer grid-cols-[minmax(220px,1.5fr)_120px_120px_120px_130px_60px] items-center gap-3 px-3 py-2 text-left transition hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+              'group/row grid min-h-12 cursor-pointer grid-cols-[minmax(220px,1.5fr)_120px_120px_120px_130px_60px] items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
               selected && 'bg-accent'
             )}
           >

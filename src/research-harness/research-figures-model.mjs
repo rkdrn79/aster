@@ -30,6 +30,10 @@ export const PAPER_STYLE = {
 
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.svg', '.gif', '.webp'])
 const EXPORT_EXTENSIONS = ['.svg', '.pdf', '.png']
+/** A plot is `src/<slug>.plot.py`; running it writes `<slug>.plot.json` and its exports. */
+export const PLOT_SCRIPT_SUFFIX = '.plot.py'
+export const PLOT_MANIFEST_SUFFIX = '.plot.json'
+const PLOT_EXPORT_SUFFIXES = ['.svg', '.embed.svg', '.pdf', '.png', PLOT_MANIFEST_SUFFIX]
 const ELEMENT_TYPES = new Set([
   'rectangle',
   'ellipse',
@@ -117,11 +121,33 @@ function extensionOf(name) {
   return dot <= 0 ? '' : name.slice(dot).toLowerCase()
 }
 
+const slugsEndingIn = (names, suffix) =>
+  names.filter((name) => name.endsWith(suffix)).map((name) => name.slice(0, -suffix.length))
+
+/** Plots of a folder: a script in `src/` or a manifest beside it; never a diagram's slug. */
+function listPlots(names, sources, scenes) {
+  const scripts = new Set(slugsEndingIn(sources, PLOT_SCRIPT_SUFFIX))
+  const manifests = new Set(slugsEndingIn(names, PLOT_MANIFEST_SUFFIX))
+  const files = new Set(names)
+  return [...new Set([...scripts, ...manifests])]
+    .filter((slug) => isFigureSlug(slug) && !scenes.has(slug))
+    .sort()
+    .map((slug) => ({
+      slug,
+      script: scripts.has(slug),
+      manifest: manifests.has(slug),
+      svg: files.has(`${slug}.svg`),
+      pdf: files.has(`${slug}.pdf`),
+      png: files.has(`${slug}.png`)
+    }))
+}
+
 /**
- * Groups a figures folder: each `<slug>.excalidraw` with its exports, then every other image or
- * PDF (matplotlib output and the like) as a read-only figure.
+ * Groups a figures folder: each `<slug>.excalidraw` with its exports, each plot (`src/<slug>.plot.py`
+ * with what it writes; `sources` are the entries of `src/`), then every other image or PDF
+ * (matplotlib output and the like) as a read-only figure.
  */
-export function listFigureFolder(entries) {
+export function listFigureFolder(entries, sources = []) {
   const files = entries.filter((entry) => !entry.isDirectory).map((entry) => entry.name)
   const names = new Set(files)
   const figures = files
@@ -135,15 +161,23 @@ export function listFigureFolder(entries) {
       pdf: names.has(`${slug}.pdf`),
       png: names.has(`${slug}.png`)
     }))
-  const exportNames = new Set(
-    figures.flatMap((figure) => EXPORT_EXTENSIONS.map((extension) => `${figure.slug}${extension}`))
+  const plots = listPlots(
+    files,
+    sources.filter((entry) => !entry.isDirectory).map((entry) => entry.name),
+    new Set(figures.map((figure) => figure.slug))
   )
+  const exportNames = new Set([
+    ...figures.flatMap((figure) =>
+      EXPORT_EXTENSIONS.map((extension) => `${figure.slug}${extension}`)
+    ),
+    ...plots.flatMap((plot) => PLOT_EXPORT_SUFFIXES.map((suffix) => `${plot.slug}${suffix}`))
+  ])
   const others = files
     .filter((name) => !exportNames.has(name) && !name.startsWith('.'))
     .filter((name) => IMAGE_EXTENSIONS.has(extensionOf(name)) || extensionOf(name) === '.pdf')
     .sort()
     .map((name) => ({ name, kind: extensionOf(name) === '.pdf' ? 'pdf' : 'image' }))
-  return { figures, others }
+  return { figures, plots, others }
 }
 
 function randomId(random) {
@@ -282,6 +316,9 @@ export function figurePage(elements) {
   // Why both: the kit records the preset the agent picked, so a style the person set since
   // (the page's style no longer matching it) reads as their choice.
   const agentStyle = typeof page?.agentStyle === 'string' ? page.agentStyle : null
+  // Why kept on the page: the paper look (and its face) holds for later runs and the app.
+  const look = page?.look === 'paper' || page?.look === 'preset' ? page.look : null
+  const paperFont = typeof page?.paperFont === 'string' ? page.paperFont : null
   const styleBy = !style ? null : style === agentStyle ? 'agent' : 'person'
   // Why the same way: the kit and `figures new` record the size the agent picked, so a page
   // sized in Aster (by the person, or Aster's default) is not the agent's to change.
@@ -298,6 +335,8 @@ export function figurePage(elements) {
     style,
     accent,
     panels,
+    look,
+    paperFont,
     styleBy,
     sizeBy,
     ...boundsOf(frame)

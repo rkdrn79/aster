@@ -38,10 +38,10 @@ export function CommentsList({
   return (
     <div className="flex flex-col gap-3">
       {comments.length === 0 ? (
-        <div className="text-xs italic text-muted-foreground">
+        <div className="text-xs text-muted-foreground">
           {translate(
             'auto.components.github.project.slug.dialog.Comments.5f104bf855',
-            'No comments yet.'
+            'No comments yet'
           )}
         </div>
       ) : (
@@ -194,7 +194,7 @@ export function NewCommentForm({
         onChange={(e) => setDraft(e.target.value)}
         placeholder={translate(
           'auto.components.github.project.slug.dialog.Comments.1c95937c8b',
-          'Write a comment…'
+          'Write a comment'
         )}
         className="min-h-[80px] w-full rounded border border-border/50 bg-background p-2 text-sm"
       />

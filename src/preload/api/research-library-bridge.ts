@@ -5,6 +5,11 @@ import type {
   ResearchLibraryDocument
 } from '../../shared/research/research-library'
 import type { DoiPaperMetadata } from '../../shared/research/research-library-doi'
+import type { TitleQuery } from '../../shared/research/research-library-paper-match'
+
+export type LibraryTitleSearchResult =
+  | { source: 'arxiv'; paper: ArxivPaperMetadata }
+  | { source: 'crossref'; paper: DoiPaperMetadata }
 
 export type ResearchLibraryApi = {
   read: () => Promise<ResearchLibraryDocument>
@@ -14,6 +19,8 @@ export type ResearchLibraryApi = {
   lookupArxiv: (params: { reference: string }) => Promise<ArxivPaperMetadata>
   /** Crossref details for a DOI; added after lookupArxiv, so renderers feature-detect it. */
   lookupDoi?: (params: { reference: string }) => Promise<DoiPaperMetadata>
+  /** The paper a citation names, when arXiv or Crossref finds a confident match; feature-detect. */
+  searchTitle?: (params: TitleQuery) => Promise<LibraryTitleSearchResult | null>
   downloadArxivPdf: (params: {
     workspacePath: string
     reference: string
@@ -32,6 +39,7 @@ export const researchLibraryApi: ResearchLibraryApi = {
   },
   lookupArxiv: (params) => ipcRenderer.invoke('researchLibrary:lookupArxiv', params),
   lookupDoi: (params) => ipcRenderer.invoke('researchLibrary:lookupDoi', params),
+  searchTitle: (params) => ipcRenderer.invoke('researchLibrary:searchTitle', params),
   downloadArxivPdf: (params) => ipcRenderer.invoke('researchLibrary:downloadArxivPdf', params),
   importPdf: (params) => ipcRenderer.invoke('researchLibrary:importPdf', params)
 }

@@ -134,7 +134,7 @@ export async function insertFigureInPaper(input: {
           .then(() => published?.undo())
           .then(
             () => toast('Figure removed from the manuscript.'),
-            () => toast.error('The manuscript changed since; remove the figure by hand.')
+            () => toast.error('The manuscript changed since; remove the figure by hand')
           )
     }
   })

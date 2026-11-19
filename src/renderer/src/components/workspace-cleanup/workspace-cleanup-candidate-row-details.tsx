@@ -98,9 +98,7 @@ function DetailLine({
 }): React.JSX.Element {
   return (
     <div className="flex min-w-0 items-baseline gap-2">
-      <span className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground/80">
-        {label}
-      </span>
+      <span className="shrink-0 text-[11px] font-medium text-muted-foreground/80">{label}</span>
       <span className={cn('min-w-0 truncate', mono && 'font-mono text-[11px]')}>{value}</span>
     </div>
   )

@@ -39,13 +39,13 @@ export function SshManagedHostRemoveDialog({
           <DialogTitle>
             {translate(
               'auto.components.settings.SshTargetDestructiveActions.4808966c41',
-              'Remove SSH Target'
+              'Remove SSH target'
             )}
           </DialogTitle>
           <DialogDescription>
             {translate(
               'auto.components.settings.sshManagedHostRemove.descriptionServerHost',
-              'Aster runs on {{label}}. In Remote Aster Servers, open the ⋯ menu on {{label}} and choose Stop… to remove Aster from the host, or Forget… if the host is gone. Then you can remove this SSH host.',
+              'Aster runs on {{label}}. In Remote Aster servers, open the ⋯ menu on {{label}} and choose Stop… to remove Aster from the host, or Forget… if the host is gone. Then you can remove this SSH host.',
               { label: label ?? '' }
             )}
           </DialogDescription>
@@ -57,7 +57,7 @@ export function SshManagedHostRemoveDialog({
           <Button onClick={openManagedServers}>
             {translate(
               'auto.components.settings.sshManagedHostRemove.openServers',
-              'Open Remote Aster Servers'
+              'Open Remote Aster servers'
             )}
           </Button>
         </DialogFooter>

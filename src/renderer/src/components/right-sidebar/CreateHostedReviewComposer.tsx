@@ -4,8 +4,8 @@ import {
   GitMerge,
   GitPullRequestArrow,
   RefreshCw,
-  Sparkles,
-  Square
+  Square,
+  PenLine
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -212,7 +212,7 @@ export function CreateHostedReviewComposer({
       className="text-[11px] disabled:hover:bg-background"
       aria-label={generateDetailsLabel}
     >
-      <Sparkles className="size-3" />
+      <PenLine className="size-3" />
       {translate('auto.components.right.sidebar.SourceControl.aee92f8684', 'Generate')}
     </Button>
   )

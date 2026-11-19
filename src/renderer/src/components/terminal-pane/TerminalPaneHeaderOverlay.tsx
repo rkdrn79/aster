@@ -101,7 +101,7 @@ export default function TerminalPaneHeaderOverlay({
 }: TerminalPaneHeaderOverlayProps): React.JSX.Element {
   const splitRightLabel = translate(
     'auto.components.terminal.pane.TerminalContextMenu.20e565d865',
-    'Split Terminal Right'
+    'Split terminal right'
   )
 
   return (
@@ -125,7 +125,7 @@ export default function TerminalPaneHeaderOverlay({
           paneCount > 1
             ? translate(
                 'auto.components.terminal.pane.TerminalContextMenu.8c17d6786d',
-                'Close Pane'
+                'Close pane'
               )
             : translate('auto.components.tab.bar.SortableTab.95db5f2f7d', 'Close tab')
         // Why: a titled split pane keeps its X as remove-title, but a titled single
@@ -228,7 +228,7 @@ export default function TerminalPaneHeaderOverlay({
                           className="pane-title-split-trigger"
                           aria-label={translate(
                             'components.agentSessionContinuation.handOffToAnotherAgent',
-                            'Hand Off to Another Agent'
+                            'Hand off to another agent'
                           )}
                           onClick={(event) => {
                             event.stopPropagation()
@@ -241,7 +241,7 @@ export default function TerminalPaneHeaderOverlay({
                       <TooltipContent side="bottom" sideOffset={4}>
                         {translate(
                           'components.agentSessionContinuation.handOffToAnotherAgent',
-                          'Hand Off to Another Agent'
+                          'Hand off to another agent'
                         )}
                       </TooltipContent>
                     </Tooltip>

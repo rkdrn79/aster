@@ -130,8 +130,8 @@ export function ConversationTabDescription({
             className="min-w-0 max-w-full overflow-hidden break-words text-[14px] leading-relaxed [&_a]:break-all [&_code]:break-words [&_pre]:max-w-full"
           />
         ) : (
-          <span className="italic text-muted-foreground">
-            {translate('auto.components.GitHubItemDialog.9b9cb55994', 'No description provided.')}
+          <span className="text-muted-foreground">
+            {translate('auto.components.GitHubItemDialog.9b9cb55994', 'No description provided')}
           </span>
         )}
       </div>

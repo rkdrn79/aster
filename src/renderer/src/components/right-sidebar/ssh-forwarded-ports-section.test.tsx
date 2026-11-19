@@ -59,7 +59,7 @@ describe('SSH forwards for a managed server workspace', () => {
     const openUrl = vi.fn(async () => undefined)
     Object.defineProperty(window, 'api', { value: { shell: { openUrl } }, configurable: true })
     renderSection('connected', [remapped])
-    fireEvent.click(screen.getByTitle(/Open in Browser/))
+    fireEvent.click(screen.getByTitle(/Open in browser/))
     expect(openUrl).toHaveBeenCalledWith('http://127.0.0.1:13000')
   })
 })

@@ -80,7 +80,7 @@ describe('showPreservedBranchToast', () => {
     expect(body.textContent).toContain('feat/notes-send-any-running-agent')
     expect(body.textContent).toContain('Send review notes to any running agent of a worktree')
 
-    clickButton(body, 'Force Delete Branch')
+    clickButton(body, 'Force delete branch')
 
     expect(onForceDelete).toHaveBeenCalledWith('feat/notes-send-any-running-agent', 'abc123')
     expect(toast.dismiss).toHaveBeenCalledWith(
@@ -98,7 +98,7 @@ describe('showPreservedBranchToast', () => {
     showPreservedBranchToast(result, undefined, vi.fn())
     const body = renderToastBody()
 
-    expect(body.textContent).not.toContain('Force Delete Branch')
+    expect(body.textContent).not.toContain('Force delete branch')
     expect(toast.warning).toHaveBeenCalledWith(
       'Worktree deleted, branch kept',
       expect.not.objectContaining({ duration: Infinity })

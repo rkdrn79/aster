@@ -176,7 +176,7 @@ export function UpdateErrorCardContent({
           </Button>
           {showDetails ? (
             <div id={detailId} className="rounded-md bg-muted/40 px-3 py-2">
-              <p className="mb-1 text-[11px] font-medium uppercase text-muted-foreground">
+              <p className="mb-1 text-[11px] font-medium text-muted-foreground">
                 {translate('auto.components.UpdateCard.3553a8672f', 'Details')}
               </p>
               <p className="scrollbar-sleek max-h-20 overflow-auto break-words font-mono text-xs leading-relaxed text-muted-foreground">
@@ -214,7 +214,7 @@ export function UpdateErrorCardContent({
               className="flex-1"
             >
               {manualLabel ??
-                translate('auto.components.UpdateCard.47126bcf57', 'Download Manually')}
+                translate('auto.components.UpdateCard.47126bcf57', 'Download manually')}
             </Button>
           )}
         </div>

@@ -86,8 +86,8 @@ describe('ExternalFileChangeCompareDialog', () => {
 
     expect(document.body.textContent).toContain('File changed on disk')
     expect(document.body.textContent).toContain('original:disk version|modified:buffer version')
-    expect(document.body.textContent).toContain('Reload from Disk')
-    expect(document.body.textContent).toContain('Keep My Edits')
+    expect(document.body.textContent).toContain('Reload from disk')
+    expect(document.body.textContent).toContain('Keep my edits')
   })
 
   it('surfaces a read failure instead of a blank comparison', async () => {
@@ -127,13 +127,13 @@ describe('ExternalFileChangeCompareDialog', () => {
 
     const buttons = Array.from(document.body.querySelectorAll('button'))
     await act(async () => {
-      buttons.find((b) => b.textContent === 'Reload from Disk')?.click()
+      buttons.find((b) => b.textContent === 'Reload from disk')?.click()
     })
     expect(onOpenChange).toHaveBeenCalledWith(false)
     expect(onReload).toHaveBeenCalledTimes(1)
 
     await act(async () => {
-      buttons.find((b) => b.textContent === 'Keep My Edits')?.click()
+      buttons.find((b) => b.textContent === 'Keep my edits')?.click()
     })
     expect(onKeepEdits).toHaveBeenCalledTimes(1)
   })

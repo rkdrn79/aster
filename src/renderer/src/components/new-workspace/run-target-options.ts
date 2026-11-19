@@ -23,7 +23,7 @@ export type RunTargetRowModel =
 export function getEphemeralVmLabel(): string {
   return translate(
     'auto.components.NewWorkspaceComposerCard.ephemeralVm',
-    'Per-Workspace Environment'
+    'Per-workspace environment'
   )
 }
 

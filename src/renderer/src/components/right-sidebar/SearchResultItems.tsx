@@ -106,7 +106,7 @@ export function FileResultRow({
                       )}
                     </span>
                   </div>
-                  <span className="text-[10px] text-muted-foreground flex-shrink-0 bg-muted/80 rounded-full px-1.5">
+                  <span className="text-[10px] tabular-nums text-muted-foreground flex-shrink-0">
                     {matchCount}
                   </span>
                 </Button>
@@ -119,7 +119,7 @@ export function FileResultRow({
                 <Copy className="size-3.5" />
                 {translate(
                   'auto.components.right.sidebar.SearchResultItems.3596b9668d',
-                  'Copy Path'
+                  'Copy path'
                 )}
               </ContextMenuItem>
             </ContextMenuContent>
@@ -215,7 +215,7 @@ export function MatchResultRow({
           <Copy className="size-3.5" />
           {translate(
             'auto.components.right.sidebar.SearchResultItems.cc06595a3b',
-            'Copy Line Path'
+            'Copy line path'
           )}
         </ContextMenuItem>
       </ContextMenuContent>

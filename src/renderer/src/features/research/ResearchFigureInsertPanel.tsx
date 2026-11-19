@@ -140,9 +140,9 @@ export function ResearchFigureInsertPanel({
         }
       }}
     >
-      <div className="space-y-2 border-b border-border p-2">
-        <label className="flex items-center gap-1.5">
-          <Search className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+      <div className="space-y-3 border-b border-border px-3 pt-1 pb-3">
+        <label className="flex items-center gap-2">
+          <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           <Input
             ref={search}
             autoFocus={autoFocus}
@@ -168,7 +168,7 @@ export function ResearchFigureInsertPanel({
               type="button"
               role="radio"
               aria-checked={category === entry.id}
-              className="rounded-full border border-border px-2 py-0.5 text-2xs text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring aria-checked:border-foreground aria-checked:bg-accent aria-checked:text-foreground"
+              className="h-6 rounded-md border border-border px-3 text-xs text-muted-foreground transition-colors duration-(--duration-fast) hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring aria-checked:border-foreground/70 aria-checked:bg-accent aria-checked:text-foreground"
               onClick={() => setCategory(entry.id)}
             >
               {entry.label}
@@ -203,9 +203,9 @@ export function ResearchFigureInsertPanel({
           </form>
         ) : null}
       </div>
-      <div className="scrollbar-sleek min-h-0 flex-1 overflow-y-auto p-2">
+      <div className="scrollbar-sleek min-h-0 flex-1 overflow-y-auto px-3 py-3">
         {shown.length ? (
-          <div className="grid grid-cols-[repeat(auto-fill,88px)] justify-between gap-x-1.5 gap-y-2">
+          <div className="grid grid-cols-[repeat(auto-fill,88px)] justify-between gap-x-2 gap-y-2">
             {shown.map((item) => (
               <ResearchFigureInsertTile
                 key={item.key}

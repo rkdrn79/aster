@@ -106,8 +106,8 @@ describe('RepositoryPane search entries', () => {
   it('includes each project search section once', () => {
     const entries = getRepositoryPaneSearchEntries(repo)
 
-    expect(entries.filter(({ title }) => title === 'Project Icon')).toHaveLength(1)
-    expect(entries.filter(({ title }) => title === 'Default Worktree Base')).toHaveLength(1)
+    expect(entries.filter(({ title }) => title === 'Project icon')).toHaveLength(1)
+    expect(entries.filter(({ title }) => title === 'Default worktree base')).toHaveLength(1)
   })
 
   it('omits project runtime search for remote or unsupported repos', () => {
@@ -158,10 +158,10 @@ describe('RepositoryPane search entries', () => {
         )
       )
 
-      expect(html).toContain('Worktree Hooks')
-      expect(html).toContain('Setup Script')
-      expect(html).toContain('Archive Script')
-      expect(html).toContain('Custom GitHub Issue Command')
+      expect(html).toContain('Worktree hooks')
+      expect(html).toContain('Setup script')
+      expect(html).toContain('Archive script')
+      expect(html).toContain('Custom GitHub issue command')
     } finally {
       useAppStore.setState({
         settingsSearchQuery: '',

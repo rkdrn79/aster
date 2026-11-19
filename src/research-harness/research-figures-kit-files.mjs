@@ -2,14 +2,12 @@
 // the scene's `files` once each and dropped when no image uses them any more.
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { imageMimeType, imageSize } from './research-figures-image.mjs'
 import { FIGURE_UNITS_PER_INCH } from './research-figures-model.mjs'
 import { renderPicture } from './research-figures-pictures.mjs'
 import { encodePng } from './research-figures-png.mjs'
-
-const GENERATED = /^aster-(pic|src|tex|icon|photo)-/
+import { pruneGeneratedFiles, sanitizeSvg, storeSvgFile } from './research-figures-svg-embed.mjs'
 
 function dataUrl(mimeType, bytes) {
   return `data:${mimeType};base64,${Buffer.from(bytes).toString('base64')}`
@@ -40,6 +38,29 @@ export function figureFileStore(scene, project) {
     scene.files ??= {}
     return scene.files
   }
+  /**
+   * A PNG or JPEG from the project (or an absolute path): its file id and pixel size. Read at
+   * once, so image({ src }) is placed even when the script forgets to await it.
+   */
+  const sourceSync = (src) => {
+    const absolute = path.isAbsolute(src) ? src : path.join(project, src)
+    let bytes
+    try {
+      bytes = readFileSync(absolute)
+    } catch {
+      throw new Error(
+        `No picture at ${absolute}: src is a path from the project folder (${project}), such as data/<figure>/photo.png`
+      )
+    }
+    const size = imageSize(bytes)
+    if (!size) {
+      throw new Error(`${src} is not a PNG or JPEG image`)
+    }
+    const fileId = `aster-src-${createHash('sha256').update(bytes).digest('hex').slice(0, 16)}`
+    const mimeType = imageMimeType(absolute)
+    files()[fileId] ??= { id: fileId, mimeType, dataURL: dataUrl(mimeType, bytes), created: 1 }
+    return { fileId, size }
+  }
   return {
     /** Encodes each picture spec once, under its content-derived id. */
     pictures(pictures) {
@@ -55,18 +76,9 @@ export function figureFileStore(scene, project) {
         }
       }
     },
-    /** A PNG or JPEG from the project (or an absolute path): its file id and pixel size. */
+    sourceSync,
     async source(src) {
-      const absolute = path.isAbsolute(src) ? src : path.join(project, src)
-      const bytes = await readFile(absolute)
-      const size = imageSize(bytes)
-      if (!size) {
-        throw new Error(`${src} is not a PNG or JPEG image`)
-      }
-      const fileId = `aster-src-${createHash('sha256').update(bytes).digest('hex').slice(0, 16)}`
-      const mimeType = imageMimeType(absolute)
-      files()[fileId] ??= { id: fileId, mimeType, dataURL: dataUrl(mimeType, bytes), created: 1 }
-      return { fileId, size }
+      return sourceSync(src)
     },
     /**
      * A vendored CC0 photo: its file id and pixel size. `need` is how many pixels across the
@@ -87,11 +99,20 @@ export function figureFileStore(scene, project) {
       }
       return { fileId, size: imageSize(bytes) }
     },
-    /** An SVG (typeset math, an icon) under its content id, kept vector in exports. */
+    /** An SVG (typeset math, an icon) under a given id, kept vector in exports. */
     svg(fileId, svg) {
       const data = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`
       files()[fileId] ??= { id: fileId, mimeType: 'image/svg+xml', dataURL: data, created: 1 }
     },
+    /**
+     * Any SVG to show as a picture (a plot, an illustration): made safe, stored once under
+     * `<prefix><content hash>`; returns the file id and the stored SVG.
+     */
+    embed(prefix, svg) {
+      const clean = sanitizeSvg(svg)
+      return { fileId: storeSvgFile(scene, prefix, clean), svg: clean }
+    },
+
     /** The reference image under one id, for photos cropped from it. */
     reference(id, relative, bytes) {
       const mimeType = imageMimeType(relative)
@@ -99,14 +120,7 @@ export function figureFileStore(scene, project) {
     },
     /** Drops generated and project images no image element uses any more. */
     prune(elements) {
-      const used = new Set(
-        elements.filter((element) => element.type === 'image').map((element) => element.fileId)
-      )
-      for (const fileId of Object.keys(files())) {
-        if (GENERATED.test(fileId) && !used.has(fileId)) {
-          delete files()[fileId]
-        }
-      }
+      pruneGeneratedFiles(files(), elements)
     }
   }
 }

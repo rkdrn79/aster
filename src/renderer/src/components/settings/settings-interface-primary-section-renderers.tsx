@@ -44,7 +44,7 @@ export function renderQuickCommandsSettingsSection(
   return (
     <SettingsSection
       id="quick-commands"
-      title={translate('auto.components.settings.Settings.13d4fe30ad', 'Quick Commands')}
+      title={translate('auto.components.settings.Settings.13d4fe30ad', 'Quick commands')}
       description={translate(
         'auto.components.settings.Settings.6742c7932c',
         'Saved terminal commands, scoped globally or per project.'
@@ -93,7 +93,7 @@ export function renderMobileEmulatorSettingsSection(
   return model.showDesktopOnlySettings ? (
     <SettingsSection
       id="mobile-emulator"
-      title={translate('auto.components.settings.Settings.f75daf1002', 'Mobile Emulator')}
+      title={translate('auto.components.settings.Settings.f75daf1002', 'Mobile emulator')}
       description={translate(
         'auto.components.settings.Settings.01f9d36292',
         'Configure mobile emulator support for Aster and coding agents.'
@@ -117,7 +117,7 @@ export function renderFloatingWorkspaceSettingsSection(
   return (
     <SettingsSection
       id="floating-workspace"
-      title={translate('auto.components.settings.Settings.3eb22a3ada', 'Floating Workspace')}
+      title={translate('auto.components.settings.Settings.3eb22a3ada', 'Floating workspace')}
       description={translate(
         'auto.components.settings.Settings.3d9adfe6a5',
         'Global terminal, browser, and markdown tabs.'

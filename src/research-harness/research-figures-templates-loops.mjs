@@ -1,5 +1,10 @@
 // Templates for loops and pipelines around a model: RL, an agent's plan-act-observe loop,
-// retrieval-augmented generation, and preference pairs. Icons mark actors and tools sparingly.
+// retrieval-augmented generation, and preference pairs. In the paper look (the default) actors
+// and tools are words and shapes; the preset's own look marks them with icons, sparingly.
+import { pageStyle } from './research-figures-style.mjs'
+
+/** Whether the figure draws in the paper look, where icons give way to words and shapes. */
+const paperLook = (fig) => pageStyle(fig.page).look === 'paper'
 
 /** Reinforcement learning: the agent acts on the environment, which returns state and reward. */
 function rl(fig, spec) {
@@ -24,8 +29,10 @@ function rl(fig, spec) {
     exact: true,
     color: 'strong'
   })
-  fig.icon('robot', { id: `${id}-agent-icon`, cx: x + 12, cy: y + 40, size: 20 })
-  fig.icon('earth', { id: `${id}-env-icon`, cx: x + 242, cy: y + 40, size: 20 })
+  if (!paperLook(fig)) {
+    fig.icon('robot', { id: `${id}-agent-icon`, cx: x + 12, cy: y + 40, size: 20 })
+    fig.icon('earth', { id: `${id}-env-icon`, cx: x + 242, cy: y + 40, size: 20 })
+  }
   fig.arrow({
     id: `${id}-act`,
     from: `${id}-agent`,
@@ -75,7 +82,9 @@ function agentLoop(fig, spec) {
     exact: true,
     color: 'accent'
   })
-  fig.icon('brain', { id: `${id}-llm-icon`, cx: x + 132, cy: y + 60, size: 20 })
+  if (!paperLook(fig)) {
+    fig.icon('brain', { id: `${id}-llm-icon`, cx: x + 132, cy: y + 60, size: 20 })
+  }
   const step = (name, label, bx, by) =>
     fig.box({ id: `${id}-${name}`, label, x: bx, y: by, w: 80, h: 30, exact: true, color: 'block' })
   step('plan', 'Plan', x + 125, y)
@@ -86,6 +95,17 @@ function agentLoop(fig, spec) {
   fig.arrow({ id: `${id}-a3`, from: `${id}-observe`, to: `${id}-llm` })
   fig.arrow({ id: `${id}-a4`, from: `${id}-llm`, to: `${id}-plan` })
   for (const [index, tool] of tools.entries()) {
+    if (paperLook(fig)) {
+      fig.text({
+        id: `${id}-tool${index}`,
+        text: tool,
+        size: 14,
+        x: x + 362,
+        y: y + 32 + index * 26,
+        color: 'muted'
+      })
+      continue
+    }
     fig.icon(tool, {
       id: `${id}-tool${index}`,
       x: x + 366 + index * 0,
@@ -104,7 +124,12 @@ function agentLoop(fig, spec) {
 /** Retrieval-augmented generation: query → retriever → top-k documents → LLM → answer. */
 function rag(fig, spec) {
   const { id, x = 0, y = 0, k = 3 } = spec
-  fig.icon('chat', { id: `${id}-query`, x, y: y + 30, size: 26 })
+  const paper = paperLook(fig)
+  if (paper) {
+    fig.text({ id: `${id}-query`, text: 'query', x, cy: y + 43 })
+  } else {
+    fig.icon('chat', { id: `${id}-query`, x, y: y + 30, size: 26 })
+  }
   fig.box({
     id: `${id}-ret`,
     label: 'Retriever',
@@ -115,8 +140,26 @@ function rag(fig, spec) {
     exact: true,
     color: 'strong'
   })
-  fig.icon('database', { id: `${id}-db`, x: x + 91, y: y + 92, size: 24 })
+  if (paper) {
+    fig.cylinder({ id: `${id}-db`, x: x + 79, y: y + 88, w: 48, h: 36, color: 'block' })
+  } else {
+    fig.icon('database', { id: `${id}-db`, x: x + 91, y: y + 92, size: 24 })
+  }
   for (let index = 0; index < k; index += 1) {
+    if (paper) {
+      // Why pages: a document is a sheet; the top-k fan out as a small stack of them.
+      fig.box({
+        id: `${id}-doc${index}`,
+        label: '',
+        x: x + 196 + index * 12,
+        y: y + 28 + (index - (k - 1) / 2) * 6,
+        w: 20,
+        h: 26,
+        exact: true,
+        color: 'white'
+      })
+      continue
+    }
     fig.icon('document', {
       id: `${id}-doc${index}`,
       x: x + 196 + index * 12,
@@ -184,8 +227,13 @@ function preference(fig, spec) {
     exact: true,
     color: 'strong'
   })
-  fig.icon('thumbs-up', { id: `${id}-up`, cx: x + 160, cy: y + 21, size: 20 })
-  fig.icon('thumbs-down', { id: `${id}-down`, cx: x + 160, cy: y + 95, size: 20 })
+  if (paperLook(fig)) {
+    fig.mark({ id: `${id}-up`, kind: 'check', cx: x + 160, cy: y + 21, size: 14 })
+    fig.mark({ id: `${id}-down`, kind: 'cross', cx: x + 160, cy: y + 95, size: 14 })
+  } else {
+    fig.icon('thumbs-up', { id: `${id}-up`, cx: x + 160, cy: y + 21, size: 20 })
+    fig.icon('thumbs-down', { id: `${id}-down`, cx: x + 160, cy: y + 95, size: 20 })
+  }
   fig.arrow({ id: `${id}-a1`, from: `${id}-x`, to: `${id}-yw`, route: 'vh' })
   fig.arrow({ id: `${id}-a2`, from: `${id}-x`, to: `${id}-yl`, route: 'vh' })
   fig.loss({

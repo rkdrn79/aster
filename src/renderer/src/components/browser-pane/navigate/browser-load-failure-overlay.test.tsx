@@ -89,7 +89,7 @@ describe('BrowserLoadFailureOverlay', () => {
         `${PRODUCT_NAME} doesn't trust the authority that issued the certificate for localhost:3443.`
       )
     ).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Proceed Anyway (Unsafe)' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Proceed anyway (unsafe)' })).toBeNull()
     expect(screen.queryByText(/make sure the server is running/i)).not.toBeInTheDocument()
   })
 
@@ -109,9 +109,9 @@ describe('BrowserLoadFailureOverlay', () => {
     )
 
     expect(screen.getByText("The certificate doesn't match localhost:3443.")).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Proceed Anyway (Unsafe)' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Proceed anyway (unsafe)' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'Copy Address' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Copy address' })).toBeEnabled()
   })
 
   it('offers HTTPS recovery only for an eligible failed HTTP address', () => {
@@ -172,7 +172,7 @@ describe('BrowserLoadFailureOverlay', () => {
     expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled()
   })
 
-  it('hides Open Externally and works without an external handler', () => {
+  it('hides Open externally and works without an external handler', () => {
     render(
       <BrowserLoadFailureOverlay
         loadError={{
@@ -190,9 +190,9 @@ describe('BrowserLoadFailureOverlay', () => {
 
     // externalUrl / onOpenExternal omitted (e.g. a remote loopback failure):
     // the action is absent and the overlay still renders its other recovery UI.
-    expect(screen.queryByRole('button', { name: 'Open Externally' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Open externally' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'Copy Address' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Copy address' })).toBeEnabled()
   })
 
   it('does not show local-certificate guidance for a public-host failure', () => {
@@ -230,7 +230,7 @@ describe('BrowserLoadFailureOverlay', () => {
       />
     )
 
-    expect(screen.getByRole('button', { name: 'Proceed Anyway (Unsafe)' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Proceed anyway (unsafe)' })).toBeEnabled()
 
     rerender(
       <BrowserLoadFailureOverlay
@@ -248,7 +248,7 @@ describe('BrowserLoadFailureOverlay', () => {
       />
     )
     expect(screen.getByText("Connection isn't secure")).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Proceed Anyway (Unsafe)' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Proceed anyway (unsafe)' })).toBeEnabled()
 
     rerender(
       <BrowserLoadFailureOverlay
@@ -265,7 +265,7 @@ describe('BrowserLoadFailureOverlay', () => {
         {...callbacks}
       />
     )
-    expect(screen.queryByRole('button', { name: 'Proceed Anyway (Unsafe)' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Proceed anyway (unsafe)' })).toBeNull()
 
     rerender(
       <BrowserLoadFailureOverlay
@@ -282,7 +282,7 @@ describe('BrowserLoadFailureOverlay', () => {
         {...callbacks}
       />
     )
-    expect(screen.queryByRole('button', { name: 'Proceed Anyway (Unsafe)' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Proceed anyway (unsafe)' })).toBeNull()
   })
 
   it('disables every action immediately and delays connecting feedback', async () => {
@@ -309,9 +309,9 @@ describe('BrowserLoadFailureOverlay', () => {
       />
     )
 
-    fireEvent.click(screen.getByRole('button', { name: 'Proceed Anyway (Unsafe)' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Proceed anyway (unsafe)' }))
     expect(callbacks.onProceedCertificate).toHaveBeenCalledWith('challenge-1')
-    for (const name of ['Proceed Anyway (Unsafe)', 'Open Externally', 'Retry', 'Copy Address']) {
+    for (const name of ['Proceed anyway (unsafe)', 'Open externally', 'Retry', 'Copy address']) {
       expect(screen.getByRole('button', { name })).toBeDisabled()
     }
     expect(screen.queryByText('Connecting…')).toBeNull()
@@ -337,7 +337,7 @@ describe('BrowserLoadFailureOverlay', () => {
         {...callbacks}
       />
     )
-    expect(screen.queryByRole('button', { name: 'Proceed Anyway (Unsafe)' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Proceed anyway (unsafe)' })).toBeNull()
     expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled()
   })
 
@@ -359,14 +359,14 @@ describe('BrowserLoadFailureOverlay', () => {
       <BrowserLoadFailureOverlay {...props} certificateFailure={certificateFailure} />
     )
 
-    fireEvent.click(screen.getByRole('button', { name: 'Proceed Anyway (Unsafe)' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Proceed anyway (unsafe)' }))
     await waitFor(() =>
       expect(screen.getByRole('alert')).toHaveTextContent(/certificate approval expired/i)
     )
     expect(screen.getByRole('button', { name: 'Retry' })).toBeEnabled()
 
     callbacks.onProceedCertificate.mockReturnValue(new Promise(() => {}))
-    fireEvent.click(screen.getByRole('button', { name: 'Proceed Anyway (Unsafe)' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Proceed anyway (unsafe)' }))
     expect(screen.getByRole('button', { name: 'Retry' })).toBeDisabled()
     rerender(
       <BrowserLoadFailureOverlay
@@ -374,7 +374,7 @@ describe('BrowserLoadFailureOverlay', () => {
         certificateFailure={{ ...certificateFailure, challengeId: 'challenge-2' }}
       />
     )
-    expect(screen.getByRole('button', { name: 'Proceed Anyway (Unsafe)' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Proceed anyway (unsafe)' })).toBeEnabled()
     expect(screen.queryByRole('alert')).toBeNull()
   })
 })

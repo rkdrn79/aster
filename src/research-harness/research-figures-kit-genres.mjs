@@ -119,7 +119,8 @@ export function genreMethods(core, figure) {
       }
       const lines = labelLines(wrapped ? wrapped.label : runs, size, undefined, style)
       const where = box
-        ? { cx: spec.cx ?? box.x + box.width / 2, y: box.bottom + (spec.gap ?? 6) }
+        ? // Why y wins: captions of panels of different heights share one baseline when given y.
+          { cx: spec.cx ?? box.x + box.width / 2, y: spec.y ?? box.bottom + (spec.gap ?? 6) }
         : { x: spec.x, cx: spec.cx, y: spec.y }
       return place(
         spec.id,

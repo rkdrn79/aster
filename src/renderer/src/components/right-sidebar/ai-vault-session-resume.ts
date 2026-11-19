@@ -258,6 +258,6 @@ export function aiVaultSessionResumeLabel(
   }
   return translate(
     'auto.components.right.sidebar.AiVaultSessionRow.resumeInNewTab',
-    'Resume in New Tab'
+    'Resume in new tab'
   )
 }

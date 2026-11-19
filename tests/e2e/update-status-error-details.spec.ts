@@ -45,7 +45,7 @@ for (const theme of ['dark', 'light'] as const) {
     })
     await expect(card).toBeVisible()
     await expect(statusButton).toHaveAttribute('aria-expanded', 'true')
-    await expect(card.getByRole('heading', { name: 'Update Check Failed' })).toBeVisible()
+    await expect(card.getByRole('heading', { name: 'Update check failed' })).toBeVisible()
     await expect(card.getByRole('button', { name: 'Re-check', exact: true })).toBeVisible()
 
     await card.getByRole('button', { name: 'Show details', exact: true }).click()

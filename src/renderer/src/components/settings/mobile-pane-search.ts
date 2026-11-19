@@ -6,7 +6,7 @@ import { getMachineNameSearchEntries } from './machine-name-search'
 
 const getNetworkInterfaceSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.mobile.pane.search.d96c315227', 'Network Interface'),
+    title: translate('auto.components.settings.mobile.pane.search.d96c315227', 'Network interface'),
     description: translate(
       'auto.components.settings.mobile.pane.search.3190ef67a4',
       'Choose which network address to use for mobile pairing.'
@@ -55,7 +55,7 @@ export function shouldOpenMobilePairingAddress(searchQuery: string): boolean {
 
 export const getMobilePaneSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.mobile.pane.search.d49925710a', 'Mobile Pairing'),
+    title: translate('auto.components.settings.mobile.pane.search.d49925710a', 'Mobile pairing'),
     description: translate(
       'auto.components.settings.mobile.pane.search.7fb728fb2b',
       'Pair a mobile device by scanning a QR code.'
@@ -70,7 +70,7 @@ export const getMobilePaneSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.mobile.pane.search.9d3a9397ba', 'Connected Devices'),
+    title: translate('auto.components.settings.mobile.pane.search.9d3a9397ba', 'Connected devices'),
     description: translate(
       'auto.components.settings.mobile.pane.search.13419718b3',
       'Manage paired mobile devices.'

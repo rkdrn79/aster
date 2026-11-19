@@ -133,7 +133,7 @@ export function LinearIssueFilterSectionMenu({
           key={section.key}
           type="button"
           onClick={() => onOpenSection(section.key)}
-          className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition hover:bg-muted/50"
+          className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition-colors hover:bg-muted/50"
         >
           <span className="font-medium">{section.label}</span>
           <span className="inline-flex min-w-0 items-center gap-1 text-muted-foreground">
@@ -230,7 +230,7 @@ export function LinearIssueFilterSectionDetail({
             <button
               type="button"
               className={cn(
-                'w-full rounded-md px-2 py-1.5 text-left text-xs transition hover:bg-muted/50',
+                'w-full rounded-md px-2 py-1.5 text-left text-xs transition-colors hover:bg-muted/50',
                 value.assignee?.kind === 'unassigned' && 'bg-muted/40 font-medium'
               )}
               onClick={() =>
@@ -345,7 +345,7 @@ function SectionBack({ onBack }: { onBack: () => void }): React.JSX.Element {
     <button
       type="button"
       onClick={onBack}
-      className="flex w-full items-center gap-1 border-b border-border/50 px-3 py-1.5 text-left text-xs text-muted-foreground transition hover:bg-muted/40 hover:text-foreground"
+      className="flex w-full items-center gap-1 border-b border-border/50 px-3 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
     >
       {translate('auto.components.linear-issue-attribute-filter-sections.back', 'Back')}
     </button>

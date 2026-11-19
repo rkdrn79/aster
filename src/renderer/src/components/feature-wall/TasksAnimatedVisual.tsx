@@ -42,14 +42,7 @@ const RESET_MS = 500
 
 function CursorIcon(): JSX.Element {
   return (
-    <svg
-      width={16}
-      height={16}
-      viewBox="0 0 16 16"
-      aria-hidden
-      focusable="false"
-      className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]"
-    >
+    <svg width={16} height={16} viewBox="0 0 16 16" aria-hidden focusable="false">
       <path
         d="M2 1.5 L2 12 L5 9 L7.2 14.5 L9.5 13.6 L7.3 8 L11.5 8 Z"
         fill="#fff"
@@ -248,13 +241,13 @@ export function TasksAnimatedVisual(props: { reducedMotion: boolean }): JSX.Elem
                 <span>#{issue.number}</span>
               </span>
               <div className="min-w-0">
-                <div className="truncate text-[12.5px] font-semibold leading-[1.2] text-foreground">
+                <div className="truncate text-[12.5px] font-medium leading-[1.2] text-foreground">
                   {issue.title}
                 </div>
               </div>
               <div className="relative flex items-center justify-end">
                 {!isActive ? (
-                  <span className="inline-flex items-center justify-center rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2 py-px text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
+                  <span className="inline-flex items-center justify-center rounded-md border border-status-success-border bg-status-success-background px-2 py-px text-[10px] font-medium text-status-success">
                     {translate(
                       'auto.components.feature.wall.TasksAnimatedVisual.4331c4d0f8',
                       'Open'
@@ -268,7 +261,7 @@ export function TasksAnimatedVisual(props: { reducedMotion: boolean }): JSX.Elem
                     ref={(node) => {
                       buttonRefs.current[i] = node
                     }}
-                    className={`pointer-events-none inline-flex items-center gap-1.5 rounded-md bg-foreground px-2.5 py-1 text-[11px] font-semibold text-background transition-[transform,filter] duration-150 ${
+                    className={`pointer-events-none inline-flex items-center gap-1.5 rounded-md bg-foreground px-2.5 py-1 text-[11px] font-medium text-background transition-[transform,filter] duration-150 ${
                       isPressing ? 'scale-[0.94] brightness-[1.4]' : 'scale-100'
                     }`}
                   >
@@ -286,13 +279,13 @@ export function TasksAnimatedVisual(props: { reducedMotion: boolean }): JSX.Elem
       </div>
 
       <div
-        className={`overflow-hidden transition-all duration-[320ms] ease-out ${
+        className={`overflow-hidden transition-[opacity,border-color] duration-[320ms] ${
           showDropdown
             ? 'mt-2.5 max-h-[200px] border-t border-border/80 pt-2.5 opacity-100'
             : 'mt-0 max-h-0 border-t border-transparent pt-0 opacity-0'
         }`}
       >
-        <div className="flex items-center gap-1.5 px-1 pb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+        <div className="flex items-center gap-1.5 px-1 pb-1.5 text-[10.5px] font-medium text-muted-foreground">
           {workspaceCreating ? (
             <span className="inline-block size-[9px] animate-spin rounded-full border-[1.5px] border-yellow-500 border-t-transparent" />
           ) : (

@@ -19,7 +19,7 @@ describe('WindowsTerminalStep', () => {
       <WindowsTerminalStep settings={createSettings()} updateSettings={vi.fn()} />
     )
 
-    expect(html).toContain('Default Shell')
+    expect(html).toContain('Default shell')
     expect(html).toContain('PowerShell')
     expect(html).toContain('Command Prompt')
     expect(html).toContain('Right-click behavior')
@@ -44,7 +44,7 @@ describe('WindowsTerminalStep', () => {
     )
 
     expect(html).toContain('WSL')
-    expect(html).toContain('WSL Distribution')
+    expect(html).toContain('WSL distribution')
   })
 
   it('renders Git Bash with the Git Bash mark instead of a text badge', () => {

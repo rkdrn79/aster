@@ -97,7 +97,7 @@ export function GitHubUserAvatar({
       title={title}
       aria-hidden
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full border border-border/50 bg-muted text-[10px] font-semibold text-muted-foreground',
+        'inline-flex shrink-0 items-center justify-center rounded-full border border-border/50 bg-muted text-[10px] font-medium text-muted-foreground',
         className
       )}
     >

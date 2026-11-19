@@ -1,4 +1,5 @@
 import './research-figures-shell.css'
+import './research-pane-motion.css'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { Maximize2, Minimize2, PanelRight, Shapes } from 'lucide-react'
@@ -15,6 +16,7 @@ import { ResearchFigureNewDialog, type NewFigureDraft } from './ResearchFigureNe
 import { ResearchFigureRecreateDialog } from './ResearchFigureRecreateDialog'
 import type { FigureReference } from './research-figure-recreate'
 import { ResearchFigurePreview } from './ResearchFigurePreview'
+import { ResearchPlotView } from './ResearchPlotView'
 import { ResearchFiguresFirstRun } from './ResearchFiguresFirstRun'
 import { ResearchFiguresLayout, useFiguresLayoutMode } from './ResearchFiguresLayout'
 import { ResearchFiguresList } from './ResearchFiguresList'
@@ -52,6 +54,7 @@ import { useFiguresPageRequests } from './use-figures-page-requests'
 import { useFigureCanvasState } from './use-figure-canvas-state'
 import {
   listedFigure,
+  listedPlot,
   openFiguresProject,
   selectFigure,
   useFigureListAutoRefresh,
@@ -105,11 +108,17 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
   const focus = useFiguresLayout((state) => state.focus)
   const sideTab = useActiveFigureSidePanelTab()
   const openSlug = selected?.kind === 'figure' ? selected.slug : null
-  const canvas = useFigureCanvasState(openSlug)
+  const openPlot = selected?.kind === 'plot' ? listedPlot(listing, selected.slug) : null
+  const editorCanvas = useFigureCanvasState(openSlug)
+  // Why 'plot': with a plot open the agent offers the plot requests, not the canvas ones.
+  const canvas = openPlot ? 'plot' : editorCanvas
   const [newDraft, setNewDraft] = useState<NewFigureDraft | null>(null)
   const [newOpen, setNewOpen] = useState(false)
   const [recreate, setRecreate] = useState<{ selected: FigureReference | null } | null>(null)
-  const taken = useMemo(() => new Set(listing.figures.map((figure) => figure.slug)), [listing])
+  const taken = useMemo(
+    () => new Set([...listing.figures, ...listing.plots].map((figure) => figure.slug)),
+    [listing]
+  )
   useEffect(() => {
     let live = true
     void manuscriptSource(scope, linked).then(
@@ -149,8 +158,17 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
       manuscript,
       agentScope,
       openSlug,
+      openPlot: openPlot?.slug ?? null,
       onRecreate: () => setRecreate({ selected: null })
     })
+
+  const sendText = folder
+    ? async (text: string): Promise<string | null> => {
+        const host = requestHost()
+        const track = await openFigureSendTrack(host)
+        return sendFigureChatText(agentScope, figurePromptContext(host), text, track)
+      }
+    : null
 
   function openNew(draft: NewFigureDraft | null): void {
     setNewDraft(draft)
@@ -162,8 +180,8 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
       <RecoverableRenderErrorBoundary
         boundaryId="research-figures.editor"
         surface="page"
-        title="The figure editor hit an error."
-        description="Pick the figure again, or reopen the page."
+        title="The figure editor hit an error"
+        description="Pick the figure again, or reopen the page"
       >
         <Suspense
           fallback={
@@ -186,6 +204,14 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
           />
         </Suspense>
       </RecoverableRenderErrorBoundary>
+    ) : openPlot ? (
+      <ResearchPlotView
+        key={`${projectOwnerKey(owner)}:${openPlot.slug}`}
+        owner={owner}
+        plot={openPlot}
+        manuscript={manuscript}
+        signatures={signatures}
+      />
     ) : selected?.kind === 'file' && openFile ? (
       <ResearchFigurePreview
         owner={owner}
@@ -274,15 +300,7 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
         center={center}
         pill={
           <ResearchFigureAgentPill
-            onSend={
-              folder
-                ? async (text) => {
-                    const host = requestHost()
-                    const track = await openFigureSendTrack(host)
-                    return sendFigureChatText(agentScope, figurePromptContext(host), text, track)
-                  }
-                : null
-            }
+            onSend={sendText}
             onExpand={() => {
               openFigureSidePanelTab(AGENT_TAB_ID)
               openFiguresSidePanel()
@@ -291,7 +309,14 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
         }
         side={
           <ResearchFigureSidePanel
-            context={{ owner, folder, slug: openSlug, manuscript, scope: agentScope }}
+            context={{
+              owner,
+              folder,
+              slug: openSlug,
+              plot: openPlot?.slug ?? null,
+              manuscript,
+              scope: agentScope
+            }}
             agent={
               <ResearchFigureAgentPane
                 scope={agentScope}
@@ -301,7 +326,10 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
                 onTemplate={() => openNew({ start: 'template' })}
                 messageContext={messageContext}
                 canvas={canvas}
-                figureKey={openSlug}
+                figureKey={openSlug ?? openPlot?.slug ?? null}
+                owner={owner}
+                folders={{ work: folder, figure: openFigure?.folder ?? null }}
+                onSendText={sendText}
               />
             }
           />
@@ -321,7 +349,12 @@ function FiguresWorkspace({ scope }: { scope: WritingProjectScope }): React.JSX.
         existing={taken}
         draft={newDraft}
         onOpenChange={setNewOpen}
-        onOpenExisting={(slug) => selectFigure(owner, { kind: 'figure', slug })}
+        onOpenExisting={(slug) =>
+          selectFigure(
+            owner,
+            listedPlot(listing, slug) ? { kind: 'plot', slug } : { kind: 'figure', slug }
+          )
+        }
         onCreate={createFromDialog}
       />
     </section>
@@ -346,7 +379,7 @@ export function ResearchFiguresPage(): React.JSX.Element {
         <ResearchPageHeader title="Figures" />
         <ResearchPageBody>
           <ResearchEmptyState icon={Shapes} title="No project open">
-            Open a project to draw its figures.
+            Open a project to draw its figures
           </ResearchEmptyState>
         </ResearchPageBody>
       </section>

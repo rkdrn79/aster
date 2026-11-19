@@ -10,10 +10,12 @@ type PillProps = {
   onExpand: () => void
 }
 
-/** The Figure agent folded under the canvas; each figure starts with its own empty line. */
+/** The Figure agent folded under the canvas; each figure or plot starts with its own empty line. */
 export function ResearchFigureAgentPill(props: PillProps): React.JSX.Element {
   const figure = useResearchFigures((state) =>
-    state.selected?.kind === 'figure' ? state.selected.slug : ''
+    state.selected?.kind === 'figure' || state.selected?.kind === 'plot'
+      ? `${state.selected.kind}:${state.selected.slug}`
+      : ''
   )
   return <FigurePill key={figure} {...props} />
 }
@@ -43,7 +45,7 @@ function FigurePill({ onSend, onExpand }: PillProps): React.JSX.Element {
   return (
     <div className="flex shrink-0 flex-col items-center gap-1 border-t border-border px-3 py-2">
       <form
-        className="flex w-full max-w-xl items-center gap-1 rounded-full border border-border bg-background py-0.5 pr-1 pl-3 shadow-xs focus-within:border-foreground/50"
+        className="flex w-full max-w-xl items-center gap-1 rounded-lg border border-border bg-background py-0.5 pr-1 pl-3 shadow-xs focus-within:border-foreground/50"
         onSubmit={(event) => void submit(event)}
       >
         <input

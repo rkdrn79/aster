@@ -253,7 +253,7 @@ function SectionHeading({ section }: { section: WorkspaceViewSection }): JSX.Ele
     case 'filters':
       return (
         <div className="flex items-center justify-between px-2 py-1">
-          <span className="text-[11px] font-semibold text-muted-foreground">
+          <span className="text-[11px] font-medium text-muted-foreground">
             {translate(
               'auto.components.sidebar.SidebarWorkspaceFilterSection.82594419ba',
               'Filters'

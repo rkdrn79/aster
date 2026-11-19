@@ -9,7 +9,13 @@ export type PaletteAccent = {
   solid: string
   highlight?: string
   pick?: string
+  /** World hues: the outline darker than the fill, and the lit and turned faces of 3D shapes. */
+  stroke?: string
+  light?: string
+  dark?: string
 }
+/** A world palette's meanings: role name (input, output, data, model, frozen, ours) to a hue. */
+export type WorldInfo = { mood: string; fits: string[]; roles: Record<string, string> }
 export type PalettePreset = {
   label: string
   neutrals: {
@@ -27,6 +33,8 @@ export type PalettePreset = {
   illustrative?: boolean
   mono?: boolean
   accents: PaletteAccent[]
+  world?: WorldInfo
+  panels?: { name: string; fill: string; strong: string; ink: string }[]
   rules: string[]
 }
 export type DerivedAccent = {
@@ -55,6 +63,8 @@ export type PresetColors = {
   accents: PaletteAccent[]
   accentName: string | null
   loss: LossStyle & { clash: boolean }
+  world: WorldInfo | null
+  panels: PalettePreset['panels'] | null
   rules: string[]
 }
 export type LossTone = 'ink' | 'accent' | 'red'
@@ -86,11 +96,8 @@ export function luminance(hex: string): number
 export function contrast(first: string, second: string): number
 export function hueDistance(first: number, second: number): number
 export function colorClass(hex: string): ({ kind: 'hue' | 'tinted' | 'neutral' } & Oklch) | null
-export function deriveAccent(
-  pick: string | number,
-  options?: { block?: string; chroma?: number }
-): DerivedAccent
-export function accentFor(name: string, block?: string): ({ name: string } & DerivedAccent) | null
+export function deriveAccent(pick: string | number, options?: { chroma?: number }): DerivedAccent
+export function accentFor(name: string): ({ name: string } & DerivedAccent) | null
 export function tonalNeutrals(hue: number): { panel: string; block: string; strong: string }
 export function presetColors(presetName: string, pick?: string | null): PresetColors
 export const PANEL_SWATCHES: Record<string, { hue: number; L: number; C: number }>

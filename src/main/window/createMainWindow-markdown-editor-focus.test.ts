@@ -69,7 +69,7 @@ describe('createMainWindow', () => {
     syncListener?.({} as never, 1.2)
 
     if (process.platform === 'darwin') {
-      expect(browserWindowInstance.setWindowButtonPosition).toHaveBeenCalledWith({ x: 16, y: 16 })
+      expect(browserWindowInstance.setWindowButtonPosition).toHaveBeenCalledWith({ x: 20, y: 25 })
       return
     }
 

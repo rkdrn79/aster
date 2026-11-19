@@ -67,7 +67,7 @@ export function DocPreviewAddressEdit({
         toast.error(
           translate(
             'auto.components.browser.pane.BrowserPane.fileUrlUnsupported',
-            'This browser tab cannot open local files. Use "Open Preview to the Side" on the file instead.'
+            'This browser tab cannot open local files. Use "Open preview to the side" on the file instead.'
           )
         )
         return

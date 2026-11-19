@@ -6,7 +6,7 @@ export const getGeneralProjectRuntimeSearchEntries = createLocalizedCatalog(() =
   {
     title: translate(
       'auto.components.settings.general.search.defaultProjectRuntime',
-      'Default Project Runtime'
+      'Default project runtime'
     ),
     description: translate(
       'auto.components.settings.general.search.defaultProjectRuntimeDescription',

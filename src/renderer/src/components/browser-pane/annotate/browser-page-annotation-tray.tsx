@@ -222,7 +222,7 @@ export function BrowserPageAnnotationTray({
                   key={annotation.id}
                   className="group flex gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-accent focus-within:bg-accent"
                 >
-                  <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                  <div className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
                     {index + 1}
                   </div>
                   {isEditing ? (

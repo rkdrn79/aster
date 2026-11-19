@@ -125,7 +125,7 @@ export function JiraIssueMetadataBar({
           <button
             type="button"
             disabled={pendingField === 'priority'}
-            className="rounded-md px-1.5 py-0.5 text-[11px] text-muted-foreground transition hover:bg-muted/40 disabled:opacity-50"
+            className="rounded-md px-1.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted/40 disabled:opacity-50"
           >
             {displayed.priority?.name ??
               translate('auto.components.JiraIssueWorkspace.51bed73f88', 'No priority')}

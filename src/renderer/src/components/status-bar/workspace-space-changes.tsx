@@ -52,7 +52,7 @@ export function WorkspaceSpaceChanges({
         onKeyDown={(event) => event.stopPropagation()}
       >
         <div className="space-y-2 border-b border-border p-3">
-          <div className="truncate text-sm font-semibold">{worktree.displayName}</div>
+          <div className="truncate text-sm font-medium">{worktree.displayName}</div>
           <p className="text-xs text-muted-foreground">
             {translate(
               'workspaceSpace.changes.description',

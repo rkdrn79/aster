@@ -117,8 +117,8 @@ export function ResearchRunInspectorActions({
           <DropdownMenuItem onSelect={() => detachWithUndo(run, onDetach)}>
             Detach from experiment
           </DropdownMenuItem>
-          <p className="max-w-56 px-2 pb-1.5 text-2xs text-muted-foreground">
-            Removes the run from this list; its files are untouched.
+          <p className="max-w-56 px-2 pb-2 text-2xs text-muted-foreground">
+            Removes the run from this list; its files are untouched
           </p>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -46,7 +46,7 @@ export function TaskPageGitHubDuplicatePicker({
         >
           <ChevronLeft className="size-4" />
         </Button>
-        <span className="min-w-0 truncate text-[12px] font-semibold">{duplicatePickerTitle}</span>
+        <span className="min-w-0 truncate text-[12px] font-medium">{duplicatePickerTitle}</span>
       </div>
       <div className="relative px-1 pb-2">
         <Search className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground" />
@@ -108,7 +108,7 @@ export function TaskPageGitHubDuplicatePicker({
           <p className="px-2 py-3 text-[12px] text-muted-foreground">
             {translate(
               'auto.components.TaskPage.noMatchingIssuesLoaded',
-              'No matching issues loaded.'
+              'No matching issues loaded'
             )}
           </p>
         ) : null}

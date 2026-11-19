@@ -118,7 +118,7 @@ export function ProjectGroupDeleteDialog({
           <DialogTitle className="text-sm">
             {translate(
               'auto.components.sidebar.ProjectGroupDeleteDialog.591f330288',
-              'Delete Project Group'
+              'Delete project group'
             )}
           </DialogTitle>
           <DialogDescription className="text-xs">
@@ -130,7 +130,7 @@ export function ProjectGroupDeleteDialog({
           <div className="space-y-2 text-xs">
             {projectNames.length > 0 && (
               <div className="rounded-md border border-border/70 bg-muted/35 px-3 py-2">
-                <div className="mb-1 text-[11px] font-medium uppercase tracking-[0.05em] text-muted-foreground">
+                <div className="mb-1 text-[11px] font-medium text-muted-foreground">
                   {translate(
                     'auto.components.sidebar.ProjectGroupDeleteDialog.0e0e6764af',
                     'Contained projects'
@@ -217,7 +217,7 @@ export function ProjectGroupDeleteDialog({
                 )
               : translate(
                   'auto.components.sidebar.ProjectGroupDeleteDialog.fec7e9c8ae',
-                  'Delete Group'
+                  'Delete group'
                 )}
           </Button>
         </DialogFooter>

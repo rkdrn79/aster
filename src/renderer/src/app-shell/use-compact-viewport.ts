@@ -1,9 +1,12 @@
 import { useSyncExternalStore } from 'react'
 import { useAppStore } from '@/store'
-import { COMPACT_VIEWPORT_QUERY } from './compact-viewport-query'
+import { isWebClientLocation } from '@/lib/web-client-location'
+import { compactViewportQuery } from './compact-viewport-query'
 
 function readQuery(): MediaQueryList | null {
-  return typeof window.matchMedia === 'function' ? window.matchMedia(COMPACT_VIEWPORT_QUERY) : null
+  return typeof window.matchMedia === 'function'
+    ? window.matchMedia(compactViewportQuery(isWebClientLocation()))
+    : null
 }
 
 function subscribeCompactViewport(onChange: () => void): () => void {
@@ -16,7 +19,7 @@ export function isCompactViewport(): boolean {
   return readQuery()?.matches === true
 }
 
-/** True on phone-width viewports, where the left sidebar becomes a drawer over the page. */
+/** True on phone viewports, where the left sidebar becomes a drawer over the page. */
 export function useCompactViewport(): boolean {
   return useSyncExternalStore(subscribeCompactViewport, isCompactViewport, () => false)
 }

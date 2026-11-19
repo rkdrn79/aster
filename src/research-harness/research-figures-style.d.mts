@@ -1,4 +1,5 @@
 import type { LossStyle, LossTone } from './research-figures-palette.mjs'
+import type { FigurePage } from './research-figures-model.mjs'
 
 export type FigureStyleName =
   | 'graphite'
@@ -10,6 +11,12 @@ export type FigureStyleName =
   | 'print-mono'
   | 'illustrative'
   | 'categorical'
+  | 'vision'
+  | 'generative'
+  | 'language'
+  | 'robotics'
+  | 'training'
+  | 'systems'
 export type FigureStyleAccent = {
   name: string
   role: string
@@ -19,6 +26,10 @@ export type FigureStyleAccent = {
   ink: string
   solid: string
   highlight: string | null
+  /** In a world: the outline darker than the fill, and the lit and turned faces for 3D. */
+  stroke: string | null
+  light: string | null
+  dark: string | null
 }
 export type FigureStyle = {
   name: FigureStyleName
@@ -40,11 +51,20 @@ export type FigureStyle = {
   loss: LossStyle & { clash: boolean }
   outlineWidth: number | null
   rules: string[]
+  /** Role names (input, output, data, model, frozen, ours, a–d) to the colour each takes. */
+  roles: Record<string, string>
+  /** A world palette's mood and the papers it suits; null for the quiet presets. */
+  world: { mood: string; fits: string[]; roles: Record<string, string> } | null
+  /** Whether boxes take an outline darker than their fill, in the fill's hue (the worlds). */
+  pairs: boolean
   /** Label and small text sizes in scene units (8 pt and 7 pt). */
   textSize: number
   smallSize: number
-  /** Excalidraw font family: 9 Liberation Sans, 6 Nunito (illustrative). */
+  /** Excalidraw font family: 9 Liberation Sans, 6 Nunito (illustrative), 20/21 the paper look. */
   fontFamily: number
+  /** 'paper' in the paper look (research-figures-paper), with its face 'cm' | 'times'. */
+  look?: 'paper'
+  paperFont?: string
   titleSize: number
   calloutSize: number
   panelRadius: number | null
@@ -85,12 +105,13 @@ export const ARROW_ROLES: Record<
 export function figureStyle(
   name?: string | null,
   accent?: string | null,
-  options?: { panels?: string[] | null }
+  options?: { panels?: string[] | null; look?: 'paper' | null; font?: string | null }
 ): FigureStyle
+export function pageStyle(page: FigurePage | null | undefined): FigureStyle
 export function styleColor(
   style: FigureStyle,
   name: string | undefined
-): { fill: string; stroke: string; ink: string; role?: 'loss' }
+): { fill: string; stroke: string; ink: string; solid?: string; role?: 'loss' }
 export function inkColor(
   style: FigureStyle,
   name?: string | null,
@@ -131,7 +152,11 @@ export function stylePalette(style: FigureStyle): {
     strong: string
     ink: string
     solid: string
+    stroke?: string
+    light?: string
+    dark?: string
   }[]
+  roles: Record<string, string>
   loss: FigureStyle['loss']
   good: SemanticColor
   bad: SemanticColor

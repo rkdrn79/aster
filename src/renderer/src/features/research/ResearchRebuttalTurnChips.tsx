@@ -24,18 +24,18 @@ export function ResearchRebuttalTurnChips({
       role="status"
       title={`${name}: ${turn.request}`}
       className={cn(
-        'inline-flex max-w-52 items-center gap-1 rounded-sm bg-muted px-1.5 py-0.5 text-2xs text-muted-foreground',
+        'inline-flex max-w-52 items-center gap-1 rounded-sm bg-muted px-2 py-0.5 text-2xs text-muted-foreground',
         failed && 'text-destructive'
       )}
     >
       {turn.phase === 'waiting' ? (
-        <TriangleAlert className="size-3 shrink-0 text-status-warning" aria-hidden />
+        <TriangleAlert className="size-4 shrink-0 text-status-warning" aria-hidden />
       ) : failed ? (
-        <TriangleAlert className="size-3 shrink-0" aria-hidden />
+        <TriangleAlert className="size-4 shrink-0" aria-hidden />
       ) : turn.phase === 'done' ? (
-        <CircleCheck className="size-3 shrink-0" aria-hidden />
+        <CircleCheck className="size-4 shrink-0" aria-hidden />
       ) : (
-        <Loader2 className="size-3 shrink-0 animate-spin" aria-hidden />
+        <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden />
       )}
       <span className="truncate">
         {name}: {rebuttalTurnPhaseText(turn)}

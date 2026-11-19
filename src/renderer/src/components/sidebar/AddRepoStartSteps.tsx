@@ -181,12 +181,12 @@ export function AddRepoLocalStartStep({
         {/* Keep secondary entry methods always visible so they stay discoverable without an extra click. */}
         {/* Label clarifies the lighter-weight rows are alternate entry methods, not lesser features. */}
         <div className="space-y-1.5">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="px-0.5 text-[11px] font-medium text-muted-foreground">
             {translate('auto.components.sidebar.AddRepoStartSteps.87596c1446', 'Other ways to add')}
           </p>
           {/* Outline uses the `input` token (white-ish in dark mode) to match Browse's visible outline variant;
               primary-foreground is near-black in dark mode and rendered the border invisible. */}
-          <div className="overflow-hidden rounded-md border border-input bg-background">
+          <div className="overflow-hidden rounded-xl border border-input bg-background">
             {secondaryActions.map((action, index) => (
               <AddRepoSecondaryStartAction
                 key={action.kind}
@@ -198,8 +198,8 @@ export function AddRepoLocalStartStep({
                 onClick={action.onClick}
                 onFocus={() => setSelectedKind(action.kind)}
                 className={cn(
-                  index === 0 ? 'rounded-t-md' : 'border-t border-border/70',
-                  index === secondaryActions.length - 1 && 'rounded-b-md'
+                  index === 0 ? 'rounded-t-xl' : 'border-t border-border/70',
+                  index === secondaryActions.length - 1 && 'rounded-b-xl'
                 )}
               />
             ))}
@@ -252,20 +252,19 @@ const AddRepoPrimaryStartAction = ({
   buttonRef
 }: AddRepoStartActionProps): React.JSX.Element => (
   // A neutral wash marks the roving keyboard selection without making the row
-  // read like the committed primary action.
-  <Button
+  // read like the committed primary action. A plain button: the card is not a Button variant.
+  <button
     ref={buttonRef}
     type="button"
-    variant="ghost"
     onClick={onClick}
     onFocus={onFocus}
     disabled={disabled}
     data-add-repo-action
     className={cn(
-      'h-auto min-h-[3.75rem] w-full justify-start gap-3 whitespace-normal px-3 py-2.5 text-left',
+      'flex min-h-[3.75rem] w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors duration-150 outline-none disabled:pointer-events-none disabled:opacity-50',
       selected
-        ? 'border border-ring bg-foreground/10 text-foreground focus-visible:border-ring focus-visible:ring-0 dark:bg-accent dark:text-accent-foreground'
-        : 'border border-border bg-background shadow-none dark:bg-background'
+        ? 'border-ring/50 bg-[color-mix(in_srgb,var(--foreground)_6%,var(--background))] text-foreground'
+        : 'border-input bg-background hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/40'
     )}
   >
     <span
@@ -283,7 +282,7 @@ const AddRepoPrimaryStartAction = ({
       </span>
     </span>
     {selected ? <AddRepoEnterChip /> : null}
-  </Button>
+  </button>
 )
 
 function AddRepoSecondaryStartAction({
@@ -308,7 +307,7 @@ function AddRepoSecondaryStartAction({
         className,
         // Selected mirrors the primary card's neutral wash so the highlight moves between rows.
         selected
-          ? 'border-ring bg-foreground/10 text-foreground focus-visible:ring-0 dark:bg-accent dark:text-accent-foreground'
+          ? 'bg-[color-mix(in_srgb,var(--foreground)_6%,var(--background))] text-foreground'
           : 'hover:bg-accent focus-visible:bg-accent focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-ring/50'
       )}
     >

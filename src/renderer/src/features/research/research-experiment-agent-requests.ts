@@ -20,6 +20,14 @@ export function proposalAddCommand(setup: AgentReviewSetup): string {
   return `proposal add --experiment ${slug} --title "<what changes>" --rationale "<why>" --command '${cliCommand(setup)} run exec --experiment ${slug} --name "<what changes>" -- <command>' [--config-changes '{"<key>":"<value>"}'] [--needs-code]`
 }
 
+/**
+ * Where the Experiment design guide is: the version-matched section from the CLI, or the bundled
+ * skill file when `aster` is missing or predates `--section`.
+ */
+export function experimentDesignGuideLine(setup: AgentReviewSetup): string {
+  return `Read the Experiment design guide first: \`aster skills get aster-research-track --section "Experiment design"\` prints the version that matches this Aster (an installed aster-research-track skill may be missing or older). Without \`aster\`, or on an older CLI without --section, read the \`## Experiment design\` section of ${JSON.stringify(setup.trackSkill)}.`
+}
+
 function experimentName(setup: AgentReviewSetup): string {
   return setup.experimentName ?? setup.experiment
 }
@@ -56,6 +64,7 @@ export function experimentChatIntro(
     'How you work here:',
     `- Propose every new Run with \`${proposalAddCommand(setup)}\`. Add --needs-code when the code must change; I approve it and hand it to a Workbench chat, which implements and launches it.`,
     `- After I approve a config-only Run, launch exactly its run exec command and record \`proposal launched --experiment ${slug} --id <id> --run ${slug}/<new run>\`. When the brief's proposals policy is budgeted, follow the aster-research-loop skill within the budget.`,
+    `- When I ask you to design or plan experiments (more than one Run: a paper's claims, a rebuttal round, a new idea), plan them above this Experiment as an experiment plan: \`plan new|set|check\`, a reviewer pre-mortem, then \`plan submit\` for my approval in Aster. ${experimentDesignGuideLine(setup)}`,
     `- Record each analysis you make: use the catalog path returned by context to find <record-root> (.aster/ or legacy research/), save the figure, table, or note under <record-root>/experiments/${slug}/analysis/, then \`${analysisAddCommand(setup)}\`.`,
     '- Record evidence-backed problems with `quality add`.',
     "- Never edit code, configs, the manuscript, or result files here. Never approve or reject proposals, accept or dismiss findings, or write the brief's conclusion; I do. Answer from files you read and cite them.",

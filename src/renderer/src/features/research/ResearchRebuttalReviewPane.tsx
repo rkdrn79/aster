@@ -37,7 +37,7 @@ function ReviewBlock({
               <button
                 key={point.id}
                 type="button"
-                className="mr-0.5 inline-flex h-4 items-center rounded-sm bg-muted px-1 align-[1px] font-mono text-3xs leading-none text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                className="mr-0.5 inline-flex h-4 items-center rounded bg-foreground/6 px-1 align-[1px] font-mono text-3xs leading-none text-muted-foreground transition-colors duration-(--duration-fast) hover:bg-foreground/12 hover:text-foreground"
                 title={`${point.id} · ${POINT_KIND_LABELS[point.kind]} · ${POINT_TYPE_LABELS[point.type]}${point.summary ? `\n${point.summary}` : ''}`}
                 aria-label={`Show ${point.id}`}
                 onClick={() => {
@@ -136,8 +136,8 @@ export function ResearchRebuttalReviewPane({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-1.5">
-        <p className="min-w-0 flex-1 truncate text-xs font-semibold">
+      <div className="flex shrink-0 items-center gap-2 px-4 pt-2 pb-1">
+        <p className="min-w-0 flex-1 truncate text-xs font-medium">
           {reviewerDisplayName(reviewer)}
           <span className="ml-2 font-normal text-muted-foreground">{facts.join(' · ')}</span>
         </p>
@@ -150,12 +150,12 @@ export function ResearchRebuttalReviewPane({
       >
         <div data-review-round="1">
           <ReviewBlock text={text} points={reviewPoints.filter((point) => point.round === 1)} />
-          {text ? null : <p className="text-muted-foreground">This review has no text yet.</p>}
+          {text ? null : <p className="text-muted-foreground">This review has no text yet</p>}
         </div>
         {/* Why outside the round: selecting translated words must not become a quoted concern. */}
         <RebuttalTranslationBlock tkey={`review:${reviewer.id}`} source={text} />
         {followUps.map((followUp) => (
-          <div key={followUp.round} className="space-y-3 border-t border-border pt-3">
+          <div key={followUp.round} className="space-y-3 rounded-lg bg-muted/50 px-3 py-3">
             <div data-review-round={followUp.round}>
               <p className="mb-1 text-xs font-medium text-muted-foreground">
                 Round {followUp.round}
@@ -183,10 +183,10 @@ export function ResearchRebuttalReviewPane({
               data-add-concern=""
               role="dialog"
               aria-label="Add the selected text as a concern"
-              className="fixed z-[100] flex items-center gap-1 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md"
+              className="fixed z-[100] flex items-center gap-1 rounded-xl p-1 surface-floating animate-in fade-in-0 zoom-in-95 duration-(--duration-fast) ease-out-quint motion-reduce:zoom-in-100"
               style={{ left: pending.x, top: pending.y }}
             >
-              <span className="px-1.5 text-2xs text-muted-foreground">Add as</span>
+              <span className="px-2 text-2xs text-muted-foreground">Add as</span>
               {(['weakness', 'question', 'minor'] as const).map((kind) => (
                 <Button
                   key={kind}

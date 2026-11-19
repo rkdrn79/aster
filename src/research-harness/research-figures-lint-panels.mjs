@@ -6,6 +6,7 @@ import { elementBounds, isInside, overlaps } from './research-figures-geometry.m
 import { absolutePoints } from './research-figures-labels.mjs'
 import { glyphBounds } from './research-figures-text.mjs'
 import { isLossRole } from './research-figures-style.mjs'
+import { FIGURE_UNITS_PER_INCH } from './research-figures-model.mjs'
 
 const SHAPES = new Set(['rectangle', 'ellipse', 'diamond'])
 const visible = (color) => Boolean(color) && color !== 'transparent'
@@ -232,7 +233,10 @@ function dashedChecks(elements, page, add) {
   const lines = elements.filter(
     (element) => (element.type === 'arrow' || element.type === 'line') && element.points?.length > 1
   )
-  const dashed = lines.filter((line) => line.strokeStyle === 'dashed')
+  // Why not skip connections: a U-Net's skips are the dashed layer the reader expects (LDM).
+  const dashed = lines.filter(
+    (line) => line.strokeStyle === 'dashed' && line.customData?.asterLine !== 'skip'
+  )
   const solid = lines.filter(
     (line) =>
       line.type === 'arrow' &&
@@ -339,20 +343,34 @@ function dashedBoxChecks(elements, add) {
   }
 }
 
+/** A third of an inch: under it a photo's subject cannot be made out at print. */
+const READABLE_PICTURE = 48
+const allows = (element, code) => (element.customData?.asterAllow ?? []).includes(code)
+const listed = (items) =>
+  `${items
+    .slice(0, 3)
+    .map((photo) => `${photo.id} (${Math.round(photo.width)} × ${Math.round(photo.height)})`)
+    .join(', ')}${items.length > 3 ? ', …' : ''}`
+
 /**
  * A lone photo (an input feeding a model) far under a tenth of the page width shows nothing at
- * print size. Why a sixteenth: under that it is a speck. Thumbnails in a gallery (a row or
- * column of similar photos) or inside a stage card or an example card are examples, small on
- * purpose, and pass.
+ * print size. Why a sixteenth, or a third of an inch on a wide page: under that it is a speck,
+ * and a wide pipeline cannot give each stage more. Thumbnails in a gallery (a row or column of
+ * similar photos) or inside a stage card or an example card are examples, small on purpose, and
+ * pass; icons (sprite cells, pixel-art items) are never photos. The paper's own pictures are
+ * checked by `small-picture` instead.
  */
 function thumbnailChecks(elements, page, add) {
   if (!page) {
     return
   }
-  const smallest = page.width / 16
+  const smallest = Math.min(page.width / 16, READABLE_PICTURE)
   const photos = elements.filter(
     (element) =>
-      element.type === 'image' && element.customData?.asterPhoto && ownerOf(element) === element.id
+      element.type === 'image' &&
+      element.customData?.asterPhoto &&
+      !element.customData?.asterIconPicture &&
+      ownerOf(element) === element.id
   )
   const cards = elements
     .filter((element) => element.customData?.asterStage || element.customData?.asterCard)
@@ -377,6 +395,7 @@ function thumbnailChecks(elements, page, add) {
     })
   const small = photos.filter(
     (photo) =>
+      !photo.customData?.asterSource &&
       Math.max(photo.width, photo.height) < smallest &&
       !/-r\d+c\d+$/.test(photo.id) &&
       !cards.some((card) => isInside(elementBounds(photo), card, 1)) &&
@@ -387,12 +406,26 @@ function thumbnailChecks(elements, page, add) {
       'warning',
       'small-thumbnail',
       small[0],
-      `${small
-        .slice(0, 3)
-        .map((photo) => `${photo.id} (${Math.round(photo.width)} × ${Math.round(photo.height)})`)
-        .join(
-          ', '
-        )}${small.length > 3 ? ', …' : ''} print${small.length > 1 ? '' : 's'} small, under a sixteenth of the page width (${Math.round(smallest)} units); make an input photo about a tenth of the page width (${Math.round(page.width / 10)} units)`
+      `${listed(small)} print${small.length > 1 ? '' : 's'} small, under ${Math.round(smallest)} units (${(smallest / FIGURE_UNITS_PER_INCH).toFixed(2)} in); make each one ${Math.round(smallest)} units or more (an input photo reads best at about a tenth of the page width, ${Math.round(page.width / 10)} units), or show fewer; icon: true for an icon that stays small`,
+      { ids: small.map((photo) => photo.id) }
+    )
+  }
+  // Why every one, galleries too: the paper's own renders are what a reader wants to see, and
+  // a row of 0.25 in views (Zero-1-to-3) shows none of them.
+  const unreadable = photos.filter(
+    (photo) =>
+      photo.customData?.asterSource &&
+      !photo.customData?.asterArt &&
+      Math.min(photo.width, photo.height) < READABLE_PICTURE &&
+      !/-r\d+c\d+$/.test(photo.id) &&
+      !allows(photo, 'small-picture')
+  )
+  if (unreadable.length) {
+    add(
+      'warning',
+      'small-picture',
+      unreadable[0],
+      `${listed(unreadable)} from the paper's own pictures print under a third of an inch (${READABLE_PICTURE} units), too small to make out; show fewer, larger: half an inch (72 units) or more, the key one larger still (fig.allow('small-picture', ids) for icons)`
     )
   }
 }

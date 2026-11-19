@@ -4,12 +4,14 @@ import {
   paperCopyPath,
   parsePublicationRecord,
   type FigureListing,
-  type FigurePublication
+  type FigurePublication,
+  type ListedPlot
 } from '../../../../research-harness/research-figures-locations.mjs'
 import {
   figureFilePaths,
   listFigureFolder
 } from '../../../../research-harness/research-figures-model.mjs'
+import { plotFilePaths } from '../../../../research-harness/research-figures-plot-files.mjs'
 import {
   listProjectDirectory,
   projectFileSignature,
@@ -53,19 +55,36 @@ async function readPublications(
   )
 }
 
+/**
+ * The files of a plot whose rewrites its thumbnail, hints and badges follow: the script, what its
+ * run wrote, and the paper's copy.
+ */
+export function plotSignaturePaths(plot: ListedPlot, manuscript: string): string[] {
+  const files = plotFilePaths(plot.folder, plot.slug)
+  return [
+    ...(plot.script ? [files.script] : []),
+    ...(plot.manifest ? [files.manifest] : []),
+    ...(plot.png ? [files.png] : []),
+    ...(plot.pdf ? [files.pdf] : []),
+    paperCopyPath(manuscript, plot.slug)
+  ]
+}
+
 /** Both folders of a project as one list, with the signatures and records its badges need. */
 export async function readFigureListing(
   owner: ProjectFileOwner,
   folders: { work: string; paper: string },
   manuscript: string
 ): Promise<FigureListingSnapshot> {
-  const [workEntries, paperEntries] = await Promise.all([
+  const [workEntries, sourceEntries, paperEntries] = await Promise.all([
     listProjectDirectory(owner, folders.work),
+    // Why not fatal: without `src/` (or when it cannot be read) the folder simply has no plots.
+    listProjectDirectory(owner, `${folders.work}/src`).catch(() => null),
     listProjectDirectory(owner, folders.paper)
   ])
   const listing = mergeFigureListings({
     workFolder: folders.work,
-    work: listFigureFolder(workEntries ?? []),
+    work: listFigureFolder(workEntries ?? [], sourceEntries ?? []),
     paperFolder: folders.paper,
     paper: listFigureFolder(paperEntries ?? [])
   })
@@ -79,6 +98,7 @@ export async function readFigureListing(
         ...(figure.location === 'work' ? [paperCopyPath(manuscript, figure.slug)] : [])
       ]
     }),
+    ...listing.plots.flatMap((plot) => plotSignaturePaths(plot, manuscript)),
     ...listing.others.map((entry) => `${entry.folder}/${entry.name}`)
   ]
   const signatures: Record<string, string> = {}

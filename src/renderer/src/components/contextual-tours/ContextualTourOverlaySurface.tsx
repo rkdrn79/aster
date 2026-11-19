@@ -211,9 +211,7 @@ export function ContextualTourOverlaySurface({
         >
           <X />
         </Button>
-        <h2 className="pr-6 text-sm font-semibold tracking-tight text-foreground">
-          {renderState.title}
-        </h2>
+        <h2 className="pr-6 text-sm font-semibold text-foreground">{renderState.title}</h2>
         <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{renderState.body}</p>
         {renderState.control ? <ContextualTourControl control={renderState.control} /> : null}
         <div className="mt-3.5 flex items-center justify-between gap-3">

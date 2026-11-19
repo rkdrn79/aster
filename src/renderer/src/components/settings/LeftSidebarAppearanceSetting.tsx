@@ -29,7 +29,7 @@ export function LeftSidebarAppearanceSetting({
         alignTop
         label={translate(
           'auto.components.settings.AppearancePane.leftSidebarAppearance.title',
-          'Left Sidebar Appearance'
+          'Left sidebar appearance'
         )}
         description={translate(
           'auto.components.settings.AppearancePane.leftSidebarAppearance.rowDescription',
@@ -42,7 +42,7 @@ export function LeftSidebarAppearanceSetting({
             onChange={(leftSidebarAppearanceMode) => updateSettings({ leftSidebarAppearanceMode })}
             ariaLabel={translate(
               'auto.components.settings.AppearancePane.leftSidebarAppearance.title',
-              'Left Sidebar Appearance'
+              'Left sidebar appearance'
             )}
             options={[
               {
@@ -56,7 +56,7 @@ export function LeftSidebarAppearanceSetting({
                 value: 'match-terminal',
                 label: translate(
                   'auto.components.settings.AppearancePane.leftSidebarAppearance.matchTerminal',
-                  'Match Terminal'
+                  'Match terminal'
                 )
               },
               {
@@ -75,7 +75,7 @@ export function LeftSidebarAppearanceSetting({
           <ColorField
             label={translate(
               'auto.components.settings.AppearancePane.leftSidebarAppearance.tintColor',
-              'Sidebar Tint'
+              'Sidebar tint'
             )}
             description={translate(
               'auto.components.settings.AppearancePane.leftSidebarAppearance.tintColorDescription',
@@ -88,7 +88,7 @@ export function LeftSidebarAppearanceSetting({
           <NumberField
             label={translate(
               'auto.components.settings.AppearancePane.leftSidebarAppearance.tintOpacity',
-              'Tint Strength'
+              'Tint strength'
             )}
             description={translate(
               'auto.components.settings.AppearancePane.leftSidebarAppearance.tintOpacityDescription',

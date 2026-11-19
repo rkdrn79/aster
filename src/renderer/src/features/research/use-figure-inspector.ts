@@ -3,7 +3,7 @@ import { CaptureUpdateAction } from '@excalidraw/excalidraw'
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types'
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import { figurePage } from '../../../../research-harness/research-figures-model.mjs'
-import { figureStyle } from '../../../../research-harness/research-figures-style.mjs'
+import { pageStyle } from '../../../../research-harness/research-figures-style.mjs'
 import {
   fitFigureInView,
   setFigureViewInset,
@@ -16,6 +16,8 @@ import type { Inspected } from './use-figure-canvas-observer'
 
 const PREFERENCE_KEY = 'aster.research-figures-inspector.v1'
 export const INSPECTOR_WIDTH = 248
+/** The floating Inspector's gap from the canvas edge; the view keeps clear of both. */
+export const INSPECTOR_INSET = 8
 /**
  * The narrowest canvas the Inspector lies over. Below about 730 px Excalidraw switches to its
  * phone layout, whose bottom bar (undo, redo) and toolbar would sit under the column; from here
@@ -125,7 +127,7 @@ export function useFigureInspector(
       return
     }
     const fitted = viewStillFitted(api)
-    setFigureViewInset(api, visible ? INSPECTOR_WIDTH : 0)
+    setFigureViewInset(api, visible ? INSPECTOR_WIDTH + INSPECTOR_INSET : 0)
     if (fitted) {
       fitFigureInView(api)
     }
@@ -138,7 +140,7 @@ export function useFigureInspector(
       selected: inspected.selected,
       elements: inspected.elements,
       page,
-      style: figureStyle(page?.style, page?.accent),
+      style: pageStyle(page),
       project,
       api: () => apiRef.current,
       commit: (next) =>

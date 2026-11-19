@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ACCENT_NAMES, checkAccent, parseAccentHex } from './research-figure-accent'
 
-const GRAPHITE_BLOCK = '#e9e9e9'
-
 describe('parseAccentHex', () => {
   it('reads six or three digits, with or without the hash', () => {
     expect(parseAccentHex(' #2F7D6D ')).toBe('#2f7d6d')
@@ -14,29 +12,25 @@ describe('parseAccentHex', () => {
 })
 
 describe('checkAccent', () => {
-  it('says when the tint was darkened for grayscale', () => {
-    const teal = checkAccent('teal', GRAPHITE_BLOCK, false)
-    expect(teal?.darkened).toBe(true)
-    expect(teal?.notes).toEqual([
-      'Tint darkened a little so it stays apart from gray blocks in print.'
-    ])
-    expect(checkAccent('blue', GRAPHITE_BLOCK, false)?.notes).toEqual([])
+  it('says nothing about an ordinary pick', () => {
+    expect(checkAccent('teal', false)?.notes).toEqual([])
+    expect(checkAccent('blue', false)?.notes).toEqual([])
   })
 
   it('warns when a pick sits near the loss red, more firmly when the figure has a red loss', () => {
-    expect(checkAccent('#e84d3d', GRAPHITE_BLOCK, false)?.notes).toContain(
+    expect(checkAccent('#e84d3d', false)?.notes).toContain(
       'Close to red: a red loss would be drawn in ink.'
     )
-    expect(checkAccent('clay', GRAPHITE_BLOCK, true)?.notes).toContain(
+    expect(checkAccent('clay', true)?.notes).toContain(
       'Close to the loss red: this figure’s red loss turns ink.'
     )
   })
 
   it('treats a near-gray pick as no hue', () => {
-    const gray = checkAccent('#888888', GRAPHITE_BLOCK, false)
+    const gray = checkAccent('#888888', false)
     expect(gray?.neutral).toBe(true)
     expect(gray?.notes[0]).toBe('Nearly gray, so the figure takes no hue.')
-    expect(checkAccent('not a colour', GRAPHITE_BLOCK, false)).toBeNull()
+    expect(checkAccent('not a colour', false)).toBeNull()
   })
 
   it('offers violet but never first', () => {

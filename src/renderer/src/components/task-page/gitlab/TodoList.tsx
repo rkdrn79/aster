@@ -9,7 +9,7 @@ export function TaskPageGitLabTodoList({
   const { primaryRepo, gitlabTodos, gitlabTodosLoading } = model
   return (
     <div className="flex min-h-0 max-h-full flex-col rounded-md border border-t-0 border-border/50 bg-muted/50 overflow-hidden rounded-t-none shadow-sm">
-      <div className="flex-none grid grid-cols-[110px_minmax(0,3fr)_minmax(120px,1.2fr)_110px_50px] gap-3 border-b border-border/50 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+      <div className="flex-none grid grid-cols-[110px_minmax(0,3fr)_minmax(120px,1.2fr)_110px_50px] gap-3 border-b border-border/50 px-3 py-2 text-[10px] font-medium text-muted-foreground">
         <span>{translate('auto.components.TaskPage.8396825a14', 'Action')}</span>
         <span>{translate('auto.components.TaskPage.16cba35bee', 'Title')}</span>
         <span>{translate('auto.components.TaskPage.00022ec0ba', 'Project')}</span>
@@ -45,10 +45,7 @@ export function TaskPageGitLabTodoList({
         {!gitlabTodosLoading && gitlabTodos.length === 0 ? (
           <div className="px-4 py-12 text-center text-sm text-muted-foreground">
             {primaryRepo
-              ? translate(
-                  'auto.components.TaskPage.d591aac6ae',
-                  'No pending todos. You’re all caught up!'
-                )
+              ? translate('auto.components.TaskPage.d591aac6ae', 'No pending todos')
               : translate(
                   'auto.components.TaskPage.03da966159',
                   'Select a project so we can authenticate to GitLab.'

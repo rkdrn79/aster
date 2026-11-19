@@ -109,21 +109,21 @@ it('builds one catalog per render while typing a home page draft', () => {
   expect(getBrowserPaneSearchEntries).toHaveBeenCalledTimes(20)
 })
 it('keeps targeted search visibility', () => {
-  fake.query = 'Default Home Page'
+  fake.query = 'Default home page'
   render(<BrowserPane settings={getDefaultSettings('/synthetic')} updateSettings={vi.fn()} />)
   expect(screen.getByRole('textbox')).toBeTruthy()
   expect(screen.queryByText('Cookies row')).toBeNull()
 })
 
 it('rebuilds metadata in the next render after the language changes', () => {
-  fake.query = 'Default Home Page'
+  fake.query = 'Default home page'
   const settings = getDefaultSettings('/synthetic')
   const view = render(<BrowserPane settings={settings} updateSettings={vi.fn()} />)
   expect(screen.getByRole('textbox')).toBeTruthy()
   fake.locale.language = 'synthetic-locale'
   fake.query = 'Translated home'
   fake.translate.mockImplementation((_key, fallback) =>
-    fallback === 'Default Home Page' ? 'Translated home' : fallback
+    fallback === 'Default home page' ? 'Translated home' : fallback
   )
   vi.mocked(getBrowserPaneSearchEntries).mockClear()
   view.rerender(<BrowserPane settings={settings} updateSettings={vi.fn()} />)

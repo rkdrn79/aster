@@ -139,10 +139,10 @@ describe('ExperimentalPane', () => {
     )
 
     expect(settings.experimentalAgentDashboardPopout).toBeUndefined()
-    expect(markup).toContain('Agent Dashboard')
+    expect(markup).toContain('Agent dashboard')
     expect(markup).toContain('Monitor agents that need you, are working, or are done')
     expect(getExperimentalPaneSearchEntries().map((entry) => entry.title)).toContain(
-      'Agent Dashboard'
+      'Agent dashboard'
     )
   })
 
@@ -232,7 +232,7 @@ describe('ExperimentalPane', () => {
     expect(container.textContent).not.toContain('Default view')
     expect(container.textContent).not.toContain('Use updated structured native chat')
     const switchControl = container.querySelector<HTMLButtonElement>(
-      '#experimental-native-chat button[aria-label="Toggle Chat UI"]'
+      '#experimental-native-chat button[aria-label="Toggle chat UI"]'
     )
     expect(switchControl).not.toBeNull()
     await act(async () => {
@@ -265,7 +265,7 @@ describe('ExperimentalPane', () => {
       }
     })
     const switchControl = container.querySelector<HTMLButtonElement>(
-      '#experimental-native-chat button[aria-label="Toggle Chat UI"]'
+      '#experimental-native-chat button[aria-label="Toggle chat UI"]'
     )
     expect(switchControl?.disabled).toBe(true)
     expect(switchControl?.getAttribute('aria-checked')).toBe('true')

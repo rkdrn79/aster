@@ -73,7 +73,7 @@ export function TaskPageLinearFilters({
           {linearModeOptions.map((mode) => {
             const active = linearMode === mode.id
             const buttonClassName = cn(
-              'rounded-md border px-2 py-1 text-xs transition',
+              'rounded-md border px-2 py-1 text-xs transition-colors',
               active
                 ? 'border-border/50 bg-foreground/90 text-background'
                 : 'border-border/50 bg-transparent text-foreground hover:bg-muted/50'
@@ -275,7 +275,7 @@ export function TaskPageLinearFilters({
                     setLinearRefreshNonce((n) => n + 1)
                   }
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
               >
                 <X className="size-4" />
               </button>
@@ -291,7 +291,7 @@ export function TaskPageLinearFilters({
               onChange={(e) => setLinearProjectSearchInput(e.target.value)}
               placeholder={translate(
                 'auto.components.TaskPage.0b65d3fb2c',
-                'Search Linear projects...'
+                'Search Linear projects'
               )}
               className="h-8 rounded-md border-border/50 bg-background pl-8 pr-8 text-xs"
             />
@@ -304,7 +304,7 @@ export function TaskPageLinearFilters({
                   setAppliedLinearProjectSearch('')
                   setLinearRefreshNonce((n) => n + 1)
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
               >
                 <X className="size-4" />
               </button>

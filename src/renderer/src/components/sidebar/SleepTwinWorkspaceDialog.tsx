@@ -55,7 +55,7 @@ const SleepTwinWorkspaceDialog = React.memo(function SleepTwinWorkspaceDialog() 
       <DialogContent className="max-w-sm sm:max-w-sm" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>
-            {translate('auto.components.sidebar.SleepTwinWorkspaceDialog.title', 'Sleep Workspace')}
+            {translate('auto.components.sidebar.SleepTwinWorkspaceDialog.title', 'Sleep workspace')}
           </DialogTitle>
           <DialogDescription>
             {translate(

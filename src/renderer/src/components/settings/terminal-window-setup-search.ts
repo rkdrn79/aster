@@ -4,7 +4,7 @@ import { createLocalizedCatalog } from '@/i18n/localized-catalog'
 
 export const getManageSessionsSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.terminal.search.6f5d486a68', 'Manage Sessions'),
+    title: translate('auto.components.settings.terminal.search.6f5d486a68', 'Manage sessions'),
     description: translate(
       'auto.components.settings.terminal.search.f72abc493c',
       'Recover from frozen terminals by killing sessions, clearing saved scrollback, or restarting the daemon.'
@@ -33,7 +33,7 @@ export const getManageSessionsSearchEntries = createLocalizedCatalog(() => [
 
 export const getTerminalWindowSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.terminal.search.b36fd2416d', 'Background Opacity'),
+    title: translate('auto.components.settings.terminal.search.b36fd2416d', 'Background opacity'),
     description: translate(
       'auto.components.settings.terminal.search.4c643695aa',
       'Controls the transparency of the terminal background.'
@@ -52,7 +52,7 @@ export const getTerminalWindowSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.72d0482137', 'Window Blur'),
+    title: translate('auto.components.settings.terminal.search.72d0482137', 'Window blur'),
     description: translate(
       'auto.components.settings.terminal.search.bc2054657a',
       'Apply background blur to the terminal window. Requires restart.'
@@ -72,7 +72,7 @@ export const getTerminalWindowSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.b4f182f24d', 'Horizontal Padding'),
+    title: translate('auto.components.settings.terminal.search.b4f182f24d', 'Horizontal padding'),
     description: translate(
       'auto.components.settings.terminal.search.75691e4911',
       'Horizontal padding around the terminal grid in pixels.'
@@ -88,7 +88,7 @@ export const getTerminalWindowSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.692c4ad032', 'Vertical Padding'),
+    title: translate('auto.components.settings.terminal.search.692c4ad032', 'Vertical padding'),
     description: translate(
       'auto.components.settings.terminal.search.4655567c37',
       'Vertical padding around the terminal grid in pixels.'
@@ -103,7 +103,7 @@ export const getTerminalWindowSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.terminal.search.d1fe5f99ff',
-      'Hide Mouse While Typing'
+      'Hide mouse while typing'
     ),
     description: translate(
       'auto.components.settings.terminal.search.77201c0bb2',
@@ -117,7 +117,7 @@ export const getTerminalWindowSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.aed2a4b4eb', 'Color Overrides'),
+    title: translate('auto.components.settings.terminal.search.aed2a4b4eb', 'Color overrides'),
     description: translate(
       'auto.components.settings.terminal.search.3023e01415',
       'Override individual terminal colors.'

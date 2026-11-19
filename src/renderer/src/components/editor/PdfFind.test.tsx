@@ -25,7 +25,7 @@ function setup() {
   const onClose = vi.fn()
   const view = render(<PdfFind isOpen onClose={onClose} eventBusRef={eventBusRef} />)
   const query = (value: string): void => {
-    fireEvent.change(view.getByPlaceholderText('Find in page...'), { target: { value } })
+    fireEvent.change(view.getByPlaceholderText('Find in page'), { target: { value } })
   }
   const count = (current: number, total: number): void => {
     act(() =>
@@ -128,7 +128,7 @@ describe('PDF find event synchronization', () => {
     const { view, query, onClose } = setup()
     const dispatch = vi.spyOn(EventBus.prototype, 'dispatch')
     query('needle')
-    const input = view.getByPlaceholderText('Find in page...')
+    const input = view.getByPlaceholderText('Find in page')
     fireEvent.click(view.getByTitle('Next match'))
     fireEvent.click(view.getByTitle('Previous match'))
     fireEvent.keyDown(input, { key: 'Enter' })

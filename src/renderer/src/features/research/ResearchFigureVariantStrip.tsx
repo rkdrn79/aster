@@ -94,7 +94,7 @@ export function ResearchFigureVariantStrip({
     signatureRef.current = ''
     setVariants([])
     setPreviewing(null)
-    toast.message('Discarded the variants.')
+    toast.message('Discarded the variants')
   }
 
   return (
@@ -103,7 +103,7 @@ export function ResearchFigureVariantStrip({
       role="region"
       aria-label="Figure variants"
       tabIndex={0}
-      className="shrink-0 border-b border-border bg-muted/30 px-3 py-1.5 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="research-pane-in shrink-0 border-b border-border px-3 py-2 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
       onKeyDown={(event) => {
         const index = ['1', '2', '3'].indexOf(event.key)
         if (index !== -1 && variants[index]) {
@@ -119,10 +119,10 @@ export function ResearchFigureVariantStrip({
       }}
     >
       <div className="flex items-center gap-2">
-        <Layers className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+        <Layers className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         <span className="shrink-0 font-medium">Variants</span>
         <div
-          className="flex min-w-0 items-center gap-1.5"
+          className="flex min-w-0 items-center gap-2"
           role="group"
           aria-label="Preview a variant"
         >
@@ -133,8 +133,10 @@ export function ResearchFigureVariantStrip({
               aria-pressed={previewing === index}
               aria-label={`Preview variant ${index + 1}`}
               className={cn(
-                'flex h-12 w-20 items-center justify-center overflow-hidden rounded-sm border bg-white focus-visible:outline-2 focus-visible:outline-ring',
-                previewing === index ? 'border-primary' : 'border-border'
+                'flex h-12 w-20 items-center justify-center overflow-hidden rounded-lg border bg-white transition-[border-color,box-shadow] duration-(--duration-fast) focus-visible:outline-2 focus-visible:outline-ring',
+                previewing === index
+                  ? 'border-foreground ring-1 ring-foreground'
+                  : 'border-border hover:border-foreground/30 hover:shadow-raised'
               )}
               onClick={() => setPreviewing(previewing === index ? null : index)}
             >
@@ -152,18 +154,25 @@ export function ResearchFigureVariantStrip({
         <span className="ml-auto flex shrink-0 items-center gap-1">
           <Button
             size="xs"
+            className="h-7"
             disabled={!current || busy}
             onClick={() => current && void adopt(current)}
           >
             <Check aria-hidden /> Adopt{current ? ` ${(previewing ?? 0) + 1}` : ''}
           </Button>
-          <Button size="xs" variant="ghost" disabled={busy} onClick={() => void discard()}>
+          <Button
+            size="xs"
+            variant="ghost"
+            className="h-7"
+            disabled={busy}
+            onClick={() => void discard()}
+          >
             <Trash2 aria-hidden /> Discard all
           </Button>
         </span>
       </div>
       {current?.url ? (
-        <div className="mt-1.5 flex h-64 items-center justify-center rounded-md border border-border bg-white p-2">
+        <div className="research-pane-in mt-2 flex h-64 items-center justify-center rounded-xl border border-border bg-white p-2">
           <img
             src={current.url}
             alt={`Variant ${(previewing ?? 0) + 1}`}

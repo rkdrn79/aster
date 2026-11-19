@@ -18,8 +18,8 @@ import type { DeadlineEntry, EditionStatus, TimelineStage } from './research-dea
 
 const TONE_ROW: Record<DeadlineTone, string> = {
   past: 'opacity-60',
-  urgent: 'border-destructive/50',
-  soon: 'border-status-warning-border bg-status-warning-background',
+  urgent: '',
+  soon: '',
   later: ''
 }
 
@@ -127,7 +127,7 @@ export function ResearchDeadlineAgenda({
     <div className="space-y-5">
       {groupByMonth(entries, timeZone, locale).map((group) => (
         <section key={group.label} aria-label={group.label}>
-          <h2 className="sticky top-0 z-10 bg-background py-1 text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <h2 className="sticky top-0 z-10 bg-background/90 py-2 text-xs font-medium text-muted-foreground backdrop-blur-sm">
             {group.label}
           </h2>
           <ol className="mt-2 space-y-2">
@@ -142,16 +142,13 @@ export function ResearchDeadlineAgenda({
                   id={deadlineRowId(entry)}
                   data-current={entry.key === highlightedKey}
                   className={cn(
-                    'grid grid-cols-[6.5rem_minmax(0,1fr)_auto] items-start gap-3 rounded-md border border-border px-3 py-2.5 transition-shadow data-[current=true]:ring-2 data-[current=true]:ring-ring',
+                    'grid grid-cols-[6.5rem_minmax(0,1fr)_auto] items-start gap-3 rounded-xl bg-card px-4 py-3 shadow-raised transition-shadow duration-(--duration-base) data-[current=true]:ring-2 data-[current=true]:ring-ring',
                     TONE_ROW[tone],
                     !entry.actionable && 'opacity-60'
                   )}
                 >
                   <p
-                    className={cn(
-                      'pt-0.5 text-sm font-semibold tabular-nums',
-                      TONE_COUNTDOWN[tone]
-                    )}
+                    className={cn('pt-0.5 text-sm font-medium tabular-nums', TONE_COUNTDOWN[tone])}
                   >
                     {countdown(entry, now)}
                   </p>
@@ -173,7 +170,7 @@ export function ResearchDeadlineAgenda({
                     >
                       {entry.zoneRecognized && !disputed ? null : (
                         <AlertTriangle
-                          className="size-3 shrink-0 text-status-warning"
+                          className="size-4 shrink-0 text-status-warning"
                           aria-hidden
                         />
                       )}

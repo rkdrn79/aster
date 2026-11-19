@@ -23,8 +23,8 @@ export function WorktreeStatusMenuItems(props: {
       <DropdownMenuSubTrigger disabled={props.deletingContext}>
         <Kanban className="size-3.5" />
         {props.isMultiContext
-          ? translate('auto.components.sidebar.WorktreeContextMenu.56cde9e8e6', 'Move Statuses To')
-          : translate('auto.components.sidebar.WorktreeContextMenu.84cdbb7e30', 'Move to Status')}
+          ? translate('auto.components.sidebar.WorktreeContextMenu.56cde9e8e6', 'Move statuses to')
+          : translate('auto.components.sidebar.WorktreeContextMenu.84cdbb7e30', 'Move to status')}
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent className="w-44">
         <DropdownMenuRadioGroup value={props.contextWorkspaceStatus}>

@@ -53,7 +53,7 @@ function refuseSidebarProjectDrop(route: SidebarProjectDropRoute): boolean {
       {
         description: translate(
           'auto.components.sidebar.useSidebarProjectDrop.5ccb56c7be',
-          'Use Add Project to enter a host path.'
+          'Use Add project to enter a host path.'
         )
       }
     )

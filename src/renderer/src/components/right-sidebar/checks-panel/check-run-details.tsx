@@ -95,7 +95,7 @@ export function CheckRunDetails({
   }
 
   return (
-    <div className="mb-1 ml-[26px] mr-3 min-w-0 border-l border-border pl-3">
+    <div className="mb-1 ml-6 mr-3 min-w-0 border-l border-border pl-3">
       {worktreeId && (
         // Why: inline check details can be long; pinning the affordance keeps it
         // visible while scrolling through annotations and job output.
@@ -201,7 +201,7 @@ export function CheckRunDetails({
             if (section === 'jobs') {
               return hasJobs ? (
                 <div key="jobs" className="min-w-0 border-t border-border/60 pt-2">
-                  <div className="mb-1.5 text-3xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <div className="mb-1.5 text-3xs font-medium text-muted-foreground">
                     {failedEntries.length > 0
                       ? translate(
                           'auto.components.right.sidebar.checks.panel.content.066fedd446',
@@ -261,7 +261,7 @@ export function CheckRunDetails({
             if (section === 'annotations') {
               return hasAnnotations ? (
                 <div key="annotations" className="min-w-0 border-t border-border/60 pt-2">
-                  <div className="mb-1.5 text-3xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <div className="mb-1.5 text-3xs font-medium text-muted-foreground">
                     {translate(
                       'auto.components.right.sidebar.checks.panel.content.f2fe8a4e8f',
                       'Annotations'

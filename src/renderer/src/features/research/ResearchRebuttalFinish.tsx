@@ -16,6 +16,8 @@ import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 import { useRebuttalTurns, REBUTTAL_TURN_ACTIVE } from './research-rebuttal-turns'
 import { reviewerProgress } from './research-rebuttal-view'
 import type { RebuttalActions } from './use-research-rebuttal-actions'
+import { AnimatedCheck } from '@/components/ui/animated-check'
+import { RAISED_CARD, SECTION_TITLE } from './research-surface-classes'
 
 type Props = {
   snapshot: RebuttalSnapshot
@@ -65,15 +67,17 @@ export function ResearchRebuttalFinish({
 
   return (
     <div className="scrollbar-sleek min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto max-w-5xl space-y-5 p-4 pb-16">
-        <section aria-label="Readiness" className="rounded-lg border border-border bg-card">
-          <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-3 py-2.5">
+      <div className="mx-auto max-w-5xl space-y-6 px-4 pt-2 pb-16">
+        <section aria-label="Readiness" className={cn(RAISED_CARD, 'overflow-hidden')}>
+          <header className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 pt-4 pb-3">
             {issues.length ? (
               <AlertTriangle className="size-4 shrink-0 text-status-warning" aria-hidden />
             ) : (
-              <Check className="size-4 shrink-0 text-status-success" aria-hidden />
+              <span className="flex shrink-0 text-status-success">
+                <AnimatedCheck className="size-4" />
+              </span>
             )}
-            <h2 className="min-w-0 flex-1 text-sm font-medium">
+            <h2 className="min-w-0 flex-1 text-sm leading-5 font-medium">
               {issues.length
                 ? issues.join(' · ')
                 : 'Every reply is written, ready, and within its limit.'}
@@ -102,11 +106,11 @@ export function ResearchRebuttalFinish({
               </span>
             )}
           </header>
-          <ul className="divide-y divide-border">
+          <ul className="space-y-0.5 px-2 pb-2">
             {rows.map(({ reviewer, progress }) => (
               <li
                 key={reviewer.id}
-                className="grid grid-cols-[minmax(0,1.3fr)_auto_minmax(9rem,1fr)_auto] items-center gap-3 px-3 py-2"
+                className="grid grid-cols-[minmax(0,1.3fr)_auto_minmax(9rem,1fr)_auto] items-center gap-3 rounded-lg bg-muted/50 px-3 py-2 dark:bg-muted/40"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">
@@ -114,7 +118,7 @@ export function ResearchRebuttalFinish({
                     {reviewerDisplayName(reviewer) === reviewer.id ? (
                       ''
                     ) : (
-                      <span className="ml-1.5 font-normal text-muted-foreground">
+                      <span className="ml-2 font-normal text-muted-foreground">
                         {reviewerDisplayName(reviewer)}
                       </span>
                     )}
@@ -133,10 +137,13 @@ export function ResearchRebuttalFinish({
                 </div>
                 <p
                   className={cn(
-                    'text-xs tabular-nums',
+                    'inline-flex items-center gap-1 text-xs tabular-nums',
                     progress.ready < progress.total && 'text-muted-foreground'
                   )}
                 >
+                  {progress.total > 0 && progress.ready === progress.total ? (
+                    <Check className="size-4 text-status-success" aria-hidden />
+                  ) : null}
                   {progress.ready}/{progress.total} ready
                 </p>
                 <CharMeter chars={progress.chars} limit={progress.limit} />
@@ -147,7 +154,7 @@ export function ResearchRebuttalFinish({
             ))}
           </ul>
           {error ? (
-            <p role="alert" className="border-t border-border px-3 py-1.5 text-xs text-destructive">
+            <p role="alert" className="px-4 pb-3 text-xs text-destructive">
               {error}
             </p>
           ) : null}
@@ -169,7 +176,7 @@ export function ResearchRebuttalFinish({
           actions={actions}
         />
         <section aria-label="Replies to post" className="space-y-2">
-          <h3 className="text-xs font-semibold">Replies to post</h3>
+          <h3 className={SECTION_TITLE}>Replies to post</h3>
           <ResearchRebuttalAssemble
             snapshot={snapshot}
             readOnly={readOnly}
@@ -178,7 +185,7 @@ export function ResearchRebuttalFinish({
           />
         </section>
         <section aria-label="Promises for the final version" className="space-y-2">
-          <h3 className="text-xs font-semibold">Promises for the final version</h3>
+          <h3 className={SECTION_TITLE}>Promises for the final version</h3>
           {pendingPaper.length > 1 ? (
             <ResearchRebuttalPaperChangesBar
               changes={pendingPaper}

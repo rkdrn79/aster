@@ -67,7 +67,7 @@ export function PRReviewerPickerRow({
       )}
       <span className="min-w-0 flex-1">
         <span className="block truncate">
-          <span className="font-semibold text-foreground">{reviewer.login}</span>
+          <span className="font-medium text-foreground">{reviewer.login}</span>
           {reviewer.name ? (
             <span className="ml-1 font-normal text-muted-foreground">{reviewer.name}</span>
           ) : null}
@@ -122,7 +122,7 @@ export function PRReviewersPickerList({
         <>
           {suggestedReviewerRows.length > 0 ? (
             <>
-              <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-semibold text-foreground">
+              <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-medium text-foreground">
                 {translate('auto.components.GitHubItemDialog.c2b21818e1', 'Suggestions')}
               </div>
               {suggestedReviewerRows.map((reviewer, index) => (
@@ -139,7 +139,7 @@ export function PRReviewersPickerList({
               ))}
             </>
           ) : null}
-          <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-semibold text-foreground">
+          <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-medium text-foreground">
             {translate('auto.components.GitHubItemDialog.1ffce94a8b', 'Everyone else')}
           </div>
           {everyoneElseReviewerRows.length > 0 ? (
@@ -157,7 +157,7 @@ export function PRReviewersPickerList({
             ))
           ) : (
             <div className="px-3 py-2 text-[13px] text-muted-foreground">
-              {translate('auto.components.GitHubItemDialog.70e84e3d0b', 'No matching reviewers.')}
+              {translate('auto.components.GitHubItemDialog.70e84e3d0b', 'No matching reviewers')}
             </div>
           )}
         </>
@@ -165,7 +165,7 @@ export function PRReviewersPickerList({
         <div className="px-3 py-2 text-[13px] text-muted-foreground">
           {error ??
             (hasReviewerMetadata
-              ? translate('auto.components.GitHubItemDialog.70e84e3d0b', 'No matching reviewers.')
+              ? translate('auto.components.GitHubItemDialog.70e84e3d0b', 'No matching reviewers')
               : translate(
                   'auto.components.GitHubItemDialog.3f79ffc8b7',
                   'Open the PR details to view current reviewers.'

@@ -27,10 +27,10 @@ export function ResearchWritingCompileStatus({
   return (
     <span
       role="status"
-      className="flex min-w-0 flex-1 items-center gap-1.5 text-xs text-muted-foreground"
+      className="flex min-w-0 flex-1 items-center gap-2 text-xs text-muted-foreground"
     >
-      <Loader2 className="size-3 shrink-0 animate-spin" aria-hidden />
-      <span className="truncate">{compileStatusText(log)}</span>
+      <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden />
+      <span className="text-shimmer truncate">{compileStatusText(log)}</span>
       <span className="shrink-0 tabular-nums">{seconds}s</span>
     </span>
   )

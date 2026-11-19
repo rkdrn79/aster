@@ -295,8 +295,8 @@ describe('folder rows are labelled as folders, worktree rows as worktrees', () =
   const worktreeId = 'repo-1::/repo/orca'
 
   it('names the resume action, heading and status by workspace kind', () => {
-    expect(aiVaultResumeInSessionWorkspaceLabel(folderId)).toBe('Resume in Folder')
-    expect(aiVaultResumeInSessionWorkspaceLabel(worktreeId)).toBe('Resume in Worktree')
+    expect(aiVaultResumeInSessionWorkspaceLabel(folderId)).toBe('Resume in folder')
+    expect(aiVaultResumeInSessionWorkspaceLabel(worktreeId)).toBe('Resume in worktree')
     expect(aiVaultSessionWorkspaceHeading(folderId)).toBe('Folder')
     expect(aiVaultSessionWorkspaceHeading(worktreeId)).toBe('Worktree')
     expect(
@@ -318,8 +318,8 @@ describe('folder rows are labelled as folders, worktree rows as worktrees', () =
       path: '/x',
       worktreeId: id
     })
-    expect(aiVaultWorktreeJumpTooltip(info('active', folderId))).toBe('Jump to Folder')
-    expect(aiVaultWorktreeJumpTooltip(info('active', worktreeId))).toBe('Jump to Worktree')
+    expect(aiVaultWorktreeJumpTooltip(info('active', folderId))).toBe('Jump to folder')
+    expect(aiVaultWorktreeJumpTooltip(info('active', worktreeId))).toBe('Jump to worktree')
     expect(aiVaultWorktreeJumpTooltip(info('archived', folderId))).toBe(
       'This session is in an archived folder.'
     )
@@ -430,12 +430,12 @@ describe('shouldShowAiVaultWorktreeStatusBadge', () => {
 
 describe('aiVaultWorktreeJumpTooltip', () => {
   it('explains active jump targets and disabled states', () => {
-    expect(aiVaultWorktreeJumpTooltip(makeWorktreeInfo('active'))).toBe('Jump to Worktree')
+    expect(aiVaultWorktreeJumpTooltip(makeWorktreeInfo('active'))).toBe('Jump to worktree')
     expect(aiVaultWorktreeJumpTooltip(makeWorktreeInfo('archived'))).toBe(
       'This session is in an archived worktree.'
     )
     expect(aiVaultWorktreeJumpTooltip(makeWorktreeInfo('unavailable'))).toBe(
-      'No active worktree matches this session.'
+      'No active worktree matches this session'
     )
     expect(aiVaultWorktreeJumpTooltip(null)).toBe('No worktree was recorded for this session.')
   })

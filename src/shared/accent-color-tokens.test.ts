@@ -57,8 +57,8 @@ describe('ensureAccentReadable', () => {
 describe('accentForeground', () => {
   it('picks white on deep accents and ink on bright ones', () => {
     expect(accentForeground('#0f766e', 'light')).toBe('#ffffff')
-    expect(accentForeground('#ffff00', 'dark')).toBe('#101216')
-    expect(accentForeground('#c2620c', 'light')).toBe('#161921')
+    expect(accentForeground('#ffff00', 'dark')).toBe('#111113')
+    expect(accentForeground('#c2620c', 'light')).toBe('#18181b')
   })
 })
 
@@ -67,7 +67,7 @@ describe('buildAccentColorStyleSheet', () => {
     const css = buildAccentColorStyleSheet('#ffffff')
     const light = resolveAccentColorTokens('#ffffff', 'light')
     expect(css).toContain(`:root:root {\n  --primary: ${light['--primary']};`)
-    expect(css).toContain(':root.dark {\n  --primary: #ffffff;\n  --primary-foreground: #101216;')
+    expect(css).toContain(':root.dark {\n  --primary: #ffffff;\n  --primary-foreground: #111113;')
     expect(css).not.toContain('--orca-security')
   })
 })

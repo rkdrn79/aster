@@ -4,6 +4,9 @@ import { useAppStore } from '@/store'
 import { useResearchRecords } from './research-records-store'
 import {
   researchChatBranchBase,
+  researchChatCopyKind,
+  researchChatCopyNumberLabel,
+  type ResearchChatCopyKind,
   researchChatBranchChildren,
   researchChatBranchFamily,
   researchChatBranchOf,
@@ -14,17 +17,21 @@ import { researchChatTabLabel } from './research-chat-branch-actions'
 
 const EMPTY_TABS: readonly Tab[] = []
 
-/** `shortLabel`: the name within the family, "branch N" for a branch named after the family. */
+/** `shortLabel`: the name within the family, "branch N" or "fork N" for a copy named after the
+ *  family. `kind`: how the chat was copied; null for the family's first chat. */
 export type ResearchChatBranchEntry = {
   sessionId: string
   label: string
   shortLabel: string
   depth: number
+  kind: ResearchChatCopyKind | null
 }
 
 export type ResearchChatBranchLineage = {
-  /** The chat this one was branched from, and the message it was branched at. */
-  parent: (ResearchChatBranchEntry & { messageNumber: number }) | null
+  /** The chat this one was copied from, how, and the message it was copied at. */
+  parent:
+    | (ResearchChatBranchEntry & { messageNumber: number; copiedAs: ResearchChatCopyKind })
+    | null
   /** Chats branched straight from this one, oldest first. */
   branches: ResearchChatBranchEntry[]
   /** The whole family, the first chat first; one entry when the chat has no branches. */
@@ -70,17 +77,24 @@ export function useResearchChatBranchLineage(
     )
     const entry = (id: string): ResearchChatBranchEntry => {
       const full = label(id)
-      const number = / · branch (\d+)$/u.exec(full)?.[1]
+      const number = researchChatCopyNumberLabel(full)
+      const branch = researchChatBranchOf(document, scope, id)
       return {
         sessionId: id,
         label: full,
-        shortLabel:
-          number && researchChatBranchBase(full) === familyBase ? `branch ${number}` : full,
-        depth: depth(id)
+        shortLabel: number && researchChatBranchBase(full) === familyBase ? number : full,
+        depth: depth(id),
+        kind: branch ? researchChatCopyKind(branch) : null
       }
     }
     return {
-      parent: own ? { ...entry(own.parentSessionId), messageNumber: own.messageNumber } : null,
+      parent: own
+        ? {
+            ...entry(own.parentSessionId),
+            messageNumber: own.messageNumber,
+            copiedAs: researchChatCopyKind(own)
+          }
+        : null,
       branches: researchChatBranchChildren(document, scope, sessionId).map((child) =>
         entry(child.sessionId)
       ),

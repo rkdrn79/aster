@@ -282,7 +282,7 @@ export function WorktreeCardDetailsHover({
                     }
                   />
                   <WorktreeCardDetailSectionContent className="space-y-1.5">
-                    <div className="text-[13px] font-semibold leading-snug text-foreground break-words">
+                    <div className="text-[13px] font-medium leading-snug text-foreground break-words">
                       {linearIssue.title}
                     </div>
                     {((linearIssue.labels && linearIssue.labels.length > 0) ||
@@ -327,7 +327,7 @@ export function WorktreeCardDetailsHover({
                     }
                   />
                   <WorktreeCardDetailSectionContent>
-                    <div className="text-[13px] font-semibold leading-snug text-foreground break-words">
+                    <div className="text-[13px] font-medium leading-snug text-foreground break-words">
                       {jiraIssue.title}
                     </div>
                   </WorktreeCardDetailSectionContent>

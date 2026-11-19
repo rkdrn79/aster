@@ -24,6 +24,7 @@ import { researchChatTitle } from './research-chat-label'
 import {
   analysisAddCommand,
   experimentChatIntro,
+  experimentDesignGuideLine,
   experimentRequest,
   proposalAddCommand
 } from './research-experiment-agent-requests'
@@ -70,9 +71,9 @@ export function experimentChatPrompt(
     case 'design':
       return experimentRequest(
         setup,
-        'Help me design this experiment.',
+        'Help me design the experiments.',
         'design',
-        `Help me design this experiment. From the brief, the Runs, and the code, suggest: the question, a falsifiable hypothesis, the primary metric with its split and direction, the baseline Run, the minimum seeds, and the first Runs to make. Ask me what you cannot infer. Once I agree, write the plan with \`brief set --experiment ${slug} … --by agent\` and propose each Run with \`${proposalAddCommand(setup)}\` (--needs-code when the code must change). Do not launch anything yet.`
+        `${experimentDesignGuideLine(setup)} Then follow it: read what exists (context, the manuscript, \`plan list\`), ask me only what you cannot infer (compute first; never invent a budget), draft or update the plan, run the reviewer pre-mortem, \`plan check\`, revise at most twice, \`plan submit\`, and end your turn with the summary the guide asks for. When this is only about this Experiment's own question, write its brief with \`brief set --experiment ${slug} … --by agent\` and propose its first Runs with \`${proposalAddCommand(setup)}\` (--needs-code when the code must change) instead. Do not launch anything yet.`
       )
     case 'analyze':
       return experimentRequest(

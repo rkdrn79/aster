@@ -296,7 +296,7 @@ export function ClaudeSwitcherMenu({
       onOpenChange={handleOpenChange}
     >
       <DropdownMenuLabel>
-        {translate('auto.components.status.bar.StatusBar.d450654fa2', 'Claude Account')}
+        {translate('auto.components.status.bar.StatusBar.d450654fa2', 'Claude account')}
       </DropdownMenuLabel>
       <DropdownMenuItem
         onSelect={(event) => {
@@ -316,7 +316,7 @@ export function ClaudeSwitcherMenu({
       </DropdownMenuItem>
       {accountsExpanded ? (
         <div className="px-1 pb-1">
-          <div className="px-2 py-1 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          <div className="px-2 py-1 text-[11px] font-medium text-muted-foreground">
             {translate('auto.components.status.bar.StatusBar.9332ba8684', 'Switch to')}
           </div>
           <div className="max-h-[220px] overflow-y-auto rounded-md border border-border/60 bg-accent/5 p-1 scrollbar-sleek">
@@ -399,7 +399,7 @@ export function ClaudeSwitcherMenu({
           openSettingsPage()
         }}
       >
-        {translate('auto.components.status.bar.StatusBar.75ded02687', 'Manage Accounts…')}
+        {translate('auto.components.status.bar.StatusBar.75ded02687', 'Manage accounts…')}
       </DropdownMenuItem>
     </ProviderDetailsMenu>
   )

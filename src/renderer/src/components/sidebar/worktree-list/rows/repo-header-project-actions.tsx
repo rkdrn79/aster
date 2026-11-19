@@ -122,13 +122,13 @@ export function RepoHeaderProjectActionsMenu({
       >
         <DropdownMenuItem onSelect={() => actions.onOpenRepoSettings(repo.id)}>
           <SlidersHorizontal className="size-3.5" />
-          {translate('auto.components.sidebar.WorktreeList.2cdffbc728', 'Project Settings')}
+          {translate('auto.components.sidebar.WorktreeList.2cdffbc728', 'Project settings')}
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={() => actions.onOpenRepoSettings(repo.id, getRepositoryIconSectionId(repo.id))}
         >
           <Shapes className="size-3.5" />
-          {translate('auto.components.sidebar.WorktreeList.e82d3589a1', 'Change Project Icon')}
+          {translate('auto.components.sidebar.WorktreeList.e82d3589a1', 'Change project icon')}
         </DropdownMenuItem>
         {isGitRepoKind(repo) ? (
           <DropdownMenuItem onSelect={() => actions.onOpenWorktreeVisibility(repo)}>
@@ -169,7 +169,7 @@ export function RepoHeaderProjectActionsMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onSelect={() => actions.onRemoveProject(repo)}>
           <Trash2 className="size-3.5" />
-          {translate('auto.components.sidebar.WorktreeList.c83968f87f', 'Remove Project')}
+          {translate('auto.components.sidebar.WorktreeList.c83968f87f', 'Remove project')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

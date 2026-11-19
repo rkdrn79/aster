@@ -276,9 +276,9 @@ export function PRReviewCell({
           type="button"
           onClick={(event) => event.stopPropagation()}
           className={cn(
-            'inline-flex h-7 max-w-full items-center justify-center text-[12px] font-medium transition hover:brightness-110',
+            'inline-flex h-7 max-w-full items-center justify-center text-[12px] font-medium transition-[color,filter] hover:brightness-110',
             primaryReviewer
-              ? 'gap-1 rounded-full border border-border/40 bg-background/70 px-1.5 text-muted-foreground hover:text-foreground'
+              ? 'gap-1 rounded-lg border border-border/40 bg-background/70 px-1.5 text-muted-foreground hover:text-foreground'
               : 'min-w-7 text-muted-foreground hover:text-foreground'
           )}
           aria-label={translate(

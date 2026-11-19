@@ -30,7 +30,7 @@ const QUICK_OPEN_CLOSE_LINGER_MS = 300
 
 function FooterKey({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <span className="rounded-full border border-border/60 bg-muted/35 px-2 py-0.5 text-[10px] font-medium text-foreground/85">
+    <span className="rounded border border-border/60 bg-muted/35 px-1.5 py-0.5 text-[10px] font-medium text-foreground/85">
       {children}
     </span>
   )
@@ -179,7 +179,7 @@ function QuickOpenContent({ visible }: { visible: boolean }): React.JSX.Element 
       description={translate('auto.components.QuickOpen.9e97f08d0f', 'Search for a file to open')}
     >
       <CommandInput
-        placeholder={translate('auto.components.QuickOpen.1cb6ef47b7', 'Go to file...')}
+        placeholder={translate('auto.components.QuickOpen.1cb6ef47b7', 'Go to file')}
         value={query}
         onValueChange={(value) => {
           invalidate()

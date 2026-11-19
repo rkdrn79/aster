@@ -80,7 +80,7 @@ function Swatch({
   return (
     <span
       aria-hidden
-      className="size-3.5 shrink-0 rounded-[3px] border"
+      className="size-4 shrink-0 rounded border"
       style={{
         backgroundColor: fill === 'transparent' ? undefined : fill,
         borderColor: stroke === 'transparent' ? fill : stroke,
@@ -199,7 +199,7 @@ export function InspectorBadgeSection({
               title={`${badge.label} badge`}
               onClick={() => void setBadge(context, badge.kind)}
             >
-              <Icon aria-hidden className="mx-auto size-3.5" />
+              <Icon aria-hidden className="mx-auto size-4" />
             </InspectorChip>
           )
         })}

@@ -49,7 +49,7 @@ export function AiVaultSessionListBar<Value extends string>({
   const selected = menu.options.find((option) => option.value === value)
   return (
     <div className="flex h-8 shrink-0 items-center gap-2 border-y border-sidebar-border bg-sidebar-accent/60 pl-3 pr-1.5">
-      <span className="min-w-0 flex-1 truncate text-xs font-semibold tabular-nums text-foreground">
+      <span className="min-w-0 flex-1 truncate text-xs font-medium tabular-nums text-foreground">
         {label}
       </span>
       <DropdownMenu>

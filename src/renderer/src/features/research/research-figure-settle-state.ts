@@ -42,6 +42,8 @@ export type Seen = {
   text: string | null
   points: Point[] | null
   isDeleted: boolean
+  /** An arrow's bound shapes, `start|end`; null for anything else. */
+  binding: string | null
 }
 
 /** A follower's place on its owner: centre offset from the anchor, and the size it keeps. */
@@ -61,14 +63,21 @@ export type Link = {
 /** A connector's path for one placement of its two shapes, so an undo gets it back exactly. */
 export type RememberedRoute = { key: string; x: number; y: number; points: Point[] }
 
+/** A background panel's contents and the room it keeps around them on each side. */
+export type PanelFit = {
+  contents: string[]
+  pad: { left: number; right: number; top: number; bottom: number }
+}
+
 export type SettleMemory = {
   seen: Map<string, Seen>
   links: Map<string, Link>
   routes: Map<string, RememberedRoute[]>
+  panels: Map<string, PanelFit>
 }
 
 export function createSettleMemory(): SettleMemory {
-  return { seen: new Map(), links: new Map(), routes: new Map() }
+  return { seen: new Map(), links: new Map(), routes: new Map(), panels: new Map() }
 }
 
 const ROUTES_KEPT = 24
@@ -119,8 +128,16 @@ export function seenOf(element: SettleElement): Seen {
     fontSize: element.fontSize ?? null,
     text: element.text ?? null,
     points: element.points ? element.points.map(([x, y]) => [x, y] as const) : null,
-    isDeleted: Boolean(element.isDeleted)
+    isDeleted: Boolean(element.isDeleted),
+    binding: bindingOf(element)
   }
+}
+
+/** The shapes an arrow is glued to, as one comparable string; null for anything else. */
+export function bindingOf(element: SettleElement): string | null {
+  return element.type === 'arrow'
+    ? `${element.startBinding?.elementId ?? ''}|${element.endBinding?.elementId ?? ''}`
+    : null
 }
 
 /** The working copy settling edits: each element's geometry with the updates made so far. */
@@ -290,6 +307,7 @@ export function baselineSettled(memory: SettleMemory, elements: readonly SettleE
   memory.seen.clear()
   memory.links.clear()
   memory.routes.clear()
+  memory.panels.clear()
   commitSettled(memory, elements)
   refreshLinks(memory, new SettleState(elements))
 }

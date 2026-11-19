@@ -19,7 +19,7 @@ function SlurmStateBadge({
   blocking: boolean
 }): React.JSX.Element {
   return (
-    <span className="inline-flex items-center gap-1.5 font-mono">
+    <span className="inline-flex items-center gap-2 font-mono">
       <span
         aria-hidden
         className={cn(
@@ -50,17 +50,17 @@ export function ResearchSlurmJobTable({
   return (
     <div className="scrollbar-sleek overflow-x-auto">
       <table className="w-full text-left text-xs">
-        <thead className="text-2xs uppercase tracking-wider text-muted-foreground">
+        <thead className="text-2xs text-muted-foreground">
           <tr className="border-b border-border">
-            <th className="px-4 py-2 font-semibold">Host</th>
-            <th className="px-2 py-2 font-semibold">Job</th>
-            <th className="px-2 py-2 font-semibold">State</th>
-            <th className="px-2 py-2 text-right font-semibold">GPUs</th>
-            <th className="px-2 py-2 font-semibold">Partition</th>
-            <th className="px-2 py-2 font-semibold">Nodes / reason</th>
-            <th className="px-2 py-2 text-right font-semibold">Time</th>
-            <th className="px-2 py-2 font-semibold">Start</th>
-            <th className="px-2 py-2 font-semibold">Workspace</th>
+            <th className="px-4 py-2 font-medium">Host</th>
+            <th className="px-2 py-2 font-medium">Job</th>
+            <th className="px-2 py-2 font-medium">State</th>
+            <th className="px-2 py-2 text-right font-medium">GPUs</th>
+            <th className="px-2 py-2 font-medium">Partition</th>
+            <th className="px-2 py-2 font-medium">Nodes / reason</th>
+            <th className="px-2 py-2 text-right font-medium">Time</th>
+            <th className="px-2 py-2 font-medium">Start</th>
+            <th className="px-2 py-2 font-medium">Workspace</th>
             <th className="px-4 py-2">
               <span className="sr-only">Actions</span>
             </th>
@@ -78,7 +78,7 @@ export function ResearchSlurmJobTable({
             return (
               <tr
                 key={`${targetId}:${job.jobId}`}
-                className="border-b border-border align-top last:border-b-0 hover:bg-accent/50"
+                className="border-b border-border align-top transition-colors duration-(--duration-fast) last:border-b-0 hover:bg-accent/50"
               >
                 <td className="max-w-32 truncate px-4 py-2">{hostLabel}</td>
                 <td className="max-w-56 px-2 py-2">
@@ -149,7 +149,7 @@ export function ResearchSlurmJobTable({
                     </span>
                   )}
                 </td>
-                <td className="whitespace-nowrap px-4 py-1.5 text-right">
+                <td className="whitespace-nowrap px-4 py-2 text-right">
                   {actions.onLinkFolder && !attribution && job.workDir ? (
                     <Button variant="ghost" size="xs" onClick={() => actions.onLinkFolder?.(entry)}>
                       Link folder

@@ -126,7 +126,7 @@ export function OrcaAccountSettingsPane(): React.JSX.Element {
         </div>
 
         <div className="space-y-4 border-t border-border/60 pt-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+          <p className="text-[11px] font-medium text-muted-foreground">
             {translate(
               'auto.components.settings.orcaAccount.benefitsTitle',
               'Included with your account'

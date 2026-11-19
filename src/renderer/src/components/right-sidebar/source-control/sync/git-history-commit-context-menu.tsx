@@ -1,5 +1,5 @@
 import type React from 'react'
-import { Copy, Globe, Hash, Sparkles } from 'lucide-react'
+import { Copy, Globe, Hash, FileText } from 'lucide-react'
 import {
   ContextMenuContent,
   ContextMenuItem,
@@ -51,7 +51,7 @@ export function GitHistoryCommitContextMenu({
       </ContextMenuItem>
       <ContextMenuSeparator />
       <ContextMenuItem onSelect={() => onAction('explain', item)}>
-        <Sparkles className="size-3.5" />
+        <FileText className="size-3.5" />
         {translate(
           'auto.components.right.sidebar.GitHistoryCommitContextMenu.ae4f71cd35',
           'Explain changes'

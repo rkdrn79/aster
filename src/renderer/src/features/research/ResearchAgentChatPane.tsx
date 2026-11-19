@@ -5,8 +5,10 @@ import { isStructuredTab } from '../../../../shared/structured-agent-session-tab
 import type { TuiAgent } from '../../../../shared/tui-agent'
 import { formatAgentTypeLabel } from '../../../../shared/agent-type-label'
 import { Button } from '@/components/ui/button'
+import { ShimmerText } from '@/components/ai/shimmer-text'
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -44,6 +46,7 @@ import {
   useResearchPaneBranchNavigation
 } from './ResearchChatBranchSwitcher'
 import { ResearchChatBranchMenuItem } from './ResearchChatBranchMenuItem'
+import { researchChatIsSubtask } from './research-chat-branches'
 
 const EMPTY_TABS: readonly Tab[] = []
 type ChatSessionTab = Tab & {
@@ -118,7 +121,11 @@ export function ResearchAgentChatPane({
   const sessions = researchChatSessionTabs(useAppStore.getState(), workspaceTabs, hostId)
   const availableSessions = sessions.filter((tab) => {
     const placement = researchConversationHome(records, library, hostId, workspaceId, tab.entityId)
-    return researchChatAvailableForHome(placement, home) && !excludeSessionIds?.has(tab.entityId)
+    return (
+      researchChatAvailableForHome(placement, home) &&
+      !excludeSessionIds?.has(tab.entityId) &&
+      !researchChatIsSubtask(records, { hostId, workspaceId }, tab.entityId)
+    )
   })
   const boundSession = sessions.find((tab) => tab.entityId === boundSessionId)
   const boundEntityId = boundSession?.entityId
@@ -214,7 +221,9 @@ export function ResearchAgentChatPane({
       className={cn('min-h-0 min-w-0 flex-col', className)}
       style={{ display: visible ? 'flex' : 'none' }}
     >
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-1.5">
+      {/* Why no min height: at its natural 37px the hairline lines up with the TeX and PDF pane
+          headers beside it in Writing. */}
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2">
         <div className="flex shrink-0 items-center gap-1">
           {boundSession ? (
             <span
@@ -228,13 +237,20 @@ export function ResearchAgentChatPane({
                 )
               }}
             >
-              <GripVertical className="size-3.5 cursor-grab text-muted-foreground" aria-hidden />
+              <GripVertical className="size-4 cursor-grab text-muted-foreground" aria-hidden />
             </span>
           ) : null}
-          <h2 className="text-xs font-semibold whitespace-nowrap">{title}</h2>
+          <h2 className="text-[13px] font-medium whitespace-nowrap">{title}</h2>
         </div>
         <div className="flex min-w-0 flex-1 items-center justify-end gap-1">
-          <span className="min-w-0 truncate text-xs text-muted-foreground" title={boundLabel}>
+          <span
+            className={cn(
+              'min-w-0 truncate text-xs text-muted-foreground',
+              // Only a bound chat reads as a chip; "No chat connected" is a note, not a control.
+              boundSession && 'rounded-md bg-muted px-2 py-0.5'
+            )}
+            title={boundLabel}
+          >
             {boundLabel}
           </span>
           {boundSession ? (
@@ -279,7 +295,7 @@ export function ResearchAgentChatPane({
                           formatAgentTypeLabel(tab.agentSessionAgent)}
                       </span>
                       {boundSession?.id === tab.id ? (
-                        <Check className="size-3" aria-hidden />
+                        <Check className="size-4" aria-hidden />
                       ) : null}
                     </DropdownMenuItem>
                   ))}
@@ -295,18 +311,21 @@ export function ResearchAgentChatPane({
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
                       <DropdownMenuLabel>Experiment</DropdownMenuLabel>
-                      <DropdownMenuItem onSelect={() => void link(null)}>
-                        None{linkedExperiment ? '' : ' ✓'}
-                      </DropdownMenuItem>
+                      <DropdownMenuCheckboxItem
+                        checked={!linkedExperiment}
+                        onSelect={() => void link(null)}
+                      >
+                        None
+                      </DropdownMenuCheckboxItem>
                       {experiments.length > 0 ? <DropdownMenuSeparator /> : null}
                       {experiments.map((experiment) => (
-                        <DropdownMenuItem
+                        <DropdownMenuCheckboxItem
                           key={experiment.id}
+                          checked={linkedExperiment?.id === experiment.id}
                           onSelect={() => void link(experiment.id)}
                         >
                           {experiment.name}
-                          {linkedExperiment?.id === experiment.id ? ' ✓' : ''}
-                        </DropdownMenuItem>
+                        </DropdownMenuCheckboxItem>
                       ))}
                     </DropdownMenuSubContent>
                   </DropdownMenuSub>
@@ -320,10 +339,7 @@ export function ResearchAgentChatPane({
         </div>
       </div>
       {error && (
-        <p
-          role="alert"
-          className="border-b border-destructive/30 px-3 py-2 text-xs text-destructive"
-        >
+        <p role="alert" className="border-b border-border px-3 py-2 text-xs text-destructive">
           {error}
         </p>
       )}
@@ -358,13 +374,16 @@ export function ResearchAgentChatPane({
             workspaceId={workspaceId}
             disabled={launching}
             label={`Start a ${title.toLowerCase()} chat with`}
+            // Why outline: this pane sits beside its page's own primary (Use in paper, Compile PDF),
+            // and a page shows one filled button.
+            variant="outline"
             onPick={(agent) => void launch(agent)}
           >
             <Plus aria-hidden /> Start a chat
           </ResearchAgentPicker>
           {launching && (
-            <p role="status" className="text-xs text-muted-foreground">
-              Starting agent chat…
+            <p role="status" className="text-xs">
+              <ShimmerText>Starting agent chat…</ShimmerText>
             </p>
           )}
         </div>

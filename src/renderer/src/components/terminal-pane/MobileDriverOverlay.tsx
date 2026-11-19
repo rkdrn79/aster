@@ -316,7 +316,7 @@ function LockChip({
     <div
       ref={rootRef}
       className={cn(
-        'absolute right-2 top-2 z-50 flex items-center gap-1.5 rounded-full border border-border bg-card px-2 py-1 text-xs font-medium text-card-foreground shadow-xs',
+        'absolute right-2 top-2 z-50 flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-1 text-xs font-medium text-card-foreground shadow-xs',
         rootClassName
       )}
     >

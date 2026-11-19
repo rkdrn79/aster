@@ -110,7 +110,7 @@ describe('showLocalBaseRefUpdateSuggestionToast', () => {
     })
 
     expect(toast.dismiss).not.toHaveBeenCalled()
-    expect(toast.error).toHaveBeenCalledWith('Could not turn on Keep Local Main Up to Date', {
+    expect(toast.error).toHaveBeenCalledWith('Could not turn on Keep local main up to date', {
       description: 'Open Settings and try again.'
     })
   })
@@ -120,7 +120,7 @@ describe('showLocalBaseRefUpdateSuggestionToast', () => {
     showLocalBaseRefUpdateSuggestionToast(SUGGESTION, deps)
     const body = renderToastBody()
 
-    clickButton(body, 'Settings › Keep Local Main Up to Date')
+    clickButton(body, 'Settings › Keep local main up to date')
 
     expect(deps.openSettingsPage).toHaveBeenCalled()
     expect(deps.openSettingsTarget).toHaveBeenCalledWith({
@@ -140,7 +140,7 @@ describe('showLocalBaseRefUpdateSuggestionToast', () => {
     showLocalBaseRefUpdateSuggestionToast(SUGGESTION, deps)
     const body = renderToastBody()
 
-    clickButton(body, 'Settings › Keep Local Main Up to Date')
+    clickButton(body, 'Settings › Keep local main up to date')
     const options = vi.mocked(toast.info).mock.calls.at(-1)?.[1] as unknown as {
       onDismiss: () => void
     }

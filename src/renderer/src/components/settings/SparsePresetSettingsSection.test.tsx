@@ -51,7 +51,7 @@ describe('SparsePresetSettingsSection', () => {
     storeMock.state.sparsePresetsErrorByRepo = { 'repo-1': 'disk failed' }
     storeMock.state.fetchSparsePresets.mockResolvedValue(undefined)
     render(<SparsePresetSettingsSection repoId="repo-1" />)
-    expect(screen.getByRole('button', { name: 'New Preset' }).hasAttribute('disabled')).toBe(true)
+    expect(screen.getByRole('button', { name: 'New preset' }).hasAttribute('disabled')).toBe(true)
     fireEvent.click(screen.getByRole('button', { name: 'Retry loading presets' }))
     expect(storeMock.state.fetchSparsePresets).toHaveBeenCalledWith('repo-1')
   })

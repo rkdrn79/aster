@@ -76,7 +76,7 @@ export function TerminalAgentSessionForkDialog({
           <DialogTitle className="text-base">
             {translate(
               'auto.components.terminal.pane.TerminalAgentSessionForkDialog.64e292e8e3',
-              'Fork Agent Session'
+              'Fork agent session'
             )}
           </DialogTitle>
           <DialogDescription>

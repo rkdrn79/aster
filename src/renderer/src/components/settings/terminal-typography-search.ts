@@ -4,7 +4,7 @@ import { createLocalizedCatalog } from '@/i18n/localized-catalog'
 
 const getTerminalTypographySearchEntryCatalog = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.terminal.search.5930244899', 'Font Size'),
+    title: translate('auto.components.settings.terminal.search.5930244899', 'Font size'),
     description: translate(
       'auto.components.settings.terminal.search.0fe0073f0c',
       'Default terminal font size for new panes and live updates.'
@@ -19,7 +19,7 @@ const getTerminalTypographySearchEntryCatalog = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.e989914ad6', 'Font Family'),
+    title: translate('auto.components.settings.terminal.search.e989914ad6', 'Font family'),
     description: translate(
       'auto.components.settings.terminal.search.0acdc17891',
       'Default terminal font family for new panes and live updates.'
@@ -34,7 +34,7 @@ const getTerminalTypographySearchEntryCatalog = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.28ea41bd2d', 'Font Weight'),
+    title: translate('auto.components.settings.terminal.search.28ea41bd2d', 'Font weight'),
     description: translate(
       'auto.components.settings.terminal.search.98c18f2c77',
       'Controls the terminal text font weight.'
@@ -49,7 +49,7 @@ const getTerminalTypographySearchEntryCatalog = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.0f2fb0cb74', 'Line Height'),
+    title: translate('auto.components.settings.terminal.search.0f2fb0cb74', 'Line height'),
     description: translate(
       'auto.components.settings.terminal.search.36a1b38bc8',
       'Controls the terminal line height multiplier.'
@@ -68,7 +68,7 @@ const getTerminalTypographySearchEntryCatalog = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.58da1ae45d', 'Font Ligatures'),
+    title: translate('auto.components.settings.terminal.search.58da1ae45d', 'Font ligatures'),
     description: translate(
       'auto.components.settings.terminal.search.893aa92997',
       'Render programming ligatures (e.g. => → ≠ ≥) for fonts that ship them. "Auto" enables ligatures only for known ligature fonts (Fira Code, JetBrains Mono, Cascadia Code, Iosevka, etc.).'
@@ -110,7 +110,7 @@ export const getTerminalAdvancedTypographySearchEntries = createLocalizedCatalog
 
 export const getTerminalRenderingSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.terminal.search.13a2502dfc', 'GPU Acceleration'),
+    title: translate('auto.components.settings.terminal.search.13a2502dfc', 'GPU acceleration'),
     description: translate(
       'auto.components.settings.terminal.search.8f9f953de7',
       'Controls whether the terminal uses xterm.js WebGL rendering. Auto tries WebGL when the renderer is supported, with conservative fallback for software or unknown GPU renderers.'
@@ -132,7 +132,7 @@ export const getTerminalRenderingSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.terminal.search.minimumContrast.title',
-      'Color Contrast'
+      'Color contrast'
     ),
     description: translate(
       'auto.components.settings.terminal.search.minimumContrast.description',
@@ -182,7 +182,7 @@ export const getTerminalRenderingSearchEntries = createLocalizedCatalog(() => [
 
 export const getTerminalCursorSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.terminal.search.97bcfff662', 'Cursor Shape'),
+    title: translate('auto.components.settings.terminal.search.97bcfff662', 'Cursor shape'),
     description: translate(
       'auto.components.settings.terminal.search.275a9d6395',
       'Default cursor appearance for Aster terminal panes.'
@@ -196,7 +196,7 @@ export const getTerminalCursorSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.b03d01fd49', 'Blinking Cursor'),
+    title: translate('auto.components.settings.terminal.search.b03d01fd49', 'Blinking cursor'),
     description: translate(
       'auto.components.settings.terminal.search.a27f6edf52',
       'Uses the blinking variant of the selected cursor shape.'
@@ -208,7 +208,7 @@ export const getTerminalCursorSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.7f1e356a54', 'Cursor Opacity'),
+    title: translate('auto.components.settings.terminal.search.7f1e356a54', 'Cursor opacity'),
     description: translate(
       'auto.components.settings.terminal.search.d4f7d1ce5c',
       'Opacity of the terminal cursor.'

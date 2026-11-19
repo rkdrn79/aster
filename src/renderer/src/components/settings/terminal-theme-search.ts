@@ -4,7 +4,7 @@ import { createLocalizedCatalog } from '@/i18n/localized-catalog'
 
 export const getTerminalDarkThemeSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.terminal.search.ec07ce9b02', 'Dark Theme'),
+    title: translate('auto.components.settings.terminal.search.ec07ce9b02', 'Dark theme'),
     description: translate(
       'auto.components.settings.terminal.search.13f6310dd3',
       'Choose the terminal theme used in dark mode.'
@@ -19,7 +19,7 @@ export const getTerminalDarkThemeSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.8987db7ff2', 'Dark Divider Color'),
+    title: translate('auto.components.settings.terminal.search.8987db7ff2', 'Dark divider color'),
     description: translate(
       'auto.components.settings.terminal.search.9c32726f47',
       'Controls the split divider line between panes in dark mode.'
@@ -35,7 +35,7 @@ export const getTerminalDarkThemeSearchEntries = createLocalizedCatalog(() => [
 
 export const getTerminalThemeTargetSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.terminal.search.theme_target.title', 'Theme Mode'),
+    title: translate('auto.components.settings.terminal.search.theme_target.title', 'Theme mode'),
     keywords: [
       ...translateSearchKeyword('auto.components.settings.terminal.search.f66a7cf715', 'terminal'),
       ...translateSearchKeyword('auto.components.settings.terminal.search.0ce176909a', 'theme'),
@@ -83,7 +83,7 @@ export const getTerminalLightThemeSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.1d89457764', 'Light Theme'),
+    title: translate('auto.components.settings.terminal.search.1d89457764', 'Light theme'),
     description: translate(
       'auto.components.settings.terminal.search.1dee533bd9',
       'Choose the theme used when Aster is in light mode.'
@@ -98,7 +98,7 @@ export const getTerminalLightThemeSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.595b97b446', 'Light Divider Color'),
+    title: translate('auto.components.settings.terminal.search.595b97b446', 'Light divider color'),
     description: translate(
       'auto.components.settings.terminal.search.77d9f9cd55',
       'Controls the split divider line between panes in light mode.'

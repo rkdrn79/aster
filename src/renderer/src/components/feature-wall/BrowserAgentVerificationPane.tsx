@@ -125,7 +125,7 @@ function TerminalEntryView(props: { entry: TerminalEntry }): JSX.Element {
   if (entry.kind === 'working') {
     return (
       <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-        <span className="size-1.5 animate-pulse rounded-full bg-emerald-500 dark:bg-emerald-400" />
+        <span className="size-1.5 rounded-full bg-status-success" />
         {translate('auto.components.feature.wall.BrowserAnimatedVisual.0ce7c24b4d', 'Working…')}
       </span>
     )
@@ -136,14 +136,14 @@ function TerminalEntryView(props: { entry: TerminalEntry }): JSX.Element {
   if (entry.kind === 'tool') {
     return (
       <span>
-        <span className="text-violet-600 dark:text-violet-400">{entry.tool}</span>{' '}
+        <span className="text-foreground">{entry.tool}</span>{' '}
         <span className="text-emerald-600 dark:text-emerald-400">{entry.arg}</span>
       </span>
     )
   }
   return (
     <span>
-      <span className="text-violet-600 dark:text-violet-400">{entry.tool}</span>{' '}
+      <span className="text-foreground">{entry.tool}</span>{' '}
       <span className="text-muted-foreground">{entry.muted}</span>
     </span>
   )

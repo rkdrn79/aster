@@ -117,7 +117,7 @@ function ProjectViewTab({
             {message}{' '}
             {translate(
               'projectViews.unsupported.switchLayout',
-              'Switch to a Table, Board, or Roadmap view to work with this project in Aster.'
+              'Switch to a table, board, or roadmap view to work with this project in Aster.'
             )}
           </p>
           {FEATURE_REQUEST_URL ? (

@@ -15,7 +15,7 @@ function GitHistoryRefBadge({ itemRef }: { itemRef: GitHistoryItemRef }): React.
     <Tooltip>
       <TooltipTrigger asChild>
         <span
-          className="max-w-[8rem] truncate rounded-full border bg-sidebar px-1.5 py-0.5 text-[10px] leading-none"
+          className="max-w-[8rem] truncate rounded-sm border bg-sidebar px-1.5 py-0.5 text-[10px] leading-none"
           style={{
             borderColor: itemRef.color ? graphColor(itemRef.color) : 'var(--border)',
             color: itemRef.color ? graphColor(itemRef.color) : 'var(--muted-foreground)'

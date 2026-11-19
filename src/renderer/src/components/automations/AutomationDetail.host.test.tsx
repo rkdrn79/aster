@@ -67,7 +67,7 @@ async function render(
 
 function hostMetric(container: HTMLDivElement): string | null {
   const label = [...container.querySelectorAll('div')].find(
-    (node) => node.textContent === 'Host' && node.className.includes('uppercase')
+    (node) => node.textContent === 'Host' && node.className.includes('text-muted-foreground')
   )
   return label?.nextElementSibling?.textContent ?? null
 }

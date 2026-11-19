@@ -69,7 +69,7 @@ export function BitbucketIntegrationCard(): React.JSX.Element {
         )
       : translate(
           'auto.components.settings.bitbucket.integration.card.authModeBasic',
-          'Email & API token'
+          'Email and API token'
         )
     : null
   const credentialSummary = [authModeLabel, baseUrlOverride].filter(Boolean).join(' · ')

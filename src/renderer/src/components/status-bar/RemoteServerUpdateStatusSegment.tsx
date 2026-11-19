@@ -35,7 +35,7 @@ export function RemoteServerUpdateStatusSegment({
         ),
         tooltip: translate(
           'auto.components.status.bar.RemoteServerUpdateStatusSegment.updatingTooltip',
-          'Remote Aster Server updates are in progress'
+          'Remote Aster server updates are in progress'
         )
       }
     : failed > 0
@@ -54,7 +54,7 @@ export function RemoteServerUpdateStatusSegment({
                 ),
           tooltip: translate(
             'auto.components.status.bar.RemoteServerUpdateStatusSegment.failedTooltip',
-            'Open Remote Aster Server updates to review and retry'
+            'Open remote Aster server updates to review and retry'
           )
         }
       : {
@@ -72,7 +72,7 @@ export function RemoteServerUpdateStatusSegment({
                 ),
           tooltip: translate(
             'auto.components.status.bar.RemoteServerUpdateStatusSegment.updatedTooltip',
-            'Remote Aster Server updates completed'
+            'Remote Aster server updates completed'
           )
         }
 

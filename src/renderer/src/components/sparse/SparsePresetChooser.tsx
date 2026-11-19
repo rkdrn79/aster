@@ -35,8 +35,8 @@ export function SparsePresetChooser({
       className="max-h-[min(var(--radix-popover-content-available-height),24rem)]"
     >
       <CommandInput
-        placeholder={translate('sparsePreset.search', 'Find a preset…')}
-        aria-label={translate('sparsePreset.search', 'Find a preset…')}
+        placeholder={translate('sparsePreset.search', 'Find a preset')}
+        aria-label={translate('sparsePreset.search', 'Find a preset')}
       />
       <CommandList className="min-h-0 flex-1">
         <CommandEmpty>{translate('sparsePreset.noMatches', 'No matching presets.')}</CommandEmpty>

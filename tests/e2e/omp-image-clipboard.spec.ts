@@ -19,7 +19,7 @@ test('OMP composer accepts an image clipboard event', async ({
   await writeFile(imagePath, Buffer.from(PNG, 'base64'))
   await showActivePaneAsNativeChat(orcaPage, 'omp', 'OMP')
   const composer = orcaPage.getByRole('textbox', {
-    name: 'Ask anything, @ to mention files, / for commands',
+    name: 'Message the agent, @ for files, / for commands',
     exact: true
   })
   await expect(composer).toBeVisible()

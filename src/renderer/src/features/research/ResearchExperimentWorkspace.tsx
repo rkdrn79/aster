@@ -32,7 +32,7 @@ function StatusChip({ workspace }: { workspace: ExperimentWorkspace }): React.JS
     return null
   }
   return (
-    <Badge variant="outline" className="align-middle">
+    <Badge variant="secondary" className="align-middle">
       {brief.status === 'running' ? (
         <span aria-hidden className="size-1.5 rounded-full bg-status-success" />
       ) : null}
@@ -172,7 +172,7 @@ export function ResearchExperimentWorkspace({
         ) : (
           <ResearchPageBody>
             <ResearchEmptyState icon={FlaskConical} title="No experiment selected">
-              Choose an experiment in the sidebar.
+              Choose an experiment in the sidebar
             </ResearchEmptyState>
           </ResearchPageBody>
         )}

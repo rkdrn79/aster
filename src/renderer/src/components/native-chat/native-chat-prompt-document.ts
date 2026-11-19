@@ -25,7 +25,7 @@ export const NativeChatSkill = Node.create({
       'data-native-chat-skill': node.attrs.token,
       contenteditable: 'false',
       class:
-        'inline-flex items-center gap-1 rounded-full border border-border bg-muted px-1.5 text-xs font-medium text-muted-foreground align-baseline select-none'
+        'inline-flex items-center gap-1 rounded-sm border border-border bg-muted px-1 text-xs font-medium text-muted-foreground align-baseline select-none'
     },
     ['span', { 'aria-hidden': 'true' }, 'ϟ'],
     ['span', {}, skillLabel(String(node.attrs.token))]

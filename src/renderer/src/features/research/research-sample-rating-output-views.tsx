@@ -110,7 +110,7 @@ export function SampleCard({
           <SampleMedia run={run} sample={sample} title={title} />
         </div>
       ) : (
-        <p className="mt-3 text-sm text-muted-foreground">Not in this run.</p>
+        <p className="mt-3 text-sm text-muted-foreground">Not in this run</p>
       )}
       {footer}
     </div>

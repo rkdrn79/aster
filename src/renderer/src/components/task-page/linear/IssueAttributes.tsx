@@ -57,7 +57,7 @@ export function TaskPageLinearIssueAttributes({
           </button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-56 p-1 popover-scroll-content scrollbar-sleek">
-          <div className="text-[10px] font-semibold text-muted-foreground px-2 py-1 uppercase tracking-wider">
+          <div className="text-[10px] font-medium text-muted-foreground px-2 py-1">
             {translate('auto.components.TaskPage.154b0fa623', 'Status')}
           </div>
           {newLinearStates.loading ? (
@@ -129,7 +129,7 @@ export function TaskPageLinearIssueAttributes({
           </button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-64 p-1 popover-scroll-content scrollbar-sleek">
-          <div className="text-[10px] font-semibold text-muted-foreground px-2 py-1 uppercase tracking-wider">
+          <div className="text-[10px] font-medium text-muted-foreground px-2 py-1">
             {translate('auto.components.TaskPage.d2a876ca53', 'Assignee')}
           </div>
           {newLinearMembers.loading ? (
@@ -202,7 +202,7 @@ export function TaskPageLinearIssueAttributes({
           </button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-48 p-1 popover-scroll-content scrollbar-sleek">
-          <div className="text-[10px] font-semibold text-muted-foreground px-2 py-1 uppercase tracking-wider">
+          <div className="text-[10px] font-medium text-muted-foreground px-2 py-1">
             {translate('auto.components.TaskPage.c8d5bec5f7', 'Priority')}
           </div>
           {[
@@ -264,7 +264,7 @@ export function TaskPageLinearIssueAttributes({
           </button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-64 p-1 popover-scroll-content scrollbar-sleek">
-          <div className="text-[10px] font-semibold text-muted-foreground px-2 py-1 uppercase tracking-wider">
+          <div className="text-[10px] font-medium text-muted-foreground px-2 py-1">
             {translate('auto.components.TaskPage.00022ec0ba', 'Project')}
           </div>
           {newLinearIssueProjectsLoading ? (
@@ -280,7 +280,7 @@ export function TaskPageLinearIssueAttributes({
               >
                 <div className="flex items-center gap-2">
                   <FolderKanban className="size-3.5 text-muted-foreground/50" />
-                  <span>{translate('auto.components.TaskPage.1742eafc14', 'No Project')}</span>
+                  <span>{translate('auto.components.TaskPage.1742eafc14', 'No project')}</span>
                 </div>
                 {newLinearIssueProjectId === null && <Check className="size-3 text-foreground" />}
               </button>
@@ -324,7 +324,7 @@ export function TaskPageLinearIssueAttributes({
           </button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-64 p-1 popover-scroll-content scrollbar-sleek">
-          <div className="text-[10px] font-semibold text-muted-foreground px-2 py-1 uppercase tracking-wider">
+          <div className="text-[10px] font-medium text-muted-foreground px-2 py-1">
             {translate('auto.components.TaskPage.d0ca4aa1d0', 'Labels')}
           </div>
           {newLinearLabels.loading ? (

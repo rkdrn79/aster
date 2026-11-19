@@ -2,6 +2,18 @@
 // rule that turns any picked colour into a usable accent (tint, strong, shade, solid). OKLab /
 // OKLCH (Ottosson 2020) throughout; pure, so the kit, the lint and the app share it.
 
+import {
+  contrast,
+  hexChannels,
+  hexToOklch,
+  hueDistance,
+  luminance,
+  oklchToHex
+} from './research-figures-color-space.mjs'
+import { WORLD_PRESETS, worldAccents } from './research-figures-palette-worlds.mjs'
+
+export { contrast, hexChannels, hexToOklch, hueDistance, luminance, oklchToHex }
+
 /** The red a loss takes when it is asked for (`tone: 'red'`); papers mostly write it in ink. */
 export const LOSS_RED = '#ba2c25'
 /** The loss red's OKLCH hue; an accent this close in hue cannot sit beside a red loss. */
@@ -23,7 +35,8 @@ const accent = (name, role, hue, tint, strong, shade, solid, extra = {}) => ({
 
 /**
  * The presets: neutrals (panel, block, strong, text, line, muted), the box outline, corner
- * radius, accents with fixed roles, and the rules each one keeps.
+ * radius, accents with fixed roles, and the rules each one keeps. The quiet ones (gray and one
+ * to three accents) come first, then the worlds (research-figures-palette-worlds.mjs).
  */
 export const PALETTE_PRESETS = {
   graphite: {
@@ -226,7 +239,7 @@ export const PALETTE_PRESETS = {
     ],
     rules: [
       'No hue at all; emphasis by gray level and outline weight.',
-      'Safe in grayscale print and for every colour-vision deficiency.'
+      'Only when the person asks for a figure without colour.'
     ]
   },
   illustrative: {
@@ -296,7 +309,10 @@ export const PALETTE_PRESETS = {
       'Only when the figure encodes kinds (modalities, sources): one hue per kind, named in the caption.',
       'Modules without a kind stay gray.'
     ]
-  }
+  },
+  // Why after the quiet ones: the worlds (vision, generative, language, robotics, training,
+  // systems) give each module type its own hue; the quiet presets stay for minimal figures.
+  ...WORLD_PRESETS
 }
 
 /** Old style names still in scenes. */
@@ -330,7 +346,7 @@ export const PANEL_SWATCHES = {
 export const ACCENT_ALIASES = { purple: 'violet', yellow: 'amber', salmon: 'clay' }
 
 // Corpus medians of tint lightness and chroma by hue: [hue, value], interpolated around the circle.
-const TINT_L = [
+export const TINT_L = [
   [18, 0.885],
   [52, 0.915],
   [75, 0.9],
@@ -343,7 +359,7 @@ const TINT_L = [
   [301, 0.885],
   [342, 0.91]
 ]
-const TINT_C = [
+export const TINT_C = [
   [18, 0.048],
   [52, 0.045],
   [75, 0.085],
@@ -372,94 +388,6 @@ function aroundCircle(anchors, hue) {
   return anchors[0][1]
 }
 
-const toLinear = (c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)
-const toGamma = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055)
-
-/** `#rgb` or `#rrggbb` as channels 0–1, or null. */
-export function hexChannels(hex) {
-  const value = String(hex ?? '').toLowerCase()
-  const short = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/.exec(value)
-  const long = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/.exec(value)
-  const pairs = short ? short.slice(1).map((digit) => digit + digit) : long?.slice(1)
-  return pairs ? pairs.map((pair) => Number.parseInt(pair, 16) / 255) : null
-}
-
-/** OKLCH of a hex colour: `{ L, C, h }` (h in degrees), or null when it is not a colour. */
-export function hexToOklch(hex) {
-  const rgb = hexChannels(hex)
-  if (!rgb) {
-    return null
-  }
-  const [r, g, b] = rgb.map(toLinear)
-  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
-  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
-  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
-  const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s
-  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s
-  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s
-  const C = Math.hypot(A, B)
-  return { L, C, h: C < 1e-6 ? 0 : ((Math.atan2(B, A) * 180) / Math.PI + 360) % 360 }
-}
-
-function oklchToLinear({ L, C, h }) {
-  const a = C * Math.cos((h * Math.PI) / 180)
-  const b = C * Math.sin((h * Math.PI) / 180)
-  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
-  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3
-  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3
-  return [
-    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s
-  ]
-}
-
-const inGamut = (rgb) => rgb.every((channel) => channel >= -1e-4 && channel <= 1 + 1e-4)
-
-/** A hex colour for OKLCH, brought into sRGB by lowering chroma, never lightness. */
-export function oklchToHex({ L, C, h }) {
-  let chroma = C
-  let rgb = oklchToLinear({ L, C: chroma, h })
-  if (!inGamut(rgb)) {
-    let low = 0
-    let high = C
-    for (let step = 0; step < 24; step += 1) {
-      chroma = (low + high) / 2
-      if (inGamut(oklchToLinear({ L, C: chroma, h }))) {
-        low = chroma
-      } else {
-        high = chroma
-      }
-    }
-    rgb = oklchToLinear({ L, C: low, h })
-  }
-  return `#${rgb
-    .map((channel) =>
-      Math.round(Math.min(1, Math.max(0, toGamma(Math.min(1, Math.max(0, channel))))) * 255)
-        .toString(16)
-        .padStart(2, '0')
-    )
-    .join('')}`
-}
-
-/** WCAG relative luminance of a hex colour. */
-export function luminance(hex) {
-  const [r, g, b] = (hexChannels(hex) ?? [0, 0, 0]).map(toLinear)
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
-}
-
-/** WCAG contrast ratio between two hex colours. */
-export function contrast(first, second) {
-  const [a, b] = [luminance(first), luminance(second)].toSorted((x, y) => y - x)
-  return (a + 0.05) / (b + 0.05)
-}
-
-/** Degrees between two hues around the circle. */
-export function hueDistance(first, second) {
-  const d = Math.abs(first - second) % 360
-  return Math.min(d, 360 - d)
-}
-
 /** How a colour counts: a hue (C ≥ 0.024), a neutral (C < 0.007, or slate ink), or a tinted neutral. */
 export function colorClass(hex) {
   const color = hexToOklch(hex)
@@ -479,7 +407,7 @@ export function colorClass(hex) {
  * (text, outlines, the contribution's arrow) and solid (markers), from the corpus medians.
  * `neutral` when the pick is nearly gray; `lossClash` when it sits within 35° of the loss red.
  */
-export function deriveAccent(pick, { block = '#e9e9e9', chroma } = {}) {
+export function deriveAccent(pick, { chroma } = {}) {
   const picked =
     typeof pick === 'number' ? { L: 0.6, C: 0.15 * (chroma ?? 1), h: pick } : hexToOklch(pick)
   if (!picked) {
@@ -487,15 +415,9 @@ export function deriveAccent(pick, { block = '#e9e9e9', chroma } = {}) {
   }
   const { h } = picked
   const scale = Math.min(1, picked.C / 0.1)
-  let tintL = aroundCircle(TINT_L, h)
+  const tintL = aroundCircle(TINT_L, h)
   const tintC = aroundCircle(TINT_C, h) * scale
-  // Why: the tint must stay apart from the block in grayscale, or it vanishes in print.
-  let tint = oklchToHex({ L: tintL, C: tintC, h })
-  const grayL = (hex) => Math.cbrt(luminance(hex))
-  while (Math.abs(grayL(tint) - grayL(block)) < 0.035 && tintL > 0.84) {
-    tintL -= 0.01
-    tint = oklchToHex({ L: tintL, C: tintC, h })
-  }
+  const tint = oklchToHex({ L: tintL, C: tintC, h })
   const strong = oklchToHex({ L: tintL - 0.15, C: Math.min(2 * tintC, 0.11), h })
   // Why: yellow darkens into olive-brown; shifting it toward orange keeps it golden.
   const shadeHue = h >= 75 && h <= 125 ? h - 15 : h
@@ -523,16 +445,16 @@ export function deriveAccent(pick, { block = '#e9e9e9', chroma } = {}) {
 }
 
 /** The accent named by a swatch, an old name or a `#hex`; null when `name` is none of those. */
-export function accentFor(name, block) {
+export function accentFor(name) {
   const swatch = ACCENT_SWATCHES[ACCENT_ALIASES[name] ?? name]
   if (swatch) {
     return {
       name: ACCENT_ALIASES[name] ?? name,
-      ...deriveAccent(swatch.hue, { block, chroma: swatch.chroma })
+      ...deriveAccent(swatch.hue, { chroma: swatch.chroma })
     }
   }
   if (typeof name === 'string' && hexChannels(name)) {
-    return { name: name.toLowerCase(), ...deriveAccent(name, { block }) }
+    return { name: name.toLowerCase(), ...deriveAccent(name) }
   }
   return null
 }
@@ -581,7 +503,7 @@ export function presetColors(presetName, pick) {
   const id = PRESET_ALIASES[presetName] ?? presetName
   const preset = PALETTE_PRESETS[id] ?? PALETTE_PRESETS[DEFAULT_PRESET]
   const name = PALETTE_PRESETS[id] ? id : DEFAULT_PRESET
-  const derived = pick && !preset.mono ? accentFor(pick, preset.neutrals.block) : null
+  const derived = pick && !preset.mono ? accentFor(pick) : null
   const first = derived
     ? {
         ...preset.accents[0],
@@ -595,6 +517,18 @@ export function presetColors(presetName, pick) {
         highlight: preset.tonal ? derived.shade : undefined
       }
     : preset.accents[0]
+  // Why a world keeps its own rule: a pick there is one more world hue (lit, turned, outlined),
+  // and a component hue near the pick moves aside so the module types stay apart.
+  const world = Boolean(derived && preset.world && !derived.neutral)
+  // Why a gray pick changes nothing in a world: it has no hue to give, and the world's own stay.
+  const accents = world
+    ? worldAccents(preset.accents, derived.solid)
+    : preset.world && derived
+      ? preset.accents
+      : [first, ...preset.accents.slice(1)]
+  if (world) {
+    accents[0] = { ...accents[0], pick: derived.name }
+  }
   const neutrals =
     preset.tonal && derived
       ? { ...preset.neutrals, ...tonalNeutrals(derived.hue) }
@@ -607,9 +541,11 @@ export function presetColors(presetName, pick) {
     outline: preset.outline,
     outlineWidth: preset.outlineWidth ?? null,
     radius: preset.radius,
-    accents: [first, ...preset.accents.slice(1)],
+    accents,
     accentName: derived?.name ?? null,
     loss: { ...lossStyle('ink', { neutrals }), clash },
+    world: preset.world ?? null,
+    panels: preset.panels ?? null,
     rules: preset.rules
   }
 }

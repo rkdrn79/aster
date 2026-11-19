@@ -99,7 +99,7 @@ function useRecoveryCopy(recoveryKind: SourceControlRecoveryKind): {
       return {
         inlineFixLabel: translate(
           'auto.components.right.sidebar.SourceControl.pushRecovery.60bd988f0b',
-          'AI Fix'
+          'AI fix'
         ),
         dialogFixLabel: translate(
           'auto.components.right.sidebar.SourceControl.pushRecovery.834cb3f23d',
@@ -127,7 +127,7 @@ function useRecoveryCopy(recoveryKind: SourceControlRecoveryKind): {
         ),
         launchDialogTitle: translate(
           'auto.components.right.sidebar.SourceControl.pushRecovery.054ead86b1',
-          'Fix Push Failure With AI'
+          'Fix push failure with AI'
         ),
         dialogDescription: translate(
           'auto.components.right.sidebar.SourceControl.pushRecovery.15b7f210d7',
@@ -137,7 +137,7 @@ function useRecoveryCopy(recoveryKind: SourceControlRecoveryKind): {
     }
 
     return {
-      inlineFixLabel: translate('auto.components.right.sidebar.SourceControl.60bd988f0b', 'AI Fix'),
+      inlineFixLabel: translate('auto.components.right.sidebar.SourceControl.60bd988f0b', 'AI fix'),
       dialogFixLabel: translate(
         'auto.components.right.sidebar.SourceControl.834cb3f23d',
         'Fix with AI'
@@ -164,7 +164,7 @@ function useRecoveryCopy(recoveryKind: SourceControlRecoveryKind): {
       ),
       launchDialogTitle: translate(
         'auto.components.right.sidebar.SourceControl.054ead86b1',
-        'Fix Commit Failure With AI'
+        'Fix commit failure with AI'
       ),
       dialogDescription: translate(
         'auto.components.right.sidebar.SourceControl.15b7f210d7',
@@ -269,9 +269,9 @@ export function SourceControlRecoveryNotice({
               <TriangleAlert className="size-3" aria-hidden="true" />
             </span>
             <div className="flex min-w-0 items-center gap-1.5">
-              <span className="text-xs font-semibold text-foreground">{title}</span>
+              <span className="text-xs font-medium text-foreground">{title}</span>
               {kindLabel ? (
-                <span className="shrink-0 rounded-full bg-destructive/10 px-1.5 py-px text-[10px] leading-4 font-semibold text-destructive">
+                <span className="shrink-0 rounded-sm bg-destructive/10 px-1.5 py-px text-[10px] leading-4 font-medium text-destructive">
                   {kindLabel}
                 </span>
               ) : null}

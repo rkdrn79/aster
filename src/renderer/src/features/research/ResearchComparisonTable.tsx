@@ -56,8 +56,8 @@ export function ResearchComparisonTable({
   const hasBaseline = entries.some(({ run }) => run.id === baselineId)
 
   return (
-    <div className="space-y-1.5">
-      <div className="overflow-x-auto rounded-xl border border-border">
+    <div className="space-y-2">
+      <div className="overflow-x-auto rounded-xl bg-card shadow-raised">
         <table className="w-full min-w-xl text-left text-sm">
           <thead className="bg-muted/50">
             <tr>

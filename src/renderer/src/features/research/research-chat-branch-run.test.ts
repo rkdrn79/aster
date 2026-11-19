@@ -64,7 +64,8 @@ beforeEach(() => {
 describe('branchResearchChat', () => {
   it("starts a chat that takes the host's copy over, named after the chat, and remembers it", async () => {
     expect(await branchResearchChat(SOURCE, { at: 'through', beforeItemId: 'm3' })).toEqual({
-      sessionId: 'branch-1'
+      sessionId: 'branch-1',
+      name: 'Figure agent · Fig 1 (branch 2)'
     })
     expect(mocks.prepare).toHaveBeenCalledWith(SOURCE.target, {
       sessionId: 'chat-1',
@@ -74,7 +75,7 @@ describe('branchResearchChat', () => {
       hostId: 'runtime:gpu',
       workspaceId: 'ws-1',
       agent: 'claude',
-      label: 'Figure agent · Fig 1 · branch 2',
+      label: 'Figure agent · Fig 1 (branch 2)',
       activate: false,
       resumeFrom: { providerSessionId: 'copy-1' }
     })
@@ -104,7 +105,7 @@ describe('branchResearchChat', () => {
     mocks.prepare.mockResolvedValue({ ok: true, providerSessionId: null, keptMessages: 0 })
     await branchResearchChat(SOURCE, { at: 'message', beforeItemId: 'm1', resend: 'Draw it' })
     expect(mocks.launch).toHaveBeenCalledWith(
-      expect.objectContaining({ prompt: 'Draw it', label: 'Figure agent · Fig 1 · branch 2' })
+      expect.objectContaining({ prompt: 'Draw it', label: 'Figure agent · Fig 1 (branch 2)' })
     )
     expect(mocks.launch.mock.calls[0]![0]).not.toHaveProperty('resumeFrom')
   })
@@ -117,8 +118,46 @@ describe('branchResearchChat', () => {
     })
     await branchResearchChat(SOURCE, { at: 'through', beforeItemId: null })
     expect(mocks.launch).toHaveBeenCalledWith(
-      expect.objectContaining({ label: 'Figure agent · Fig 1 · branch 3' })
+      expect.objectContaining({ label: 'Figure agent · Fig 1 (branch 3)' })
     )
+  })
+
+  it('forks into a background copy that starts on its prompt, named as a fork', async () => {
+    await branchResearchChat(
+      SOURCE,
+      { at: 'through', beforeItemId: null },
+      { kind: 'fork', prompt: 'Try the larger model' }
+    )
+    expect(mocks.launch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        label: 'Figure agent · Fig 1 (fork 2)',
+        prompt: 'Try the larger model',
+        activate: false
+      })
+    )
+    expect(
+      mocks.document?.chatBranches?.[JSON.stringify(['runtime:gpu', 'ws-1', 'branch-1'])]
+    ).toMatchObject({ kind: 'fork', parentSessionId: 'chat-1' })
+    mocks.launch.mockClear()
+    await branchResearchChat(
+      SOURCE,
+      { at: 'through', beforeItemId: null },
+      { kind: 'branch', name: 'Bigger model' }
+    )
+    expect(mocks.launch).toHaveBeenCalledWith(expect.objectContaining({ label: 'Bigger model' }))
+  })
+
+  it('runs a subtask on a hidden copy, asked the task and to report back', async () => {
+    const outcome = await branchResearchChat(
+      SOURCE,
+      { at: 'through', beforeItemId: null },
+      { kind: 'subtask', task: 'Check the ablation table' }
+    )
+    expect(outcome).toEqual({ sessionId: 'branch-1', name: 'Subtask: Check the ablation table' })
+    expect(mocks.launch.mock.calls[0]![0].prompt).toMatch(/^Subtask: Check the ablation table\n/)
+    expect(
+      mocks.document?.chatBranches?.[JSON.stringify(['runtime:gpu', 'ws-1', 'branch-1'])]
+    ).toMatchObject({ kind: 'subtask', task: 'Check the ablation table' })
   })
 
   it('says why, and starts nothing, when the host is too old or refuses', async () => {

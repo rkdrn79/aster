@@ -1,6 +1,7 @@
 import { translate } from '@/i18n/i18n'
 import { NativeChatMessageTimestamp } from './NativeChatMessageTimestamp'
 import { NativeChatAwaitingInputRow } from './NativeChatAwaitingInputRow'
+import { nativeChatApprovalCommandLine } from './native-chat-approval-command'
 import {
   NATIVE_CHAT_RECEIPT_COPY,
   nativeChatReceiptAnswerHeading,
@@ -52,7 +53,7 @@ export function NativeChatResolutionReceipt({
         <div className="font-medium">{title}</div>
       )}
       {body.kind === 'approval' && body.detail ? (
-        <p className="line-clamp-3 whitespace-pre-wrap break-words">{body.detail}</p>
+        <ApprovalReceiptDetail detail={body.detail} description={body.description} />
       ) : null}
       {answers.map((answer, index) => {
         const heading = nativeChatReceiptAnswerHeading(subject, answer)
@@ -106,5 +107,31 @@ export function NativeChatResolutionReceipt({
         <NativeChatMessageTimestamp timestamp={resolution.resolvedAt} />
       </div>
     </div>
+  )
+}
+
+/** A decided shell call keeps its command line, as the card showed it; anything else its detail. */
+function ApprovalReceiptDetail({
+  detail,
+  description
+}: {
+  detail: string
+  description: string | undefined
+}): React.JSX.Element {
+  const commandLine = nativeChatApprovalCommandLine(detail, description)
+  if (commandLine === null) {
+    return <p className="line-clamp-3 whitespace-pre-wrap break-words">{detail}</p>
+  }
+  // The input's description folded into the command line's place, so it is said here instead.
+  return (
+    <>
+      {description ? <p className="line-clamp-2 break-words">{description}</p> : null}
+      <p className="line-clamp-3 whitespace-pre-wrap break-words font-mono text-chat-code">
+        <span aria-hidden className="mr-2 select-none">
+          $
+        </span>
+        {commandLine}
+      </p>
+    </>
   )
 }

@@ -245,7 +245,7 @@ export function RepositoryHookCommandSourceSetting({
           <span className="text-xs text-muted-foreground">
             {translate(
               'auto.components.settings.RepositoryHooksSection.bbbd6e0bc4',
-              'Command source & orca.yaml'
+              'Command source and orca.yaml'
             )}
           </span>
         </div>
@@ -259,7 +259,7 @@ export function RepositoryHookCommandSourceSetting({
             <p className="text-sm font-medium">
               {translate(
                 'auto.components.settings.RepositoryHooksSection.32fec28f5b',
-                'Command Source'
+                'Command source'
               )}
             </p>
             <p className="text-[11px] text-muted-foreground">

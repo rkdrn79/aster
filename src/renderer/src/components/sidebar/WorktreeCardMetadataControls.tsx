@@ -27,7 +27,7 @@ export function DetailHeader({
 }): React.JSX.Element {
   return (
     <div className="flex items-center justify-between gap-2">
-      <div className="flex min-w-0 items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="flex min-w-0 items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
         {icon}
         <span className="truncate">{label}</span>
       </div>

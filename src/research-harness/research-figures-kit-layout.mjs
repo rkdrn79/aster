@@ -3,6 +3,36 @@
 import { figureElement } from './research-figures-model.mjs'
 import { labelLines, makeLines } from './research-figures-type.mjs'
 import { oneOf } from './research-figures-options.mjs'
+import { teaserMethods } from './research-figures-kit-teaser.mjs'
+import { paperPanel } from './research-figures-kit-paper-panel.mjs'
+
+/** Panel outlines: a light solid line by default, the old heavy dash only when asked. */
+export const PANEL_OUTLINES = ['solid', 'hairline', 'dashed', 'tint', 'none']
+
+/**
+ * How a panel's edge and fill look: `outline` true picks the quiet line that fits the preset (a
+ * hairline in ink for the outlined and mono presets, a light gray 0.5 pt line otherwise);
+ * 'tint' fills with the panel tint and draws no line; 'none' (or false) draws no line.
+ */
+export function panelLook(style, outline, color) {
+  const name =
+    outline === true
+      ? ['outline', 'print-mono'].includes(style.name)
+        ? 'hairline'
+        : 'solid'
+      : outline === false || outline === undefined || outline === null
+        ? 'none'
+        : oneOf('panel outline', outline, PANEL_OUTLINES)
+  const line = {
+    solid: { strokeColor: style.mid, strokeWidth: 1, strokeStyle: 'solid' },
+    hairline: { strokeColor: style.line, strokeWidth: 0.6, strokeStyle: 'solid' },
+    // Why kept: a dashed edge still says "optional" or "repeated N times" when that is meant.
+    dashed: { strokeColor: style.muted, strokeWidth: 1.5, strokeStyle: 'dashed' }
+  }[name] ?? { strokeColor: 'transparent', strokeWidth: 1, strokeStyle: 'solid' }
+  const fill =
+    name === 'tint' && (color === undefined || color === 'none') ? 'panel' : (color ?? 'panel')
+  return { name, fill, ...line }
+}
 
 const EDGES = {
   left: (box) => box.x,
@@ -13,7 +43,7 @@ const EDGES = {
   cy: (box) => box.y + box.height / 2
 }
 
-export function layoutMethods(core) {
+export function layoutMethods(core, figOf) {
   const { styled } = core
   /** Shifts everything drawn under an id, its bound labels included. */
   const move = (id, dx, dy) => {
@@ -34,14 +64,20 @@ export function layoutMethods(core) {
     }
   }
   return {
+    ...teaserMethods(core, figOf),
     move,
     /**
      * A titled background panel around items (or at x, y, w, h): a group the reader should see
-     * as one, like "DiT block ×N". `color` 'panel' (default) or another fill; `outline: true`
-     * adds a dashed border; `title` is text or runs with `{ tex }`.
+     * as one, like "DiT block ×N". `color` 'panel' (default), another fill or 'none'; `outline`
+     * true (the preset's quiet line) | 'solid' | 'hairline' | 'dashed' | 'tint' | 'none';
+     * `title` is text or runs with `{ tex }`; around items its row adds size × 1.25 + pad × 0.4
+     * (24 units at 16 with pad 10) over them, or nothing with `titleRow: false`.
      */
     panel(spec) {
       const style = styled({}).style
+      if (style.look === 'paper') {
+        return paperPanel(core, spec)
+      }
       const pad = spec.pad ?? style.panelPad
       const size = spec.size ?? style.titleSize
       const position =
@@ -52,7 +88,9 @@ export function layoutMethods(core) {
           'bottom-right'
         ]) ?? 'top-left'
       const lines = spec.title ? labelLines(spec.title, size, undefined, style) : []
-      const titleSpace = lines.length ? size * 1.25 + pad * 0.4 : 0
+      // Why titleRow false: on a crowded page the added row pushed panels off the page and under
+      // arrows; the title then sits in a corner of the padding over nothing it holds.
+      const titleSpace = lines.length && spec.titleRow !== false ? size * 1.25 + pad * 0.4 : 0
       const atTop = position.startsWith('top')
       const inner = spec.around?.length
         ? spec.around.map((id) => core.bounds(id))
@@ -78,21 +116,22 @@ export function layoutMethods(core) {
         twin.height = low - top
       }
       const group = `${spec.id}-panel`
+      const look = panelLook(style, spec.outline, spec.color)
       const rect = figureElement('rectangle', {
         id: spec.id,
         x,
         y: top,
         width: right - x,
         height: low - top,
-        strokeColor: spec.outline ? style.muted : 'transparent',
-        strokeStyle: spec.outline ? 'dashed' : 'solid',
-        strokeWidth: 1.5,
-        backgroundColor: core.paint(spec.color ?? 'panel'),
+        strokeColor: look.strokeColor,
+        strokeStyle: look.strokeStyle,
+        strokeWidth: look.strokeWidth,
+        backgroundColor: core.paint(look.fill),
         roundness: { type: 3, value: style.panelRadius ?? style.radius + 2 },
         boundElements: [],
         groupIds: [group],
         frameId: spec.frame ?? null,
-        customData: { asterPanel: true }
+        customData: { asterPanel: true, asterOutline: look.name }
       })
       const draw = (where) =>
         makeLines(

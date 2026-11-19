@@ -114,7 +114,7 @@ export function BrowserStoryboardWindow(props: {
             <span className="text-[11.5px] text-popover-foreground">
               {translate(
                 'auto.components.feature.wall.BrowserAnimatedVisual.0a2bd01c02',
-                'New Browser Tab'
+                'New browser tab'
               )}
             </span>
             <span className="font-mono text-[10.5px] text-muted-foreground">
@@ -366,14 +366,7 @@ function GlobeGlyph(): JSX.Element {
 
 function CursorIcon(): JSX.Element {
   return (
-    <svg
-      width={16}
-      height={16}
-      viewBox="0 0 16 16"
-      aria-hidden
-      focusable="false"
-      className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
-    >
+    <svg width={16} height={16} viewBox="0 0 16 16" aria-hidden focusable="false">
       <path
         d="M2 1.5 L2 12 L5 9 L7.2 14.5 L9.5 13.6 L7.3 8 L11.5 8 Z"
         fill="#fff"

@@ -194,7 +194,7 @@ export function MobileHeroPairingStep({
         <p className="mp-lead-sm">
           Open your compatible phone client, tap{' '}
           <strong>
-            {translate('auto.components.mobile.MobileHero.3aa7bb2d8b', 'Pair Desktop')}
+            {translate('auto.components.mobile.MobileHero.3aa7bb2d8b', 'Pair desktop')}
           </strong>
           {translate('auto.components.mobile.MobileHero.2f077ef4eb', ', and scan the code.')}
         </p>
@@ -281,7 +281,7 @@ export function MobileHeroPairingStep({
           <Collapsible
             open={networkDisclosureOpen}
             onOpenChange={setNetworkDisclosureOpen}
-            className="mb-[18px]"
+            className="mb-4"
           >
             <CollapsibleTrigger asChild>
               <button type="button" className="mp-disclosure-trigger">

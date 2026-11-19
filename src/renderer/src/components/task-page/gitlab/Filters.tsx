@@ -36,14 +36,14 @@ export function TaskPageGitLabFilters({
         <div className="flex items-center gap-1 text-xs">
           {(['issues', 'mrs', 'todos'] as const).map((view) => {
             const active = gitlabView === view
-            const label = view === 'issues' ? 'Issues' : view === 'mrs' ? 'MRs' : 'My Todos'
+            const label = view === 'issues' ? 'Issues' : view === 'mrs' ? 'MRs' : 'My todos'
             return (
               <button
                 key={view}
                 type="button"
                 onClick={() => setGitlabView(view)}
                 className={cn(
-                  'rounded-md border px-2.5 py-1 text-xs transition',
+                  'rounded-md border px-2.5 py-1 text-xs transition-colors',
                   active
                     ? 'border-foreground/40 bg-foreground/90 text-background'
                     : 'border-border/50 bg-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground'
@@ -87,7 +87,7 @@ export function TaskPageGitLabFilters({
                 )
               })
             }}
-            triggerClassName="h-8 w-full rounded-md border border-border/50 bg-muted/50 px-2 text-xs font-medium shadow-sm transition hover:bg-muted/50 focus:ring-2 focus:ring-ring/20 focus:outline-none"
+            triggerClassName="h-8 w-full rounded-md border border-border/50 bg-muted/50 px-2 text-xs font-medium shadow-sm transition-colors hover:bg-muted/50 focus:ring-2 focus:ring-ring/20 focus:outline-none"
           />
         </div>
       </div>
@@ -111,7 +111,7 @@ export function TaskPageGitLabFilters({
                             setGitlabRefreshNonce((n) => n + 1)
                           }}
                           className={cn(
-                            'rounded-md border px-2 py-1 text-xs transition',
+                            'rounded-md border px-2 py-1 text-xs transition-colors',
                             active
                               ? 'border-border/50 bg-foreground/90 text-background backdrop-blur-md'
                               : 'border-border/50 bg-transparent text-foreground hover:bg-muted/50'
@@ -138,7 +138,7 @@ export function TaskPageGitLabFilters({
                   disabled={gitlabLoading || gitlabTodosLoading}
                   aria-label={
                     gitlabView === 'todos'
-                      ? translate('auto.components.TaskPage.c679af7ad9', 'Refresh My Todos')
+                      ? translate('auto.components.TaskPage.c679af7ad9', 'Refresh my todos')
                       : translate(
                           'auto.components.TaskPage.d4c2830063',
                           'Refresh GitLab work items'
@@ -155,7 +155,7 @@ export function TaskPageGitLabFilters({
               </TooltipTrigger>
               <TooltipContent side="bottom" sideOffset={6}>
                 {gitlabView === 'todos'
-                  ? translate('auto.components.TaskPage.c679af7ad9', 'Refresh My Todos')
+                  ? translate('auto.components.TaskPage.c679af7ad9', 'Refresh my todos')
                   : translate('auto.components.TaskPage.d4c2830063', 'Refresh GitLab work items')}
               </TooltipContent>
             </Tooltip>

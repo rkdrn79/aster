@@ -199,7 +199,7 @@ function TerminalContextMenuItems({
       </DropdownMenuItem>
       <DropdownMenuItem onSelect={onSelectAll}>
         <TextSelect />
-        {translate('auto.components.terminal.pane.TerminalContextMenu.selectAll', 'Select All')}
+        {translate('auto.components.terminal.pane.TerminalContextMenu.selectAll', 'Select all')}
         <DropdownMenuShortcut>{shortcuts.selectAll}</DropdownMenuShortcut>
       </DropdownMenuItem>
       <DropdownMenuItem onSelect={onPaste}>
@@ -223,7 +223,7 @@ function TerminalContextMenuItems({
         <GitFork />
         {translate(
           'auto.components.terminal.pane.TerminalContextMenu.8a7ddb8b8a',
-          'Fork Agent Session…'
+          'Fork agent session…'
         )}
       </DropdownMenuItem>
       <AgentSessionContextCopyMenuItem onSelect={onCopyAgentSessionContext} />
@@ -233,11 +233,11 @@ function TerminalContextMenuItems({
           {isNativeChatView
             ? translate(
                 'components.tab.bar.SortableTabContextMenu.switchToTerminalView',
-                'Continue with Terminal Agent'
+                'Continue with terminal agent'
               )
             : translate(
                 'components.tab.bar.SortableTabContextMenu.switchToChatView',
-                'Continue in Chat UI'
+                'Continue in chat UI'
               )}
           <DropdownMenuShortcut>{shortcuts.nativeChat}</DropdownMenuShortcut>
         </DropdownMenuItem>
@@ -247,7 +247,7 @@ function TerminalContextMenuItems({
         <PanelRightClose />
         {translate(
           'auto.components.terminal.pane.TerminalContextMenu.20e565d865',
-          'Split Terminal Right'
+          'Split terminal right'
         )}
         <DropdownMenuShortcut>{shortcuts.splitRight}</DropdownMenuShortcut>
       </DropdownMenuItem>
@@ -255,7 +255,7 @@ function TerminalContextMenuItems({
         <PanelBottomClose />
         {translate(
           'auto.components.terminal.pane.TerminalContextMenu.98bccf4fa2',
-          'Split Terminal Down'
+          'Split terminal down'
         )}
         <DropdownMenuShortcut>{shortcuts.splitDown}</DropdownMenuShortcut>
       </DropdownMenuItem>
@@ -264,7 +264,7 @@ function TerminalContextMenuItems({
           <PanelsTopLeft />
           {translate(
             'auto.components.terminal.pane.TerminalContextMenu.06c2b0f043',
-            'Equalize Pane Sizes'
+            'Equalize pane sizes'
           )}
           {showEqualizeShortcut ? (
             <DropdownMenuShortcut>{shortcuts.equalize}</DropdownMenuShortcut>
@@ -277,11 +277,11 @@ function TerminalContextMenuItems({
           {menuPaneIsExpanded
             ? translate(
                 'auto.components.terminal.pane.TerminalContextMenu.df766809e0',
-                'Collapse Pane'
+                'Collapse pane'
               )
             : translate(
                 'auto.components.terminal.pane.TerminalContextMenu.925f49f210',
-                'Expand Pane'
+                'Expand pane'
               )}
           <DropdownMenuShortcut>{shortcuts.expand}</DropdownMenuShortcut>
         </DropdownMenuItem>
@@ -296,7 +296,7 @@ function TerminalContextMenuItems({
         }}
       >
         <Pencil />
-        {translate('auto.components.terminal.pane.TerminalContextMenu.39809d152f', 'Set Title…')}
+        {translate('auto.components.terminal.pane.TerminalContextMenu.39809d152f', 'Set title…')}
         {showSetTitleShortcut ? (
           <DropdownMenuShortcut>{shortcuts.setTitle}</DropdownMenuShortcut>
         ) : null}
@@ -312,7 +312,7 @@ function TerminalContextMenuItems({
           <Copy />
           {translate(
             'components.terminalPane.TerminalContextMenu.copySessionId',
-            'Copy Session ID'
+            'Copy session ID'
           )}
         </DropdownMenuItem>
       ) : null}
@@ -320,12 +320,12 @@ function TerminalContextMenuItems({
         <Copy />
         {translate(
           'auto.components.terminal.pane.TerminalContextMenu.copyTerminalId',
-          'Copy Terminal ID'
+          'Copy terminal ID'
         )}
       </DropdownMenuItem>
       <DropdownMenuItem onSelect={onCopyPaneId}>
         <Copy />
-        {translate('auto.components.terminal.pane.TerminalContextMenu.2cf85a6a55', 'Copy Pane ID')}
+        {translate('auto.components.terminal.pane.TerminalContextMenu.2cf85a6a55', 'Copy pane ID')}
       </DropdownMenuItem>
       {canClosePane && (
         <>
@@ -334,7 +334,7 @@ function TerminalContextMenuItems({
             <X />
             {translate(
               'auto.components.terminal.pane.TerminalContextMenu.8c17d6786d',
-              'Close Pane'
+              'Close pane'
             )}
             <DropdownMenuShortcut>{shortcuts.close}</DropdownMenuShortcut>
           </DropdownMenuItem>
@@ -343,13 +343,13 @@ function TerminalContextMenuItems({
       <DropdownMenuSeparator />
       <DropdownMenuItem onSelect={onClearScreen}>
         <Eraser />
-        {translate('auto.components.terminal.pane.TerminalContextMenu.b4cdd9314e', 'Clear Screen')}
+        {translate('auto.components.terminal.pane.TerminalContextMenu.b4cdd9314e', 'Clear screen')}
       </DropdownMenuItem>
       <DropdownMenuItem onSelect={onResetTerminal}>
         <RotateCcw />
         {translate(
           'auto.components.terminal.pane.TerminalContextMenu.resetTerminal',
-          'Reset Terminal'
+          'Reset terminal'
         )}
       </DropdownMenuItem>
     </>

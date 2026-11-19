@@ -1,0 +1,399 @@
+{
+  "title": "Experiment design: constant fan-in DST (MethodX)",
+  "method": "MethodX: sparse-to-sparse dynamic sparse training with a constant fan-in constraint (every active neuron has exactly k incoming weights). Every ΔT steps, per layer: count each neuron's salient weights (layer top-K by weight or by gradient magnitude), ablate neurons with fewer than γ_sal·k salient weights (floor of one) and give their budget to the rest, recompute k′, prune the K smallest-magnitude weights layer-wide, and regrow each active neuron by gradient magnitude up to fan-in k′. ERK (or uniform) layer densities, sparse fan-in-scaled init, update fraction α cosine-decayed to zero at an end fraction, then the mask is frozen. Inference uses a condensed n_active × k values + indices representation with CPU and GPU kernels; a closed-form variance analysis of the output-norm ratio motivates the constraint.",
+  "scope": {
+    "compute": {
+      "hardware": "One to four V100/A100-class GPUs per training run; latency on a Xeon-class workstation CPU and a Volta-generation GPU"
+    }
+  },
+  "claims": [
+    {
+      "id": "C1",
+      "text": "MethodX learns constant fan-in fine-grained structured sparsity with fully sparse-to-sparse training, and its generalization matches state-of-the-art unstructured DST up to very high sparsity across image-classification architectures",
+      "kind": "performance",
+      "weight": "main",
+      "evidence": ["Q1"]
+    },
+    {
+      "id": "C2",
+      "text": "At very high sparsity unstructured DST implicitly ablates whole neurons; a strict constant fan-in constraint prevents this, and dynamic neuron ablation restores unstructured-level accuracy",
+      "kind": "mechanism",
+      "weight": "secondary",
+      "evidence": ["Q2"]
+    },
+    {
+      "id": "C3",
+      "text": "Neuron ablation can be enabled at all sparsity levels; the resulting width sparsity complements constant fan-in sparsity for real-world inference speed while keeping generalization",
+      "kind": "efficiency",
+      "weight": "secondary",
+      "evidence": ["Q3"]
+    },
+    {
+      "id": "C4",
+      "text": "The condensed constant fan-in representation is parameter- and memory-efficient and gives real speedups for batch-1 CPU and batched GPU inference versus dense and unstructured sparse representations",
+      "kind": "efficiency",
+      "weight": "secondary",
+      "evidence": ["Q4"]
+    },
+    {
+      "id": "C5",
+      "text": "Constant fan-in does not impair training dynamics: its output-norm variance is no larger than unstructured sparsity, especially at high sparsity",
+      "kind": "analysis",
+      "weight": "secondary",
+      "evidence": ["Q5"]
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "claim": "C1",
+      "text": "At matched global sparsity, layer-wise distribution, update schedule and training budget, does enforcing constant fan-in (with dynamic neuron ablation) during sparse-to-sparse training lose generalization relative to unstructured DST? (99% is pre-registered as exploratory)",
+      "hypothesis": "For ResNet-class image classifiers at 80, 90, 95 and 99% global sparsity, MethodX with neuron ablation reaches top-1 test accuracy within δ of RigL trained under the identical configuration, checked on the lower end of a 95% CI on the mean difference across seeds",
+      "predictionIfFalse": "At any sparsity ≤ 95%, the CI on (MethodX − RigL) falls entirely below −δ",
+      "minEffect": "δ = 0.5 pp on CIFAR, 1.0 pp on ImageNet (proposed; to be confirmed by the user before any run)"
+    },
+    {
+      "id": "Q2",
+      "claim": "C2",
+      "text": "Implicit ablation: percentage of neurons with zero fan-in at the end of training, per layer, and the strict vs ablation accuracy gap (RigL vs MethodX-strict vs MethodX+ablation)"
+    },
+    {
+      "id": "Q3",
+      "claim": "C3",
+      "text": "Ablation at all sparsities: accuracy and final layer widths with ablation on vs off (same setup as the primary comparison)"
+    },
+    {
+      "id": "Q4",
+      "claim": "C4",
+      "text": "Inference speed and memory: condensed vs dense vs CSR/unstructured kernel vs structured-only (narrower dense), same trained weights, same threads"
+    },
+    {
+      "id": "Q5",
+      "claim": "C5",
+      "text": "Does the closed-form variance of ‖z^{l+1}‖²/‖z^l‖² match Monte Carlo under Bernoulli, exact-count and constant fan-in masks?",
+      "hypothesis": "Each closed form matches simulation within MC error, and Var(constant fan-in) ≤ Var(Bernoulli) everywhere"
+    }
+  ],
+  "methodComponents": [
+    {
+      "id": "M1",
+      "name": "constant fan-in constraint (exactly k incoming weights per active neuron)"
+    },
+    {
+      "id": "M2",
+      "name": "dynamic neuron ablation (γ_sal saliency threshold, budget redistributed)",
+      "ablation": "A-strict"
+    },
+    {
+      "id": "M3",
+      "name": "saliency count: union of layer top-K by weight and top-K by gradient magnitude"
+    },
+    { "id": "M4", "name": "ablation threshold floor of one salient weight" },
+    { "id": "M5", "name": "recompute constant fan-in k′ from surviving neurons" },
+    { "id": "M6", "name": "layer-wide pruning of the K smallest-magnitude weights" },
+    { "id": "M7", "name": "per-neuron regrowth by gradient magnitude up to fan-in k′" },
+    { "id": "M8", "name": "dense-gradient accumulation over mini-batches for regrowth" },
+    {
+      "id": "M9",
+      "name": "connectivity update schedule (ΔT, α cosine-decayed to the update-end fraction, then mask frozen)"
+    },
+    { "id": "M10", "name": "layer-wise density distribution (ERK or uniform)" },
+    { "id": "M11", "name": "initialization scaled by the sparse fan-in" },
+    { "id": "M12", "name": "set of sparsified layers (first layer, attention projections)" },
+    { "id": "M13", "name": "equal numbers of weights pruned and regrown" },
+    {
+      "id": "M14",
+      "name": "condensed inference representation (values + indices; ablated neurons deleted; can run as narrower dense)"
+    },
+    {
+      "id": "M15",
+      "name": "compiled CPU implementation and GPU kernels for constant fan-in layers"
+    }
+  ],
+  "baselines": [
+    {
+      "id": "B1",
+      "name": "RigL",
+      "role": "closest-prior",
+      "why": "Same codebase and configuration; the only difference should be the mask-update rule",
+      "reproduce": {
+        "cell": "S1.rigl-repro",
+        "tolerance": "within about 0.3 pp (CIFAR) or 0.5 pp (ImageNet) of published RigL numbers"
+      },
+      "fairness": {
+        "trainingBudget": "same epochs",
+        "tuning": {
+          "space": "same tuning budget as MethodX (no trial count given)",
+          "selectionSplit": "held-out slice of the training set"
+        },
+        "notes": "same codebase, ERK distribution, sparsified-layer set (incl. whether first layer and classifier are sparse), ΔT, α, cosine decay and end fraction, gradient-accumulation steps and epochs"
+      }
+    },
+    {
+      "id": "B2",
+      "name": "Dense",
+      "role": "oracle",
+      "why": "Upper reference, not part of the hypothesis test"
+    },
+    {
+      "id": "B3",
+      "name": "MethodX strict (no ablation)",
+      "role": "ablated-self",
+      "why": "Needed for claim 2"
+    },
+    {
+      "id": "B4",
+      "name": "SET or a static ERK mask (optional)",
+      "role": "no-training-floor",
+      "why": "A floor that shows DST is helping at all"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "D1",
+      "name": "CIFAR-10",
+      "role": "main",
+      "splits": {
+        "select": "5k images held out from train; retrain on full train with chosen values",
+        "report": "official test set"
+      }
+    },
+    {
+      "id": "D2",
+      "name": "CIFAR-100",
+      "role": "main",
+      "splits": {
+        "select": "5k images held out from train; retrain on full train with chosen values",
+        "report": "official test set"
+      }
+    },
+    {
+      "id": "D3",
+      "name": "ImageNet-1k",
+      "role": "main",
+      "splits": {
+        "select": "~10k images held out from train; retrain on full train with chosen values",
+        "report": "ImageNet val used as test"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "name": "top-1 accuracy (final checkpoint); tested quantity MethodX − RigL vs −δ",
+      "direction": "maximize",
+      "split": "test",
+      "primary": true
+    },
+    { "name": "percentage of neurons with zero fan-in at end of training, per layer" },
+    { "name": "accuracy gap, strict vs ablation" },
+    { "name": "final layer widths" },
+    { "name": "median latency over ≥ 100 runs after warm-up", "direction": "minimize" },
+    { "name": "memory in bytes", "direction": "minimize" },
+    { "name": "closed-form vs Monte Carlo variance of the norm ratio" }
+  ],
+  "statistics": {
+    "seedsMain": 3,
+    "repeatUnit": "seed (same seed across arms: same init and data order; paired differences)",
+    "variance": "ci95",
+    "test": "paired non-inferiority: lower end of the 95% CI of the mean difference vs −δ"
+  },
+  "hyperparameters": {
+    "selectionSplit": "held-out slice of the training set (5k CIFAR, ~10k ImageNet), never test; retrain on full train with the chosen values"
+  },
+  "protocol": {
+    "checkpoint": "final checkpoint (no best-epoch selection)"
+  },
+  "matrix": [
+    {
+      "cell": "S1.variance-sim",
+      "stage": "S1",
+      "question": "Q5",
+      "purpose": "analysis",
+      "factors": {
+        "masks": "Bernoulli, exact-count, constant fan-in",
+        "sparsity": "0.5–0.99",
+        "width": "a few widths",
+        "compute": "CPU, no training"
+      },
+      "expect": "closed forms within MC error; Var(constant fan-in) ≤ Var(Bernoulli) everywhere"
+    },
+    {
+      "cell": "S1.dense",
+      "stage": "S1",
+      "purpose": "sanity",
+      "factors": { "method": "dense", "arch": "ResNet-18 (or WRN-22-2)", "dataset": "CIFAR-10" },
+      "seeds": 1,
+      "expect": "sanity-checks the pipeline and accuracy"
+    },
+    {
+      "cell": "S1.rigl-repro",
+      "stage": "S1",
+      "question": "Q1",
+      "purpose": "sanity",
+      "factors": {
+        "method": "RigL",
+        "sparsity": "90, 99%",
+        "dataset": "CIFAR",
+        "logging": "per-neuron fan-in of the mask at every update"
+      },
+      "seeds": 1,
+      "expect": "matches published RigL numbers"
+    },
+    {
+      "cell": "S1.strict",
+      "stage": "S1",
+      "question": "Q2",
+      "purpose": "pilot",
+      "factors": { "method": "MethodX strict", "sparsity": "90, 99%", "dataset": "CIFAR" },
+      "compareTo": ["S1.rigl-repro"],
+      "seeds": 1,
+      "expect": "constraint holds exactly (every active row has nnz == k′); first look at the gap"
+    },
+    {
+      "cell": "S1.gamma-sweep",
+      "stage": "S1",
+      "question": "Q1",
+      "purpose": "tuning",
+      "factors": {
+        "method": "MethodX + ablation",
+        "γ_sal": "about 0.1, 0.3, 0.5, 0.7",
+        "sparsity": "90, 99%",
+        "dataset": "CIFAR validation split"
+      }
+    },
+    {
+      "cell": "S2.cifar.methodx",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "factors": {
+        "method": "MethodX + ablation",
+        "dataset": "CIFAR",
+        "sparsity": "80, 90, 95, 99%"
+      },
+      "compareTo": ["S2.cifar.rigl"],
+      "seeds": 5
+    },
+    {
+      "cell": "S2.cifar.rigl",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "factors": { "method": "RigL", "dataset": "CIFAR", "sparsity": "80, 90, 95, 99%" },
+      "seeds": 5
+    },
+    {
+      "cell": "S2.cifar.strict",
+      "stage": "S2",
+      "question": ["Q2", "Q3"],
+      "purpose": "ablation",
+      "factors": { "method": "MethodX strict", "dataset": "CIFAR", "sparsity": "80, 90, 95, 99%" },
+      "compareTo": ["S2.cifar.methodx"],
+      "seeds": 5
+    },
+    {
+      "cell": "S2.cifar.floor",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "could",
+      "factors": { "method": "SET or a static ERK mask (optional)", "dataset": "CIFAR" }
+    },
+    {
+      "cell": "S3.in.methodx",
+      "stage": "S3",
+      "question": "Q1",
+      "purpose": "main",
+      "factors": {
+        "method": "MethodX + ablation (selected configuration)",
+        "arch": "ResNet-50",
+        "dataset": "ImageNet-1k",
+        "sparsity": "90, 95%"
+      },
+      "compareTo": ["S3.in.rigl"],
+      "seeds": 3
+    },
+    {
+      "cell": "S3.in.rigl",
+      "stage": "S3",
+      "question": "Q1",
+      "purpose": "main",
+      "factors": {
+        "method": "RigL",
+        "arch": "ResNet-50",
+        "dataset": "ImageNet-1k",
+        "sparsity": "90, 95%"
+      },
+      "seeds": 3
+    },
+    {
+      "cell": "S4.latency",
+      "stage": "S4",
+      "question": "Q4",
+      "purpose": "cost",
+      "factors": {
+        "representations": "condensed, dense, CSR/unstructured kernel, structured-only (narrower dense)",
+        "weights": "same trained weights",
+        "batch": "1 on CPU; fixed batches on GPU",
+        "granularity": "individual layers and end-to-end"
+      }
+    }
+  ],
+  "ablations": [
+    {
+      "id": "A-strict",
+      "component": "M2",
+      "structure": "remove",
+      "default": "MethodX with dynamic neuron ablation",
+      "levels": ["strict (no ablation)"],
+      "cells": ["S1.strict", "S2.cifar.strict"]
+    }
+  ],
+  "costMeasurements": [
+    {
+      "id": "K1",
+      "what": ["median latency over ≥ 100 runs after warm-up", "memory in bytes"],
+      "methods": [
+        "condensed",
+        "dense",
+        "CSR / unstructured kernel",
+        "structured-only (narrower dense)"
+      ],
+      "protocol": "same trained weights, same fixed thread count; batch 1 on CPU and fixed batches on GPU; report hardware and software versions; benchmark individual layers and the end-to-end network",
+      "cell": "S4.latency"
+    }
+  ],
+  "analysis": [
+    {
+      "id": "N1",
+      "kind": "mechanism-probe",
+      "question": "Fraction of neurons RigL ablates as sparsity grows, from the per-neuron fan-in logged at every update (claim 2)"
+    },
+    {
+      "id": "N2",
+      "kind": "mechanism-probe",
+      "question": "Final layer widths with ablation on vs off (claim 3)"
+    }
+  ],
+  "stages": [
+    {
+      "id": "S1",
+      "name": "First runs (cheap, in order)",
+      "gate": "RigL reproduces published RigL numbers within about 0.3 pp (CIFAR) / 0.5 pp (ImageNet) before comparing anything"
+    },
+    { "id": "S2", "name": "Full 5-seed CIFAR grid (3 arms × 4 sparsities)" },
+    { "id": "S3", "name": "ImageNet ResNet-50 at the selected configuration" },
+    { "id": "S4", "name": "Secondary experiments (later)" }
+  ],
+  "decisionPoints": [
+    {
+      "if": "the budget allows only 1 ImageNet seed",
+      "then": "report ImageNet as a point estimate, lean on CIFAR for the statistical claim, and say so explicitly in the paper"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Seed variance is large at 99%, where the implicit-ablation story predicts the largest gap",
+      "mitigation": "pre-register 99% as an exploratory comparison"
+    }
+  ]
+}

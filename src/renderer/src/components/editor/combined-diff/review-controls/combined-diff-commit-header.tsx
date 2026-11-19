@@ -18,7 +18,7 @@ export function CombinedDiffCommitHeader({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div
-                  className="truncate text-sm font-semibold text-foreground"
+                  className="truncate text-sm font-medium text-foreground"
                   title={commitCompare.subject}
                 >
                   {commitCompare.subject}

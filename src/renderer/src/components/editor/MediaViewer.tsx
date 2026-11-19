@@ -79,7 +79,7 @@ export default function MediaViewer({
               }
             }}
           >
-            {translate('mediaPreview.openDefault', 'Open in Default App')}
+            {translate('mediaPreview.openDefault', 'Open in default app')}
           </Button>
         </div>
       )}

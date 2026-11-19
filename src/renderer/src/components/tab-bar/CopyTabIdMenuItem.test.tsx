@@ -40,7 +40,7 @@ describe('CopyTabIdMenuItem', () => {
         })
     )
     render(<CopyTabIdMenuItem unifiedTabId="workspace-tab-123" />)
-    fireEvent.click(screen.getByRole('button', { name: 'Copy Tab ID' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy tab ID' }))
     expect(writeClipboardText).toHaveBeenCalledExactlyOnceWith('orcaTabId: workspace-tab-123')
     expect(toast.success).not.toHaveBeenCalled()
     await act(async () => finishWrite?.())
@@ -51,7 +51,7 @@ describe('CopyTabIdMenuItem', () => {
   it('reports a failed write without exposing native error details or claiming success', async () => {
     writeClipboardText.mockRejectedValue(new Error('private native clipboard details'))
     render(<CopyTabIdMenuItem unifiedTabId="workspace-tab-123" />)
-    fireEvent.click(screen.getByRole('button', { name: 'Copy Tab ID' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy tab ID' }))
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledExactlyOnceWith('Could not copy tab ID')
     )

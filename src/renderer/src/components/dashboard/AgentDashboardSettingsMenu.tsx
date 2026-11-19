@@ -51,7 +51,7 @@ export function AgentDashboardSettingsMenu({
             <Button
               variant="ghost"
               size="icon-xs"
-              aria-label={translate('dashboardPopout.settingsLabel', 'Agent Dashboard settings')}
+              aria-label={translate('dashboardPopout.settingsLabel', 'Agent dashboard settings')}
               className="text-muted-foreground"
             >
               <Settings className="size-3.5" />
@@ -87,7 +87,7 @@ export function AgentDashboardSettingsMenu({
                 onChange={handleModeChange}
                 ariaLabel={translate(
                   'auto.components.settings.ExperimentalPane.agentDashboard.modeAriaLabel',
-                  'Agent Dashboard open mode'
+                  'Agent dashboard open mode'
                 )}
                 size="sm"
                 equalWidth

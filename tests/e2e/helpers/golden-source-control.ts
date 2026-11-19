@@ -223,7 +223,7 @@ export async function openGoldenSourceControl(
     state.setRightSidebarTab('explorer')
     state.setRightSidebarOpen(true)
   })
-  await page.getByRole('button', { name: /Source Control/ }).click()
+  await page.getByRole('button', { name: /Source control/ }).click()
   await expect(page.getByRole('textbox', { name: 'Commit message' })).toBeVisible({
     timeout: 10_000
   })

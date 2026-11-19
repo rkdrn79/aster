@@ -95,7 +95,7 @@ export function NewWorkspaceComposerNameSection({
       <div className="flex items-center justify-between gap-2">
         <label className="min-w-0 truncate text-xs font-medium text-muted-foreground">
           {selectedRepoIsGit
-            ? translate('auto.components.NewWorkspaceComposerCard.ac3748dcda', 'Create From')
+            ? translate('auto.components.NewWorkspaceComposerCard.ac3748dcda', 'Create from')
             : translate(
                 'auto.components.NewWorkspaceComposerCard.0ee17638fe',
                 'Workspace name'
@@ -164,7 +164,7 @@ export function NewWorkspaceComposerNameSection({
             <label className="group flex w-fit items-center gap-2 text-xs text-foreground">
               <span
                 className={cn(
-                  'flex size-4 items-center justify-center rounded-[3px] border shadow-sm transition',
+                  'flex size-4 items-center justify-center rounded-[3px] border shadow-sm transition-colors',
                   reuseSelectedBranch
                     ? 'border-emerald-500/60 bg-emerald-500 text-white'
                     : 'border-foreground/20 bg-background dark:border-white/20 dark:bg-muted/10'

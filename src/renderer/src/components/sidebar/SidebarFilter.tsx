@@ -248,10 +248,10 @@ const SidebarFilter = React.memo(function SidebarFilter({
           <>
             <DropdownMenuSeparator />
             <div className="flex items-center justify-between px-2 py-1">
-              <span className="text-[11px] font-semibold tracking-wide uppercase text-muted-foreground">
+              <span className="text-[11px] font-medium text-muted-foreground">
                 {translate('auto.components.sidebar.SidebarFilter.5f7085a077', 'Projects')}
                 {hasRepoFilter && (
-                  <span className="ml-1.5 normal-case tracking-normal font-medium text-foreground">
+                  <span className="ml-1.5 font-medium text-foreground tabular-nums">
                     · {selectedCount}
                   </span>
                 )}
@@ -260,7 +260,7 @@ const SidebarFilter = React.memo(function SidebarFilter({
                 <button
                   type="button"
                   onClick={selectAllRepos}
-                  className="rounded-full px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:hover:bg-transparent"
+                  className="rounded-md px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:hover:bg-transparent"
                   disabled={allSelected}
                 >
                   {translate('auto.components.sidebar.SidebarFilter.139877b384', 'Select all')}
@@ -268,7 +268,7 @@ const SidebarFilter = React.memo(function SidebarFilter({
                 <button
                   type="button"
                   onClick={clearRepos}
-                  className="rounded-full px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:hover:bg-transparent"
+                  className="rounded-md px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:hover:bg-transparent"
                   disabled={!hasRepoFilter}
                 >
                   {translate('auto.components.sidebar.SidebarFilter.779b7ba05d', 'Clear')}
@@ -286,7 +286,7 @@ const SidebarFilter = React.memo(function SidebarFilter({
                 autoFocus
                 placeholder={translate(
                   'auto.components.sidebar.SidebarFilter.489d1c8c9f',
-                  'Search projects...'
+                  'Search projects'
                 )}
                 value={query}
                 onValueChange={(nextQuery) => {

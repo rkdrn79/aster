@@ -52,7 +52,7 @@ function PageSizeForm({
         apply()
       }}
     >
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <Label htmlFor="figure-page-width">Width</Label>
         <div role="radiogroup" aria-label="Page width" className="flex flex-wrap gap-1">
           {PAGE_WIDTHS.map((entry) => (
@@ -63,8 +63,8 @@ function PageSizeForm({
               aria-checked={widthIn === entry.widthIn}
               aria-label={`${entry.label} column, ${entry.widthIn} in`}
               className={cn(
-                'rounded-md border border-border px-2 py-0.5 text-xs hover:bg-accent',
-                widthIn === entry.widthIn && 'border-foreground/60 bg-accent'
+                'h-6 rounded-md border border-border px-3 text-xs transition-colors duration-(--duration-fast) hover:bg-accent',
+                widthIn === entry.widthIn && 'border-foreground/70 bg-accent'
               )}
               onClick={() => setWidth(String(entry.widthIn))}
             >
@@ -82,7 +82,7 @@ function PageSizeForm({
         <select
           aria-label="Venue preset"
           value=""
-          className="h-7 w-full rounded-md border border-border bg-background px-1.5 text-xs"
+          className="h-7 w-full rounded-md border border-border bg-background px-2 text-xs"
           onChange={(event) => event.target.value && setWidth(event.target.value)}
         >
           <option value="">Venue preset…</option>
@@ -112,7 +112,7 @@ function PageSizeForm({
               ['scale', 'Scale (keep text pt)', 'shapes grow or shrink, text stays the same size']
             ] as const
           ).map(([value, label, detail]) => (
-            <label key={value} className="flex cursor-pointer items-start gap-1.5">
+            <label key={value} className="flex cursor-pointer items-start gap-2">
               <input
                 type="radio"
                 name="figure-page-mode"
@@ -131,7 +131,7 @@ function PageSizeForm({
         </div>
       ) : null}
       <div className="flex items-end gap-2">
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="figure-page-height">Height</Label>
           <Input
             id="figure-page-height"
@@ -157,7 +157,7 @@ function PageSizeForm({
       </div>
       {warning ? (
         <p role="status" className="flex items-start gap-1 text-xs text-status-warning">
-          <TriangleAlert className="mt-0.5 size-3 shrink-0" aria-hidden /> {warning}
+          <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden /> {warning}
         </p>
       ) : null}
       <div className="flex justify-end gap-1">
@@ -190,13 +190,14 @@ export function ResearchFigurePageControl({
       <PopoverTrigger asChild>
         <Button
           size="xs"
-          variant="ghost"
+          variant="secondary"
+          className="h-7"
           aria-label={`Page size ${pageSizeText(page.widthIn, page.heightIn)}`}
           title={warning ?? 'Printed page size'}
         >
           {warning ? <TriangleAlert className="text-status-warning" aria-hidden /> : null}
           <span className="tabular-nums">{pageSizeText(page.widthIn, page.heightIn)}</span>
-          <ChevronDown aria-hidden />
+          <ChevronDown aria-hidden className="opacity-60" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72">

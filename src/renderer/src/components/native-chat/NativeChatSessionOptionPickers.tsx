@@ -105,7 +105,7 @@ function PickerTrigger(props: {
           >
             <span className="truncate text-chat-foreground">{props.modelLabel}</span>
             {props.optionsLabel ? <span className="shrink-0">{props.optionsLabel}</span> : null}
-            <ChevronDown className="size-3" />
+            <ChevronDown className="size-4" />
           </Button>
         </PopoverTrigger>
       </TooltipTrigger>
@@ -221,6 +221,7 @@ function SessionOptionPopover(props: {
         }}
       />
       <PopoverContent
+        data-native-chat-surface=""
         // Why end: the pill's label changes under an open picker; only its right edge stays put.
         align="end"
         side="top"

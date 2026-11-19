@@ -4,11 +4,10 @@ import {
   ExternalLink,
   FileText,
   GitBranch,
+  GitFork,
   Globe,
-  PencilLine,
   Quote,
   Search,
-  Split,
   Undo2
 } from 'lucide-react'
 import { DropdownMenuItem, DropdownMenuShortcut } from '@/components/ui/dropdown-menu'
@@ -25,7 +24,11 @@ import {
   nativeChatBranchRowBlock,
   type NativeChatBranchSurface
 } from './native-chat-branch-context'
-import { NativeChatBranchMenuRow, nativeChatBranchLabels } from './NativeChatBranchAction'
+import {
+  NativeChatBranchMenuRow,
+  NativeChatBranchRows,
+  nativeChatBranchLabels
+} from './NativeChatBranchAction'
 
 function copyText(text: string): void {
   // Best-effort, as the hover copy buttons are: the clipboard can reject when unfocused.
@@ -105,41 +108,37 @@ function NativeChatBranchMenuItems({
   item: NonNullable<NativeChatContextMenuTarget['branchItem']>
   branch: NativeChatBranchSurface
 }): React.JSX.Element {
-  const labels = nativeChatBranchLabels()
-  const block = nativeChatBranchRowBlock(branch, item.id)
   return (
-    <>
-      {item.kind === 'user' ? (
-        <NativeChatBranchMenuRow
-          icon={<PencilLine />}
-          label={labels.editAndBranch}
-          disabledReason={block}
-          onSelect={() => branch.editAndBranch(item.id)}
-        />
-      ) : null}
-      <NativeChatBranchMenuRow
-        icon={item.kind === 'user' ? <Split /> : <GitBranch />}
-        label={labels.branchFromHere}
-        disabledReason={block}
-        onSelect={() => branch.branchFrom(item.id)}
-      />
-    </>
+    <NativeChatBranchRows
+      messageId={item.id}
+      kind={item.kind}
+      disabledReason={nativeChatBranchRowBlock(branch, item.id)}
+    />
   )
 }
 
-/** Branch chat: the whole conversation into a new chat, from its latest finished message. */
+/** Branch chat and Fork to background: the whole conversation, from its latest finished message. */
 export function NativeChatBranchChatMenuItem({
   branch
 }: {
   branch: NativeChatBranchSurface
 }): React.JSX.Element {
+  const labels = nativeChatBranchLabels()
   return (
-    <NativeChatBranchMenuRow
-      icon={<GitBranch />}
-      label={nativeChatBranchLabels().branchChat}
-      disabledReason={branch.disabledReason}
-      onSelect={branch.branchChat}
-    />
+    <>
+      <NativeChatBranchMenuRow
+        icon={<GitBranch />}
+        label={labels.branchChat}
+        disabledReason={branch.disabledReason}
+        onSelect={() => branch.branchChat()}
+      />
+      <NativeChatBranchMenuRow
+        icon={<GitFork />}
+        label={labels.forkChat}
+        disabledReason={branch.disabledReason}
+        onSelect={() => branch.forkChat()}
+      />
+    </>
   )
 }
 

@@ -19,7 +19,7 @@ export function ActivityBarPositionMenu({
   return (
     <ContextMenuContent>
       <ContextMenuLabel>
-        {translate('auto.components.right.sidebar.index.864111caa2', 'Activity Bar Position')}
+        {translate('auto.components.right.sidebar.index.864111caa2', 'Activity bar position')}
       </ContextMenuLabel>
       <ContextMenuRadioGroup
         value={currentPosition}

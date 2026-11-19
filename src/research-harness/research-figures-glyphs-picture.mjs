@@ -73,7 +73,8 @@ export function makePicture(spec, random = Math.random) {
       crop: null,
       strokeColor: 'transparent',
       boundElements: [],
-      customData: { asterPhoto: true },
+      // Why the icon flag here too: a small noise thumbnail asked as an icon stays small, like a photo.
+      customData: { asterPhoto: true, ...(spec.icon === true ? { asterIconPicture: true } : {}) },
       ...common(spec)
     },
     random
@@ -106,6 +107,8 @@ function photoPicture(spec, kind, w, h, random) {
         asterPhoto: true,
         asterPhotoKind: kind,
         asterView: view,
+        // Why: an icon (icon: true) stays small on purpose; the size checks leave it be.
+        ...(spec.icon === true ? { asterIconPicture: true } : {}),
         // Why: a patches() cell is cut from what that grid shows; the kit needs the photo's size.
         ...(spec.patchOf ? { asterPatch: spec.patchOf } : {})
       },

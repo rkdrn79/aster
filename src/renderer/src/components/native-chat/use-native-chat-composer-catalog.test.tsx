@@ -18,7 +18,7 @@ import type { DiscoveredSkill } from '../../../../shared/skills'
 import { withNativeChatResumeCommand } from './use-native-chat-resume-command'
 import { withNativeChatBranchCommand } from './use-native-chat-branch-command'
 
-/** A structured chat's own commands follow the host's: `/resume`, then `/fork`. */
+/** A structured chat's own commands follow the host's: `/resume`, then the copy commands. */
 const withAsterCommands = (commands: Parameters<typeof withNativeChatResumeCommand>[0]) =>
   withNativeChatBranchCommand(withNativeChatResumeCommand(commands))
 
@@ -55,7 +55,10 @@ describe('composer catalog authority', () => {
       'clear',
       'compact',
       'resume',
-      'fork'
+      'branch',
+      'fork',
+      'subtask',
+      'rewind'
     ])
     rerender({ conversationCommands: ['clear'] })
     expect(result.current.agentCommands.map(({ name }) => name)).toEqual([
@@ -63,7 +66,10 @@ describe('composer catalog authority', () => {
       'effort',
       'clear',
       'resume',
-      'fork'
+      'branch',
+      'fork',
+      'subtask',
+      'rewind'
     ])
   })
   // Codex reports no catalog, so the hook's fallback is its entire `/` menu; the
@@ -83,14 +89,20 @@ describe('composer catalog authority', () => {
       'effort',
       'init',
       'resume',
-      'fork'
+      'branch',
+      'fork',
+      'subtask',
+      'rewind'
     ])
     const withoutReport = renderHook(() => useNativeChatComposerCatalog('claude', transport()))
     expect(withoutReport.result.current.agentCommands.map(({ name }) => name)).toEqual([
       'model',
       'effort',
       'resume',
-      'fork'
+      'branch',
+      'fork',
+      'subtask',
+      'rewind'
     ])
   })
   it('respects empty catalogs and command-only catalogs without reviving disk skills', () => {
@@ -128,7 +140,10 @@ describe('composer catalog authority', () => {
       'command:effort',
       'command:review',
       'command:resume',
+      'command:branch',
       'command:fork',
+      'command:subtask',
+      'command:rewind',
       'skill:resume'
     ])
     expect(rows('r')[0]).toMatchObject({ name: 'review' })
@@ -199,8 +214,9 @@ it('Enter completes a known pre-init skill while still dispatching a built-in co
         setCaret: vi.fn()
       })
     },
-    // Commands lead: the host's /model and /effort, clear, Aster's /resume and /fork, then the skill.
-    { initialProps: { activeSuggestion: 5 } }
+    // Commands lead: the host's /model and /effort, clear, Aster's /resume and four copy commands,
+    // then the skill.
+    { initialProps: { activeSuggestion: 8 } }
   )
   const enter = { key: 'Enter', nativeEvent: {}, preventDefault: vi.fn() } as unknown as Parameters<
     typeof result.current

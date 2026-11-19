@@ -68,18 +68,20 @@ export function NativeChatWorkingStatus({
   })
   const label = turnStatusLabel(key, duration)
   // `tabular-nums`: the live clock reflows its own label every second otherwise.
+  // The label leads and a hairline runs on to the edge, so the turn reads as a quiet divider.
   const className =
-    'flex min-h-8 items-center gap-1 border-b border-border text-sm text-chat-foreground-faint tabular-nums'
+    'flex min-h-8 items-center gap-1 text-sm text-chat-foreground-faint tabular-nums'
   const caret =
     workedSeconds != null && onToggleExpanded ? (
       <ChevronRight
         className={cn(
-          'size-3.5 transition-transform motion-reduce:transition-none',
+          'size-4 shrink-0 transition-transform duration-(--duration-fast) ease-out-quint motion-reduce:transition-none',
           expanded && 'rotate-90'
         )}
         aria-hidden="true"
       />
     ) : null
+  const rule = <span aria-hidden="true" className="ml-2 h-px min-w-6 flex-1 bg-border" />
   if (workedSeconds != null && onToggleExpanded) {
     return (
       <button
@@ -87,7 +89,7 @@ export function NativeChatWorkingStatus({
         data-native-chat-turn-status="settled"
         className={cn(
           className,
-          'w-full text-left hover:text-chat-foreground-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring'
+          'w-full rounded-md text-left transition-colors duration-(--duration-fast) hover:text-chat-foreground-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring'
         )}
         aria-label={translate(
           'components.native-chat.status.toggleDetails',
@@ -98,6 +100,7 @@ export function NativeChatWorkingStatus({
       >
         <span>{label}</span>
         {caret}
+        {rule}
       </button>
     )
   }
@@ -113,6 +116,7 @@ export function NativeChatWorkingStatus({
     >
       <span>{label}</span>
       {caret}
+      {rule}
     </div>
   )
 }

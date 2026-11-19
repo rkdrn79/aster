@@ -21,7 +21,7 @@ export function ResearchPageHeader({
   return (
     <header
       data-research-page-header=""
-      className="flex min-h-12 shrink-0 flex-wrap items-center gap-x-4 gap-y-1.5 border-b border-border bg-background py-2 pl-6"
+      className="relative flex min-h-12 shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-border bg-background py-2 pl-6"
       style={
         compactViewport
           ? { paddingRight: '1.5rem' }
@@ -35,6 +35,25 @@ export function ResearchPageHeader({
             }
       }
     >
+      {/* Why: the header drags the window, and Electron lets only a no-drag descendant carve a drag
+          region; the floating controls painted over these padding strips are siblings, so without
+          these they would move the window instead of taking the click. */}
+      {sidebarOpen ? null : (
+        <div
+          aria-hidden
+          data-research-page-header-clearance="left"
+          className="absolute inset-y-0 left-0 [-webkit-app-region:no-drag]"
+          style={{ width: 'calc(var(--collapsed-sidebar-header-width) + 1rem)' }}
+        />
+      )}
+      {compactViewport ? null : (
+        <div
+          aria-hidden
+          data-research-page-header-clearance="right"
+          className="absolute inset-y-0 right-0 [-webkit-app-region:no-drag]"
+          style={{ width: 'calc(var(--window-controls-width, 0px) + 2.5rem)' }}
+        />
+      )}
       {compactViewport ? (
         // Why: on a phone only the first row clears the floating controls, so wrapped actions get the full width.
         <div
@@ -89,11 +108,9 @@ export function ResearchEmptyState({
 }): React.JSX.Element {
   return (
     <div className="flex flex-col items-center rounded-lg border border-dashed border-border px-6 py-12 text-center">
-      {Icon ? <Icon className="mb-3 size-6 text-muted-foreground" aria-hidden /> : null}
+      {Icon ? <Icon className="mb-3 size-4.5 text-muted-foreground" aria-hidden /> : null}
       <h2 className="text-sm font-medium">{title}</h2>
-      {children ? (
-        <p className="mt-1.5 max-w-md text-sm text-muted-foreground">{children}</p>
-      ) : null}
+      {children ? <p className="mt-2 max-w-md text-sm text-muted-foreground">{children}</p> : null}
       {action ? <div className="mt-4">{action}</div> : null}
     </div>
   )

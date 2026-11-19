@@ -6,7 +6,7 @@ import { SidebarHeaderActions } from './sidebar-header-actions'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverAnchor, PopoverArrow, PopoverContent } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Sparkles, Bell } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type SidebarHeaderProps = {
@@ -51,7 +51,7 @@ const SidebarHeader = React.memo(function SidebarHeader({
         <span
           // Why truncate: the action cluster is shrink-0, so a long localized title
           // (es "Espacios de trabajo") otherwise wraps out of the h-8 row.
-          className="min-w-0 truncate select-none pl-2 pr-0.5 text-2xs font-semibold uppercase tracking-widest text-muted-foreground"
+          className="min-w-0 truncate select-none pl-2 pr-0.5 text-xs font-medium text-muted-foreground"
           data-sidebar-section-title={groupBy === 'repo' ? 'projects' : 'workspaces'}
         >
           {sidebarTitle}
@@ -102,12 +102,9 @@ const SidebarHeader = React.memo(function SidebarHeader({
           >
             <PopoverArrow />
             <div className="space-y-2.5">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                <h3 id={introTitleId} className="text-sm font-semibold text-foreground">
-                  {translate('agentsSidebarIntro.migrated.title', 'Agents are easier to find')}
-                </h3>
-              </div>
+              <h3 id={introTitleId} className="text-sm font-semibold text-foreground">
+                {translate('agentsSidebarIntro.migrated.title', 'Agents are easier to find')}
+              </h3>
               <p id={introDescriptionId} className="text-xs leading-relaxed text-muted-foreground">
                 {translate(
                   'agentsSidebarIntro.migrated.description',

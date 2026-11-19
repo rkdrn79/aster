@@ -146,16 +146,16 @@ describe('LinuxPackageInstallRecoveryCard copy', () => {
   it('leads with the manual-install copy and recovery actions', () => {
     renderCard()
 
-    expect(screen.getByText('Manual Install Required')).toBeTruthy()
+    expect(screen.getByText('Manual install required')).toBeTruthy()
     expect(screen.getByText(SUMMARY)).toBeTruthy()
     expect(
       screen.getByText(/a system terminal on the computer where Aster is installed/)
     ).toBeTruthy()
     expect(screen.getByText(/Copy the command, quit Aster/)).toBeTruthy()
 
-    expect(button('Copy Install Command')).toBeTruthy()
-    expect(button('Show Package')).toBeTruthy()
-    expect(button('Download Manually')).toBeTruthy()
+    expect(button('Copy install command')).toBeTruthy()
+    expect(button('Show package')).toBeTruthy()
+    expect(button('Download manually')).toBeTruthy()
     expect(screen.queryByRole('button', { name: /Automatic Install/ })).toBeNull()
   })
 
@@ -163,7 +163,7 @@ describe('LinuxPackageInstallRecoveryCard copy', () => {
     renderCard()
 
     expect(screen.queryByRole('button', { name: 'Retry Download' })).toBeNull()
-    expect(button('Download Manually')).toBeTruthy()
+    expect(button('Download manually')).toBeTruthy()
   })
 
   it('minimizes to the status bar from the header control', () => {
@@ -178,14 +178,14 @@ describe('LinuxPackageInstallRecoveryCard copy action', () => {
   it('writes the main-generated command to the clipboard and confirms it', async () => {
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
     expect(getInstructions).toHaveBeenCalledTimes(1)
     expect(writeClipboardText).toHaveBeenCalledWith(INSTALL_COMMAND)
     expect(toastSuccess).toHaveBeenCalledWith(COPIED_NOTE)
     expect(footnoteElement()).toBeNull()
-    expect(button('Copy Install Command')).toBeTruthy()
+    expect(button('Copy install command')).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Command copied' })).toBeNull()
   })
 
@@ -198,16 +198,16 @@ describe('LinuxPackageInstallRecoveryCard copy action', () => {
     )
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
     // Why: the Electron channel prefix must be stripped before the user sees the message.
     expect(footnoteText()).toBe('Unauthorized updater package recovery sender')
     expect(footnoteElement()?.className).toContain('text-destructive')
     // Why: only main can rule out a command; a rejection must not push the 160 MB redownload.
-    expect(button('Copy Install Command').dataset.variant).toBe('default')
+    expect(button('Copy install command').dataset.variant).toBe('default')
     expect(screen.getByText(/Copy the command, quit Aster/)).toBeTruthy()
-    expect(button('Download Manually')).toBeTruthy()
+    expect(button('Download manually')).toBeTruthy()
     expect(writeClipboardText).not.toHaveBeenCalled()
   })
 
@@ -217,23 +217,23 @@ describe('LinuxPackageInstallRecoveryCard copy action', () => {
     )
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
     expect(footnoteText()).toBe('The downloaded package no longer matches the verified release.')
-    expect(screen.getByText('Manual Install Required')).toBeTruthy()
-    expect(button('Copy Install Command').dataset.variant).toBe('default')
-    expect(button('Show Package').dataset.variant).toBe('outline')
+    expect(screen.getByText('Manual install required')).toBeTruthy()
+    expect(button('Copy install command').dataset.variant).toBe('default')
+    expect(button('Show package').dataset.variant).toBe('outline')
   })
 
   it('retries the instruction call after a rejection', async () => {
     getInstructions.mockRejectedValueOnce(new Error('Unauthorized updater package recovery sender'))
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
     expect(getInstructions).toHaveBeenCalledTimes(2)
@@ -245,28 +245,28 @@ describe('LinuxPackageInstallRecoveryCard copy action', () => {
     writeClipboardText.mockRejectedValue(new Error('Clipboard is unavailable.'))
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
     expect(footnoteText()).toBe('Clipboard is unavailable.')
     expect(screen.queryByText(COPIED_NOTE)).toBeNull()
     // Why: the command was built and validated — only the clipboard failed, so nothing is demoted.
-    const copyButton = button('Copy Install Command')
+    const copyButton = button('Copy install command')
     expect(copyButton.dataset.variant).toBe('default')
     expect(isAriaDisabled(copyButton)).toBe(false)
-    expect(button('Show Package').dataset.variant).toBe('outline')
+    expect(button('Show package').dataset.variant).toBe('outline')
     expect(screen.getByText(/Copy the command, quit Aster/)).toBeTruthy()
-    expect(button('Download Manually')).toBeTruthy()
+    expect(button('Download manually')).toBeTruthy()
   })
 
   it('recovers from a clipboard failure on the next copy attempt', async () => {
     writeClipboardText.mockRejectedValueOnce(new Error('Clipboard is unavailable.'))
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
     expect(writeClipboardText).toHaveBeenCalledTimes(2)
@@ -279,7 +279,7 @@ describe('LinuxPackageInstallRecoveryCard copy action', () => {
     getInstructions.mockReturnValue(pending.promise)
     const { unmount } = renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     unmount()
     pending.resolve(INSTRUCTIONS)
     await flushActions()
@@ -293,7 +293,7 @@ describe('LinuxPackageInstallRecoveryCard copy action', () => {
     getInstructions.mockReturnValue(pending.promise)
     const view = renderCard({ recovery: makeRecovery() })
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     view.rerender(cardElement({ recovery: makeRecovery({ version: '1.4.201' }) }))
     pending.resolve(INSTRUCTIONS)
     await flushActions()
@@ -308,13 +308,13 @@ describe('LinuxPackageInstallRecoveryCard copy action', () => {
     getInstructions.mockReturnValue(pending.promise)
     const view = renderCard({ recovery })
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     view.rerender(cardElement({ recovery: { ...recovery } }))
     pending.reject(new Error('Package install recovery is no longer current.'))
     await flushActions()
 
     expect(footnoteElement()).toBeNull()
-    expect(isAriaDisabled(button('Copy Install Command'))).toBe(false)
+    expect(isAriaDisabled(button('Copy install command'))).toBe(false)
   })
 
   it('ignores a clipboard rejection from a replaced recovery cycle', async () => {
@@ -323,7 +323,7 @@ describe('LinuxPackageInstallRecoveryCard copy action', () => {
     writeClipboardText.mockReturnValue(pending.promise)
     const view = renderCard({ recovery })
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
     expect(writeClipboardText).toHaveBeenCalledWith(INSTALL_COMMAND)
 
@@ -342,14 +342,14 @@ describe('LinuxPackageInstallRecoveryCard hashing state', () => {
     getInstructions.mockReturnValue(pending.promise)
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
 
     const checking = button('Checking package...')
     expect(isAriaDisabled(checking)).toBe(true)
-    expect(isAriaDisabled(button('Show Package'))).toBe(true)
+    expect(isAriaDisabled(button('Show package'))).toBe(true)
 
     fireEvent.click(checking)
-    fireEvent.click(button('Show Package'))
+    fireEvent.click(button('Show package'))
 
     // Why: the buttons stay clickable for focus reasons, so the handlers must do the refusing.
     expect(getInstructions).toHaveBeenCalledTimes(1)
@@ -359,7 +359,7 @@ describe('LinuxPackageInstallRecoveryCard hashing state', () => {
     await flushActions()
 
     expect(toastSuccess).toHaveBeenCalledWith(COPIED_NOTE)
-    expect(isAriaDisabled(button('Show Package'))).toBe(false)
+    expect(isAriaDisabled(button('Show package'))).toBe(false)
   })
 
   it('dims busy actions instead of relying on the native disabled styling', () => {
@@ -367,10 +367,10 @@ describe('LinuxPackageInstallRecoveryCard hashing state', () => {
     getInstructions.mockReturnValue(pending.promise)
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
 
     // Why: ui/button styles only `disabled:`, so without these an inert action looks fully live.
-    for (const name of ['Checking package...', 'Show Package']) {
+    for (const name of ['Checking package...', 'Show package']) {
       expect(button(name).className).toContain('aria-disabled:opacity-50')
       expect(button(name).className).toContain('aria-disabled:cursor-default')
     }
@@ -383,7 +383,7 @@ describe('LinuxPackageInstallRecoveryCard hashing state', () => {
     getInstructions.mockReturnValue(pending.promise)
     renderCard()
 
-    const copyButton = button('Copy Install Command')
+    const copyButton = button('Copy install command')
     copyButton.focus()
     fireEvent.click(copyButton)
 
@@ -399,16 +399,16 @@ describe('LinuxPackageInstallRecoveryCard hashing state', () => {
     showLinuxPackage.mockReturnValue(pending.promise)
     renderCard()
 
-    fireEvent.click(button('Show Package'))
+    fireEvent.click(button('Show package'))
 
     expect(button('Checking package...')).toBeTruthy()
-    expect(isAriaDisabled(button('Copy Install Command'))).toBe(true)
+    expect(isAriaDisabled(button('Copy install command'))).toBe(true)
 
     pending.resolve()
     await flushActions()
 
     expect(showLinuxPackage).toHaveBeenCalledTimes(1)
-    expect(isAriaDisabled(button('Copy Install Command'))).toBe(false)
+    expect(isAriaDisabled(button('Copy install command'))).toBe(false)
   })
 })
 
@@ -478,7 +478,7 @@ describe('LinuxPackageInstallRecoveryCard reveal', () => {
   it('reveals the retained package from the secondary action', async () => {
     renderCard()
 
-    const show = button('Show Package')
+    const show = button('Show package')
     expect(show.dataset.variant).toBe('outline')
 
     fireEvent.click(show)
@@ -492,19 +492,19 @@ describe('LinuxPackageInstallRecoveryCard reveal', () => {
     showLinuxPackage.mockRejectedValue(new Error('Package file is missing.'))
     renderCard()
 
-    fireEvent.click(button('Show Package'))
+    fireEvent.click(button('Show package'))
     await flushActions()
 
     expect(footnoteText()).toBe('Package file is missing.')
     // Why: a reveal failure is not a command-build failure, so the copy path must survive it.
-    expect(button('Copy Install Command')).toBeTruthy()
+    expect(button('Copy install command')).toBeTruthy()
   })
 
   it('reports a failed official-release open in place', async () => {
     openUrl.mockRejectedValue(new Error('Could not open the release page.'))
     renderCard()
 
-    fireEvent.click(button('Download Manually'))
+    fireEvent.click(button('Download manually'))
     await flushActions()
 
     expect(footnoteText()).toBe('Could not open the release page.')
@@ -513,19 +513,19 @@ describe('LinuxPackageInstallRecoveryCard reveal', () => {
 })
 
 describe('LinuxPackageInstallRecoveryCard without a usable command', () => {
-  it('promotes Show Package and keeps the official-release fallback', async () => {
+  it('promotes Show package and keeps the official-release fallback', async () => {
     getInstructions.mockResolvedValue(NO_PACKAGE_MANAGER)
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
-    expect(screen.queryByRole('button', { name: 'Copy Install Command' })).toBeNull()
-    expect(button('Show Package').dataset.variant).toBe('default')
+    expect(screen.queryByRole('button', { name: 'Copy install command' })).toBeNull()
+    expect(button('Show package').dataset.variant).toBe('default')
     expect(footnoteText()).toBe(NO_PACKAGE_MANAGER.message)
     expect(screen.getByText(/Quit Aster before finishing the update/)).toBeTruthy()
 
-    fireEvent.click(button('Download Manually'))
+    fireEvent.click(button('Download manually'))
     expect(openUrl).toHaveBeenCalledWith(RELEASE_URL)
   })
 
@@ -537,22 +537,22 @@ describe('LinuxPackageInstallRecoveryCard without a usable command', () => {
     })
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
     expect(footnoteText()).toBe('No sudo binary is available on this machine.')
-    expect(button('Show Package').dataset.variant).toBe('default')
-    expect(button('Download Manually')).toBeTruthy()
+    expect(button('Show package').dataset.variant).toBe('default')
+    expect(button('Download manually')).toBeTruthy()
   })
 
   it('still reveals the package after the command build failed', async () => {
     getInstructions.mockResolvedValue(NO_PACKAGE_MANAGER)
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
     await flushActions()
 
-    fireEvent.click(button('Show Package'))
+    fireEvent.click(button('Show package'))
     await flushActions()
 
     expect(showLinuxPackage).toHaveBeenCalledTimes(1)
@@ -564,7 +564,7 @@ describe('LinuxPackageInstallRecoveryCard keyboard', () => {
     const user = userEvent.setup()
     renderCard()
 
-    const copyButton = button('Copy Install Command')
+    const copyButton = button('Copy install command')
     copyButton.focus()
     expect(document.activeElement).toBe(copyButton)
 
@@ -582,9 +582,9 @@ describe('LinuxPackageInstallRecoveryCard keyboard', () => {
     const order = [
       'Minimize to status bar',
       'Show details',
-      'Copy Install Command',
-      'Show Package',
-      'Download Manually'
+      'Copy install command',
+      'Show package',
+      'Download manually'
     ]
     for (const name of order) {
       await user.tab()
@@ -597,10 +597,10 @@ describe('LinuxPackageInstallRecoveryCard keyboard', () => {
     getInstructions.mockReturnValue(pending.promise)
     renderCard()
 
-    fireEvent.click(button('Copy Install Command'))
+    fireEvent.click(button('Copy install command'))
 
     // Why: aria-disabled keeps the control in the tab sequence; native disabled would remove it.
-    const show = button('Show Package')
+    const show = button('Show package')
     show.focus()
     expect(document.activeElement).toBe(show)
     expect(show.hasAttribute('disabled')).toBe(false)

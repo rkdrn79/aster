@@ -139,7 +139,15 @@ export function AppWorkspaceShell(props: {
       )}
     >
       {layout.researchUiEnabled ? <ResearchSlackBackgroundTaskMonitor /> : null}
-      <div className="flex flex-row flex-1 min-h-0 overflow-hidden">
+      {/* Why data-inset: app-shell.css floats the sidebar and main area as rounded panels on the shell. */}
+      <div className="app-shell-row flex flex-row flex-1 min-h-0 overflow-hidden" data-inset="true">
+        {/* Why: the shell's top gap above the panels is window chrome too, so it moves the window like
+            the title strips under it (and yields to a focused terminal the same way they do). */}
+        <div
+          aria-hidden
+          className="fixed inset-x-0 top-0 h-[var(--shell-gap)]"
+          data-terminal-focus-release-surface="true"
+        />
         {/* Why: keep the non-workspace titlebar inside this left+center wrapper so it doesn't span over the right-sidebar column. */}
         <div className="flex flex-col flex-1 min-w-0 min-h-0">
           {/* Why: workspace view drops the full-width titlebar so tab groups extend to the top; settings/landing/tasks keep it. */}
@@ -149,12 +157,13 @@ export function AppWorkspaceShell(props: {
               {titlebarMainStrip}
             </div>
           ) : null}
-          <div className="flex flex-row flex-1 min-h-0 overflow-hidden">
+          <div className="app-shell-panels flex flex-row flex-1 min-h-0 overflow-hidden">
             {layout.showSidebar ? (
               layout.leftTitlebarChromeLayout.shouldMount ? (
                 /* Why: when the sidebar is collapsed, take this titlebar-height header out of flex layout so the terminal/editor reclaim the left edge. */
                 <div
-                  className={`flex min-h-0 flex-col shrink-0${layout.sidebarOpen ? ' min-w-0' : ' relative w-0 overflow-visible'}`}
+                  data-sidebar-open={layout.sidebarOpen}
+                  className={`app-shell-sidebar flex min-h-0 flex-col shrink-0${layout.sidebarOpen ? ' min-w-0' : ' relative w-0 overflow-visible'}`}
                   style={
                     layout.sidebarOpen
                       ? { width: 'var(--workspace-sidebar-live-width, 220px)' }
@@ -190,7 +199,7 @@ export function AppWorkspaceShell(props: {
                 ))
               )
             ) : null}
-            <div className="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
+            <div className="app-shell-main flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
               {/* Why: automations/artifacts own their page headers; the stacked titlebar would be an empty 36px stripe. */}
               {layout.stackedSidebarOpen &&
               layout.activeView !== 'automations' &&

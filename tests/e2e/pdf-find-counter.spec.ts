@@ -32,7 +32,7 @@ test('PDF counter follows navigation, new queries, and reopening', async ({
     'needle result 1'
   )
   await pressShortcut(orcaPage, 'f')
-  const input = orcaPage.getByPlaceholder('Find in page...')
+  const input = orcaPage.getByPlaceholder('Find in page')
   const bar = input.locator('..')
   const selected = orcaPage.locator('.pdfViewer .highlight.selected')
   const observations: object[] = []
@@ -158,7 +158,7 @@ test.describe('PDF in a folder workspace', () => {
       'needle result 1'
     )
     await pressShortcut(orcaPage, 'f')
-    const input = orcaPage.getByPlaceholder('Find in page...')
+    const input = orcaPage.getByPlaceholder('Find in page')
     await input.fill('needle')
     await expect(input.locator('..')).toContainText('1 of 6')
     const selected = orcaPage.locator('.pdfViewer .highlight.selected').locator('..')

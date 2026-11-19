@@ -75,7 +75,7 @@ export async function startResearchAdoptInBackground(target?: ResearchAdoptTarge
     : selectResearchWorkspaceContext(state)
   const { workspaceId, hostId } = context
   if (!workspaceId || !hostId) {
-    toast.error('The project workspace or host is unavailable.')
+    toast.error('The project workspace or host is unavailable')
     return
   }
   let agent: TuiAgent

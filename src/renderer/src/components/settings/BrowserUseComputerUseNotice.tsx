@@ -20,7 +20,7 @@ export function BrowserUseComputerUseNotice({
           <p className="text-xs text-muted-foreground">
             {translate(
               'auto.components.settings.BrowserUseComputerUseNotice.79209b37b9',
-              'If cookie import is not the right fit, Computer Use can control local apps and may use existing logged-in browser sessions where applicable. Install the Computer Use skill; macOS also requires privacy permissions.'
+              'If cookie import is not the right fit, computer use can control local apps and may use existing logged-in browser sessions where applicable. Install the computer use skill; macOS also requires privacy permissions.'
             )}
           </p>
         </div>
@@ -34,7 +34,7 @@ export function BrowserUseComputerUseNotice({
           <MousePointerClick className="size-3.5" />
           {translate(
             'auto.components.settings.BrowserUseComputerUseNotice.15b5e680ba',
-            'Open Computer Use'
+            'Open Computer use'
           )}
         </Button>
       </div>

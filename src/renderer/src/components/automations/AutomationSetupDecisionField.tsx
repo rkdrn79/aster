@@ -60,10 +60,7 @@ export function AutomationSetupDecisionField({
         <ChevronDown className={cn('size-4 transition-transform', advancedOpen && 'rotate-180')} />
       </Button>
       <div
-        className={cn(
-          'grid overflow-hidden transition-[grid-template-rows] duration-200 ease-out',
-          advancedOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-        )}
+        className={cn('grid overflow-hidden', advancedOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}
         aria-hidden={!advancedOpen}
       >
         <div className="min-h-0">
@@ -78,7 +75,7 @@ export function AutomationSetupDecisionField({
             <label className="group flex items-center gap-2 text-xs text-foreground">
               <span
                 className={cn(
-                  'flex size-4 items-center justify-center rounded-[3px] border shadow-sm transition',
+                  'flex size-4 items-center justify-center rounded-[3px] border shadow-sm transition-colors',
                   checked
                     ? 'border-emerald-500/60 bg-emerald-500 text-white'
                     : 'border-foreground/20 bg-background dark:border-white/20 dark:bg-muted/10'

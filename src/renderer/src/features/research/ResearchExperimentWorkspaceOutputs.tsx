@@ -31,7 +31,7 @@ export function ResearchExperimentWorkspaceOutputs({
           </Button>
         }
       >
-        Outputs compares the Runs checked on the Runs tab with the baseline.
+        Outputs compares the Runs checked on the Runs tab with the baseline
       </ResearchEmptyState>
     )
   }

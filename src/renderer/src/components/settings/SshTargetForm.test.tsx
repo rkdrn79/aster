@@ -97,7 +97,7 @@ describe('SshTargetForm', () => {
       }
     })
     expect(document.body.textContent).toContain('Edit SSH host')
-    expect(document.body.textContent).toContain('Save Changes')
+    expect(document.body.textContent).toContain('Save changes')
     expect(document.body.textContent).toContain('Editing')
     expect(document.body.textContent).toContain('dev-box')
     expect(document.body.textContent).toContain('alice@dev-box.lan:2222')
@@ -223,7 +223,7 @@ describe('SshTargetForm', () => {
       }
     })
     expect(button('Advanced').getAttribute('data-state')).toBe('open')
-    expect(document.body.textContent).toContain('Jump Host')
+    expect(document.body.textContent).toContain('Jump host')
     act(() => root.unmount())
   })
 })

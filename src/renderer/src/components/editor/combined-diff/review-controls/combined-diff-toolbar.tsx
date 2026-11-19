@@ -1,5 +1,5 @@
 import type React from 'react'
-import { PanelLeftOpen, Space, Sparkles, WrapText } from 'lucide-react'
+import { PanelLeftOpen, Space, WrapText, MessageSquareText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -101,7 +101,7 @@ export function CombinedDiffToolbar({
             : ''}
         </span>
         {diffCommentCount > 0 && (
-          <div className="ml-1 flex shrink-0 items-center overflow-hidden rounded-full border border-border/70 bg-muted/40">
+          <div className="ml-1 flex shrink-0 items-center overflow-hidden rounded-md border border-border/70 bg-muted/40">
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -116,11 +116,11 @@ export function CombinedDiffToolbar({
                     }
                   )}
                 >
-                  <Sparkles className="size-3 text-violet-500 dark:text-violet-400" />
+                  <MessageSquareText className="size-3" />
                   <span>
                     {translate('auto.components.editor.CombinedDiffViewer.bb84b4c374', 'AI notes')}
                   </span>
-                  <span className="rounded-full bg-background/80 px-1 text-[10px] tabular-nums text-muted-foreground">
+                  <span className="text-[10px] tabular-nums text-muted-foreground">
                     {diffCommentCount}
                   </span>
                 </button>
@@ -155,11 +155,11 @@ export function CombinedDiffToolbar({
             {file.combinedAlternate.source === 'combined-branch'
               ? translate(
                   'auto.components.editor.CombinedDiffViewer.3d909843bb',
-                  'Open Branch Diff'
+                  'Open branch diff'
                 )
               : translate(
                   'auto.components.editor.CombinedDiffViewer.982d14bfa5',
-                  'Open All Changes'
+                  'Open all changes'
                 )}
           </button>
         )}
@@ -168,8 +168,8 @@ export function CombinedDiffToolbar({
           onClick={() => setAllSectionsCollapsed(!allSectionsCollapsed)}
         >
           {allSectionsCollapsed
-            ? translate('auto.components.editor.CombinedDiffViewer.19c45cfdc0', 'Expand All')
-            : translate('auto.components.editor.CombinedDiffViewer.ea08dae15b', 'Collapse All')}
+            ? translate('auto.components.editor.CombinedDiffViewer.19c45cfdc0', 'Expand all')
+            : translate('auto.components.editor.CombinedDiffViewer.ea08dae15b', 'Collapse all')}
         </button>
         <button
           className="w-24 px-2 py-0.5 text-center text-xs rounded border border-border text-muted-foreground hover:text-foreground transition-colors"
@@ -177,7 +177,7 @@ export function CombinedDiffToolbar({
         >
           {sideBySide
             ? translate('auto.components.editor.CombinedDiffViewer.f786fd54e1', 'Inline')
-            : translate('auto.components.editor.CombinedDiffViewer.ec5053c7f5', 'Side by Side')}
+            : translate('auto.components.editor.CombinedDiffViewer.ec5053c7f5', 'Side by side')}
         </button>
         <button
           className={`inline-flex h-6 items-center gap-1 rounded border border-border px-2 text-xs transition-colors hover:text-foreground ${
@@ -188,8 +188,8 @@ export function CombinedDiffToolbar({
         >
           <WrapText className="size-3.5" />
           {diffWordWrap === true
-            ? translate('auto.components.editor.CombinedDiffViewer.a4420ca1f7', 'Wrap On')
-            : translate('auto.components.editor.CombinedDiffViewer.dde325ddfe', 'Wrap Off')}
+            ? translate('auto.components.editor.CombinedDiffViewer.a4420ca1f7', 'Wrap on')
+            : translate('auto.components.editor.CombinedDiffViewer.dde325ddfe', 'Wrap off')}
         </button>
         <button
           className={`inline-flex h-6 items-center gap-1 rounded border border-border px-2 text-xs transition-colors hover:text-foreground ${
@@ -200,8 +200,8 @@ export function CombinedDiffToolbar({
         >
           <Space className="size-3.5" />
           {diffShowWhitespace === true
-            ? translate('auto.components.editor.CombinedDiffViewer.2e91bc89d1', 'Whitespace On')
-            : translate('auto.components.editor.CombinedDiffViewer.2bf19c54ad', 'Whitespace Off')}
+            ? translate('auto.components.editor.CombinedDiffViewer.2e91bc89d1', 'Whitespace on')
+            : translate('auto.components.editor.CombinedDiffViewer.2bf19c54ad', 'Whitespace off')}
         </button>
       </div>
     </div>

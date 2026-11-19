@@ -314,11 +314,11 @@ function perfTabsPaletteProps(count: number): Partial<AppState> {
 
 /** Each primary row paired with the section header rendered above it, in DOM order. */
 function getPrimaryRowsBySectionHeader(): { header: string; rowId: string }[] {
-  const headerLabels = new Set(['Open Tabs', 'Workspaces'])
+  const headerLabels = new Set(['Open tabs', 'Workspaces'])
   const pairs: { header: string; rowId: string }[] = []
   let header = ''
   for (const node of testContainer.querySelectorAll<HTMLElement>(
-    '[data-command-item], .uppercase'
+    '[data-command-item], [data-palette-section-header]'
   )) {
     const rowId = node.dataset.commandItem
     if (rowId) {
@@ -366,7 +366,7 @@ describe('WorktreeJumpPalette interleaved primary sections', () => {
     expect(rows.filter((row) => isWorkspaceTabItemId(row.rowId))).toHaveLength(8)
     expect(rows.filter((row) => isWorktreeItemId(row.rowId))).toHaveLength(5)
     for (const { header, rowId } of rows) {
-      expect(header).toBe(isWorkspaceTabItemId(rowId) ? 'Open Tabs' : 'Workspaces')
+      expect(header).toBe(isWorkspaceTabItemId(rowId) ? 'Open tabs' : 'Workspaces')
     }
   })
 
@@ -395,7 +395,7 @@ describe('WorktreeJumpPalette interleaved primary sections', () => {
     expect(renderedIds).toEqual(expectedOrder)
   })
 
-  it('keeps the Open Tabs header when a typed query only hits tabs', async () => {
+  it('keeps the Open tabs header when a typed query only hits tabs', async () => {
     await renderPalette({
       worktreesByRepo: {
         'repo-1': [makeWorktree('wt-tabs', 'tab-host'), makeWorktree('wt-other', 'docs-only')]
@@ -418,8 +418,8 @@ describe('WorktreeJumpPalette interleaved primary sections', () => {
     await flushEffects()
 
     const rows = getPrimaryRowsBySectionHeader()
-    expect(rows).toEqual([{ header: 'Open Tabs', rowId: workspaceTabItemId('wt-tabs', 'tab-0') }])
-    expect(testContainer.textContent).toContain('Open Tabs')
+    expect(rows).toEqual([{ header: 'Open tabs', rowId: workspaceTabItemId('wt-tabs', 'tab-0') }])
+    expect(testContainer.textContent).toContain('Open tabs')
     expect(testContainer.textContent).not.toContain('Workspaces')
   })
 

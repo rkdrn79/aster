@@ -26,7 +26,7 @@ export function getActivityThreadCopyTargets(
 ): CopyTarget[] {
   const title: CopyTarget = {
     key: 'title',
-    label: translate('auto.components.activity.ActivityThreadContextMenu.copyTitle', 'Copy Title'),
+    label: translate('auto.components.activity.ActivityThreadContextMenu.copyTitle', 'Copy title'),
     value: activityThreadRowCopy(thread).taskTitle
   }
   // Why gated: synthetic floating/standalone worktrees have no path.
@@ -35,7 +35,7 @@ export function getActivityThreadCopyTargets(
   }
   const path: CopyTarget = {
     key: 'path',
-    label: translate('auto.components.activity.ActivityThreadContextMenu.copyPath', 'Copy Path'),
+    label: translate('auto.components.activity.ActivityThreadContextMenu.copyPath', 'Copy path'),
     value: thread.worktree.path
   }
   // Same order as the workspace menu: Copy Path, then the name.
@@ -150,7 +150,7 @@ function ActivityThreadSingleMenuItems({
           <ExternalLink className="size-3.5" />
           {translate(
             'auto.components.activity.ActivityThreadContextMenu.goToWorkspace',
-            'Go to Workspace'
+            'Go to workspace'
           )}
         </ContextMenuItem>
       ) : null}
@@ -171,10 +171,10 @@ function ActivityThreadSingleMenuItems({
       >
         {thread.unread ? <BellOff className="size-3.5" /> : <Bell className="size-3.5" />}
         {thread.unread
-          ? translate('auto.components.activity.ActivityThreadContextMenu.markRead', 'Mark Read')
+          ? translate('auto.components.activity.ActivityThreadContextMenu.markRead', 'Mark read')
           : translate(
               'auto.components.activity.ActivityThreadContextMenu.markUnread',
-              'Mark Unread'
+              'Mark unread'
             )}
       </ContextMenuItem>
       {isClearableActivityThread(thread) ? (
@@ -184,7 +184,7 @@ function ActivityThreadSingleMenuItems({
             <X className="size-3.5" />
             {translate(
               'auto.components.activity.ActivityThreadContextMenu.clear',
-              'Clear from List'
+              'Clear from list'
             )}
           </ContextMenuItem>
         </>
@@ -216,7 +216,7 @@ function ActivityThreadBulkMenuItems({
           <BellOff className="size-3.5" />
           {translate(
             'auto.components.activity.ActivityThreadContextMenu.markManyRead',
-            'Mark {{count}} Agents Read',
+            'Mark {{count}} agents read',
             { count: unread.length }
           )}
         </ContextMenuItem>
@@ -226,12 +226,12 @@ function ActivityThreadBulkMenuItems({
           {read.length > 0
             ? translate(
                 'auto.components.activity.ActivityThreadContextMenu.markManyUnread',
-                'Mark {{count}} Agents Unread',
+                'Mark {{count}} agents unread',
                 { count: read.length }
               )
             : translate(
                 'auto.components.activity.ActivityThreadContextMenu.markUnread',
-                'Mark Unread'
+                'Mark unread'
               )}
         </ContextMenuItem>
       )}
@@ -244,12 +244,12 @@ function ActivityThreadBulkMenuItems({
         {clearable.length > 0
           ? translate(
               'auto.components.activity.ActivityThreadContextMenu.clearMany',
-              'Clear {{count}} Agents from List',
+              'Clear {{count}} agents from list',
               { count: clearable.length }
             )
           : translate(
               'auto.components.activity.ActivityThreadContextMenu.clear',
-              'Clear from List'
+              'Clear from list'
             )}
       </ContextMenuItem>
     </>

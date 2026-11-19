@@ -12,7 +12,7 @@
 }
 
 .research-figure-flash {
-  animation: research-figure-flash 1.5s ease-out forwards;
+  animation: research-figure-flash 1.5s var(--ease-out-quint) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

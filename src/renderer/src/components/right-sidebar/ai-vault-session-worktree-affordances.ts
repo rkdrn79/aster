@@ -24,11 +24,11 @@ export function aiVaultResumeInSessionWorkspaceLabel(
   return isAiVaultFolderWorkspaceId(workspaceId)
     ? translate(
         'auto.components.right.sidebar.AiVaultSessionDetails.resumeInFolder',
-        'Resume in Folder'
+        'Resume in folder'
       )
     : translate(
         'auto.components.right.sidebar.AiVaultSessionDetails.resumeInWorktree',
-        'Resume in Worktree'
+        'Resume in worktree'
       )
 }
 
@@ -59,12 +59,12 @@ export function aiVaultWorktreeJumpTooltip(
     if (folder) {
       return translate(
         'auto.components.right.sidebar.AiVaultSessionWorktree.jumpToFolder',
-        'Jump to Folder'
+        'Jump to folder'
       )
     }
     return translate(
       'auto.components.right.sidebar.AiVaultSessionWorktree.jumpToWorktree',
-      'Jump to Worktree'
+      'Jump to worktree'
     )
   }
   if (!worktreeInfo) {
@@ -88,12 +88,12 @@ export function aiVaultWorktreeJumpTooltip(
   if (worktreeInfo.status === 'unavailable') {
     return translate(
       'auto.components.right.sidebar.AiVaultSessionWorktree.noActiveWorktreeMatch',
-      'No active worktree matches this session.'
+      'No active worktree matches this session'
     )
   }
   return translate(
     'auto.components.right.sidebar.AiVaultSessionWorktree.noActiveWorktreeTarget',
-    'No active worktree is available.'
+    'No active worktree is available'
   )
 }
 

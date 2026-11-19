@@ -36,7 +36,7 @@ export function GHEditSectionLabelsColumn({
 }): React.JSX.Element {
   return (
     <section className="min-w-0">
-      <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="mb-2 flex items-center justify-between text-[11px] font-medium text-muted-foreground">
         <span>{translate('auto.components.GitHubItemDialog.217e55d87c', 'Labels')}</span>
         <Popover open={popoverOpen} onOpenChange={onPopoverOpenChange}>
           <PopoverTrigger asChild>
@@ -44,7 +44,7 @@ export function GHEditSectionLabelsColumn({
               type="button"
               disabled={isPending || repoLabels.loading}
               aria-label={translate('auto.components.GitHubItemDialog.4ba0132f37', 'Edit labels')}
-              className="rounded p-0.5 text-muted-foreground transition hover:bg-accent hover:text-foreground disabled:opacity-50"
+              className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
             >
               {isPending ? (
                 <LoaderCircle className="size-3 animate-spin" />
@@ -100,7 +100,7 @@ export function GHEditSectionLabelsColumn({
           {localLabels.map((name) => (
             <span
               key={name}
-              className="inline-flex items-center rounded-full border border-border/50 bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-foreground"
+              className="inline-flex items-center rounded-sm border border-border/50 bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-foreground"
             >
               {name}
             </span>
@@ -134,7 +134,7 @@ export function GHEditSectionLabelsPill({
         <button
           type="button"
           disabled={isPending || repoLabels.loading}
-          className="group/labels inline-flex items-center gap-1 rounded-full border border-border/30 bg-muted/20 px-2 py-0.5 text-[11px] transition hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50"
+          className="group/labels inline-flex items-center gap-1 rounded-md border border-border/30 bg-muted/20 px-2 py-0.5 text-[11px] transition-[filter,box-shadow] hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50"
         >
           {localLabels.length === 0 ? (
             <span className="text-muted-foreground">

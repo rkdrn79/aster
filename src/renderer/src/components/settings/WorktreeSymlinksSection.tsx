@@ -101,7 +101,7 @@ export function WorktreeSymlinksSection({
     <SearchableSetting
       title={translate(
         'auto.components.settings.WorktreeSymlinksSection.4755f120b6',
-        'Worktree Shared Paths'
+        'Worktree shared paths'
       )}
       description={translate(
         'auto.components.settings.WorktreeSymlinksSection.b07ef5a8b6',
@@ -127,7 +127,7 @@ export function WorktreeSymlinksSection({
           <h3 className="text-sm font-semibold">
             {translate(
               'auto.components.settings.WorktreeSymlinksSection.4755f120b6',
-              'Worktree Shared Paths'
+              'Worktree shared paths'
             )}
           </h3>
           <p className="text-xs text-muted-foreground">
@@ -141,7 +141,7 @@ export function WorktreeSymlinksSection({
           <PopoverTrigger asChild>
             <Button type="button" variant="outline" size="sm">
               <Plus className="size-3.5" />
-              {translate('auto.components.settings.WorktreeSymlinksSection.241325302c', 'Add Path')}
+              {translate('auto.components.settings.WorktreeSymlinksSection.241325302c', 'Add path')}
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-72 p-0">
@@ -199,10 +199,10 @@ export function WorktreeSymlinksSection({
                       )}
                       <span className="truncate text-xs">{entry.name}</span>
                       {alreadyAdded ? (
-                        <span className="ml-auto text-[10px] uppercase tracking-wide text-muted-foreground">
+                        <span className="ml-auto text-[11px] text-muted-foreground">
                           {translate(
                             'auto.components.settings.WorktreeSymlinksSection.ea06227efa',
-                            'added'
+                            'Added'
                           )}
                         </span>
                       ) : null}

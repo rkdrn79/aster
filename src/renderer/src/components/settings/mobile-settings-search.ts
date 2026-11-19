@@ -49,7 +49,7 @@ export const getMobileSidebarShortcutSearchEntry = createLocalizedCatalog(
   (): SettingsSearchEntry => ({
     title: translate(
       'auto.components.settings.mobile.settings.search.1de96ec8a6',
-      'Show Aster Mobile Button'
+      'Show Aster Mobile button'
     ),
     description: translate(
       'auto.components.settings.mobile.settings.search.682293cadf',

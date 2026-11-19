@@ -112,7 +112,7 @@ export function RepositoryIconTabs({
           <Github className="size-3.5" />
           {translate(
             'auto.components.settings.RepositoryIconPicker.39da8a10bf',
-            'Use GitHub Avatar'
+            'Use GitHub avatar'
           )}
         </Button>
         <p className="text-xs text-muted-foreground">

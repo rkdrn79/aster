@@ -397,6 +397,7 @@ test('stage photos grow into a row that is taller than their card needs', async 
 test('a badge takes a corner or a point, so a narrow-top trapezoid keeps it off its waist', async () => {
   await withFigure(async (file) => {
     const fig = await openFigure(file)
+    fig.style(undefined, { look: 'preset' })
     fig.trapezoid({ id: 'up', x: 40, y: 40, w: 120, h: 60, narrow: 'top' })
     const box = fig.bounds('up')
     fig.trainable('up')
@@ -418,6 +419,7 @@ test('a badge takes a corner or a point, so a narrow-top trapezoid keeps it off 
 test('a sub-caption keeps cx under a panel and wraps to its width', async () => {
   await withFigure(async (file) => {
     const fig = await openFigure(file)
+    fig.style(undefined, { look: 'preset' })
     fig.box({ id: 'p', x: 20, y: 20, w: 120, h: 60, label: 'panel' })
     fig.subcaption({
       id: 'a',

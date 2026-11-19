@@ -39,7 +39,7 @@ function revealAgentViaPopoutRelay(args: AgentRevealArgs): void {
 function bucketLabel(bucket: DashboardBucket): string {
   switch (bucket) {
     case 'attention':
-      return translate('dashboardPopout.bucket.attention', 'Needs You')
+      return translate('dashboardPopout.bucket.attention', 'Needs you')
     case 'working':
       return translate('dashboardPopout.bucket.working', 'Working')
     case 'done':
@@ -90,10 +90,8 @@ function KanbanColumn({
       className="flex min-w-[264px] flex-1 flex-col rounded-xl border border-border/60 bg-muted/30"
     >
       <header className="flex items-center gap-2 px-3 py-2">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
-          {label}
-        </span>
-        <span className="ml-auto rounded-full bg-background px-1.5 text-[11px] tabular-nums text-muted-foreground">
+        <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
+        <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
           {cards.length}
         </span>
       </header>

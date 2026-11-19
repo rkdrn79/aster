@@ -414,7 +414,7 @@ describe('PluginsSettingsSection lifecycle', () => {
         (button) => button.textContent?.trim() === label
       )
 
-    act(() => click(findButton('Review & enable')!))
+    act(() => click(findButton('Review and enable')!))
     act(() => click(findButton('Mark consent dirty')!))
     act(() => click(findButton('View logs')!))
     act(() => click(findButton('Remove')!))
@@ -430,7 +430,7 @@ describe('PluginsSettingsSection lifecycle', () => {
     await act(async () => reinstalledList.resolve([pendingPlugin]))
     expect(container.textContent).not.toContain('Loading logs…')
 
-    act(() => click(findButton('Review & enable')!))
+    act(() => click(findButton('Review and enable')!))
     expect(container.textContent).not.toContain('Consent local state')
     act(() => click(findButton('View logs')!))
     await act(async () => freshLogs.resolve([{ ts: 2, level: 'info', line: 'fresh installation' }]))

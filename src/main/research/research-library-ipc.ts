@@ -1,16 +1,21 @@
-import { BrowserWindow, dialog, ipcMain } from 'electron'
+import { BrowserWindow, dialog, ipcMain, net } from 'electron'
 import { z } from 'zod'
 import {
   researchLibraryDocumentSchema,
   type LibraryPdfImportResult
 } from '../../shared/research/research-library'
-import { downloadArxivPdf, importLocalPdf, lookupArxivPaper } from './research-library-files'
-import { lookupDoiPaper } from './research-library-doi'
+import { downloadArxivPdf, importLocalPdf } from './research-library-files'
+import { lookupArxivPaper, lookupDoiPaper } from './research-library-lookups'
+import { searchPaperByTitle } from './research-library-search'
+import {
+  ResearchLibraryReferenceParams,
+  ResearchLibraryTitleSearchParams
+} from '../../shared/research/research-library-rpc'
 import { readResearchLibrary, saveResearchLibrary } from './research-library-repository'
 import { broadcastResearchChange } from './research-change-broadcast'
 
 const workspaceSchema = z.object({ workspacePath: z.string().min(1).max(4096) }).strict()
-const referenceSchema = z.object({ reference: z.string().trim().min(1).max(4096) }).strict()
+const referenceSchema = ResearchLibraryReferenceParams
 
 export function registerResearchLibraryIpcHandlers(): void {
   ipcMain.handle('researchLibrary:read', () => readResearchLibrary())
@@ -20,10 +25,15 @@ export function registerResearchLibraryIpcHandlers(): void {
     return saved
   })
   ipcMain.handle('researchLibrary:lookupArxiv', (_event, input: unknown) =>
-    lookupArxivPaper(referenceSchema.parse(input).reference)
+    lookupArxivPaper(referenceSchema.parse(input).reference, (url, init) => net.fetch(url, init))
   )
   ipcMain.handle('researchLibrary:lookupDoi', (_event, input: unknown) =>
-    lookupDoiPaper(referenceSchema.parse(input).reference)
+    lookupDoiPaper(referenceSchema.parse(input).reference, (url, init) => net.fetch(url, init))
+  )
+  ipcMain.handle('researchLibrary:searchTitle', (_event, input: unknown) =>
+    searchPaperByTitle(ResearchLibraryTitleSearchParams.parse(input), (url, init) =>
+      net.fetch(url, init)
+    )
   )
   ipcMain.handle('researchLibrary:downloadArxivPdf', (_event, input: unknown) => {
     const { workspacePath, reference } = workspaceSchema.merge(referenceSchema).parse(input)

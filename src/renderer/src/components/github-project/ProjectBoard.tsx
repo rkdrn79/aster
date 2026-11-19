@@ -216,9 +216,7 @@ function BoardColumn({
           />
         ) : null}
         <span className="truncate font-medium">{column.label}</span>
-        <span className="rounded-full border border-border/50 bg-background px-1.5 text-[11px] text-muted-foreground">
-          {column.rows.length}
-        </span>
+        <span className="text-[11px] tabular-nums text-muted-foreground">{column.rows.length}</span>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-2 pb-2 scrollbar-sleek">
         {column.rows.map((row) => (

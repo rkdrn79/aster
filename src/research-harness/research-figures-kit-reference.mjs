@@ -1,6 +1,16 @@
 // The kit's API reference, printed by `figures kit [topic|name]`: every function with its
 // options, defaults, return value and what arrows bind to. A test keeps it complete.
 import { GENRE_REFERENCE } from './research-figures-kit-reference-genres.mjs'
+import { ILLUSTRATION_REFERENCE } from './research-figures-kit-reference-illustration.mjs'
+import { SCIENCE_REFERENCE } from './research-figures-kit-reference-science.mjs'
+import { SCHEMATIC_REFERENCE } from './research-figures-kit-reference-schematic.mjs'
+import { STRUCTURE_REFERENCE } from './research-figures-kit-reference-structure.mjs'
+import { PERSPECTIVE_REFERENCE } from './research-figures-kit-reference-perspective.mjs'
+import { OPS_REFERENCE } from './research-figures-kit-reference-ops.mjs'
+import { DESIGN_REFERENCE } from './research-figures-kit-reference-design.mjs'
+import { DRAWN_REFERENCE } from './research-figures-kit-reference-drawn.mjs'
+import { ART_REFERENCE } from './research-figures-kit-reference-art.mjs'
+import { ALLOWABLE_CODES } from './research-figures-kit-allow.mjs'
 
 const COLOR =
   "block | strong | mid (a gray that shows on white) | panel | white | accent | accent-strong | accent-ink | secondary | loss | good | bad | ink | line | muted | red | none | '#hex' (figures kit colors)"
@@ -15,8 +25,8 @@ export const KIT_REFERENCE = [
   {
     topic: 'figure',
     name: 'style',
-    call: "fig.style('graphite' | 'slate' | 'outline' | 'blue-amber' | 'sage-butter' | 'tonal' | 'print-mono' | 'illustrative' | 'categorical', { accent, panels })",
-    does: 'The colour preset, kept on the page (`figures kit colors` shows each with its hex values and rules; old neutral is graphite). accent: a swatch (blue, teal, green, amber, clay, slate, violet) or any #hex, turned into tint, strong, ink and solid by the colour study’s rule. illustrative (overviews and teasers) draws in Nunito with panel tints (panels: rose, teal, sand, sky, sage, lilac): colour names panel-1, panel-2, panel-1-ink. Labels are 16 units (8 pt) and small text 14 (7 pt) on every page; the lint flags text under 14 units (7 pt) on a single-column page.'
+    call: "fig.style('graphite' | 'slate' | 'outline' | 'blue-amber' | 'sage-butter' | 'tonal' | 'print-mono' | 'illustrative' | 'categorical' | 'paper', { accent, panels, look: 'paper', font: 'cm' | 'times' })",
+    does: "The colour preset, kept on the page (`figures kit colors` shows each with its hex values and rules; old neutral is graphite). accent: a swatch (blue, teal, green, amber, clay, slate, violet) or any #hex, turned into tint, strong, ink and solid by the colour study’s rule. illustrative (overviews and teasers) draws in Nunito with panel tints (panels: rose, teal, sand, sky, sage, lilac): colour names panel-1, panel-2, panel-1-ink. Labels are 16 units (8 pt) and small text 14 (7 pt) on every page; the lint flags text under 14 units (7 pt) on a single-column page. The paper look is the default for every preset but illustrative (look: 'preset' asks for the preset's own look; 'paper', or look: 'paper', asks for it back); it keeps the colours and draws as published papers do: words and math in the manuscript’s LaTeX face (Computer Modern; Times when its preamble loads times, newtx or a NeurIPS, ICLR, ICML or CVPR style; font picks), panels apart in whitespace (title centred above, “(a)” below, no card), one 0.75 pt stroke with small heads, square corners, a network as bars, frozen and trainable in words, no icons unless asked: true; fill only what a colour means and keep to 2–3 colours (figures check counts them: academic-look). The look stays on the page for later runs."
   },
   {
     topic: 'figure',
@@ -51,8 +61,8 @@ export const KIT_REFERENCE = [
   {
     topic: 'figure',
     name: 'measure',
-    call: "fig.measure('box' | 'text' | 'math' | 'loss' | 'tokens' | 'attention' | 'features' | 'distribution' | 'matrix' | 'grid' | 'card' | 'bubble' | 'nn' | 'callout' | 'arrowLabel', spec) → { x, y, width, height }",
-    does: "How big an item comes out (text by its ink), without drawing it: size boxes and gaps before placing them. card, bubble, nn (with its label) and callout take the spec you would draw them with; arrowLabel takes an arrow's label | labelText and labelSize. save({ dryRun: true }) lints without writing and adds bounds: every item’s box by id."
+    call: "fig.measure('box' | 'text' | 'math' | 'loss' | 'tokens' | 'attention' | 'features' | 'distribution' | 'matrix' | 'grid' | 'card' | 'bubble' | 'nn' | 'callout' | 'arrowLabel' | 'density2d' | 'samples' | 'snapshots' | 'trajectories' | 'field' | 'surface3d' | 'manifold' | 'sphere', spec) → { x, y, width, height }",
+    does: "How big an item comes out (text by its ink), without drawing it: size boxes and gaps before placing them. Shapes: ('text', { text | runs, size }), ('math', { tex, size }), ('box', { label, size, w, h }) (the box a label needs: its padding included), ('arrowLabel', { label | labelText, labelSize }); a bare string measures a label (fig.measure('Encoder', { size: 14 }); '$x_t$' as math). From the shell without a scene: `figures measure \"Encoder\" --size 14 [--box] [--figure slug]`. card, bubble, nn (with its label) and callout take the spec you would draw them with; arrowLabel takes an arrow's label | labelText and labelSize. save({ dryRun: true }) lints without writing and adds bounds: every item’s box by id."
   },
   {
     topic: 'figure',
@@ -64,7 +74,7 @@ export const KIT_REFERENCE = [
     topic: 'figure',
     name: 'allow',
     call: 'fig.allow(rule, ids | { x, y, w, h } | undefined)',
-    does: "Marks a finding as intended, so `figures check` stops reporting it: fig.allow('empty-box', ['W']) for those items (a d×d square that carries meaning), fig.allow('uneven-spacing', ['gap-col']) for a gap left on purpose, fig.allow('empty-region', { x, y, w, h }) for a stretch left empty on purpose (unused experts), fig.allow('tall-figure') for the whole figure. Rules: empty-box, empty-region, empty-space, uneven-spacing, page-fill, tall-figure, small-thumbnail, long-dash, text-size, prose (example text drawn as data outside a card or bubble), legend (small swatches beside words that are not a key), flat-background (one tint behind the figure that does mean something). intentional: true on a box allows empty-box, uneven-spacing and empty-region for it. fig.reset() clears the figure-wide ones, so a script states them again. Use it only for a choice you would defend in the reply, never to silence a finding you could fix."
+    does: `Marks a finding as intended, so \`figures check\` stops reporting it: fig.allow('empty-box', ['W']) for those items (a d×d square that carries meaning), fig.allow('uneven-spacing', ['gap-col']) for a gap left on purpose, fig.allow('empty-region', { x, y, w, h }) for a stretch left empty on purpose (unused experts), fig.allow('tall-figure') for the whole figure. Allowable rules: ${ALLOWABLE_CODES.join(', ')}. near-miss-align is allowed only between items no arrow joins (a warning); between joined items it stays an error. Every other finding (text-over-shape, small-glyph, stub-arrow, arrow-through, label-on-head, outside-page, …) is fixed, never allowed: allow() prints a kit warning saying what to do and the script runs on. intentional: true on a box allows empty-box, uneven-spacing and empty-region for it. fig.reset() clears the figure-wide ones, so a script states them again. Use it only for a choice you would defend in the reply, never to silence a finding you could fix.`
   },
   {
     topic: 'figure',
@@ -143,6 +153,11 @@ export const KIT_REFERENCE = [
         'false',
         'a shape whose size means something (a d × d weight): empty-box, uneven-spacing and empty-region let it be'
       ],
+      [
+        'swatch',
+        'false',
+        "a colour that is data (a rendered pixel, a predicted colour: fill: '#c2703a'): library-color, legend and the hue count let it be. Small unlabelled boxes with an arrow in or out count as swatches by themselves"
+      ],
       ['rounded', 'style radius', 'a radius, or false for square'],
       ['dashed, dotted, strokeWidth', '', 'outline style'],
       ['frame', 'null', 'an area frame id']
@@ -178,7 +193,7 @@ export const KIT_REFERENCE = [
     topic: 'shapes',
     name: 'polyline',
     call: 'fig.polyline({ id, points, closed, fill, color, stroke, strokeWidth, dashed, opacity })',
-    does: "An open line, or a polygon (closed), filled in its colour unless fill: 'none'; opacity 0–100 lets a photo show through. For a region on a photo use image({ mask }). Arrows cannot bind to lines."
+    does: "An open line, or a polygon (closed), filled in its colour unless fill: 'none'; color names the line and, closed, the fill in that role's ink (dark): for a pale region give fill: 'c' (the role's tint) and color: 'c-stroke', or stroke for the outline alone; opacity 0–100 lets a photo show through. For a region on a photo use image({ mask }). Arrows cannot bind to lines."
   },
   {
     topic: 'shapes',
@@ -213,8 +228,8 @@ export const KIT_REFERENCE = [
   {
     topic: 'shapes',
     name: 'node',
-    call: "fig.node({ id, cx, cy, r: 9, symbol: 'plus' | 'times' | 'dot' })",
-    does: '⊕, ⊗ or ⊙ drawn with lines. Binds: the circle.'
+    call: "fig.node({ id, cx, cy, r: 9, symbol: 'plus' | 'times' | 'dot' | 'minus' | 'concat' })",
+    does: '⊕ (add), ⊗ (multiply), ⊙, ⊖ (subtract: ε̂ − ε) or ⓒ (concat, a c so it never reads as add) drawn with lines. Binds: the circle.'
   },
   {
     topic: 'shapes',
@@ -243,17 +258,17 @@ export const KIT_REFERENCE = [
       [
         'from, to',
         '',
-        "ids (a box, a glyph, a math id), [ids] (a group: the arrow meets an invisible box around them, see group), [x, y], or { on: lineId, at | x | y } (exactly one) to start on another line with a junction dot: at is a fraction 0–1 of the line as drawn ('mid'; 'auto' slides the dot level with the target so the branch is straight); x or y picks the one run crossing that coordinate (it throws when the line crosses it twice, runs along it or misses it, naming the span it covers). A point on a head moves to the head's base. The dot takes the line's colour and stays where you put it."
+        "ids (a box, a glyph, a math id, or a line or polyline: the end lands on it level with the other end, no dot under a head), [ids] (a group: the arrow meets an invisible box around them, see group), [x, y], or { on: lineId, at | x | y } (exactly one) to start on another line with a junction dot: at is a fraction 0–1 of the line as drawn ('mid'; 'auto' slides the dot level with the target so the branch is straight); x or y picks the one run crossing that coordinate (it throws when the line crosses it twice, runs along it or misses it, naming the span it covers). A point on a head moves to the head's base. The dot takes the line's colour and stays where you put it."
       ],
       [
         'route',
         'picked',
-        "prefer 'straight' | 'hv' (leave horizontally, turn once) | 'vh'; anything else throws"
+        "prefer 'straight' | 'hv' (leave horizontally, turn once) | 'vh'; 'under' | 'over' a return path (a gradient, a feedback) between two ids: out of the source's bottom (top), level in the nearest clear band past everything between them, into the target's bottom (top), never round the figure; anything else throws"
       ],
       [
         'role',
         'data',
-        "data (gray 1 pt: ordinary flow) | main (dark 1.25 pt: the paper's contribution path, chosen on purpose; in DiT that is the conditioning) | side (gray 0.75 pt) | aux (gray dashed: EMA, stop-grad) | loss (a loss's link: ink like data, dashed: true for dashed; the loss() kit draws these)"
+        "data (gray 1 pt: ordinary flow) | main (dark 1.25 pt: the paper's contribution path, chosen on purpose; in DiT that is the conditioning) | side (gray 0.75 pt) | aux (gray dashed: EMA, stop-grad) | loss (a loss's link: ink like data, dashed: true for dashed; the loss() kit draws these). Coloured by what flows, in the world's mid tones: cond (d: conditioning, retrieval, a side input), grad (a, 1.25 pt: gradients, backpropagation, the learning signal), feedback (b: an output fed back, an update), good / bad (a check that passes or fails: add skill vs refine), skip (gray dashed: skip connections). Two or three of these make a figure read hand-made; never colour every arrow. In the paper look every role is one 0.75 pt line with small heads, main and cond in ink."
       ],
       ['via', '', 'corner points only, never the ends'],
       ['points', '', 'an absolute path, still bound; a slanted step gets a corner'],
@@ -265,7 +280,7 @@ export const KIT_REFERENCE = [
       [
         'gap, fromAt, toAt, fromSide, toSide',
         '4, 0.5, facing',
-        'gap: distance from the outline. fromAt / toAt: where an end meets its box, still bound (a tall encoder left at one row): a fraction 0–1 along the side (top to bottom, left to right) or { y } / { x } on it; fromSide / toSide: left | right | top | bottom (default: the side facing the other end)'
+        'gap: distance from the outline (shapes under 20 units apart get less, so the arrow keeps 12 units; leave 16 units or more between shapes an arrow joins). fromAt / toAt: where an end meets its box, still bound (a tall encoder left at one row): a fraction 0–1 along the side (top to bottom, left to right) or { y } / { x } on it, a scene coordinate or a fraction 0–1 of that side; { y } picks the left or right side and { x } the top or bottom one; fromSide / toSide: left | right | top | bottom (default: the side facing the other end)'
       ],
       [
         'head, heads, headSize',
@@ -280,13 +295,18 @@ export const KIT_REFERENCE = [
       [
         'label',
         '',
-        "TeX beside the longest run, clear of the heads. A label that reads as words prints in the figure font: every token a word (softmax, Encoder, KL, ViT-L/16, top-k) or a number, three letters or more; anything else is TeX (x_t, sg, BAx, Wx, O(TL), T-L). 'score $r_t$' mixes words and math (runs ['score ', { tex: 'r_t' }] too); $…$ and { tex } are always TeX; a top-level \\text{…} prints as words"
+        "Beside the longest run, clear of the heads (a label wider than the arrow sits past the head). Several words print as plain text ('New Task', 'Env Feedback\\nExecution Errors' on two lines) unless they hold math (a macro, _ or ^) or are only symbols (K, V); one token keeps the box rule: a word (softmax, Encoder, KL, ViT-L/16, top-k) prints as text, anything else is TeX (x_t, sg, BAx, Wx, O(TL), T-L). 'score $r_t$' mixes words and math (runs ['score ', { tex: 'r_t' }] too); $…$ and { tex } are always TeX; a top-level \\text{…} prints as words"
       ],
       ['labelText', '', 'plain text label, printed exactly as written'],
       [
         'labelSegment, labelSide, labelSize, labelColor, labelOffset',
         'longest, above/right, small text',
         "labelSegment: index of the straight run (0 = first; an elbow has two); 'below' | 'left'; [dx, dy]"
+      ],
+      [
+        'labelPosition',
+        "'auto'",
+        "'auto': beside the middle of the run, or, when that crosses a shape's edge (a label wider than a short gap between panels), the other side, toward an end or just past it, then broken onto two or three lines ('Co-Fine-' / 'Tune'); 'above' | 'below' | 'left' | 'right' | 'head' | 'tail' puts it there (head/tail: at that end of the run, past it when the run is shorter than the label). labelOffset turns auto off"
       ],
       ['layer', 'under', "'top' keeps it above the shapes"],
       ['junction', 'true', 'false hides the dot of a { on } end']
@@ -301,14 +321,14 @@ export const KIT_REFERENCE = [
   {
     topic: 'arrows',
     name: 'fork',
-    call: 'fig.fork({ id, from, to: [ids | { id, role, label, labelSide, dashed }], split: number | { x } | { y }, label, role, roles, labels, labelSides }) → { trunk, dot, branches }',
-    does: "One source to several targets: a trunk (label: its label) to one junction dot, then an orthogonal branch to each target. The main axis is the one every target lies beyond the source on (targets in a row below: down, even when they sit further sideways); the dot sits half way across the gap between source and targets, on the grid (split: its coordinate along that axis in scene units; split: { y: 160 } also forces the axis). role styles the trunk and every branch; roles: ['main', 'side'] (or a { id, role } target) gives each branch its own, labels its own label, beside its last run on the side away from the trunk (labelSides: ['left', 'right'] or a target's labelSide moves it). The dot takes the trunk's colour."
+    call: "fig.fork({ id, from, to: [ids | { id, role, label, labelSide, toSide, toAt, dashed }], axis: 'x' | 'y', split: number | { x } | { y }, rail: 'auto' | 'above' | 'below' | 'left' | 'right' | false, railGap: 20, label, role, roles, labels, labelSides, fromSide, fromAt }) → { trunk, dot, branches, rails }",
+    does: "One source to several targets: a trunk (label: its label) to one junction dot, then an orthogonal branch to each target. The main axis is the one every target lies beyond the source on (targets in a row below: down, even when they sit further sideways); axis: 'x' | 'y' forces it (targets left and right of a vertical rail). The dot sits half way across the gap, keeping a 16-unit trunk and an 18-unit last run when the gap is 42 or more; under 30 units the kit warns (set the targets 40 apart, or use a rail). split: the dot's coordinate along the axis ({ y: 160 } also forces it). Targets lined up along the main axis (a row beside the source, where straight branches would run through each other) hang off a shared rail railGap units beside them instead, each dropping at its centre (rail: 'above' | 'below' | 'left' | 'right' picks the side, false keeps the dot); a source in the middle of the row splits the rail both ways at a dot. role styles the trunk and every branch; roles: ['main', 'side'] (or a { id, role } target) gives each branch its own, labels its own label, beside its last run on the side away from the trunk (labelSides: ['left', 'right'] or a target's labelSide moves it); a target's toSide / toAt picks its port (two arrows into one box at different x). The dot takes the trunk's colour."
   },
   {
     topic: 'arrows',
     name: 'merge',
-    call: 'fig.merge({ id, from: [ids | { id, role, label }], to, split: number | { x } | { y }, role, roles, labels, label }) → { trunk, dot, branches }',
-    does: 'Several sources into one target: a branch from each to one junction dot half way across the gap, then one arrow into the target (label). The main axis is the one every source lies beyond the target on; split: the dot’s coordinate along it in scene units ({ x } or { y } forces the axis).'
+    call: "fig.merge({ id, from: [ids | { id, role, label, fromSide, fromAt }], to, axis: 'x' | 'y', split: number | { x } | { y }, role, roles, labels, label }) → { trunk, dot, branches }",
+    does: 'Several sources into one target: a branch from each to one junction dot half way across the gap, then one arrow into the target (label). The main axis is the one every source lies beyond the target on (axis forces it); split: the dot’s coordinate along it in scene units ({ x } or { y } forces the axis); a source’s fromSide / fromAt picks its port. Into a small node (⊕, ⓒ) merge rather than bus, so the wires meet at one dot.'
   },
   {
     topic: 'arrows',
@@ -384,8 +404,8 @@ export const KIT_REFERENCE = [
   {
     topic: 'glyphs',
     name: 'image',
-    call: "await fig.image({ id, x, y, w: 64, h: 64, kind | src, seed, t, noise, tint, view, patch: [r, c], of: patchesSpec, mask: 'head' | [[x, y], …] | [{ name | points, color }], maskColor: accent, maskOpacity: 55, prompt: { points, negative, box: [x, y, w, h], color: ink }, predicted, label, labelSide, labelSize, labelColor })",
-    does: 'A thumbnail: a CC0 photo (kind cat | dog | bird | street | landscape | beach | kitchen | robot | car | food | flower | building; t pans across it, noise 0–1 lays gray noise over it, intensity 0–1 how strong that noise is, view: { x, y, w, h } as 0–1 of the photo, then trimmed around its centre to the image’s shape (one crop rule for image, token images, patches and frames); a large or zoomed photo embeds a sharper copy itself), generated noise | gradient (tint: a role name or a hex colour tints the noise; drawn at two pixels a unit with fine grain, so it shows no grid at any zoom), or src: a project image (prefer real ones). patch + of: the crop of one cell of a patches() grid drawn with that spec, so cut-out patches match it (token items take patch + of too). tint colours a photo’s noise, or casts a plain photo in that colour; predicted: true casts the photo in the accent (or tint), clearly coloured with the photo still visible. Cells and photos under 12 units (24 px at print) print a kit warning. mask: segmentation regions over a photo or src, drawn through its crop (clipped to what shows) as a fill at maskOpacity under an outline (<id>-mask<n>, <id>-mask<n>-edge): built in cat head, bird bird | branch, dog dog, flower butterfly | blossom, food cake1–cake4, car lamp; or polygons as 0–1 of the photo (or its pixels). prompt: SAM-style prompts on the photo in the same coordinates: points as dots with a white rim (<id>-point<n>; negative ones red), a box as an outline (<id>-box). label: TeX below it (labelSide above | left | right). `figures kit image` lists what each photo shows. Binds: the id.'
+    call: "fig.image({ id, x, y, w: 64, h: 64, kind | src, seed, t, noise, tint, view, crop: { x, y, width, height } (src pixels), fit: 'cover' | 'contain', icon, patch: [r, c], of: patchesSpec, mask: 'head' | [[x, y], …] | [{ name | points, color }], maskColor: accent, maskOpacity: 55, prompt: { points, negative, box: [x, y, w, h], color: ink }, predicted, label, labelSide, labelSize, labelColor })",
+    does: 'A thumbnail: a CC0 photo (kind cat | dog | bird | street | landscape | beach | kitchen | robot | car | food | flower | building; t pans across it, noise 0–1 lays gray noise over it, intensity 0–1 how strong that noise is, view: { x, y, w, h } as 0–1 of the photo, then trimmed around its centre to the image’s shape (one crop rule for image, token images, patches and frames); a large or zoomed photo embeds a sharper copy itself), generated noise | gradient (tint: a role name or a hex colour tints the noise; drawn at two pixels a unit with fine grain, so it shows no grid at any zoom), or src: a project image, a path from the project folder (data/<figure>/x.png; prefer real ones, and show them large: half an inch, 72 units, or more). For src, view (0–1) or crop (the picture’s pixels, a sprite-sheet cell) picks the part shown; fit: cover (default) fills w × h and trims around the centre (a kit warning when it cuts over a third), contain keeps all of it and shrinks the slot to its shape; give only w or h to keep the picture’s shape. A crop of 64 px or less (a sprite or pixel-art item), or icon: true, is an icon: the size lints skip it. Placed at once: await is optional. patch + of: the crop of one cell of a patches() grid drawn with that spec, so cut-out patches match it (token items take patch + of too). tint colours a photo’s noise, or casts a plain photo in that colour; predicted: true casts the photo in the accent (or tint), clearly coloured with the photo still visible. Cells and photos under 12 units (24 px at print) print a kit warning. mask: segmentation regions over a photo or src, drawn through its crop (clipped to what shows) as a fill at maskOpacity under an outline (<id>-mask<n>, <id>-mask<n>-edge): built in cat head, bird bird | branch, dog dog, flower butterfly | blossom, food cake1–cake4, car lamp; or polygons as 0–1 of the photo (or its pixels). prompt: SAM-style prompts on the photo in the same coordinates: points as dots with a white rim (<id>-point<n>; negative ones red), a box as an outline (<id>-box). label: TeX below it (labelSide above | left | right). `figures kit image` lists what each photo shows. Binds: the id.'
   },
   {
     topic: 'glyphs',
@@ -434,8 +454,8 @@ export const KIT_REFERENCE = [
   {
     topic: 'glyphs',
     name: 'patches',
-    call: "fig.patches({ id, x, y, w, h, rows: 4, cols: 4, kind, seed, masked: 0.5 | 'block' | [[r, c]], maskColor, outline, predicted, label, labelSide })",
-    does: 'A picture (or plain cells) cut into patches, masked ones greyed; predicted: true casts it in the accent (tint), and with masked patches it is a reconstruction: the masked patches are filled in under the cast, the rest plain (no holes); image({ patch: [r, c], of: <this spec> }) and token items { patch, of } cut one cell out with the same crop. The outline (the id) is on top: compared() and highlight() ring it.'
+    call: "fig.patches({ id, x, y, w, h, rows: 4, cols: 4, kind | src, view, crop, seed, masked: 0.5 | 'block' | [[r, c]], maskColor, outline, predicted, label, labelSide })",
+    does: 'A picture (or plain cells) cut into patches, masked ones greyed; src cuts a project picture (the robot camera view), cropped to the grid by view or crop; predicted: true casts it in the accent (tint), and with masked patches it is a reconstruction: the masked patches are filled in under the cast, the rest plain (no holes); image({ patch: [r, c], of: <this spec> }) and token items { patch, of } cut one cell out with the same crop. The outline (the id) is on top: compared() and highlight() ring it.'
   },
   {
     topic: 'glyphs',
@@ -453,25 +473,25 @@ export const KIT_REFERENCE = [
     topic: 'glyphs',
     name: 'frozen',
     call: "fig.frozen(id, { size: 18, variant: 'line' | 'emoji', color, corner: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left', at: [x, y] })",
-    does: "A snowflake in the line gray (six arms, a branch pair on each, on a white disc; color recolours it) on the top-right corner of a frozen module (a trapezoid: its top-right vertex; corner picks another, so a narrow-top trapezoid can carry it on its wide bottom corner; at: [x, y] places it anywhere); drawn to read at 8 pt. variant: 'emoji' gives ❄️, which judges read as generated. Badges only when the figure mixes trained and frozen parts; then mark both kinds. EMA copies and stage-1-frozen modules get none."
+    does: "A snowflake in the line gray (six arms, a branch pair on each, on a white disc; color recolours it) on the top-right corner of a frozen module (a trapezoid: its top-right vertex; corner picks another, so a narrow-top trapezoid can carry it on its wide bottom corner; at: [x, y] places it anywhere); drawn to read at 8 pt. variant: 'emoji' gives ❄️, which judges read as generated. Badges only when the figure mixes trained and frozen parts; then mark both kinds. EMA copies and stage-1-frozen modules get none. In the paper look: the word “frozen” in muted ink on that corner, outside the module (text: other words; asked: true draws the sign)."
   },
   {
     topic: 'glyphs',
     name: 'trainable',
     call: "fig.trainable(id, { size: 18, variant: 'line' | 'emoji', color, corner: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left', at: [x, y] })",
-    does: 'A solid flame in the accent with a white inner tongue (color recolours it) on the top-right corner of a trained module; drawn to read at 8 pt, where an outlined flame reads as a swirl. Without a snowflake beside it, the lint calls it noise (badge-noise).'
+    does: 'A solid flame in the accent with a white inner tongue (color recolours it) on the top-right corner of a trained module; drawn to read at 8 pt, where an outlined flame reads as a swirl. Without a snowflake beside it, the lint calls it noise (badge-noise). In the paper look: the word “trainable”, as frozen does.'
   },
   {
     topic: 'glyphs',
     name: 'icon',
     call: "fig.icon(name, { id, x, y | cx, cy, size: 18, variant: 'line' | 'emoji', color, fill })",
-    does: 'An icon for an actor, a modality or a tool (`figures kit icons`); use sparingly. Vector in exports.'
+    does: 'An icon for an actor, a modality or a tool (`figures kit icons`); use sparingly. Vector in exports. The paper look leaves icons out (a kit warning) unless asked: true.'
   },
   {
     topic: 'illustrate',
     name: 'nn',
     call: "fig.nn({ id, x, y, w: 150, h: 90, layers: [3, 4, 4, 3], label, labelSide: 'above', size: 16, faded: true, highlight: [layer, node], color: accent, pill }) → { id, nodes }",
-    does: 'A neural network as faded nodes and edges with its name above it ("reward model", "LM policy"): what an overview draws instead of a box. labelSide above (default) | center | below; size is the label size (16, 8 pt, as every label). highlight tints one node (an output); a centred label sits on a white pill with the network faded under it (pill: false drops the pill); prefer above or below, off the texture. A gray color (block, muted), a panel colour (panel-1, panel-1-ink) or any accent works. Binds: the id, the network with its name above or below, so an arrow from that side ends on the name instead of detouring (nn() returns the network’s own box).'
+    does: 'A neural network as faded nodes and edges with its name above it ("reward model", "LM policy"): what an overview draws instead of a box. labelSide above (default) | center | below; size is the label size (16, 8 pt, as every label). highlight tints one node (an output); a centred label sits on a white pill with the network faded under it (pill: false drops the pill); prefer above or below, off the texture. A gray color (block, muted), a panel colour (panel-1, panel-1-ink) or any accent works. Binds: the id, the network with its name above or below, so an arrow from that side ends on the name instead of detouring (nn() returns the network’s own box). In the paper look: thin upright bars, one per layer (shape: trapezoid draws one trapezoid, nodes the glyph above), name below.'
   },
   {
     topic: 'illustrate',
@@ -512,8 +532,8 @@ export const KIT_REFERENCE = [
   {
     topic: 'layout',
     name: 'panel',
-    call: "fig.panel({ id, around: [ids] | x, y, w, h, title, titlePosition: 'top-left', pad: 10, size, color: panel, outline, same: panelId })",
-    does: 'A titled background, always behind what it holds ("DiT block ×N"); title takes runs with { tex }; titlePosition: top-left | top-right | bottom-left | bottom-right; size: the title size (the style’s title size). With around, the title row is added above what it holds, so leave room over it. same: another panel’s id: both take the same top and bottom, so methods compared side by side line up (DPO beside RLHF).'
+    call: "fig.panel({ id, around: [ids] | x, y, w, h, title, titlePosition: 'top-left', titleRow: true, pad: 10, size, color: panel, outline: true | 'solid' | 'hairline' | 'dashed' | 'tint' | 'none', same: panelId })",
+    does: "A titled background, always behind what it holds (“DiT block ×N”); title takes runs with { tex }; titlePosition: top-left | top-right | bottom-left | bottom-right; size: the title size (the style’s title size). With around, the title row is added above what it holds (size × 1.25 + pad × 0.4: 24 units for a 16-unit title and pad 10; below for a bottom position), so leave room over it; titleRow: false adds no row and sets the title in the padding's corner over the panel (a crowded or small page: keep that corner free). same: another panel’s id: both take the same top and bottom, so methods compared side by side line up (DPO beside RLHF). outline: true is the quiet line that suits the preset (a light gray 0.5 pt line; a hairline in ink for outline and print-mono); 'solid' that line, 'hairline' a thin ink line, 'dashed' the heavier dashed edge (an optional or repeated group), 'tint' a tinted fill without a line, 'none' no line. A row of (a)–(d) panels: color: 'none', outline: true, or teaserGrid. In the paper look no panel is a card: a title starting “(a)” (or caption: text) makes a sub-figure with no edge, its title centred above what it holds (colon dropped) and “(a)” centred below (captionSize: 16); any other panel is a group with a thin square edge (outline: true) and its title centred on top (titlePosition: top by default); a fill only with tint: true."
   },
   {
     topic: 'layout',
@@ -557,5 +577,14 @@ export const KIT_REFERENCE = [
     call: "fig.distribute(ids, 'x' | 'y')",
     does: 'Spaces items evenly between the first and the last.'
   },
-  ...GENRE_REFERENCE
+  ...GENRE_REFERENCE,
+  ...ILLUSTRATION_REFERENCE,
+  ...SCIENCE_REFERENCE,
+  ...SCHEMATIC_REFERENCE,
+  ...STRUCTURE_REFERENCE,
+  ...PERSPECTIVE_REFERENCE,
+  ...OPS_REFERENCE,
+  ...DESIGN_REFERENCE,
+  ...DRAWN_REFERENCE,
+  ...ART_REFERENCE
 ]

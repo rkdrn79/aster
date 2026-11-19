@@ -29,8 +29,8 @@ export function ResearchDeadlineNavBadge(): React.JSX.Element | null {
       title={`${next.title} ${next.label} · ${formatCountdown(next.epochMs, now)}`}
       className={cn(
         'ml-auto text-2xs tabular-nums text-muted-foreground',
-        tone === 'urgent' && 'font-semibold text-destructive',
-        tone === 'soon' && 'font-semibold text-foreground'
+        tone === 'urgent' && 'font-medium text-destructive',
+        tone === 'soon' && 'font-medium text-foreground'
       )}
     >
       {formatDayCount(next.epochMs, now)}

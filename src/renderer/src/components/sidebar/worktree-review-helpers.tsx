@@ -52,7 +52,7 @@ function getCheckTone(review: WorktreeCardPrDisplay): string | null {
 
 function getStateTone(state: WorktreeCardPrDisplay['state']): string {
   if (state === 'merged') {
-    return 'text-purple-600/70 dark:text-purple-400/70'
+    return 'text-foreground/70'
   }
   if (state === 'open') {
     return 'text-emerald-500/80'

@@ -28,8 +28,8 @@ describe('update card error model precedence', () => {
       },
       true
     )
-    expect(model?.title).toBe('Local Build Error')
-    expect(model?.primaryAction?.label).toBe('Choose Another Build')
+    expect(model?.title).toBe('Local build error')
+    expect(model?.primaryAction?.label).toBe('Choose another build')
     expect(model?.releaseUrl).toBeUndefined()
   })
 
@@ -60,7 +60,7 @@ describe('update card error model precedence', () => {
     })
     expect(model?.variant).toBe('http1Compatibility')
     expect(model?.primaryAction).toMatchObject({
-      label: 'Enable & Restart',
+      label: 'Enable and restart',
       pendingLabel: 'Restarting...',
       isPending: true,
       onClick: onEnableHttp1Compatibility

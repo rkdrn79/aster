@@ -79,7 +79,7 @@ export function ResearchDeadlineZonePicker({
             aria-label="Search time zones"
           />
           <CommandList>
-            <CommandEmpty>No time zone matches.</CommandEmpty>
+            <CommandEmpty>No time zone matches</CommandEmpty>
             {query.trim() ? null : (
               <CommandItem value="__system__" selection="palette" onSelect={() => choose(null)}>
                 <span className="min-w-0 flex-1 truncate">
@@ -88,7 +88,7 @@ export function ResearchDeadlineZonePicker({
                 <span className="shrink-0 text-muted-foreground">
                   {formatZoneOffset(now, system, locale)}
                 </span>
-                {value === null ? <Check className="size-3.5 shrink-0" /> : null}
+                {value === null ? <Check className="size-4 shrink-0" /> : null}
               </CommandItem>
             )}
             {matches.map((zone) => (
@@ -102,7 +102,7 @@ export function ResearchDeadlineZonePicker({
                 <span className="shrink-0 text-muted-foreground">
                   {formatZoneOffset(now, zone, locale)}
                 </span>
-                {value === zone ? <Check className="size-3.5 shrink-0" /> : null}
+                {value === zone ? <Check className="size-4 shrink-0" /> : null}
               </CommandItem>
             ))}
           </CommandList>

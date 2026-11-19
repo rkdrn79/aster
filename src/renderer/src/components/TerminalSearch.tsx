@@ -158,7 +158,7 @@ export default function TerminalSearch({
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder={translate('auto.components.TerminalSearch.e07012f26e', 'Search...')}
+        placeholder={translate('auto.components.TerminalSearch.e07012f26e', 'Search')}
         className="min-w-0 flex-1 border-none bg-transparent text-sm text-popover-foreground outline-none placeholder:text-muted-foreground"
       />
 

@@ -74,7 +74,7 @@ export function AutomationEditorPromptSection({
           </TooltipContent>
         </Tooltip>
       </div>
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="mb-2 text-[11px] font-medium text-muted-foreground">
         {translate('auto.components.automations.AutomationEditorDialog.058c23cb3f', 'Prompt')}
       </div>
       <AutomationEditorPromptEditor

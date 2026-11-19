@@ -91,13 +91,13 @@ export function SshForwardedPortRow({
   const advertisedBrowserUrl = advertisedBrowserUrlForForwardedRow(entry)
   const openBrowserLabel = translate(
     'auto.components.right.sidebar.PortsPanel.b22b128b2a',
-    'Open in Browser'
+    'Open in browser'
   )
   const openBrowserTitle = getPortOpenBrowserTooltipLabel(
     advertisedBrowserUrl
       ? translate(
           'auto.components.right.sidebar.PortsPanel.75aeea592f',
-          'Open {{value0}} in Browser',
+          'Open {{value0}} in browser',
           {
             value0: advertisedBrowserUrl
           }

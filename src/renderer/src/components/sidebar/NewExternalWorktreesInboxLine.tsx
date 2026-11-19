@@ -96,7 +96,7 @@ export default function NewExternalWorktreesInboxLine({
             'disabled:pointer-events-none disabled:opacity-60'
           )}
         >
-          <span className="inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full border border-border px-1.5 text-[10px] font-medium leading-none tabular-nums">
+          <span className="inline-flex shrink-0 items-center text-[11px] leading-none text-muted-foreground tabular-nums">
             {inboxCount}
           </span>
           <span className="min-w-0 flex-1 truncate text-left">{countLabel}</span>

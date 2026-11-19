@@ -6,6 +6,7 @@ import {
 } from '@/components/editor/pdf-text-selection'
 import type { WritingAgentBinding } from './research-writing-agent-binding'
 import type { ManuscriptFile } from './research-writing-source'
+import { WRITING_GUIDE_LINE } from './research-writing-agent-guide'
 import { withAsterContext } from '../../../../shared/aster-context-block'
 
 export type PdfRevisionSendResult =
@@ -58,6 +59,7 @@ export function buildWritingPdfRevisionPrompt(
   }
   const fence = '`'.repeat(fenceLength)
   const body = [
+    WRITING_GUIDE_LINE,
     'Revise the LaTeX source behind this selected text in a compiled PDF.',
     `Workspace: ${JSON.stringify(source.workspacePath)}`,
     `Compiled PDF: ${JSON.stringify(source.pdfFile.relativePath)} (page ${selection.pageNumber})`,

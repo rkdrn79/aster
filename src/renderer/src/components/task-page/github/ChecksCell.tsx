@@ -70,7 +70,7 @@ export function PRChecksCell({
             onOpen()
           }}
           className={cn(
-            'inline-flex max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium transition hover:brightness-110',
+            'inline-flex max-w-full items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-medium transition-[filter] hover:brightness-110',
             getChecksPillTone(item)
           )}
         >

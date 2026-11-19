@@ -71,7 +71,7 @@ test.describe('Source Control Create PR intent notice layout', () => {
     await createPr.click()
 
     const notice = orcaPage.locator('#commit-area-create-pr-intent')
-    const settingsLink = notice.getByRole('button', { name: 'Source Control AI settings' })
+    const settingsLink = notice.getByRole('button', { name: 'Source control AI settings' })
     await expect(settingsLink).toBeVisible({ timeout: 20_000 })
 
     if (process.env.ORCA_PR_INTENT_NOTICE_SCREENSHOT_PATH) {

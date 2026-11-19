@@ -145,7 +145,7 @@ export function WorktreeCardIssueDetailSection({
         }
       />
       <WorktreeCardDetailSectionContent className="space-y-1.5">
-        <div className="text-[13px] font-semibold leading-snug text-foreground break-words">
+        <div className="text-[13px] font-medium leading-snug text-foreground break-words">
           {issue.title}
         </div>
         {(issue.state || issueLabels.length > 0) && (

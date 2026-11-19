@@ -128,7 +128,7 @@ export function TaskPageLinearIssueBoard({
               if (emptyKind === 'context') {
                 return translate(
                   'auto.components.TaskPage.25ff84769a',
-                  'No issues match this Linear context.'
+                  'No issues match this Linear context'
                 )
               }
               if (emptyKind === 'search') {

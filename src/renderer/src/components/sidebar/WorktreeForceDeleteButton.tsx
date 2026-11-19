@@ -133,7 +133,7 @@ export function WorktreeForceDeleteButton({
           onClick={forceDelete}
         >
           {children ??
-            translate('auto.components.sidebar.delete.worktree.flow.2b20ce87b3', 'Force Delete')}
+            translate('auto.components.sidebar.delete.worktree.flow.2b20ce87b3', 'Force delete')}
         </Button>
         {onAlwaysForceDelete ? (
           <DropdownMenuTrigger asChild>

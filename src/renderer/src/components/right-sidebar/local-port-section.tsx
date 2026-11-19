@@ -42,11 +42,11 @@ export function LocalPortSection({
           size={12}
           className={cn('shrink-0 transition-transform', !collapsed && 'rotate-90')}
         />
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          {title}
-        </span>
+        <span className="text-[10px] font-medium text-muted-foreground">{title}</span>
         {ports.length > 0 && (
-          <span className="text-[10px] text-muted-foreground/60 ml-1">{ports.length}</span>
+          <span className="ml-1 text-[10px] tabular-nums text-muted-foreground/60">
+            {ports.length}
+          </span>
         )}
       </button>
       {!collapsed && (

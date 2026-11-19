@@ -17,6 +17,18 @@ const ROLE_NOTES = [
   ['accent-ink', 'the accent’s shade, for text, an outline or a contribution arrow on white'],
   ['accent-solid', 'a saturated marker (a dot, a selected bar)'],
   ['secondary, tertiary, kind-1…3', 'the preset’s other accents, each with its fixed role'],
+  [
+    'a, b, c, d',
+    'component hues by module type: a ours, b outputs, c the machinery, d inputs and data (a world’s own hues; the accent and grays in a quiet preset)'
+  ],
+  [
+    'input, output, data, model, frozen, ours',
+    'roles by meaning: d, b, d, c, an icy gray and a in a world; gray (blue-amber: given amber) and the accent in a quiet preset'
+  ],
+  [
+    '<role>-stroke, -light, -dark',
+    'a role’s outline (darker than its fill), and the lit and turned faces of a 3D shape in its own hue'
+  ],
   ['highlight', 'tonal style: the one module that matters, solid with white text'],
   ['loss', 'the loss node: ink text on white, a thin gray frame when boxed'],
   ['loss-link', 'a loss’s links: ink, like any arrow'],
@@ -31,21 +43,29 @@ const ROLE_NOTES = [
 /** `figures kit colors`: presets, their colours by role, accent swatches and the rules. */
 export function colorsText() {
   const lines = [
-    "Colour presets: fig.style('<preset>', { accent }) (old 'neutral' is graphite). Pick by what the colours mean:",
-    'one accent for the contribution (graphite, slate, outline, tonal), ours vs. given (blue-amber), module types',
-    '(sage-butter), kinds or modalities (categorical), or no hue at all (print-mono). The loss is ink.',
+    "Colour presets: fig.style('<preset>', { accent }) (old 'neutral' is graphite). For a method, overview or teaser",
+    "figure pick the paper's world: vision, generative, language, robotics, training or systems give each module",
+    "type its own hue (color: 'input' | 'model' | 'output' | 'a'…'d'), as hand-drawn figures do. A quiet preset suits a",
+    'minimal figure or a plot with one thing to point at: one accent (graphite, slate, outline, tonal), ours vs. given',
+    '(blue-amber), module types (sage-butter), kinds (categorical), no hue (print-mono). The loss is ink.',
     ''
   ]
   for (const [id, preset] of Object.entries(PALETTE_PRESETS)) {
     const style = figureStyle(id)
     lines.push(`${id} — ${preset.label}`)
+    if (preset.world) {
+      lines.push(`  mood: ${preset.world.mood}; fits ${preset.world.fits.join(', ')}`)
+    }
     lines.push(
       `  block ${style.block}  strong ${style.strong}  mid ${style.mid}  panel ${style.panel}  ink ${style.ink}  line ${style.line}  muted ${style.muted}  outline ${style.boxStroke}`
     )
     for (const item of style.accents) {
       const name = item.name === 'accent' ? 'accent' : item.name
+      const faces = item.stroke
+        ? `  stroke ${item.stroke}  light ${item.light}  dark ${item.dark}`
+        : ''
       lines.push(
-        `  ${name.padEnd(10)} fill ${item.fill}  strong ${item.strong}  ink ${item.ink}  solid ${item.solid}  — ${item.role}`
+        `  ${name.padEnd(10)} fill ${item.fill}  strong ${item.strong}  ink ${item.ink}  solid ${item.solid}${faces}  — ${item.role}`
       )
     }
     for (const rule of preset.rules) {

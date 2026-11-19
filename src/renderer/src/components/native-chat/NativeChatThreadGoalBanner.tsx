@@ -82,9 +82,9 @@ export function NativeChatThreadGoalBanner(props: {
       <div className="mx-auto w-full max-w-(--chat-content-max-width) px-2">
         {/* Right after the task strip, that strip's bottom border is this tab's top edge. */}
         <div className="flex items-start gap-2 rounded-t-md border border-b-0 border-border bg-muted/30 py-1 pr-1 pl-3 text-xs text-muted-foreground group-[[data-native-chat-background-tasks]+&]/goal:rounded-t-none group-[[data-native-chat-background-tasks]+&]/goal:border-t-0">
-          <Goal aria-hidden className="mt-1 size-3.5 shrink-0" />
+          <Goal aria-hidden className="mt-1 size-4 shrink-0" />
           <p className={cn('min-w-0 flex-1 py-0.5', expanded ? 'break-words' : 'truncate')}>
-            <span className="font-semibold text-foreground">{label}</span>{' '}
+            <span className="font-medium text-foreground">{label}</span>{' '}
             <span>{goal.objective}</span>
             <span className="tabular-nums">{` • ${elapsed}`}</span>
           </p>
@@ -98,7 +98,7 @@ export function NativeChatThreadGoalBanner(props: {
               }
               onClick={() => onChange({ kind: 'clear' })}
             >
-              <Trash2 className="size-3.5" />
+              <Trash2 className="size-4" />
             </GoalAction>
             {statusChange === 'paused' ? (
               <GoalAction
@@ -106,7 +106,7 @@ export function NativeChatThreadGoalBanner(props: {
                 disabled={pending}
                 onClick={() => onChange({ kind: 'status', status: 'paused' })}
               >
-                <Pause className="size-3.5" />
+                <Pause className="size-4" />
               </GoalAction>
             ) : statusChange === 'active' ? (
               <GoalAction
@@ -114,11 +114,11 @@ export function NativeChatThreadGoalBanner(props: {
                 disabled={pending || props.startsHeld === true}
                 onClick={() => onChange({ kind: 'status', status: 'active' })}
               >
-                <Play className="size-3.5" />
+                <Play className="size-4" />
               </GoalAction>
             ) : null}
             <GoalAction label={expandLabel} disabled={false} onClick={() => setExpanded(!expanded)}>
-              {expanded ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+              {expanded ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
             </GoalAction>
           </div>
         </div>

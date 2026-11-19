@@ -3,7 +3,8 @@ import { mkdir, mkdtemp, realpath, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
-import { TEXT_BASELINE, openFigure } from './research-figures-kit.mjs'
+import { openFigure } from './research-figures-kit.mjs'
+import { textBaseline } from './research-figures-text.mjs'
 import { absolutePoints } from './research-figures-labels.mjs'
 import { newFigureScene } from './research-figures-model.mjs'
 import { texParts } from './research-figures-type.mjs'
@@ -68,7 +69,8 @@ test('text runs keep cx and baseline, measure() sizes runs, and ⋮ is typeset',
     const fig = await openFigure(file)
     const drawn = fig.text({ id: 't', runs: ['score ', { tex: 'r_t' }], cx: 300, baseline: 100 })
     const words = drawn.elements.find((element) => element.type === 'text')
-    assert.ok(Math.abs(words.y + TEXT_BASELINE * 16 - 100) < 0.5, 'first baseline at 100')
+    const lead = textBaseline(words.fontFamily)
+    assert.ok(Math.abs(words.y + lead * 16 - 100) < 0.5, 'first baseline at 100')
     const right = Math.max(...drawn.elements.map((element) => element.x + element.width))
     assert.ok(Math.abs((words.x + right) / 2 - 300) < 1, 'centred on cx')
     const size = fig.measure('text', { runs: ['score ', { tex: 'r_t' }] })

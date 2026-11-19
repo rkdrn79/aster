@@ -57,7 +57,7 @@ export function ReviewerPicker({
           type="button"
           disabled={submitting || !canRequestReview}
           aria-label={translate('auto.components.PullRequestPage.a04c137bb7', 'Reviewer')}
-          className="rounded p-0.5 text-muted-foreground transition hover:bg-accent hover:text-foreground disabled:opacity-50"
+          className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
         >
           {submitting ? (
             <LoaderCircle className="size-3 animate-spin" />
@@ -129,7 +129,7 @@ export function ReviewerPicker({
             <>
               {suggestedReviewerRows.length > 0 ? (
                 <>
-                  <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-semibold text-foreground">
+                  <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-medium text-foreground">
                     {translate('auto.components.PullRequestPage.828f045847', 'Suggestions')}
                   </div>
                   {suggestedReviewerRows.map((reviewer, index) => (
@@ -148,7 +148,7 @@ export function ReviewerPicker({
                   ))}
                 </>
               ) : null}
-              <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-semibold text-foreground">
+              <div className="border-b border-border/70 bg-muted/50 px-3 py-1.5 text-[12px] font-medium text-foreground">
                 {translate('auto.components.PullRequestPage.2760fa29a4', 'Everyone else')}
               </div>
               {everyoneElseReviewerRows.length > 0 ? (
@@ -168,10 +168,7 @@ export function ReviewerPicker({
                 ))
               ) : (
                 <div className="px-3 py-2 text-[13px] text-muted-foreground">
-                  {translate(
-                    'auto.components.PullRequestPage.5ad00c7a0e',
-                    'No matching reviewers.'
-                  )}
+                  {translate('auto.components.PullRequestPage.5ad00c7a0e', 'No matching reviewers')}
                 </div>
               )}
             </>
@@ -179,10 +176,7 @@ export function ReviewerPicker({
             <div className="px-3 py-2 text-[13px] text-muted-foreground">
               {reviewerMetadataError ??
                 (hasReviewerMetadata
-                  ? translate(
-                      'auto.components.PullRequestPage.5ad00c7a0e',
-                      'No matching reviewers.'
-                    )
+                  ? translate('auto.components.PullRequestPage.5ad00c7a0e', 'No matching reviewers')
                   : translate(
                       'auto.components.PullRequestPage.56ec6eafb7',
                       'Open the PR details to view current reviewers.'

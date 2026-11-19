@@ -1,0 +1,49 @@
+/* Phone browsers on the web client. `html.web-client` is set by web/main.tsx, so the desktop app
+   never matches; the class sits on <html> because dialogs portal outside the phone shell. */
+@layer base {
+  /* Why: iOS WebKit zooms into a focused field whose text is under 16px and never zooms back.
+     Layered !important beats utility sizes and Monaco's inline size on its hidden textarea. */
+  @media (pointer: coarse) {
+    html.web-client
+      :is(
+        input:not(
+          [type='checkbox'],
+          [type='radio'],
+          [type='range'],
+          [type='color'],
+          [type='file'],
+          [type='button'],
+          [type='submit'],
+          [type='reset'],
+          [type='image'],
+          [type='hidden']
+        ),
+        textarea,
+        select,
+        [contenteditable]:not([contenteditable='false'])
+      ) {
+      font-size: max(16px, 1em) !important;
+    }
+  }
+
+  /* Why: a quick second tap on a control (the terminal key row) must not double-tap zoom.
+     Pinch zoom stays on; a utility like touch-none still wins over this base rule. */
+  html.web-client
+    :where(
+      button,
+      a[href],
+      input,
+      select,
+      textarea,
+      label,
+      summary,
+      [role='button'],
+      [role='tab'],
+      [role='menuitem'],
+      [role='option'],
+      [role='switch'],
+      [role='checkbox']
+    ) {
+    touch-action: manipulation;
+  }
+}

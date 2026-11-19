@@ -308,7 +308,7 @@ export default function ProjectCombobox({
                   {section.heading ? (
                     <div
                       aria-hidden="true"
-                      className="px-2 pt-2.5 pb-1 text-[11px] font-semibold tracking-[0.05em] text-muted-foreground uppercase"
+                      className="px-2 pt-2.5 pb-1 text-[11px] font-medium text-muted-foreground"
                     >
                       {section.heading}
                     </div>

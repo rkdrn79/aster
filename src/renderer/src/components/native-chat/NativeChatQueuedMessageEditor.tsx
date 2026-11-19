@@ -55,12 +55,12 @@ export function NativeChatQueuedMessageEditor({
   return (
     <div
       data-queued-message-editor
-      className="relative px-2.5 py-1.5"
+      className="relative px-3 py-2"
       onPasteCapture={intake.onPasteCapture}
     >
       {intake.isDragActive ? <NativeChatPaneFileDropOverlay queuedMessage /> : null}
-      <div className="flex min-h-7 items-center gap-1.5 text-xs text-muted-foreground">
-        <Pencil className="size-3.5 shrink-0" aria-hidden />
+      <div className="flex min-h-7 items-center gap-2 text-xs text-muted-foreground">
+        <Pencil className="size-4 shrink-0" aria-hidden />
         <span className="shrink-0">
           {translate('components.native-chat.queuedMessages.editingMessage', 'Editing message')}
         </span>
@@ -81,11 +81,11 @@ export function NativeChatQueuedMessageEditor({
           )}
           onClick={editor.cancel}
         >
-          <X className="size-3.5" />
+          <X className="size-4" />
         </Button>
       </div>
       {chips.length > 0 ? (
-        <div className="mb-2 flex flex-wrap gap-2 px-1 pt-1.5">
+        <div className="mb-2 flex flex-wrap gap-2 px-1 pt-2">
           {chips.map((chip) => (
             <NativeChatImageAttachmentPreview
               key={chip.id}
@@ -126,7 +126,7 @@ export function NativeChatQueuedMessageEditor({
           }
         }}
       />
-      <div className="mt-1.5 flex items-center gap-1.5">
+      <div className="mt-2 flex items-center gap-2">
         {intake.editable ? <QueuedEditAttachButton onAttach={intake.attach} /> : null}
         {/* Without image input an empty edit just disables Save, as a text-only edit does. */}
         {intake.editable ? (
@@ -164,7 +164,7 @@ function QueuedEditAttachButton({ onAttach }: { onAttach: () => void }): React.J
     <Tooltip>
       <TooltipTrigger asChild>
         <Button type="button" variant="ghost" size="icon-xs" aria-label={label} onClick={onAttach}>
-          <Plus className="size-3.5" />
+          <Plus className="size-4" />
         </Button>
       </TooltipTrigger>
       <TooltipContent side="top" sideOffset={4}>

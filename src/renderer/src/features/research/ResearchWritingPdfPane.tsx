@@ -121,7 +121,7 @@ export function ResearchWritingPdfPane({
       return
     }
     if (!pdfFile || !synctexAvailable || !window.api.researchSynctex?.pdfAt) {
-      toast.message('Compile the PDF first to find this line in it.')
+      toast.message('Compile the PDF first to find this line in it')
       return
     }
     let live = true
@@ -228,10 +228,13 @@ export function ResearchWritingPdfPane({
   }
 
   return (
-    <div className="min-h-0 min-w-0 flex-col" style={{ display: visible ? 'flex' : 'none' }}>
-      <div className="@container flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-1.5">
+    <div
+      className="research-pane-in min-h-0 min-w-0 flex-col"
+      style={{ display: visible ? 'flex' : 'none' }}
+    >
+      <div className="@container flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2">
         <div className="flex min-w-0 items-baseline gap-2">
-          <h2 className="shrink-0 text-xs font-semibold" title="Select PDF text to Revise">
+          <h2 className="shrink-0 text-[13px] font-medium" title="Select PDF text to Revise">
             PDF
           </h2>
           <span
@@ -244,7 +247,7 @@ export function ResearchWritingPdfPane({
         <div className="flex shrink-0 items-center gap-1">
           <Button
             size="xs"
-            variant="outline"
+            variant="ghost"
             disabled={!pdf || !pdfFile || pdfLoading || compiling || downloading}
             aria-label={downloading ? 'Saving…' : 'Download PDF'}
             title="Download PDF"
@@ -268,7 +271,7 @@ export function ResearchWritingPdfPane({
         </div>
       </div>
       {compiling ? (
-        <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-1.5">
+        <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2">
           <ResearchWritingCompileStatus log={build.log} startedAt={build.startedAt} />
           <Button size="xs" variant="ghost" onClick={() => setLogOpen(true)}>
             Log
@@ -283,7 +286,7 @@ export function ResearchWritingPdfPane({
       {build.error && !compiling ? (
         <div
           role="alert"
-          className="flex items-start gap-2 border-b border-destructive/30 px-3 py-2 text-xs text-destructive"
+          className="flex items-start gap-2 border-b border-border px-3 py-2 text-xs text-destructive"
         >
           <p className="min-w-0 flex-1">
             {build.error}

@@ -14,7 +14,7 @@ export function AgentSessionContinuationMenuItem({
       <MessageSquarePlus />
       {translate(
         'components.agentSessionContinuation.handOffToAnotherAgent',
-        'Hand Off to Another Agent'
+        'Hand off to another agent'
       )}
     </DropdownMenuItem>
   )

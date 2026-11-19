@@ -135,7 +135,7 @@ describe('AccountsPane', () => {
     // Both the Claude and Codex sections must say local accounts are intact and
     // link the default-runtime control, so the scoped list never reads as loss.
     expect(markup.split('Accounts managed on this desktop are unchanged').length - 1).toBe(2)
-    expect(markup.split('Open Remote Servers').length - 1).toBe(2)
+    expect(markup.split('Open remote servers').length - 1).toBe(2)
     // Before the saved-server list loads there is no name to interpolate, so the
     // scope label must stay bare instead of stuttering the prose fallback.
     expect(markup).toContain('Account scope: Remote server<')
@@ -143,7 +143,7 @@ describe('AccountsPane', () => {
     // The WSL account-location toggle is a local concern; a remote owner hides it.
     expect(markup).not.toContain('aria-label="Account location"')
     // #20009: Add Account runs the server's own login, so neither section's button is inert.
-    const addButtons = [...markup.matchAll(/Add Account/g)].map(({ index }) =>
+    const addButtons = [...markup.matchAll(/Add account(?!s)/g)].map(({ index }) =>
       markup.slice(markup.lastIndexOf('<button', index), index)
     )
     expect(addButtons).toHaveLength(2)
@@ -167,7 +167,7 @@ describe('AccountsPane', () => {
       // The web client has no desktop-managed accounts to switch back to, so
       // this copy would promise a move it cannot make.
       expect(markup).not.toContain('Accounts managed on this desktop are unchanged')
-      expect(markup).not.toContain('Open Remote Servers')
+      expect(markup).not.toContain('Open remote servers')
       // The server-scope copy itself still applies.
       expect(markup).toContain('Showing accounts managed by')
     } finally {
@@ -181,8 +181,8 @@ describe('AccountsPane', () => {
     const markup = renderPane(getDefaultSettings('/tmp'))
 
     expect(markup).toContain('Showing accounts for this device. New accounts are added there.')
-    expect(markup).not.toContain('Open Remote Servers')
-    const addAccountIndex = markup.indexOf('Add Account')
+    expect(markup).not.toContain('Open remote servers')
+    const addAccountIndex = markup.indexOf('Add account')
     expect(addAccountIndex).toBeGreaterThan(0)
     expect(
       markup.slice(markup.lastIndexOf('<button', addAccountIndex), addAccountIndex)

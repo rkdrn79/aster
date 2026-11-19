@@ -1,5 +1,6 @@
 import { ChevronLeft, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PhoneHostStatusLine } from './PhoneConnectionStatus'
 import { PhoneHeaderMenu } from './PhoneHeaderMenu'
 
 /** One screen's title bar: back for nested screens, the title, then screen actions and More. */
@@ -48,7 +49,10 @@ export function PhoneHeader({
           <p className="mt-0.5 truncate text-[13px] leading-tight text-muted-foreground">
             {subtitle}
           </p>
-        ) : null}
+        ) : onBack ? null : (
+          // Why on tab screens: the link to the host stays in view without a tap.
+          <PhoneHostStatusLine />
+        )}
       </div>
       {actions}
       <PhoneHeaderMenu destructiveAction={destructiveAction} />

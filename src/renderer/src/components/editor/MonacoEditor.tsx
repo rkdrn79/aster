@@ -27,6 +27,7 @@ import { snapshotMonacoViewState } from './monaco-view-state-persistence'
 import { MonacoMarkdownAnnotationOverlay } from './MonacoMarkdownAnnotationOverlay'
 import { useEditorModelRekeyCarry } from './editor-model-rekey-carry'
 import { ManuscriptSelectionAction } from './ManuscriptSelectionAction'
+import { isWebClientLocation } from '@/lib/web-client-location'
 
 type MonacoEditorProps = {
   fileId: string
@@ -189,7 +190,8 @@ export default function MonacoEditor({
       ...buildFileEditorWordWrapOptions(editorWordWrap),
       // Keep a retained Monaco instance aligned when a tab changes between
       // a read-only surface and a normal editable file.
-      readOnly
+      readOnly,
+      domReadOnly: readOnly && isWebClientLocation()
     })
   }, [editorFontFamily, editorFontSize, editorWordWrap, readOnly])
 
@@ -307,6 +309,8 @@ export default function MonacoEditor({
           automaticLayout: true,
           tabSize: 2,
           readOnly,
+          // Why: a readonly input keeps a phone's keyboard (and its zoom) from opening on a tap.
+          domReadOnly: readOnly && isWebClientLocation(),
           scrollbar: autoHeight
             ? {
                 vertical: autoHeightUsesInternalScroll ? 'auto' : 'hidden',

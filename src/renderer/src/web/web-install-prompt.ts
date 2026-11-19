@@ -1,5 +1,7 @@
 import { create } from 'zustand'
-import { COMPACT_VIEWPORT_QUERY } from '@/app-shell/compact-viewport-query'
+import { compactViewportQuery } from '@/app-shell/compact-viewport-query'
+
+const PHONE_QUERY = compactViewportQuery(true)
 
 /** Chrome's deferred install prompt, once the page qualifies; null elsewhere or after use. */
 export const useWebInstallPrompt = create<{ prompt: (() => Promise<void>) | null }>(() => ({
@@ -17,7 +19,7 @@ export function captureWebInstallPrompt(): void {
       return
     }
     // Why phones only: there the card offers Install, so Chrome's own mini-infobar would repeat it.
-    if (!window.matchMedia?.(COMPACT_VIEWPORT_QUERY).matches) {
+    if (!window.matchMedia?.(PHONE_QUERY).matches) {
       return
     }
     event.preventDefault()
@@ -45,5 +47,5 @@ export function isStandaloneDisplayMode(): boolean {
 
 /** A Home Screen app at phone width; installed desktop windows keep the desktop copy. */
 export function isPhoneHomeScreenApp(): boolean {
-  return isStandaloneDisplayMode() && window.matchMedia?.(COMPACT_VIEWPORT_QUERY).matches === true
+  return isStandaloneDisplayMode() && window.matchMedia?.(PHONE_QUERY).matches === true
 }

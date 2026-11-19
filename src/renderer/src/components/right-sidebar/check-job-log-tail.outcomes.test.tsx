@@ -14,9 +14,9 @@ beforeEach(() => {
 afterEach(cleanup)
 
 type LogJob = Pick<PRCheckJob, 'status' | 'conclusion' | 'logState' | 'logTail'>
-const neutral = 'No log excerpt is available.'
+const neutral = 'No log excerpt is available'
 const pending = 'Log output is not available yet.'
-const empty = 'No log output was returned.'
+const empty = 'No log output was returned'
 const limit = "Log excerpt wasn't requested. At most five failed-job excerpts are loaded per check."
 const literal =
   'Error: synthetic diagnostic\n<script>literal</script>\r\n\u001b[31mexisting payload\u001b[0m'

@@ -27,7 +27,7 @@ export function ResearchRunStatusLine({
   const { label, tone } = researchRunStatusSummary(facts, now)
   const dot = TONE_DOT[tone]
   return (
-    <span className={cn('inline-flex min-w-0 items-center gap-1.5', className)}>
+    <span className={cn('inline-flex min-w-0 items-center gap-2', className)}>
       {dot ? <span aria-hidden className={cn('size-1.5 shrink-0 rounded-full', dot)} /> : null}
       <span className="truncate">{label}</span>
     </span>

@@ -37,11 +37,11 @@ export function AiVaultSessionSurfaceSwitchMenuItems({
           {action === 'resume'
             ? translate(
                 'auto.components.right.sidebar.AiVaultSessionRow.resumeInNewNativeChat',
-                'Resume in New Chat'
+                'Resume in new chat'
               )
             : translate(
                 'components.tab.bar.SortableTabContextMenu.switchToChatView',
-                'Continue in Chat UI'
+                'Continue in chat UI'
               )}
         </Item>
       ) : null}
@@ -57,11 +57,11 @@ export function AiVaultSessionSurfaceSwitchMenuItems({
               {action === 'resume'
                 ? translate(
                     'auto.components.right.sidebar.AiVaultSessionRow.resumeInNewCli',
-                    'Resume in New Terminal'
+                    'Resume in new terminal'
                   )
                 : translate(
                     'components.tab.bar.SortableTabContextMenu.switchToTerminalView',
-                    'Continue with Terminal Agent'
+                    'Continue with terminal agent'
                   )}
             </Item>
           </TooltipTrigger>

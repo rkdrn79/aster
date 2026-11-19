@@ -1,4 +1,4 @@
-import { Copy, Sparkles } from 'lucide-react'
+import { Copy } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
@@ -44,7 +44,6 @@ export function MobileEmulatorExamples({
       )}
     >
       <div className="flex items-center gap-2">
-        <Sparkles className="size-3.5 text-muted-foreground" />
         <p className="text-sm font-medium">
           {translate(
             'auto.components.settings.MobileEmulatorExamples.0820b3f84f',

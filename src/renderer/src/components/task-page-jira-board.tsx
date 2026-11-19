@@ -190,7 +190,7 @@ export function TaskPageJiraBoard({
                       }
                     }}
                     className={cn(
-                      'group/card cursor-pointer rounded-md border border-border/50 bg-background px-3 py-2 text-left transition hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+                      'group/card cursor-pointer rounded-md border border-border/50 bg-background px-3 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
                       !updating && 'cursor-grab active:cursor-grabbing',
                       selected && 'bg-accent',
                       dragging && 'opacity-50',
@@ -293,7 +293,7 @@ export function TaskPageJiraBoard({
                         {labels.map((label) => (
                           <span
                             key={label}
-                            className="max-w-[140px] truncate rounded-full border border-border/50 bg-muted/35 px-1.5 py-0.5 text-3xs text-muted-foreground"
+                            className="max-w-[140px] truncate rounded-sm border border-border/50 bg-muted/35 px-1.5 py-0.5 text-3xs text-muted-foreground"
                           >
                             {label}
                           </span>

@@ -119,7 +119,7 @@ describe('CommitArea chevron spinner', () => {
     expect(chevron).not.toContain('animate-spin')
   })
 
-  it('does not spin the chevron when Force Push is mirrored onto the push primary slot', () => {
+  it('does not spin the chevron when Force push is mirrored onto the push primary slot', () => {
     const [primary, chevron] = renderButtons(
       baseProps({
         stagedCount: 0,
@@ -129,7 +129,7 @@ describe('CommitArea chevron spinner', () => {
         inFlightRemoteOpKind: 'force_push'
       })
     )
-    expect(primary).toContain('Force Push')
+    expect(primary).toContain('Force push')
     expect(primary).toContain('animate-spin')
     expect(chevron).not.toContain('animate-spin')
   })

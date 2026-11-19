@@ -22,7 +22,7 @@ describe('getStatusBarToggles', () => {
     const antigravityToggle = getStatusBarToggles().find((entry) => entry.id === 'antigravity')
 
     expect(antigravityToggle).toMatchObject({
-      title: 'Antigravity Usage',
+      title: 'Antigravity usage',
       description: 'Show Antigravity subscription usage in the status bar.',
       toggleDescription: 'Show Antigravity subscription usage for the active workspace.'
     })
@@ -35,7 +35,7 @@ describe('getStatusBarToggles', () => {
     const toggle = getStatusBarToggles().find((entry) => entry.id === 'zcode')
 
     expect(toggle).toMatchObject({
-      title: 'ZCode Usage',
+      title: 'ZCode usage',
       toggleDescription: 'Show ZCode Coding Plan quota usage.'
     })
     expect(toggle?.keywords).toEqual(expect.arrayContaining(['zcode', 'zai', 'glm']))
@@ -45,7 +45,7 @@ describe('getStatusBarToggles', () => {
     const miniMaxToggle = getStatusBarToggles().find((entry) => entry.id === 'minimax')
 
     expect(miniMaxToggle).toMatchObject({
-      title: 'MiniMax Usage',
+      title: 'MiniMax usage',
       description: 'Show MiniMax subscription usage in the status bar.',
       toggleDescription: 'Show MiniMax subscription usage for the active workspace.'
     })

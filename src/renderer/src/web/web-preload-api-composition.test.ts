@@ -68,6 +68,8 @@ describe('web preload API composition', () => {
       'computerUsePermissions',
       'updater',
       'shell',
+      'researchLibrary',
+      'researchOpenReview',
       'skills',
       'pty',
       'ssh',

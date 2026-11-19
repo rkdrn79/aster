@@ -114,7 +114,7 @@ export function LocalGitToolchainScanBanner(): React.JSX.Element | null {
       <div className="flex items-start gap-2">
         <TriangleAlert className="mt-px size-3.5 shrink-0 text-destructive" aria-hidden="true" />
         <div className="min-w-0 flex-1 space-y-1.5">
-          <p className="text-xs font-semibold leading-snug">{fix.title()}</p>
+          <p className="text-xs font-medium leading-snug">{fix.title()}</p>
           <p className="text-xs leading-snug text-muted-foreground">{fix.body()}</p>
           <code className="block select-all break-words rounded bg-muted px-1.5 py-1 font-mono text-[11px] text-foreground">
             {fix.command}

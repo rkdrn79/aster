@@ -46,7 +46,7 @@ export function OpenCodeGoCredentials({ onSaved }: { onSaved: () => void }): Rea
     <SearchableSetting
       title={translate(
         'auto.components.settings.AccountsPane.opencodeGo.apiKey.title',
-        'OpenCode Go API Key'
+        'OpenCode Go API key'
       )}
       description={translate(
         'auto.components.settings.AccountsPane.opencodeGo.apiKey.description',

@@ -84,7 +84,7 @@ export function PRReviewersRequestedList({
   }
   return (
     <div className="py-1 text-[12px] text-muted-foreground">
-      {translate('auto.components.GitHubItemDialog.36f9ac4a47', 'No reviewers requested.')}
+      {translate('auto.components.GitHubItemDialog.36f9ac4a47', 'No reviewers requested')}
     </div>
   )
 }

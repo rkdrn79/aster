@@ -65,6 +65,7 @@ test('math is typeset by MathJax as vector SVG, coloured, on the label baseline'
 test('icons and badges: Noto emoji and Lucide line icons, vector, neither hue nor prose', async () => {
   await withProject(async (file) => {
     const fig = await openFigure(file)
+    fig.style(undefined, { look: 'preset' })
     assert.equal(Object.keys(FIGURE_ICONS).length >= 40, true)
     const robot = fig.icon('robot', { id: 'bot', x: 40, y: 40, size: 24 })
     assert.match(svgOf(fig, robot), /<svg/)
@@ -101,11 +102,12 @@ test('every template draws cleanly and returns its ids', async () => {
     await withProject(
       async (file) => {
         const fig = await openFigure(file)
-        const drawn = fig.template(name, { id: name, x: 40, y: 30 })
+        // Why await: a template that places plots reads them from disk; the rest return at once.
+        const drawn = await fig.template(name, { id: name, x: 40, y: 30 })
         assert.equal(drawn.id, name)
         assert.ok(Object.keys(drawn.ids).length > 0, name)
         const again = await openFigure(file)
-        again.template(name, { id: name, x: 40, y: 30 })
+        await again.template(name, { id: name, x: 40, y: 30 })
         const report = await fig.save()
         assert.deepEqual(report.errors, [], `${name}: ${JSON.stringify(report.errors)}`)
       },

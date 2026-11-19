@@ -2,11 +2,13 @@ import { Copy } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Progress } from '@/components/ui/progress'
+import { cn } from '@/lib/utils'
 import type { ResearchGpuDevice } from '../../../../shared/research/research-compute-probe'
 import type { ResearchComputeProcessEntry } from './research-compute-usage'
 import { cudaVisibleDevicesPrefix, formatGpuMemory } from './research-compute-format'
 import { ResearchComputeProjectDot } from './ResearchComputeProjectDot'
+import { ResearchProgressBar } from './research-progress-bar'
+import { RAISED_CARD } from './research-surface-classes'
 
 function percent(used: number | null, total: number | null): number {
   return used !== null && total ? Math.min(100, (used / total) * 100) : 0
@@ -25,7 +27,13 @@ function GpuCard({
 }): React.JSX.Element {
   const checkboxId = `gpu-select-${device.uuid}`
   return (
-    <article className="space-y-3 rounded-lg border border-border bg-card p-3">
+    <article
+      className={cn(
+        RAISED_CARD,
+        'space-y-3 p-4 transition-shadow duration-(--duration-fast)',
+        selected && 'ring-2 ring-ring/60'
+      )}
+    >
       <header className="flex items-start gap-2">
         <Checkbox
           id={checkboxId}
@@ -52,9 +60,14 @@ function GpuCard({
               {device.utilizationPercent === null ? 'N/A' : `${device.utilizationPercent}%`}
             </span>
           </div>
-          <Progress
-            value={device.utilizationPercent ?? 0}
+          <ResearchProgressBar
+            role="progressbar"
             aria-label={`GPU ${device.index} utilization`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={device.utilizationPercent ?? 0}
+            className="h-1.5"
+            fills={[{ fraction: (device.utilizationPercent ?? 0) / 100, tone: 'ink' }]}
           />
         </div>
         <div className="space-y-1">
@@ -64,14 +77,24 @@ function GpuCard({
               {formatGpuMemory(device.memoryUsedMiB)} / {formatGpuMemory(device.memoryTotalMiB)}
             </span>
           </div>
-          <Progress
-            value={percent(device.memoryUsedMiB, device.memoryTotalMiB)}
+          <ResearchProgressBar
+            role="progressbar"
             aria-label={`GPU ${device.index} memory`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={percent(device.memoryUsedMiB, device.memoryTotalMiB)}
+            className="h-1.5"
+            fills={[
+              {
+                fraction: percent(device.memoryUsedMiB, device.memoryTotalMiB) / 100,
+                tone: 'muted'
+              }
+            ]}
           />
         </div>
       </div>
       {entries.length ? (
-        <ul className="space-y-1 border-t border-border pt-2 text-xs">
+        <ul className="space-y-1 rounded-lg bg-muted/60 px-3 py-2 text-xs dark:bg-muted/45">
           {entries.map((entry) => (
             <li
               key={entry.process.pid}
@@ -92,7 +115,7 @@ function GpuCard({
           ))}
         </ul>
       ) : (
-        <p className="border-t border-border pt-2 text-xs text-muted-foreground">
+        <p className="rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground dark:bg-muted/45">
           No compute process observed
         </p>
       )}
@@ -125,9 +148,7 @@ export function ResearchGpuBoard({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
-          GPUs on this node (nvidia-smi)
-        </p>
+        <p className="text-xs font-medium text-muted-foreground">GPUs on this node (nvidia-smi)</p>
         <Button
           variant="outline"
           size="xs"
@@ -158,7 +179,7 @@ export function ResearchGpuBoard({
           ))}
         </div>
       ) : (
-        <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
+        <p className="rounded-xl bg-muted/60 p-4 text-sm text-muted-foreground dark:bg-muted/45">
           nvidia-smi listed no GPUs on this node.
         </p>
       )}

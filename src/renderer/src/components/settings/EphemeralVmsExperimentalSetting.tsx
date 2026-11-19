@@ -42,7 +42,7 @@ export function EphemeralVmsExperimentalSetting({
           checked={enabled}
           ariaLabel={translate(
             'auto.components.settings.ephemeralVmsExperimentalSetting.cloudVmToggleLabel',
-            'Toggle Cloud VM'
+            'Toggle cloud VM'
           )}
           onChange={() => updateSettings({ experimentalEphemeralVms: !enabled })}
         />

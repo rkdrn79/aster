@@ -48,7 +48,7 @@ function DetailMetric({
 }): React.JSX.Element {
   return (
     <div className="min-w-0">
-      <div className="text-[11px] font-medium uppercase text-muted-foreground">{label}</div>
+      <div className="text-[11px] font-medium text-muted-foreground">{label}</div>
       <div className="mt-1 break-words text-sm font-medium" title={title}>
         {value}
       </div>
@@ -172,7 +172,7 @@ export function AutomationDetail({
                   disabled={runNowDisabled}
                 >
                   <Play className="size-4" />
-                  {translate('auto.components.automations.AutomationDetail.2fb1605beb', 'Run Now')}
+                  {translate('auto.components.automations.AutomationDetail.2fb1605beb', 'Run now')}
                 </Button>
               </span>
             </TooltipTrigger>
@@ -285,7 +285,7 @@ export function AutomationDetail({
           }
         />
         <div className="min-w-0">
-          <div className="text-[11px] font-medium uppercase text-muted-foreground">
+          <div className="text-[11px] font-medium text-muted-foreground">
             {translate('auto.components.automations.AutomationDetail.2df8970cd5', 'Agent')}
           </div>
           <div className="mt-1 flex min-w-0 items-center gap-2 text-sm font-medium">

@@ -57,7 +57,7 @@ export function buildWorkflowSettingsSections(
     },
     {
       id: 'share-skills',
-      title: translate('auto.hooks.useSettingsNavigationMetadata.shareSkillsTitle', 'Share Skills'),
+      title: translate('auto.hooks.useSettingsNavigationMetadata.shareSkillsTitle', 'Share skills'),
       description: translate(
         'auto.hooks.useSettingsNavigationMetadata.shareSkillsDescription',
         'Share your skills with an unlisted link. Anyone who has it can install them.'
@@ -71,7 +71,7 @@ export function buildWorkflowSettingsSections(
     },
     {
       id: 'session-history',
-      title: translate('sessionHistory.settings.title', 'Agent Session Search'),
+      title: translate('sessionHistory.settings.title', 'Agent session search'),
       description: translate(
         'sessionHistory.settings.description',
         'Search everything your agents have said and done, on this computer and on any paired Aster server.'
@@ -92,7 +92,7 @@ export function buildWorkflowSettingsSections(
       id: 'git',
       title: translate(
         'auto.hooks.useSettingsNavigationMetadata.09607cb0fe',
-        'Git & Source Control'
+        'Git and source control'
       ),
       description: translate(
         'auto.hooks.useSettingsNavigationMetadata.ab4b21b58e',
@@ -110,7 +110,7 @@ export function buildWorkflowSettingsSections(
     },
     {
       id: 'tasks',
-      title: translate('auto.hooks.useSettingsNavigationMetadata.85f4fd7710', 'Task Sources'),
+      title: translate('auto.hooks.useSettingsNavigationMetadata.85f4fd7710', 'Task sources'),
       description: translate(
         'auto.hooks.useSettingsNavigationMetadata.tasksDescription',
         'Connect providers, install the Linear skill, and choose what appears in Tasks.'
@@ -132,7 +132,7 @@ export function buildWorkflowSettingsSections(
     },
     {
       id: 'quick-commands',
-      title: translate('auto.hooks.useSettingsNavigationMetadata.3fc3db144f', 'Quick Commands'),
+      title: translate('auto.hooks.useSettingsNavigationMetadata.3fc3db144f', 'Quick commands'),
       description: translate(
         'auto.hooks.useSettingsNavigationMetadata.42ae40842f',
         'Saved terminal commands, scoped globally or per project.'
@@ -162,7 +162,7 @@ export function buildWorkflowSettingsSections(
             id: 'mobile-emulator',
             title: translate(
               'auto.hooks.useSettingsNavigationMetadata.1e761cff2b',
-              'Mobile Emulator'
+              'Mobile emulator'
             ),
             description: translate(
               'auto.hooks.useSettingsNavigationMetadata.3d65d3f1b9',
@@ -176,7 +176,7 @@ export function buildWorkflowSettingsSections(
       : []),
     {
       id: 'floating-workspace',
-      title: translate('auto.hooks.useSettingsNavigationMetadata.65b19f5bde', 'Floating Workspace'),
+      title: translate('auto.hooks.useSettingsNavigationMetadata.65b19f5bde', 'Floating workspace'),
       description: showDesktopOnlySettings
         ? translate(
             'auto.hooks.useSettingsNavigationMetadata.2d0659f6f0',

@@ -23,7 +23,7 @@ export function Metric({
 }): React.JSX.Element {
   return (
     <div className="flex min-w-0 items-center gap-1.5 px-2 py-1.5 md:px-3">
-      <div className="min-w-0 truncate text-2xs font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="min-w-0 truncate text-2xs font-medium text-muted-foreground">
         {shortLabel ? (
           <>
             <span className="md:hidden">{shortLabel}</span>
@@ -33,7 +33,7 @@ export function Metric({
           label
         )}
       </div>
-      <div className="shrink-0 text-sm font-semibold tabular-nums" title={title}>
+      <div className="shrink-0 text-sm font-medium tabular-nums" title={title}>
         {shortValue ? (
           <>
             <span className="md:hidden">{shortValue}</span>

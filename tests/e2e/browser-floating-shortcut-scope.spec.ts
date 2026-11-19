@@ -66,7 +66,7 @@ async function openFloatingBrowser(
 }
 
 function findInput(page: Page, browserTabId: string) {
-  return browserOverlay(page, browserTabId).getByPlaceholder('Find in page...')
+  return browserOverlay(page, browserTabId).getByPlaceholder('Find in page')
 }
 
 function cancelGrabButton(page: Page, browserTabId: string) {

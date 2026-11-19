@@ -132,7 +132,7 @@ export default function PdfFind({
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder={translate('auto.components.editor.PdfFind.2fc3ba0ea8', 'Find in page...')}
+        placeholder={translate('auto.components.editor.PdfFind.2fc3ba0ea8', 'Find in page')}
         className="min-w-0 flex-1 border-none bg-transparent text-sm text-white outline-none placeholder:text-zinc-500"
       />
       {query ? (

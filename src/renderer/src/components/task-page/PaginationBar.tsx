@@ -16,10 +16,10 @@ export function PaginationBar({
 }): React.JSX.Element {
   const pageNumbers = getPageNumbers(currentPage, totalPages)
   const btnClass =
-    'inline-flex w-24 items-center justify-center gap-0.5 rounded-md px-2 py-1 text-sm text-muted-foreground transition hover:bg-muted/60 hover:text-foreground disabled:pointer-events-none disabled:opacity-40'
+    'inline-flex w-24 items-center justify-center gap-0.5 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground disabled:pointer-events-none disabled:opacity-40'
   const numClass = (page: number): string =>
     cn(
-      'inline-flex size-8 items-center justify-center rounded-md text-sm transition',
+      'inline-flex size-8 items-center justify-center rounded-md text-sm transition-colors',
       page === currentPage
         ? 'bg-primary text-primary-foreground font-medium'
         : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'

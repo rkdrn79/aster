@@ -44,7 +44,7 @@ function MiniBar({
       className="w-[48px] h-[6px] rounded-full bg-muted overflow-hidden flex-shrink-0"
     >
       <div
-        className="h-full rounded-full transition-all duration-300 bg-muted-foreground/40"
+        className="h-full rounded-full bg-muted-foreground/40"
         style={{ width: `${getDisplayedUsagePercentage(usedPct, display)}%` }}
       />
     </div>
@@ -162,7 +162,7 @@ export function UsageOverflowChip({
           value0: names
         }
       )}
-      className="inline-grid h-4 items-center justify-items-center rounded-full border border-border px-1.5 text-[11px] font-medium tabular-nums text-foreground data-[tone=urgent]:border-destructive/40 data-[tone=urgent]:text-destructive data-[tone=warning]:border-status-warning-border data-[tone=warning]:text-status-warning data-[usage-collapsed=true]:invisible data-[usage-collapsed=true]:absolute"
+      className="inline-grid h-4 items-center justify-items-center rounded border border-border px-1.5 text-[11px] font-medium tabular-nums text-foreground data-[tone=urgent]:border-destructive/40 data-[tone=urgent]:text-destructive data-[tone=warning]:border-status-warning-border data-[tone=warning]:text-status-warning data-[usage-collapsed=true]:invisible data-[usage-collapsed=true]:absolute"
     >
       {/* Why: count changes must not invalidate density measurements and restart probing. */}
       <span aria-hidden="true" className="invisible col-start-1 row-start-1">

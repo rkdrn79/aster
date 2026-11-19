@@ -14,7 +14,7 @@ export type DeleteWorktreeToastCopy = {
 export function getSubmoduleRemovalRefusalCopy(): string {
   return translate(
     'auto.components.sidebar.delete.worktree.toast.submodules',
-    'This workspace contains submodules, so Git deletes it only with Force Delete. Force Delete also permanently removes anything in those submodules that was never pushed: commits, local branches and stashes.'
+    'This workspace contains submodules, so Git deletes it only with Force delete. Force delete also permanently removes anything in those submodules that was never pushed: commits, local branches and stashes.'
   )
 }
 
@@ -55,7 +55,7 @@ export function getDeleteWorktreeToastCopy(
         ),
         description: translate(
           'auto.components.sidebar.delete.worktree.toast.0899ebdb28',
-          'Git already forgot this workspace, but its directory is still on disk. Use Force Delete to remove the orphaned directory.'
+          'Git already forgot this workspace, but its directory is still on disk. Use Force delete to remove the orphaned directory.'
         ),
         isDestructive: false
       }
@@ -73,11 +73,11 @@ export function getDeleteWorktreeToastCopy(
         description: isProvenLivePtyRemovalError(error)
           ? translate(
               'auto.components.sidebar.delete.worktree.toast.unstoppedPtyLive',
-              'This workspace still has running terminals, so Aster stopped before deleting any files. Force Delete will kill them and discard any uncommitted work they hold.'
+              'This workspace still has running terminals, so Aster stopped before deleting any files. Force delete will kill them and discard any uncommitted work they hold.'
             )
           : translate(
               'auto.components.sidebar.delete.worktree.toast.unstoppedPty',
-              'Aster could not confirm every terminal in this workspace has exited, so it stopped before deleting any files. Use Force Delete to remove it anyway.'
+              'Aster could not confirm every terminal in this workspace has exited, so it stopped before deleting any files. Use Force delete to remove it anyway.'
             ),
         isDestructive: false
       }
@@ -96,11 +96,11 @@ export function getDeleteWorktreeToastCopy(
         description: isProvenLiveStructuredSessionRemovalError(error)
           ? translate(
               'auto.components.sidebar.delete.worktree.toast.runningAgentSessionLive',
-              'This workspace still has running agent sessions that Aster could not close, so it stopped before deleting any files. Force Delete will discard any work they hold.'
+              'This workspace still has running agent sessions that Aster could not close, so it stopped before deleting any files. Force delete will discard any work they hold.'
             )
           : translate(
               'auto.components.sidebar.delete.worktree.toast.runningAgentSession',
-              'Aster could not confirm every agent session in this workspace has closed, so it stopped before deleting any files. Use Force Delete to remove it anyway.'
+              'Aster could not confirm every agent session in this workspace has closed, so it stopped before deleting any files. Use Force delete to remove it anyway.'
             ),
         isDestructive: false
       }
@@ -125,7 +125,7 @@ export function getDeleteWorktreeToastCopy(
         ),
         description: translate(
           'auto.components.sidebar.delete.worktree.toast.905fc8efac',
-          'Git already removed this workspace. Use Force Delete to clear it from Aster.'
+          'Git already removed this workspace. Use Force delete to clear it from Aster.'
         ),
         isDestructive: false
       }
@@ -138,7 +138,7 @@ export function getDeleteWorktreeToastCopy(
       ),
       description: translate(
         'auto.components.sidebar.delete.worktree.toast.ead7b8ee15',
-        'It has changed files. Use Force Delete to delete it anyway.'
+        'It has changed files. Use Force delete to delete it anyway.'
       ),
       // Why: git commonly refuses the first delete when the worktree still has
       // modified or untracked files. Showing raw stderr in a destructive toast

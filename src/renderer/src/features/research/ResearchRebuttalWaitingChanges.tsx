@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import type { RebuttalReplyProposal } from '../../../../research-harness/research-rebuttal-records.mjs'
 import { historyTimeText } from './research-rebuttal-view'
 import type { RebuttalActions } from './use-research-rebuttal-actions'
+import { NOTICE_CARD, SECTION_TITLE } from './research-surface-classes'
+import { cn } from '@/lib/utils'
 
 type Group = {
   turn: string | null
@@ -68,8 +70,8 @@ export function ResearchRebuttalWaitingChanges({
   }
 
   return (
-    <section aria-label="Agent edits" className="space-y-1.5">
-      {compact ? null : <h3 className="text-xs font-semibold">Agent edits</h3>}
+    <section aria-label="Agent edits" className="space-y-2">
+      {compact ? null : <h3 className={SECTION_TITLE}>Agent edits</h3>}
       <ul className="space-y-1">
         {groups.map((group) => {
           const ids = group.proposals.map((proposal) => proposal.id)
@@ -78,9 +80,12 @@ export function ResearchRebuttalWaitingChanges({
           return (
             <li
               key={group.turn ?? group.proposals[0].id}
-              className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs"
+              className={cn(
+                NOTICE_CARD,
+                'flex min-h-9 flex-wrap items-center gap-x-2 gap-y-1 py-1 pr-1 pl-3 text-xs'
+              )}
             >
-              <Bot className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+              <Bot className="size-4 shrink-0 text-muted-foreground" aria-hidden />
               <span className="min-w-0 flex-1 truncate">
                 <span className="font-medium">{group.request || 'Agent changes'}</span>
                 <span className="text-muted-foreground">

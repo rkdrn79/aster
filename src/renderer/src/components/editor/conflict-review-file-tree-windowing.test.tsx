@@ -674,7 +674,7 @@ describe('conflict review file tree row windowing', () => {
 
     // Zero rows fall below the threshold, where the list renders an empty fragment — so without the
     // guard above it the panel would be blank instead of explaining itself.
-    expect(getScroller().textContent).toContain('No conflicts in this snapshot.')
+    expect(getScroller().textContent).toContain('No conflicts in this snapshot')
     expect(getMountedRows()).toHaveLength(0)
     expect(host.querySelector('[data-testid="virtualized-list"]')).toBeNull()
   })

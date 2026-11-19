@@ -48,7 +48,7 @@ function getHostedReviewDefaultRows(): {
       key: 'generateDetailsOnOpen',
       label: translate(
         'auto.components.settings.CommitMessageAiPane.d5f0de6309',
-        'Generate details when opening Create PR'
+        'Generate details when opening create PR'
       ),
       description: translate(
         'auto.components.settings.CommitMessageAiPane.b27b0809f3',

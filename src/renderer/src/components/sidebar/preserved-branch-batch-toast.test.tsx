@@ -120,7 +120,7 @@ describe('showPreservedBranchBatchToast', () => {
     expect(body.textContent).toContain('Kept branches do not retain workspace folders')
     expect(body.textContent).toContain('Aster may continue freeing workspace disk space')
 
-    await clickButton(body, 'Review 2 Branches')
+    await clickButton(body, 'Review 2 branches')
 
     expect(mocks.state.openModal).toHaveBeenCalledWith('preserved-branch-review', { branches })
     expect(toast.dismiss).toHaveBeenCalledWith('preserved-branch-batch:repo-a::one:2')
@@ -140,7 +140,7 @@ describe('showPreservedBranchBatchToast', () => {
     expect(
       document.getElementById('preserved-branch-select-all')?.querySelector('.lucide-minus')
     ).not.toBeNull()
-    await clickButton(document.body, 'Force Delete 1 Branch')
+    await clickButton(document.body, 'Force delete 1 branch')
 
     expect(mocks.state.closeModal).toHaveBeenCalledOnce()
     expect(mocks.state.forceDeletePreservedBranch).toHaveBeenCalledOnce()
@@ -195,7 +195,7 @@ describe('showPreservedBranchBatchToast', () => {
 
     expect(document.body.textContent).toContain('Head unavailable')
     expect((document.getElementById('preserved-branch-1') as HTMLButtonElement).disabled).toBe(true)
-    await clickButton(document.body, 'Force Delete 1 Branch')
+    await clickButton(document.body, 'Force delete 1 branch')
 
     expect(mocks.state.forceDeletePreservedBranch).toHaveBeenCalledOnce()
     expect(mocks.state.forceDeletePreservedBranch).toHaveBeenCalledWith(

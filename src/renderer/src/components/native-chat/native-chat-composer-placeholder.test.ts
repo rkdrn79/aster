@@ -22,7 +22,7 @@ describe("the composer's placeholder", () => {
 
   it('reads as usual otherwise', () => {
     expect(nativeChatComposerPlaceholder(true, true)).toBe(
-      'Ask anything, @ to mention files, / for commands'
+      'Message the agent, @ for files, / for commands'
     )
   })
 

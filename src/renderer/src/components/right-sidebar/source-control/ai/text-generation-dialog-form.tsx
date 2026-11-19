@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { RefreshCw, Save, Sparkles, Terminal, TriangleAlert } from 'lucide-react'
+import { RefreshCw, Save, Terminal, TriangleAlert, PenLine } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -375,7 +375,7 @@ export function SourceControlTextGenerationDialogForm({
           disabled={!canRunGeneration || saving}
           onClick={handleGenerate}
         >
-          <Sparkles className="size-4" />
+          <PenLine className="size-4" />
           {generateLabel}
         </Button>
       </DialogFooter>

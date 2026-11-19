@@ -101,7 +101,7 @@ export function GeneralEditorSettingsSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.GeneralEditorSettingsSection.0df2e4fd12',
-          'Auto Save Files'
+          'Auto save files'
         )}
         description={translate(
           'auto.components.settings.GeneralEditorSettingsSection.70bb30feb1',
@@ -112,7 +112,7 @@ export function GeneralEditorSettingsSection({
         <SettingsSwitchRow
           label={translate(
             'auto.components.settings.GeneralEditorSettingsSection.0df2e4fd12',
-            'Auto Save Files'
+            'Auto save files'
           )}
           description={translate(
             'auto.components.settings.GeneralEditorSettingsSection.70bb30feb1',
@@ -126,7 +126,7 @@ export function GeneralEditorSettingsSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.GeneralEditorSettingsSection.d6cf227ca0',
-          'Auto Save Delay'
+          'Auto save delay'
         )}
         description={translate(
           'auto.components.settings.GeneralEditorSettingsSection.1bec6d8318',
@@ -139,7 +139,7 @@ export function GeneralEditorSettingsSection({
           <Label>
             {translate(
               'auto.components.settings.GeneralEditorSettingsSection.d6cf227ca0',
-              'Auto Save Delay'
+              'Auto save delay'
             )}
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -176,7 +176,7 @@ export function GeneralEditorSettingsSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.GeneralEditorSettingsSection.7311f67ee7',
-          'Default Diff View'
+          'Default diff view'
         )}
         description={translate(
           'auto.components.settings.GeneralEditorSettingsSection.b492397d34',
@@ -189,7 +189,7 @@ export function GeneralEditorSettingsSection({
           <Label>
             {translate(
               'auto.components.settings.GeneralEditorSettingsSection.7311f67ee7',
-              'Default Diff View'
+              'Default diff view'
             )}
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -202,7 +202,7 @@ export function GeneralEditorSettingsSection({
         <SettingsSegmentedControl
           ariaLabel={translate(
             'auto.components.settings.GeneralEditorSettingsSection.7311f67ee7',
-            'Default Diff View'
+            'Default diff view'
           )}
           value={settings.diffDefaultView}
           onChange={(option) => updateSettings({ diffDefaultView: option })}
@@ -241,7 +241,7 @@ export function GeneralEditorSettingsSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.GeneralEditorSettingsSection.8f1afdfbd8',
-          'Diff Word Wrap'
+          'Diff word wrap'
         )}
         description={translate(
           'auto.components.settings.GeneralEditorSettingsSection.4aa4d9fb73',
@@ -254,7 +254,7 @@ export function GeneralEditorSettingsSection({
           <Label>
             {translate(
               'auto.components.settings.GeneralEditorSettingsSection.8f1afdfbd8',
-              'Diff Word Wrap'
+              'Diff word wrap'
             )}
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -267,7 +267,7 @@ export function GeneralEditorSettingsSection({
         <SettingsSegmentedControl
           ariaLabel={translate(
             'auto.components.settings.GeneralEditorSettingsSection.8f1afdfbd8',
-            'Diff Word Wrap'
+            'Diff word wrap'
           )}
           value={settings.diffWordWrap ? 'on' : 'off'}
           onChange={(option) => updateSettings({ diffWordWrap: option === 'on' })}
@@ -293,7 +293,7 @@ export function GeneralEditorSettingsSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.GeneralEditorSettingsSection.1de48ad940',
-          'Default Diff File Tree'
+          'Default diff file tree'
         )}
         description={translate(
           'auto.components.settings.GeneralEditorSettingsSection.1b87897af9',
@@ -306,7 +306,7 @@ export function GeneralEditorSettingsSection({
           <Label>
             {translate(
               'auto.components.settings.GeneralEditorSettingsSection.1de48ad940',
-              'Default Diff File Tree'
+              'Default diff file tree'
             )}
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -319,7 +319,7 @@ export function GeneralEditorSettingsSection({
         <SettingsSegmentedControl
           ariaLabel={translate(
             'auto.components.settings.GeneralEditorSettingsSection.1de48ad940',
-            'Default Diff File Tree'
+            'Default diff file tree'
           )}
           value={settings.combinedDiffFileTreeVisibleByDefault ? 'shown' : 'hidden'}
           onChange={(option) =>
@@ -374,7 +374,7 @@ export function GeneralEditorSettingsSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.GeneralEditorSettingsSection.4edc104f0f',
-          'Markdown Review Notes'
+          'Markdown review notes'
         )}
         description={translate(
           'auto.components.settings.GeneralEditorSettingsSection.5f02e6fb21',
@@ -385,7 +385,7 @@ export function GeneralEditorSettingsSection({
         <SettingsSwitchRow
           label={translate(
             'auto.components.settings.GeneralEditorSettingsSection.4edc104f0f',
-            'Markdown Review Notes'
+            'Markdown review notes'
           )}
           description={translate(
             'auto.components.settings.GeneralEditorSettingsSection.f80603d293',

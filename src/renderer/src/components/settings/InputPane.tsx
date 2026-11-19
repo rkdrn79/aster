@@ -21,7 +21,7 @@ export function InputPane({ settings, updateSettings }: InputPaneProps): React.J
       <SearchableSetting
         title={translate(
           'auto.components.settings.InputPane.ad31c3c5fb',
-          'Middle-click Paste from Selection'
+          'Middle-click paste from selection'
         )}
         description={translate(
           'auto.components.settings.InputPane.db15068196',
@@ -46,7 +46,7 @@ export function InputPane({ settings, updateSettings }: InputPaneProps): React.J
           <Label>
             {translate(
               'auto.components.settings.InputPane.ad31c3c5fb',
-              'Middle-click Paste from Selection'
+              'Middle-click paste from selection'
             )}
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -59,7 +59,7 @@ export function InputPane({ settings, updateSettings }: InputPaneProps): React.J
         <Switch
           aria-label={translate(
             'auto.components.settings.InputPane.ad31c3c5fb',
-            'Middle-click Paste from Selection'
+            'Middle-click paste from selection'
           )}
           checked={enabled}
           onCheckedChange={(checked) =>

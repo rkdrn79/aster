@@ -24,7 +24,7 @@ export function getLocalHookFields(): readonly [LocalHookField, LocalHookField] 
       name: 'setup',
       label: translate(
         'auto.components.settings.RepositoryHooksSection.52b31baf02',
-        'Setup Script'
+        'Setup script'
       ),
       description: translate(
         'auto.components.settings.RepositoryHooksSection.f0710e1c83',
@@ -39,7 +39,7 @@ export function getLocalHookFields(): readonly [LocalHookField, LocalHookField] 
       name: 'archive',
       label: translate(
         'auto.components.settings.RepositoryHooksSection.9a100323ff',
-        'Archive Script'
+        'Archive script'
       ),
       description: translate(
         'auto.components.settings.RepositoryHooksSection.6f90ebe3fd',

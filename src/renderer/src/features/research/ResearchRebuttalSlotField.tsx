@@ -45,9 +45,9 @@ export function ResearchRebuttalSlotField({
         onEditingChange={(editing) => setEditingBase(editing?.base ?? null)}
         onSave={(text, base) => actions.saveReply(slot, null, text, base)}
       />
-      <RebuttalTranslationBlock tkey={`reply:${slot}`} source={value} className="mt-1.5" />
+      <RebuttalTranslationBlock tkey={`reply:${slot}`} source={value} className="mt-2" />
       {proposal ? (
-        <div className="mt-1.5">
+        <div className="mt-2">
           <ResearchRebuttalProposalSlot
             proposal={proposal}
             current={value}

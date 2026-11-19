@@ -33,7 +33,7 @@ export function HostSetupStartActions({
         onClick={onBrowse}
       />
       <div className="space-y-1.5">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-xs font-medium text-muted-foreground">
           {translate('auto.components.settings.RepositoryPane.otherWaysToAdd', 'Other ways to add')}
         </p>
         <div className="overflow-hidden rounded-md border border-input bg-background">

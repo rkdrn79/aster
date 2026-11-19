@@ -124,7 +124,7 @@ const REVIEW_PRESENTATION = {
   },
   merged: {
     icon: GitMerge,
-    className: 'border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300'
+    className: 'border-border bg-muted text-foreground'
   },
   closed: {
     icon: GitPullRequestClosed,
@@ -155,7 +155,7 @@ function ReviewPill({ card }: { card: DashboardCard }): React.JSX.Element | null
       role="img"
       aria-label={`${title} #${card.review.number}`}
       className={cn(
-        'inline-flex shrink-0 items-center gap-0.5 rounded-full border px-1 py-px text-[10px] leading-none tabular-nums',
+        'inline-flex shrink-0 items-center gap-0.5 rounded-sm border px-1 py-px text-[10px] leading-none tabular-nums',
         presentation.className
       )}
     >
@@ -322,7 +322,7 @@ export const AgentKanbanCard = memo(
           <Tooltip>
             <TooltipTrigger asChild>
               <span
-                className="inline-flex size-[18px] shrink-0 items-center justify-center rounded-[5px] bg-muted-foreground/10 text-muted-foreground transition-colors group-hover:text-foreground"
+                className="inline-flex size-5 shrink-0 items-center justify-center rounded-md bg-muted-foreground/10 text-muted-foreground transition-colors group-hover:text-foreground"
                 aria-label={card.repoName}
               >
                 <RepoIconGlyph repoIcon={repoIcon} className="size-3" iconClassName="size-3" />
@@ -336,7 +336,7 @@ export const AgentKanbanCard = memo(
             hostKind={card.hostKind}
             executionHostId={card.executionHostId}
             hostLabel={card.hostLabel}
-            className="size-[18px] rounded-[5px] bg-muted-foreground/10 transition-colors group-hover:text-foreground"
+            className="size-5 rounded-md bg-muted-foreground/10 transition-colors group-hover:text-foreground"
           />
           {worktreeInFooter ? <span className="truncate">{card.worktreeName}</span> : null}
           <ReviewPill card={card} />

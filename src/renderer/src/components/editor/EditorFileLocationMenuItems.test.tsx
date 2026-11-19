@@ -73,9 +73,9 @@ describe('EditorFileLocationMenuItems', () => {
 
   it('uses the header copy feedback and copies the workspace-relative path separately', () => {
     renderMenu()
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Copy Path' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Copy path' }))
     expect(onCopyPath).toHaveBeenCalledOnce()
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Copy Relative Path' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Copy relative path' }))
     expect(writeClipboardText).toHaveBeenCalledWith('src/file.ts')
   })
 
@@ -88,7 +88,7 @@ describe('EditorFileLocationMenuItems', () => {
       fireEvent.click(reveal)
       expect(openInFileManager).not.toHaveBeenCalled()
       expect(
-        screen.getByRole('menuitem', { name: 'Copy Relative Path' }).hasAttribute('data-disabled')
+        screen.getByRole('menuitem', { name: 'Copy relative path' }).hasAttribute('data-disabled')
       ).toBe(false)
     }
   )

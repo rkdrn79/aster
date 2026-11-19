@@ -99,9 +99,9 @@ export function SshPortForwardDialog({
             {isEdit
               ? translate(
                   'auto.components.right.sidebar.PortsPanel.80206251c8',
-                  'Edit Port Forward'
+                  'Edit port forward'
                 )
-              : translate('auto.components.right.sidebar.PortsPanel.907eb53ed2', 'Forward a Port')}
+              : translate('auto.components.right.sidebar.PortsPanel.907eb53ed2', 'Forward a port')}
           </DialogTitle>
           <DialogDescription className="text-xs">
             {isEdit
@@ -219,7 +219,7 @@ function PortForwardForm({
       <div className="space-y-2">
         <label className="block">
           <span className="text-[11px] text-muted-foreground">
-            {translate('auto.components.right.sidebar.PortsPanel.9e5a4118b0', 'Remote Port')}
+            {translate('auto.components.right.sidebar.PortsPanel.9e5a4118b0', 'Remote port')}
           </span>
           <input
             type="text"
@@ -244,7 +244,7 @@ function PortForwardForm({
 
         <label className="block">
           <span className="text-[11px] text-muted-foreground">
-            {translate('auto.components.right.sidebar.PortsPanel.b950b1948b', 'Local Port')}
+            {translate('auto.components.right.sidebar.PortsPanel.b950b1948b', 'Local port')}
           </span>
           <input
             type="text"
@@ -261,7 +261,7 @@ function PortForwardForm({
 
         <label className="block">
           <span className="text-[11px] text-muted-foreground">
-            {translate('auto.components.right.sidebar.PortsPanel.a3721a50b0', 'Remote Host')}
+            {translate('auto.components.right.sidebar.PortsPanel.a3721a50b0', 'Remote host')}
           </span>
           <input
             type="text"

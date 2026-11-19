@@ -1,5 +1,15 @@
 import { ipcRenderer } from 'electron'
 
+/** A reference figure in the person's folder: a recipe's (with its image when there) or their own. */
+export type FigureReferenceEntry = {
+  id: string
+  image: string | null
+  title: string | null
+  year: number | null
+  genre: string | null
+  recipe: boolean
+}
+
 export type ResearchFiguresApi = {
   /** The SVG with the bundled fonts embedded, and a vector PDF (base64) of the given size. */
   renderExports: (params: {
@@ -23,6 +33,25 @@ export type ResearchFiguresApi = {
     style: string | null
     accent: string | null
   }) => Promise<string>
+  /** The reference folder (null: Aster's app-data one) and what it holds. */
+  referenceLibrary: (params: { folder: string | null }) => Promise<{
+    folder: string
+    defaultFolder: string
+    exists: boolean
+    entries: FigureReferenceEntry[]
+  }>
+  /** Copies a PNG or JPEG into the reference folder; resolves to its id and path. */
+  addReference: (params: {
+    folder: string | null
+    name: string
+    base64: string
+  }) => Promise<{ id: string; image: string }>
+  /** One image of the reference folder as a data URL, or null. */
+  referenceThumbnail: (params: { folder: string | null; image: string }) => Promise<string | null>
+  /** Whether a Codex CLI with image generation is on this computer, and why not. */
+  codexImageGeneration: (params?: {
+    refresh?: boolean
+  }) => Promise<{ available: boolean; reason: string | null }>
 }
 
 export const researchFiguresApi: ResearchFiguresApi = {
@@ -32,5 +61,10 @@ export const researchFiguresApi: ResearchFiguresApi = {
   saveUserPart: (params) => ipcRenderer.invoke('researchFigures:saveUserPart', params),
   deleteUserPart: (params) => ipcRenderer.invoke('researchFigures:deleteUserPart', params),
   listTemplates: () => ipcRenderer.invoke('researchFigures:listTemplates'),
-  buildTemplate: (params) => ipcRenderer.invoke('researchFigures:buildTemplate', params)
+  buildTemplate: (params) => ipcRenderer.invoke('researchFigures:buildTemplate', params),
+  referenceLibrary: (params) => ipcRenderer.invoke('researchFigures:referenceLibrary', params),
+  addReference: (params) => ipcRenderer.invoke('researchFigures:addReference', params),
+  referenceThumbnail: (params) => ipcRenderer.invoke('researchFigures:referenceThumbnail', params),
+  codexImageGeneration: (params) =>
+    ipcRenderer.invoke('researchFigures:codexImageGeneration', params ?? {})
 }

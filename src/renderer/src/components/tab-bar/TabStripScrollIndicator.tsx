@@ -199,7 +199,7 @@ export function TabStripScrollIndicator({
     <div
       ref={trackRef}
       data-testid="tab-strip-scroll-indicator"
-      className={`absolute inset-x-0 bottom-0 z-[12] select-none transition-[height,background-color,opacity] duration-150 ease-out ${
+      className={`absolute inset-x-0 bottom-0 z-[12] select-none transition-[background-color,opacity] duration-150 ${
         isExpanded ? 'h-[4px] bg-muted-foreground/15 cursor-pointer' : 'h-[3px] bg-transparent'
       } ${
         disabled

@@ -96,7 +96,7 @@ export function SessionActionMenuItems({
           <LocateFixed className="size-3.5" />
           {translate(
             'auto.components.right.sidebar.AiVaultSessionRow.jumpToOriginalPane',
-            'Jump to Original Pane'
+            'Jump to original pane'
           )}
         </Item>
       ) : null}
@@ -106,11 +106,11 @@ export function SessionActionMenuItems({
           {isAiVaultFolderWorkspaceId(jumpWorkspaceId)
             ? translate(
                 'auto.components.right.sidebar.AiVaultSessionWorktree.jumpToFolder',
-                'Jump to Folder'
+                'Jump to folder'
               )
             : translate(
                 'auto.components.right.sidebar.AiVaultSessionRow.jumpToWorktree',
-                'Jump to Worktree'
+                'Jump to worktree'
               )}
         </Item>
       ) : null}
@@ -132,7 +132,7 @@ export function SessionActionMenuItems({
           <Copy className="size-3.5" />
           {translate(
             'auto.components.right.sidebar.AiVaultSessionRow.copyResumeCommand',
-            'Copy Resume Command'
+            'Copy resume command'
           )}
         </Item>
       ) : null}
@@ -143,7 +143,7 @@ export function SessionActionMenuItems({
             <MessageSquarePlus className="size-3.5" />
             {translate(
               'components.agentSessionContinuation.handOffToAnotherAgent',
-              'Hand Off to Another Agent'
+              'Hand off to another agent'
             )}
           </Item>
         </>
@@ -154,13 +154,13 @@ export function SessionActionMenuItems({
           {onOpenLog ? (
             <Item onSelect={onOpenLog}>
               <FileJson className="size-3.5" />
-              {translate('auto.components.right.sidebar.AiVaultSessionRow.openLog', 'Open Log')}
+              {translate('auto.components.right.sidebar.AiVaultSessionRow.openLog', 'Open log')}
             </Item>
           ) : null}
           {onRevealLog ? (
             <Item onSelect={onRevealLog}>
               <FolderOpen className="size-3.5" />
-              {translate('auto.components.right.sidebar.AiVaultSessionRow.revealLog', 'Reveal Log')}
+              {translate('auto.components.right.sidebar.AiVaultSessionRow.revealLog', 'Reveal log')}
             </Item>
           ) : null}
           {onOpenCwd ? (
@@ -168,7 +168,7 @@ export function SessionActionMenuItems({
               <FolderOpen className="size-3.5" />
               {translate(
                 'auto.components.right.sidebar.AiVaultSessionRow.openWorkingDirectory',
-                'Open Working Directory'
+                'Open working directory'
               )}
             </Item>
           ) : null}
@@ -178,14 +178,14 @@ export function SessionActionMenuItems({
       <Item onSelect={onCopyId}>
         {translate(
           'auto.components.right.sidebar.AiVaultSessionRow.copySessionId',
-          'Copy Session ID'
+          'Copy session ID'
         )}
       </Item>
       {onCopyPath ? (
         <Item onSelect={onCopyPath}>
           {translate(
             'auto.components.right.sidebar.AiVaultSessionRow.copyLogPath',
-            'Copy Log Path'
+            'Copy log path'
           )}
         </Item>
       ) : null}

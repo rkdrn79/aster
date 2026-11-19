@@ -156,7 +156,7 @@ export function SshTargetDestructiveActions({
         open={!!pendingRemove}
         title={translate(
           'auto.components.settings.SshTargetDestructiveActions.4808966c41',
-          'Remove SSH Target'
+          'Remove SSH target'
         )}
         description={translate(
           'auto.components.settings.SshTargetDestructiveActions.3bb0cf0ee4',

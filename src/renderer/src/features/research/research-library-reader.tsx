@@ -124,11 +124,11 @@ export function ResearchLibraryReader({
         >
           <PanelLeft aria-hidden />
         </Button>
-        <FileText className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+        <FileText className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         {/* Why one clipped line: the hint wraps out of sight before the title has to truncate. */}
-        <div className="flex h-4 min-w-0 flex-1 flex-wrap items-center gap-x-3 overflow-hidden text-2xs leading-4 text-muted-foreground">
+        <div className="flex h-5 min-w-0 flex-1 flex-wrap items-center gap-x-3 overflow-hidden text-xs leading-5 text-muted-foreground">
           <span
-            className="min-w-0 flex-auto truncate"
+            className="min-w-0 flex-auto truncate text-[13px] font-medium text-foreground"
             title={file ? `${paper.title}\n${file.relativePath}` : undefined}
           >
             {file ? paper.title : 'No PDF attached'}

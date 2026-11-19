@@ -24,7 +24,7 @@ export function OpenAiTranscriptionSettingsRow({
           <Label>
             {translate(
               'auto.components.settings.OpenAiTranscriptionSettingsRow.27e0cb656d',
-              'OpenAI Transcription'
+              'OpenAI transcription'
             )}
           </Label>
           {configured && (

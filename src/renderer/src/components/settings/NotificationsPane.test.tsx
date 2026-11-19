@@ -58,7 +58,7 @@ describe('NotificationsPane', () => {
       <NotificationsPane settings={createSettings()} updateSettings={vi.fn()} />
     )
 
-    expect(html).toContain('Notification Sound')
+    expect(html).toContain('Notification sound')
     expect(getNotificationSoundOptions(null).map((option) => option.title)).toEqual(
       expect.arrayContaining(['System Default', 'Two Tone', 'Bong', 'Ding'])
     )

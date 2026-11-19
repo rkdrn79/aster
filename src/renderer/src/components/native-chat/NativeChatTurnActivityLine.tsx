@@ -13,7 +13,8 @@ import {
   NativeChatReasoningChevron
 } from './NativeChatReasoningDisclosure'
 import { useNativeChatDisclosure } from './native-chat-disclosure-store'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
+import { AgentWorkingMark } from '@/components/ai/thinking-indicator'
+import { ShimmerText } from '@/components/ai/shimmer-text'
 
 // Literal keys with literal fallbacks: a dynamic key registers no catalog reference.
 function statusLabel(key: Extract<NativeChatActiveTurnLabel, { source: 'status' }>['key']): string {
@@ -57,16 +58,17 @@ export function NativeChatTurnActivityLine({
       {/* One element for every state of the line, so a screen reader hears each new label. The
           trigger overlays it, rather than wrapping it, and the body sits outside it. */}
       <div
-        className="group/reasoning relative flex min-h-6 items-center gap-1.5 text-sm leading-relaxed text-chat-foreground-faint"
+        className="group/reasoning relative flex min-h-7 items-center gap-2 text-sm leading-relaxed text-chat-foreground-faint"
         data-native-chat-turn-activity="true"
         data-state={open ? 'open' : 'closed'}
         aria-live="polite"
         aria-atomic="true"
       >
-        <LoadingSpinner className="size-4 shrink-0" />
-        <span id={labelId} className="min-w-0 truncate text-chat-foreground">
+        <AgentWorkingMark className="size-4" />
+        {/* A soft sweep through the label while the turn runs (motion.css), still under reduced motion. */}
+        <ShimmerText id={labelId} tone="chat" className="min-w-0 truncate">
           {label}
-        </span>
+        </ShimmerText>
         {reasoning ? (
           <>
             <NativeChatReasoningChevron />

@@ -229,7 +229,7 @@ export function BitbucketCredentialsDialog({
               <ToggleGroupItem value="basic" className="h-8 px-3 text-xs">
                 {translate(
                   'auto.components.settings.bitbucket.credentials.dialog.modeBasic',
-                  'Email & API token'
+                  'Email and API token'
                 )}
               </ToggleGroupItem>
               <ToggleGroupItem value="token" className="h-8 px-3 text-xs">

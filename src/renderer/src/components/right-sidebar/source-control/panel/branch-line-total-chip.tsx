@@ -78,7 +78,7 @@ function CodeBreakdownPanel({
   return (
     <div className="min-w-[14rem]" data-testid="source-control-branch-line-total-breakdown">
       <div className="border-b border-border/60 px-3 py-2.5">
-        <div className="text-sm font-semibold text-popover-foreground">
+        <div className="text-sm font-medium text-popover-foreground">
           {translate(
             'auto.components.right.sidebar.source.control.branch.line.total.chip.a1b2c3d4e5',
             'Code breakdown'

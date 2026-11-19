@@ -19,7 +19,7 @@ export function renderOrcaAccountSettingsSection(
   return model.showDesktopOnlySettings && !isUpstreamOnlySettingsSection('orca-account') ? (
     <SettingsSection
       id="orca-account"
-      title={translate('auto.components.settings.orcaAccount.title', 'Aster Account')}
+      title={translate('auto.components.settings.orcaAccount.title', 'Aster account')}
       description={translate(
         'auto.components.settings.orcaAccount.description',
         'Share work instantly and reach your desktop from Aster Mobile wherever you are.'
@@ -179,7 +179,7 @@ export function renderShareSkillsSettingsSection(
   return (
     <SettingsSection
       id="share-skills"
-      title={translate('auto.components.settings.shareSkills.title', 'Share Skills')}
+      title={translate('auto.components.settings.shareSkills.title', 'Share skills')}
       badge="Beta"
       description={translate(
         'auto.components.settings.shareSkills.description',
@@ -199,7 +199,7 @@ export function renderSessionHistorySettingsSection(
   return (
     <SettingsSection
       id="session-history"
-      title={translate('sessionHistory.settings.title', 'Agent Session Search')}
+      title={translate('sessionHistory.settings.title', 'Agent session search')}
       description={translate(
         'sessionHistory.settings.description',
         'Search everything your agents have said and done, on this computer and on any paired Aster server.'

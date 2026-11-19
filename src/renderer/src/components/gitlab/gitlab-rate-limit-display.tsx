@@ -169,7 +169,7 @@ export function GitLabRateLimitPanel({
             <Gauge className="size-4" />
             {translate(
               'auto.components.gitlab.gitlab.rate.limit.display.14e144f7a7',
-              'GitLab API Budget'
+              'GitLab API budget'
             )}
           </div>
           <p className="text-xs text-muted-foreground">

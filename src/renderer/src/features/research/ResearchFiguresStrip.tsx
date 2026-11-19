@@ -1,10 +1,14 @@
-import { FileText, PanelLeftOpen, Plus } from 'lucide-react'
+import { ChartLine, FileText, PanelLeftOpen, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import type { FigureListing } from '../../../../research-harness/research-figures-locations.mjs'
+import type {
+  FigureListing,
+  ListedPlot
+} from '../../../../research-harness/research-figures-locations.mjs'
 import { figureFilePaths } from '../../../../research-harness/research-figures-model.mjs'
 import { FigureThumbnailImage } from './ResearchFigureListItem'
 import { useFigureListMeta } from './research-figure-list-meta'
+import { plotRunHint, usePlotState } from './research-plot-files'
 import { setFiguresListMode } from './research-figures-layout-mode'
 import type { FigureSelection } from './research-figures-store'
 import type { ProjectFileOwner } from './research-project-files'
@@ -33,12 +37,52 @@ function StripFigure({
       aria-current={active ? 'true' : undefined}
       title={title}
       className={cn(
-        'rounded-md p-0.5 hover:bg-accent',
-        active && 'bg-accent ring-1 ring-foreground/40'
+        'rounded-lg p-1 transition-colors duration-(--duration-fast) hover:bg-accent',
+        active && 'bg-accent'
       )}
       onClick={onSelect}
     >
-      <FigureThumbnailImage url={meta?.thumbnail} className="size-10" />
+      <FigureThumbnailImage
+        url={meta?.thumbnail}
+        className={cn('size-10', active && 'border-foreground/30 shadow-raised')}
+      />
+    </button>
+  )
+}
+
+function StripPlot({
+  owner,
+  plot,
+  signatures,
+  active,
+  onSelect
+}: {
+  owner: ProjectFileOwner
+  plot: ListedPlot
+  signatures: Record<string, string>
+  active: boolean
+  onSelect: () => void
+}): React.JSX.Element {
+  const state = usePlotState(owner, plot, signatures)
+  const hint = state ? plotRunHint(state.run) : null
+  const title = hint ? `${plot.slug} · plot · ${hint.toLowerCase()}` : `${plot.slug} · plot`
+  return (
+    <button
+      type="button"
+      aria-label={`Open plot ${plot.slug}`}
+      aria-current={active ? 'true' : undefined}
+      title={title}
+      className={cn(
+        'rounded-lg p-1 transition-colors duration-(--duration-fast) hover:bg-accent',
+        active && 'bg-accent'
+      )}
+      onClick={onSelect}
+    >
+      <FigureThumbnailImage
+        url={state?.png}
+        icon={ChartLine}
+        className={cn('size-10', active && 'border-foreground/30 shadow-raised')}
+      />
     </button>
   )
 }
@@ -91,6 +135,16 @@ export function ResearchFiguresStrip({
             onSelect={() => onSelect({ kind: 'figure', slug: figure.slug })}
           />
         ))}
+        {listing.plots.map((plot) => (
+          <StripPlot
+            key={plot.slug}
+            owner={owner}
+            plot={plot}
+            signatures={signatures}
+            active={selected?.kind === 'plot' && selected.slug === plot.slug}
+            onSelect={() => onSelect({ kind: 'plot', slug: plot.slug })}
+          />
+        ))}
         {listing.others.map((entry) => (
           <button
             key={entry.name}
@@ -101,7 +155,7 @@ export function ResearchFiguresStrip({
               selected?.kind === 'file' && selected.name === entry.name ? 'true' : undefined
             }
             className={cn(
-              'flex size-11 items-center justify-center rounded-md hover:bg-accent',
+              'flex size-11 items-center justify-center rounded-lg hover:bg-accent',
               selected?.kind === 'file' && selected.name === entry.name && 'bg-accent'
             )}
             onClick={() => onSelect({ kind: 'file', name: entry.name })}

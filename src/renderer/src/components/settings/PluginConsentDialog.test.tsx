@@ -117,7 +117,7 @@ describe('PluginConsentDialog', () => {
       'full access to your files, network, and other processes'
     )
     expect(document.querySelector('[role="dialog"]')?.classList).toContain('plugin-security-chrome')
-    expect(document.activeElement?.textContent).toContain('Keep Disabled')
+    expect(document.activeElement?.textContent).toContain('Keep disabled')
   })
 
   it('explains that panel-only plugins have no worker process', async () => {

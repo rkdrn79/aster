@@ -12,6 +12,8 @@ import { findingIdentifiers, findingPresentation } from './research-finding-titl
 import { FINDING_SOURCE_LABELS } from './research-findings-format'
 import { ResearchFindingStatusAction } from './research-findings-status-action'
 import { ResearchFindingsPanel } from './ResearchFindingsPanel'
+import { cn } from '@/lib/utils'
+import { RAISED_CARD } from './research-surface-classes'
 import {
   NotebookRow,
   NotebookSection,
@@ -233,7 +235,7 @@ export function ResearchExperimentNotebookNeedsYou({
         <ResearchFindingsPanel experiment={experiment} runs={workspace.runs} state={findings} />
       ) : needsYou.length ? (
         <>
-          <ul className="divide-y divide-border">
+          <ul className={cn(RAISED_CARD, 'divide-y divide-border px-4')}>
             {shown.map((item) => (
               <NeedsYouEntry
                 key={item.key}

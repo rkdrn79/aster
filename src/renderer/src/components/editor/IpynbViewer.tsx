@@ -263,7 +263,7 @@ export default function IpynbViewer({
         <DialogContent surface="security" className="max-w-md sm:max-w-md" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="text-sm">
-              {translate('auto.components.editor.IpynbViewer.9e06ae5d36', 'Run Notebook Code?')}
+              {translate('auto.components.editor.IpynbViewer.9e06ae5d36', 'Run notebook code?')}
             </DialogTitle>
             <DialogDescription className="text-xs">
               {translate(

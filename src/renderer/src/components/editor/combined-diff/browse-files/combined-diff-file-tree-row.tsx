@@ -87,7 +87,7 @@ export const CombinedDiffFileTreeRow = memo(function CombinedDiffFileTreeRow({
           )}
           <span className="min-w-0 flex-1 truncate">{node.name}</span>
         </button>
-        <span className="w-4 shrink-0 text-center text-[10px] font-bold tabular-nums text-muted-foreground/80">
+        <span className="w-4 shrink-0 text-center text-[10px] font-medium tabular-nums text-muted-foreground/80">
           {visibleFileCount ?? node.fileCount}
         </span>
       </div>
@@ -139,7 +139,7 @@ export const CombinedDiffFileTreeRow = memo(function CombinedDiffFileTreeRow({
         {dirPath && <span className="ml-1.5 text-[11px] text-muted-foreground">{dirPath}</span>}
       </span>
       <span
-        className="w-4 shrink-0 text-center text-[10px] font-bold"
+        className="w-4 shrink-0 text-center text-[10px] font-medium"
         style={{ color: STATUS_COLORS[status] }}
       >
         {STATUS_LABELS[status]}

@@ -35,7 +35,7 @@ export function TaskPageLinearIssueList({
 
       {linearViewMode === 'list' && linearGroupBy === 'none' ? (
         <div
-          className="grid h-8 flex-none items-center gap-3 border-b border-border/50 bg-muted/25 px-3 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground max-lg:!hidden lg:grid-cols-[var(--linear-grid-template)] [&>span]:min-w-0 [&>span]:truncate"
+          className="grid h-8 flex-none items-center gap-3 border-b border-border/50 bg-muted/25 px-3 text-[11px] font-medium text-muted-foreground max-lg:!hidden lg:grid-cols-[var(--linear-grid-template)] [&>span]:min-w-0 [&>span]:truncate"
           style={linearIssueGridStyle}
         >
           <span>{translate('auto.components.TaskPage.37e7ee311e', 'Key')}</span>

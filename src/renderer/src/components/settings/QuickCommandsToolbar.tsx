@@ -109,7 +109,7 @@ export function QuickCommandsToolbar({
         className="ml-auto"
       >
         <Plus />
-        {translate('auto.components.settings.QuickCommandsPane.5aacc8f7dc', 'Add Command')}
+        {translate('auto.components.settings.QuickCommandsPane.5aacc8f7dc', 'Add command')}
       </Button>
     </div>
   )

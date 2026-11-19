@@ -1,0 +1,1516 @@
+{
+  "title": "Instance-adaptive TS augmentation (playbook plan)",
+  "method": "A parametric augmentation network learns per-instance views: a factorization mask h (hard-concrete relaxed Bernoulli per time step from a factorization head), a non-zero transformation mask g (transformation head) and noise η (random time-step masking of the encoder's first hidden layer); both heads share an input layer and a dilated-CNN extractor. The augmenter is trained with a Principle-of-Relevant-Information objective (β·expected L0 of h + mean-embedding discrepancy through the encoder) plus a temporal-consistency loss L_t (λ); the encoder is trained with L_global (InfoNCE) + α·L_local (subsequence contrast). Both are trained from scratch, alternating GAN-style (encoder every step, augmenter every M rounds), each with its own Adam optimizer.",
+  "scope": {
+    "compute": {
+      "gpuHours": 3226,
+      "wallclockDays": 21,
+      "hardware": "8x 40 GB GPUs (single machine); planned at 80% of 4,032 nominal GPU-h",
+      "source": "assumed"
+    },
+    "outOfScope": [
+      {
+        "item": "Anomaly detection (Yahoo/KPI)",
+        "reason": "needs a separate streaming, point-adjusted protocol with threshold-selection leakage risks, and does not fit the budget; C1b is narrowed to forecasting + classification"
+      },
+      {
+        "item": "Exchange",
+        "reason": "8 random-walk series where naive last-value baselines dominate, so it is uninformative about representations"
+      },
+      { "item": "Imputation" },
+      { "item": "Irregularly sampled series" },
+      { "item": "Cross-dataset transfer pretraining" },
+      { "item": "Supervised SOTA forecasting" },
+      { "item": "Traffic", "reason": "budget" }
+    ]
+  },
+  "claims": [
+    {
+      "id": "C1a",
+      "text": "Factorization-based information-theoretic definition of good views; Theorems 1-3",
+      "kind": "analysis",
+      "weight": "secondary",
+      "evidence": ["Q6a", "Q6b", "Q6b-prime", "Q6c", "Q6d"],
+      "status": "argued-only"
+    },
+    {
+      "id": "C1b",
+      "text": "Good views preserve task-relevant information while adding variance, without domain knowledge (narrowed to forecasting and classification)",
+      "kind": "mechanism",
+      "weight": "main",
+      "evidence": ["Q6a", "Q6b", "Q6b-prime", "Q6c", "Q6d", "Q3b"],
+      "status": "planned"
+    },
+    {
+      "id": "C2a",
+      "text": "The parametric instantiation learns per-instance augmentations",
+      "kind": "mechanism",
+      "weight": "main",
+      "evidence": ["Q4"],
+      "status": "planned"
+    },
+    {
+      "id": "C2b",
+      "text": "Avoids ad-hoc choice / trial-and-error tuning of augmentations",
+      "kind": "performance",
+      "weight": "main",
+      "evidence": ["Q3a", "Q3b", "Q3c"],
+      "status": "planned"
+    },
+    {
+      "id": "C2c",
+      "text": "Common augmentations (crop, scaling, ...) are special cases",
+      "kind": "analysis",
+      "weight": "secondary",
+      "status": "argued-only"
+    },
+    {
+      "id": "C3",
+      "text": "Encoder-agnostic: improves several contrastive backbones",
+      "kind": "generality",
+      "weight": "main",
+      "evidence": ["Q5"],
+      "status": "planned"
+    },
+    {
+      "id": "C4",
+      "text": "Beats existing TS representation learning on forecasting (uni + multi) and classification",
+      "kind": "performance",
+      "weight": "main",
+      "evidence": ["Q1", "Q2"],
+      "status": "planned"
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "claim": "C4",
+      "text": "Forecasting: does ours lower MSE relative to each re-run baseline on the 4 main datasets × 5 horizons, separately for univariate and multivariate?",
+      "hypothesis": "Ours lowers MSE relative to each re-run baseline, separately for uni and multi; the headline comparator is the strongest baseline per setting selected on val, and TS2Vec counts as the better of its iteration-matched and compute-matched arms",
+      "predictionIfFalse": "The test fails, or the reduction is < 2%, or ours is significantly worse in any horizon group",
+      "minEffect": "≥ max(2%, 2×SE) mean relative MSE reduction over the 20 (dataset × horizon) cells; sign-flip permutation p < 0.05 after Holm; point estimate > 0 under leave-one-dataset-out; claims worded per horizon group (short {24, 48}, long {≥168 / ≥288}), a group that does not pass on its own is excluded"
+    },
+    {
+      "id": "Q2",
+      "claim": "C4",
+      "text": "Classification: does ours have higher mean accuracy than every re-run baseline on UCR-128 and UEA-30?",
+      "hypothesis": "On UCR-128 and UEA-30, ours has higher mean accuracy than every re-run baseline (also reported on UCR-98 / UEA-20, excluding the tuning datasets)",
+      "predictionIfFalse": "Gain < 0.5 pt or not significant on either archive",
+      "minEffect": "≥ +1.0 pt mean accuracy on each archive, Wilcoxon over datasets with Holm-p < 0.05"
+    },
+    {
+      "id": "Q3a",
+      "claim": "C2b",
+      "text": "With the same encoder and the same L_con, is untuned-default ours (0 tuning trials) non-inferior to L_con + the hand-picked augmentation grid (21 configs, selected per task family on T val)?",
+      "hypothesis": "Untuned-default ours is non-inferior to the tuned grid in every task family and ≥ loss-only (L_con + TS2Vec default augs); secondary: tuned ours vs tuned grid as a superiority test",
+      "predictionIfFalse": "The grid beats untuned ours beyond the margin in any family",
+      "minEffect": "Non-inferiority margin −1% MSE / −0.5 pt accuracy; the one-sided 95% CI lower bound must exceed the margin in every task family"
+    },
+    {
+      "id": "Q3b",
+      "claim": "C2b",
+      "text": "With configs frozen, does the gap vs the grid hold under transfer: cross-domain (Weather, ETTm2), cross-archive (UCR-tuned configs on the 20 untuned UEA datasets) and within-archive (UCR-98, UEA-20)?",
+      "hypothesis": "'No domain knowledge' is claimed only if Q3a holds and ours keeps a ≥0 gap vs the grid on the cross-domain/cross-archive sets; within-archive results are reported as within-archive transfer only",
+      "predictionIfFalse": "The gap shrinks by more than half relative to the tuning subset, or turns negative cross-domain"
+    },
+    {
+      "id": "Q3c",
+      "claim": "C2b",
+      "text": "Tuning cost: untuned ours spends 0 tuning GPU-h vs the grid's measured enumeration cost (≈84 GPU-h on T)",
+      "hypothesis": "Equal quality with zero tuning; holds only if Q3a holds",
+      "notes": "Pre-registered as expected-false: tuned ours is cheaper to tune per trial than the grid (ours costs ≈2× per trial), so this is reported but not claimed"
+    },
+    {
+      "id": "Q4",
+      "claim": "C2a",
+      "text": "Do learned per-instance masks beat random masks matched in sparsity and scale, a dataset-level learned mask, and RandAugment-style per-instance random composition under L_con?",
+      "hypothesis": "Learned per-instance masks beat each of the three controls",
+      "predictionIfFalse": "Any control is within the threshold in both families",
+      "minEffect": "≥ max(1% MSE / 0.5 pt, 2×SE) over each control, per task family"
+    },
+    {
+      "id": "Q5",
+      "claim": "C3",
+      "text": "Does adding our module improve each backbone over its own augmentations, with equal trials within each pair (forecasting: TS2Vec, CoST, Transformer-TS2Vec; classification: TS2Vec, TS-TCC, Transformer-TS2Vec)?",
+      "hypothesis": "Adding our module improves each backbone over its own augmentations",
+      "predictionIfFalse": "Improvement in ≤1 of 3 pairs in both families",
+      "minEffect": "≥ max(1% MSE / 0.5 pt, 2×SE) per pair, Holm within the Q5 family"
+    },
+    {
+      "id": "Q6a",
+      "claim": "C1b",
+      "text": "Theorem 1 vs a known regularizer: are invertible-only views (no η) worse than the default hidden-layer masking η and than an input-jitter η matched in view diversity?",
+      "hypothesis": "No-η views are worse than default η and worse than input Gaussian jitter (σ matched on S1 val to the default's view diversity); the jitter variant recovers ≥50% of the default's gain over no-η",
+      "predictionIfFalse": "No-η is not worse, or the jitter variant recovers < 50% (then the effect is attributed to TS2Vec-style masking regularization, not Theorem 1)",
+      "minEffect": "≥ max(1% / 0.5 pt, 2×SE)"
+    },
+    {
+      "id": "Q6b",
+      "claim": "C1b",
+      "text": "Label preservation: how much accuracy does a supervised probe lose on views (input-space partial view v* with an input-space classifier; full view v with a same-architecture classifier and η at its first-layer output)?",
+      "hypothesis": "Ours drops ≤2 pt; adversarial-swap and LEAVES-style views drop ≥2 pt more",
+      "predictionIfFalse": "Our drop is not smaller than adversarial"
+    },
+    {
+      "id": "Q6b-prime",
+      "claim": "C1b",
+      "text": "Diversity / Theorem 3 (encoder-independent): k-NN entropy and within-instance view distance, in input space for v* and in a frozen, randomly initialised, fixed-seed first layer for v",
+      "hypothesis": "Ĥ(v) − Ĥ(x) ≥ 0 for ours, and greater than for no-η views",
+      "predictionIfFalse": "Ĥ(v) < Ĥ(x)"
+    },
+    {
+      "id": "Q6c",
+      "claim": "C1b",
+      "text": "Does PRI beat the adversarial objective swap (S3-1) and LEAVES (S2-10)?",
+      "hypothesis": "PRI beats the adversarial objective swap and LEAVES",
+      "predictionIfFalse": "Adversarial or LEAVES ≥ PRI (S3 rule: drop the 'PRI instead of adversarial' claim)"
+    },
+    {
+      "id": "Q6d",
+      "claim": "C1b",
+      "text": "On a synthetic dataset with a planted label-relevant segment, does h recover it?",
+      "hypothesis": "h recovers the planted segment",
+      "predictionIfFalse": "IoU < 0.3",
+      "minEffect": "IoU ≥ 0.6 supported; 0.3-0.6 inconclusive; < 0.3 falsified"
+    }
+  ],
+  "methodComponents": [
+    { "id": "M1", "name": "factorization mask h (factorization head)", "ablation": "A1" },
+    { "id": "M2", "name": "transformation mask g (transformation head)", "ablation": "A2" },
+    { "id": "M3", "name": "noise η (hidden-layer time-step masking)", "ablation": "A3" },
+    { "id": "M4", "name": "hard-concrete relaxation (τ, γ, ζ)", "ablation": "A4" },
+    {
+      "id": "M5",
+      "name": "shared input layer and dilated-CNN extractor for both heads",
+      "ablation": "none",
+      "reason": "aug-net depth/width, shared vs separate extractors and subsequence length L are held at default: architectural details not claimed as contributions, cut for budget (listed under Risks)"
+    },
+    { "id": "M6", "name": "PRI objective instead of adversarial training", "ablation": "A6-adv" },
+    { "id": "M7", "name": "L0 sparsity term β·‖h‖₀", "ablation": "A5" },
+    { "id": "M8", "name": "mean-embedding (MMD-style) discrepancy term", "ablation": "A6" },
+    { "id": "M9", "name": "temporal-consistency loss L_t (λ)", "ablation": "A7" },
+    { "id": "M10", "name": "global InfoNCE loss L_global", "ablation": "A11" },
+    { "id": "M11", "name": "local subsequence contrast L_local (α)", "ablation": "A8" },
+    {
+      "id": "M12",
+      "name": "alternating schedule (augmenter every M rounds)",
+      "ablation": "A9-joint"
+    }
+  ],
+  "baselines": [
+    {
+      "id": "B1",
+      "name": "TS2Vec (crop + timestamp masking, hierarchical loss)",
+      "role": "standard-recipe",
+      "why": "published baseline; 2×2 cell",
+      "source": "rerun-official-code",
+      "reproduce": {
+        "cell": "S0-1",
+        "tolerance": "within ±5% MSE on ETTh1 and ±1.5 pt on the 10 UCR + 5 UEA datasets"
+      },
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same pretraining iterations (TS2Vec rule: 200 iterations for <100k samples, otherwise 600); batch size at its published default, not tuned",
+        "tuning": {
+          "trials": 8,
+          "space": "lr and its own key hyperparameters (published in the appendix); 4 trials in S1 + 4 in S2-1b",
+          "selectionSplit": "val (T)"
+        },
+        "notes": "same splits, normalization and downstream heads"
+      }
+    },
+    {
+      "id": "B2",
+      "name": "TS2Vec compute-matched (iterations scaled by the measured wall-clock ratio r from S0-3)",
+      "why": "compute control: rules out extra aug-net compute as the explanation",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "r× TS2Vec iterations, r = measured ours/TS2Vec wall-clock ratio, frozen before S1",
+        "tuning": {
+          "space": "inherits TS2Vec's config"
+        }
+      }
+    },
+    {
+      "id": "B3",
+      "name": "Loss-only: L_con + TS2Vec default augs, no aug net",
+      "role": "ablated-self",
+      "why": "loss confound control: isolates the aug net from the loss change",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same pretraining iterations",
+        "tuning": {
+          "trials": 8,
+          "space": "4 trials in S1 + 4 in S2-1b",
+          "selectionSplit": "val (T)"
+        }
+      }
+    },
+    {
+      "id": "B4",
+      "name": "L_con + hand-picked grid (6 singles + 15 pairs of {jitter, scaling, permutation, magnitude warp, crop, timestamp masking})",
+      "role": "standard-recipe",
+      "why": "trial-and-error recipe; tests C2b with the same loss",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same pretraining iterations",
+        "tuning": {
+          "trials": 21,
+          "space": "full enumeration of the 21 configs at literature-standard strengths (≈84 GPU-h, ≥ ours' 64)",
+          "selectionSplit": "val (T), per task family"
+        }
+      }
+    },
+    {
+      "id": "B5",
+      "name": "L_con + RandAugment-TS (per instance, N ops sampled from the same 6-op pool at magnitude m)",
+      "role": "standard-recipe",
+      "why": "random-composition recipe; Q4 control",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same pretraining iterations",
+        "tuning": {
+          "trials": 9,
+          "space": "N∈{1,2,3} × m∈{0.5,1,2}× standard, fully enumerated (≈36 GPU-h)",
+          "selectionSplit": "val (T)"
+        }
+      }
+    },
+    {
+      "id": "B6",
+      "name": "InfoTS",
+      "role": "closest-prior",
+      "why": "information-aware augmentation selection for TS",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "trainingBudget": "same pretraining iterations; batch size at its published default",
+        "tuning": {
+          "trials": 8,
+          "space": "lr and its own key hyperparameters (published in the appendix)",
+          "selectionSplit": "val (T)"
+        }
+      }
+    },
+    {
+      "id": "B7",
+      "name": "LEAVES",
+      "why": "published TS adversarial view learner; external test of 'PRI vs adversarial'",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same pretraining iterations",
+        "tuning": {
+          "trials": 8,
+          "space": "lr and its own key hyperparameters (published in the appendix)",
+          "selectionSplit": "val (T)"
+        },
+        "notes": "view module + its adversarial objective on the same dilated-CNN encoder; classification only (its paper's scope)"
+      }
+    },
+    {
+      "id": "B8",
+      "name": "CoST",
+      "role": "strongest-recent",
+      "why": "strongest contrastive forecasting; also a Q5 backbone",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "trainingBudget": "same pretraining iterations",
+        "tuning": {
+          "trials": 8,
+          "space": "lr and its own key hyperparameters (published in the appendix)",
+          "selectionSplit": "val (T)"
+        },
+        "notes": "forecasting only (not defined/evaluated for classification)"
+      }
+    },
+    {
+      "id": "B9",
+      "name": "SimMTM",
+      "why": "strong masked-modelling SSL; different paradigm",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "trainingBudget": "same pretraining iterations; published batch size (gradient accumulation if > 40 GB)",
+        "tuning": {
+          "trials": 8,
+          "space": "lr and its own key hyperparameters (published in the appendix)",
+          "selectionSplit": "val (T)"
+        },
+        "notes": "frozen protocol plus native fine-tuning protocol (S2-15)"
+      }
+    },
+    {
+      "id": "B10",
+      "name": "TS-TCC",
+      "why": "contrastive with strong+weak augs; also a Q5 backbone",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "trainingBudget": "same pretraining iterations",
+        "tuning": {
+          "trials": 8,
+          "space": "lr and its own key hyperparameters (published in the appendix)",
+          "selectionSplit": "val (T)"
+        },
+        "notes": "classification only; plus native linear probe"
+      }
+    },
+    {
+      "id": "B11",
+      "name": "Raw features",
+      "role": "no-training-floor",
+      "why": "floor: bounds what SSL adds"
+    },
+    {
+      "id": "B12",
+      "name": "Random-init frozen encoder",
+      "role": "no-training-floor",
+      "why": "floor: bounds what SSL adds"
+    },
+    {
+      "id": "B13",
+      "name": "Ours ablations, incl. adversarial swap",
+      "role": "ablated-self",
+      "why": "internal mechanism"
+    },
+    {
+      "id": "B14",
+      "name": "Per-dataset best grid config selected on test (T only)",
+      "role": "oracle",
+      "why": "upper reference",
+      "notes": "derived from grid runs; never enters Q3 tests or any table without the 'oracle (test-selected)' label"
+    },
+    {
+      "id": "B15",
+      "name": "T-Loss, TNC, TST, CPC",
+      "why": "context; widely reported",
+      "source": "copied",
+      "copiedFrom": "TS2Vec paper tables produced under the identical frozen ridge/SVM protocol and splits",
+      "notes": "labelled 'copied', excluded from tests"
+    }
+  ],
+  "notCompared": [
+    {
+      "name": "InfoMin, AutoGCL, JOAO",
+      "reason": "vision/graph methods and porting them is ambiguous; LEAVES is the re-run TS representative of adversarial view learning, plus our internal adversarial swap"
+    },
+    {
+      "name": "Supervised Informer/TCN and TF-C",
+      "reason": "different lookbacks, supervised training, or a cross-dataset transfer setting; placing them next to frozen-protocol numbers is misleading"
+    },
+    {
+      "name": "Supervised forecasters (PatchTST, iTransformer) and TS foundation models (Chronos, Moirai, TimesFM)",
+      "reason": "a different setting, with corpus-leakage risk"
+    },
+    {
+      "name": "Generative (diffusion) augmentation",
+      "reason": "out of claimed scope"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "D1",
+      "name": "ETTh1",
+      "role": "main",
+      "splits": { "train": "12 months", "select": "val 4 months", "report": "test 4 months" }
+    },
+    {
+      "id": "D2",
+      "name": "ETTh2",
+      "role": "main",
+      "splits": { "train": "12 months", "select": "val 4 months", "report": "test 4 months" }
+    },
+    {
+      "id": "D3",
+      "name": "ETTm1",
+      "role": "main",
+      "splits": { "train": "12 months", "select": "val 4 months", "report": "test 4 months" }
+    },
+    {
+      "id": "D4",
+      "name": "Electricity",
+      "role": "main",
+      "splits": { "train": "60% chronological", "select": "val 20%", "report": "test 20%" }
+    },
+    {
+      "id": "D5",
+      "name": "Weather",
+      "role": "heldout",
+      "why": "cross-domain held-out, configs frozen",
+      "splits": {
+        "train": "70% chronological",
+        "select": "val 10%",
+        "report": "test 20%; test only"
+      }
+    },
+    {
+      "id": "D6",
+      "name": "ETTm2",
+      "role": "heldout",
+      "why": "held-out, configs frozen; ours, untuned ours, TS2Vec, grid only",
+      "splits": {
+        "train": "12 months",
+        "select": "val 4 months",
+        "report": "test 4 months; test only"
+      }
+    },
+    {
+      "id": "D7",
+      "name": "UCR-128",
+      "role": "main",
+      "splits": {
+        "train": "official train",
+        "select": "stratified 20% of train for tuning",
+        "report": "official test; final models retrained on full train"
+      },
+      "notes": "tuning subset UCR-30 (fixed random, seed recorded); ablation subset A-UCR-30 drawn from the other 98; held-out = the 98"
+    },
+    {
+      "id": "D8",
+      "name": "UEA-30",
+      "role": "main",
+      "splits": {
+        "train": "official train",
+        "select": "stratified 20% of train for tuning",
+        "report": "official test; final models retrained on full train"
+      },
+      "notes": "tuning subset UEA-10; ablation subset A-UEA-10 from the other 20; held-out = the 20"
+    },
+    {
+      "id": "D9",
+      "name": "Synthetic planted-segment set",
+      "role": "sanity",
+      "why": "sanity + Q6d",
+      "splits": { "train": "generated", "select": "generated val", "report": "generated test" }
+    },
+    {
+      "id": "D10",
+      "name": "ETTh1 / UEA-10 with additive noise (20/10/5 dB) and 10-50% missing steps",
+      "role": "stress",
+      "why": "stress (could); perturb test only, S2 encoders reused, no retraining"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "mse (z-normalized, per dataset × horizon cell)",
+      "direction": "minimize",
+      "primary": true,
+      "question": "Q1",
+      "why": "short horizons can saturate and are hidden by pooling"
+    },
+    { "name": "mae", "direction": "minimize", "primary": false, "question": "Q1" },
+    { "name": "pooled mean mse", "direction": "minimize", "primary": false, "question": "Q1" },
+    {
+      "name": "mean accuracy over datasets",
+      "direction": "maximize",
+      "primary": true,
+      "question": "Q2",
+      "why": "standard"
+    },
+    {
+      "name": "average rank + CD diagram",
+      "direction": "minimize",
+      "primary": false,
+      "question": "Q2"
+    },
+    { "name": "means excluding tuning datasets", "primary": false, "question": "Q2" },
+    {
+      "name": "gap vs grid (MSE / accuracy), CI vs margin",
+      "primary": true,
+      "question": "Q3a",
+      "why": "non-inferiority"
+    },
+    { "name": "win/tie/loss", "primary": false, "question": "Q3a" },
+    {
+      "name": "tuning GPU-h (measured)",
+      "direction": "minimize",
+      "primary": true,
+      "question": "Q3c",
+      "why": "the claim is about tuning effort"
+    },
+    { "name": "time-to-target", "direction": "minimize", "primary": false, "question": "Q3c" },
+    {
+      "name": "per task family: mean relative MSE over A's 20 cells (forecasting); mean accuracy over A's 40 datasets (classification)",
+      "primary": true,
+      "question": "Q4",
+      "why": "MSE and accuracy are not mixed (also for Q5, Q6a, Q6c)"
+    },
+    {
+      "name": "label-preservation drop (accuracy on x − accuracy on views)",
+      "direction": "minimize",
+      "primary": true,
+      "question": "Q6b",
+      "why": "defined only where views exist (input v*, or full v with η at the probe's first layer)"
+    },
+    {
+      "name": "Ĥ_kNN(view) − Ĥ_kNN(x); within-instance view distance",
+      "direction": "maximize",
+      "primary": true,
+      "question": "Q6b-prime",
+      "why": "encoder-independent"
+    },
+    { "name": "trained-encoder cosine diversity", "primary": false, "question": "Q6b-prime" },
+    {
+      "name": "IoU of h with the planted segment",
+      "direction": "maximize",
+      "primary": true,
+      "question": "Q6d",
+      "why": "ground truth only on synthetic data"
+    }
+  ],
+  "statistics": {
+    "seedsMain": 5,
+    "repeatUnit": "seed: one full run (pretraining + downstream fit); the seed controls init, augmentation sampling and batch order; seed index paired across arms",
+    "variance": "t-CI over cells (forecasting); one-sided 95% CI for non-inferiority",
+    "test": "forecasting: exact two-sided sign-flip permutation over (dataset × horizon) cells per setting plus a t-CI, with leave-one-dataset-out sign check; classification: Wilcoxon signed-rank on per-dataset seed-means (repeated on the 98 / 20 non-tuning datasets); non-inferiority: one-sided 95% CI lower bound > −margin",
+    "multipleComparisons": "Holm within the families of tests actually run: C4 (22 tests), augmentation attribution (16), ablations (each × {forecasting, classification}), Q5 (6 pairs); sweeps descriptive",
+    "aggregate": "ablations: a component matters only with a significant drop in ≥1 task family and no significant improvement in the other",
+    "notes": "5 seeds on main cells, Q5 pairs and gating ablations; untuned ours 3 seeds; 3 on other ablations and sweeps. Every minimum effect is max(stated %, 2×SE of the paired difference); effects passing the test but below 2×SE are 'inconclusive'. Escalation: if the S1 forecasting effect is below 2× its paired SD, S2 forecasting goes to 8 seeds for the 9 forecasting arms (+210 GPU-h from reserve). The 4-cluster hierarchical bootstrap is dropped."
+  },
+  "hyperparameters": {
+    "selectionSplit": "val (T val split; UCR/UEA: stratified 20% of train)",
+    "methodTrials": 8,
+    "tuningCostIncluded": true,
+    "sensitivity": [
+      { "knob": "beta", "note": "3 non-default points (values not given), suite Sm, 3 seeds" },
+      { "knob": "M", "note": "3 non-default points (values not given), suite Sm, 3 seeds" },
+      {
+        "knob": "eta masking probability",
+        "note": "3 non-default points (values not given), suite Sm, 3 seeds"
+      }
+    ],
+    "untunedDefault": "β = 0.01, λ = 0.1, α = 0.5, M = 5, η masking prob 0.5, τ = 0.5, (γ, ζ) = (−0.1, 1.1), lr 1e-3 for both networks, aug net 4 dilated layers × 64, L = 16, dropout 0.1; pre-registered (hash committed before S0); 0 tuning trials",
+    "notes": "ours tuned over β, λ, α, M, masking prob and lr with 8 random-search trials on T val (4 in S1 + 4 in S2-1b), one seed, no extra retries; baselines over lr and their own key hyperparameters; search spaces published in the appendix; batch size fixed at each method's published default and not tuned; no λ, α, τ sweeps (budget); encoder depth/width held at backbone defaults; γ/ζ fixed at standard values"
+  },
+  "protocol": {
+    "checkpoint": "final checkpoint after fixed iterations (TS2Vec rule); no early stopping or val checkpoint picking in the frozen protocol",
+    "postprocessing": "frozen encoder; forecasting: causal last-timestamp representation + ridge (α on val from {0.1, 0.2, 0.5, 1, 2, 5, …, 1000}); classification: max-pool over time + SVM-RBF (C by 5-fold CV on train from {1e-4 … 1e4}); CoST uses its native trend+season representation",
+    "sharedByAllArms": true,
+    "notes": "same code path for every arm; augmentation network not used at inference; normalization statistics from train; ours and all L_con arms use fixed-length windows with no two-crop, TS2Vec/InfoTS/TS2Vec-cm keep native cropping; native-protocol secondary table (S2-15): SimMTM fine-tuning (early stopping on val only) with ours also run under it, TS-TCC/LEAVES linear probe, 3 seeds; no best-of-k seeds, no TTA or ensembling; copied numbers labelled; main means also reported excluding tuning datasets",
+    "suites": {
+      "F": "all main datasets + Weather (≈30 GPU-h per seed for ours)",
+      "T": "val splits: ETTh1-u, ETTh1-m, ETTm1-m (also the S1 forecasting gate set), UCR-30, UEA-10 (≈8 per seed)",
+      "A": "test splits: ETTh1-u, ETTh1-m, ETTh2-m, ETTm1-m, A-UCR-30, A-UEA-10 drawn from held-out datasets (≈8 per seed)",
+      "Sm": "ETTh1-m, ETTm1-m, A-UCR-30 (≈4 per seed)"
+    }
+  },
+  "stages": [
+    {
+      "id": "S0",
+      "name": "sanity + earliest falsifier",
+      "budgetGpuHours": 44,
+      "days": "1",
+      "gate": "TS2Vec reproduction within ±5% MSE on ETTh1 and ±1.5 pt on the 10 UCR + 5 UEA; all leakage tests pass, causal difference = 0; floors below TS2Vec; measured costs recalibrated"
+    },
+    {
+      "id": "S1",
+      "name": "pilot",
+      "budgetGpuHours": 136,
+      "days": "2-4 (S2-1a in parallel)",
+      "gate": "On T val with all three arms tuned with 4 trials each, per task family: ours − max(TS2Vec, loss-only) > 0 and ≥ 2× SE of the paired difference, in both families"
+    },
+    {
+      "id": "S2",
+      "name": "main results",
+      "budgetGpuHours": 1687,
+      "days": "S2-1a days 2-4, S2-1b day 5, finals days 5-13",
+      "gate": "configs frozen and hashed before any test evaluation; C4 gate (Section 6 win rules); Q3 gate (untuned ours non-inferior to grid); loss-attribution gate (ours beats loss-only, Holm, per family)"
+    },
+    {
+      "id": "S3",
+      "name": "ablations & sensitivity",
+      "budgetGpuHours": 600,
+      "days": "6-20 by priority"
+    },
+    {
+      "id": "S4",
+      "name": "generality, cost, analysis",
+      "budgetGpuHours": 415,
+      "days": "6-20 by priority",
+      "gate": "Q5 gate: ≥2/3 pairs in each family"
+    }
+  ],
+  "matrix": [
+    {
+      "cell": "S0-1",
+      "stage": "S0",
+      "purpose": "sanity",
+      "tier": "must",
+      "factors": { "method": "B1 TS2Vec", "dataset": "ETTh1-u/m, 10 UCR, 5 UEA" },
+      "seeds": 3,
+      "cost": { "total": 8, "source": "estimate" },
+      "expect": "within ±5% MSE on ETTh1 and ±1.5 pt on the 10 UCR + 5 UEA vs published"
+    },
+    {
+      "cell": "S0-2",
+      "stage": "S0",
+      "purpose": "sanity",
+      "tier": "must",
+      "factors": { "method": "floors: raw features + random-init frozen encoder", "suite": "F" },
+      "seeds": 3,
+      "cost": { "total": 6, "source": "estimate" },
+      "expect": "floors below TS2Vec"
+    },
+    {
+      "cell": "S0-3",
+      "stage": "S0",
+      "purpose": "cost",
+      "tier": "must",
+      "factors": {
+        "what": "leakage/causality tests; timing + memory probes for all arms (incl. SimMTM Electricity-m); set r; budget recalibration"
+      },
+      "cost": { "total": 12, "source": "estimate" }
+    },
+    {
+      "cell": "S0-4",
+      "stage": "S0",
+      "question": "Q6d",
+      "purpose": "sanity",
+      "tier": "must",
+      "factors": { "what": "synthetic IoU (Q6d); crop/scale fit (C2c)", "compare": "random mask" },
+      "seeds": 3,
+      "cost": { "total": 6, "source": "estimate" },
+      "expect": "IoU ≥ 0.6 supported; 0.3-0.6 inconclusive; < 0.3 falsified (a bug if masks collapse)"
+    },
+    {
+      "cell": "S0-5",
+      "stage": "S0",
+      "question": "Q3a",
+      "purpose": "pilot",
+      "tier": "must",
+      "factors": {
+        "method": "untuned-default ours vs TS2Vec vs loss-only",
+        "dataset": "ETTh1-u/m + 10 UCR (val)"
+      },
+      "seeds": 3,
+      "cost": { "total": 12, "source": "estimate" }
+    },
+    {
+      "cell": "S1-1",
+      "stage": "S1",
+      "question": "Q1",
+      "purpose": "tuning",
+      "tier": "must",
+      "factors": { "method": "ours, TS2Vec, loss-only", "trials": "4 each on T (count toward 8)" },
+      "seeds": 1,
+      "cost": { "total": 64, "source": "estimate" }
+    },
+    {
+      "cell": "S1-2",
+      "stage": "S1",
+      "question": "Q1",
+      "purpose": "pilot",
+      "tier": "must",
+      "factors": { "method": "equally tuned ours vs TS2Vec vs loss-only", "suite": "T val" },
+      "seeds": 3,
+      "cost": { "total": 48, "source": "estimate" }
+    },
+    {
+      "cell": "S1-3",
+      "stage": "S1",
+      "question": "Q6a",
+      "purpose": "pilot",
+      "tier": "must",
+      "factors": { "method": "ours without η", "suite": "T" },
+      "compareTo": ["S1-2"],
+      "seeds": 3,
+      "cost": { "total": 24, "source": "estimate" }
+    },
+    {
+      "cell": "S2-1a",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "tuning",
+      "tier": "must",
+      "factors": {
+        "method": "baselines, independent of ours (days 2-4): grid 21 configs (84), RandAug 9 (36), InfoTS (53), LEAVES (48), SimMTM (75), CoST (16), TS-TCC (29)"
+      },
+      "seeds": 1,
+      "cost": { "total": 341, "source": "estimate" }
+    },
+    {
+      "cell": "S2-1b",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "tuning",
+      "tier": "must",
+      "factors": { "method": "remaining 4 trials: ours (32), TS2Vec (16), loss-only (16)" },
+      "seeds": 1,
+      "cost": { "total": 64, "source": "estimate" }
+    },
+    {
+      "cell": "S2-2",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "ours (tuned)", "suite": "F" },
+      "compareTo": [
+        "S2-3",
+        "S2-4",
+        "S2-5",
+        "S2-6",
+        "S2-7",
+        "S2-8",
+        "S2-9",
+        "S2-10",
+        "S2-11",
+        "S2-12",
+        "S2-13"
+      ],
+      "seeds": 5,
+      "cost": { "total": 150, "source": "estimate" }
+    },
+    {
+      "cell": "S2-3",
+      "stage": "S2",
+      "question": "Q3a",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "ours untuned-default", "suite": "F" },
+      "compareTo": ["S2-7"],
+      "seeds": 3,
+      "cost": { "total": 90, "source": "estimate" }
+    },
+    {
+      "cell": "S2-4",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "B1 TS2Vec", "suite": "F" },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 75, "source": "estimate" }
+    },
+    {
+      "cell": "S2-5",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "B2 TS2Vec compute-matched", "suite": "F" },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 150, "source": "estimate" }
+    },
+    {
+      "cell": "S2-6",
+      "stage": "S2",
+      "question": "Q3a",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "B3 loss-only (L_con + TS2Vec augs)", "suite": "F" },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 75, "source": "estimate" }
+    },
+    {
+      "cell": "S2-7",
+      "stage": "S2",
+      "question": "Q3a",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "B4 L_con + grid", "suite": "F" },
+      "compareTo": ["S2-2", "S2-3"],
+      "seeds": 5,
+      "cost": { "total": 75, "source": "estimate" }
+    },
+    {
+      "cell": "S2-8",
+      "stage": "S2",
+      "question": "Q3a",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "B5 L_con + RandAug", "suite": "F" },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 75, "source": "estimate" }
+    },
+    {
+      "cell": "S2-9",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "B6 InfoTS", "suite": "F" },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 125, "source": "estimate" }
+    },
+    {
+      "cell": "S2-10",
+      "stage": "S2",
+      "question": "Q2",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "B7 LEAVES", "suite": "classification part of F" },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 100, "source": "estimate" }
+    },
+    {
+      "cell": "S2-11",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "B9 SimMTM", "suite": "F" },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 175, "source": "estimate" }
+    },
+    {
+      "cell": "S2-12",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": { "method": "B8 CoST", "suite": "forecasting part of F" },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 50, "source": "estimate" }
+    },
+    {
+      "cell": "S2-13",
+      "stage": "S2",
+      "question": "Q2",
+      "purpose": "main",
+      "tier": "should",
+      "factors": { "method": "B10 TS-TCC", "suite": "classification part of F" },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 60, "source": "estimate" }
+    },
+    {
+      "cell": "S2-14",
+      "stage": "S2",
+      "question": "Q3a",
+      "purpose": "analysis",
+      "tier": "should",
+      "factors": { "method": "B14 oracle grid config (T only), labelled" },
+      "cost": { "total": 0, "source": "estimate" }
+    },
+    {
+      "cell": "S2-15",
+      "stage": "S2",
+      "purpose": "analysis",
+      "tier": "must",
+      "factors": {
+        "protocol": "native: SimMTM + ours fine-tuned (forecasting main + UEA); TS-TCC/LEAVES linear probe"
+      },
+      "seeds": 3,
+      "cost": { "total": 40, "source": "estimate" }
+    },
+    {
+      "cell": "S2-16",
+      "stage": "S2",
+      "question": "Q3b",
+      "purpose": "heldout",
+      "tier": "should",
+      "factors": {
+        "method": "UCR-tuned ours vs UCR-tuned grid",
+        "dataset": "UEA-20 (cross-archive)"
+      },
+      "seeds": 3,
+      "cost": { "total": 24, "source": "estimate" }
+    },
+    {
+      "cell": "S2-17",
+      "stage": "S2",
+      "question": "Q3b",
+      "purpose": "heldout",
+      "tier": "should",
+      "factors": { "method": "ours, untuned ours, TS2Vec, grid", "dataset": "D6 ETTm2" },
+      "seeds": 3,
+      "cost": { "total": 18, "source": "estimate" }
+    },
+    {
+      "cell": "S3-1",
+      "stage": "S3",
+      "question": "Q6a",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": {
+        "variant": "no-η; jitter-η; PRI -> adversarial; random matched masks; dataset-level mask; aug net + hierarchical loss",
+        "suite": "A"
+      },
+      "compareTo": ["S2-2"],
+      "seeds": 5,
+      "cost": { "total": 240, "source": "estimate" }
+    },
+    {
+      "cell": "S3-2",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": {
+        "variant": "remove h; remove g; η at input; remove MMD; ours + two-crop",
+        "suite": "A"
+      },
+      "compareTo": ["S2-2"],
+      "seeds": 3,
+      "cost": { "total": 120, "source": "estimate" }
+    },
+    {
+      "cell": "S3-3",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": { "variant": "TS2Vec without crop", "suite": "A" },
+      "compareTo": ["S2-4"],
+      "seeds": 3,
+      "cost": { "total": 12, "source": "estimate" }
+    },
+    {
+      "cell": "S3-4",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "should",
+      "factors": { "variant": "Gumbel-ST; β=0; λ=0; α=0; joint update", "suite": "A" },
+      "compareTo": ["S2-2"],
+      "seeds": 3,
+      "cost": { "total": 120, "source": "estimate" }
+    },
+    {
+      "cell": "S3-5",
+      "stage": "S3",
+      "purpose": "sensitivity",
+      "tier": "should",
+      "factors": { "sweep": "β, M, mask-prob (3 non-default points each)", "suite": "Sm" },
+      "seeds": 3,
+      "cost": { "total": 108, "source": "estimate" }
+    },
+    {
+      "cell": "S4-1",
+      "stage": "S4",
+      "question": "Q5",
+      "purpose": "tuning",
+      "tier": "must",
+      "factors": {
+        "method": "3 pairs, 4 trials per arm (lr + backbone key hparam; aug hparams transferred from S2-1): CoST pair on fc-T (20), TS-TCC pair on class-T (38), Transformer pair on T (77)"
+      },
+      "seeds": 1,
+      "cost": { "total": 135, "source": "estimate" }
+    },
+    {
+      "cell": "S4-2",
+      "stage": "S4",
+      "question": "Q5",
+      "purpose": "generality",
+      "tier": "must",
+      "factors": {
+        "method": "finals on A: CoST forecasting (28), TS-TCC classification (44), Transformer (96); TS2Vec pair reused from S2 (same 8-trial configs)",
+        "compare": "base vs + ours"
+      },
+      "seeds": 5,
+      "cost": { "total": 170, "source": "estimate" }
+    },
+    {
+      "cell": "S4-3",
+      "stage": "S4",
+      "question": "Q5",
+      "purpose": "generality",
+      "tier": "should",
+      "factors": {
+        "method": "encoder width 32 / 128, base vs + ours, configs transferred",
+        "suite": "Sm"
+      },
+      "seeds": 3,
+      "cost": { "total": 45, "source": "estimate" }
+    },
+    {
+      "cell": "S4-4",
+      "stage": "S4",
+      "question": "Q6b",
+      "purpose": "analysis",
+      "tier": "must",
+      "factors": {
+        "what": "label-preservation + entropy/diversity probes (Q6b, Q6b′)",
+        "views": "ours, no-η, jitter-η, adversarial swap, random mask, RandAug, grid best",
+        "dataset": "A-UEA-10 + A-UCR-30"
+      },
+      "seeds": 3,
+      "cost": { "total": 30, "source": "estimate" }
+    },
+    {
+      "cell": "S4-5",
+      "stage": "S4",
+      "question": "Q3c",
+      "purpose": "cost",
+      "tier": "must",
+      "factors": {
+        "what": "final cost measurements, time-to-target",
+        "method": "5 arms vs TS2Vec"
+      },
+      "seeds": 3,
+      "cost": { "total": 15, "source": "estimate" }
+    },
+    {
+      "cell": "S4-6",
+      "stage": "S4",
+      "purpose": "analysis",
+      "tier": "should",
+      "factors": { "what": "slices + mask analysis from S2 outputs" },
+      "cost": { "total": 10, "source": "estimate" }
+    },
+    {
+      "cell": "S4-7",
+      "stage": "S4",
+      "purpose": "analysis",
+      "tier": "could",
+      "factors": {
+        "what": "stress: test-only perturbation, S2 encoders reused",
+        "levels": "6 levels × 2 arms",
+        "dataset": "D10",
+        "compare": "TS2Vec"
+      },
+      "seeds": 3,
+      "cost": { "total": 10, "source": "estimate" }
+    }
+  ],
+  "ablations": [
+    {
+      "id": "A1",
+      "component": "M1",
+      "structure": "remove",
+      "levels": ["h ≡ 1"],
+      "default": "S2-1-tuned config of ours on the TS2Vec encoder, frozen at the end of day 5",
+      "datasets": "suite A",
+      "cells": ["S3-2"]
+    },
+    {
+      "id": "A2",
+      "component": "M2",
+      "structure": "remove",
+      "levels": ["g ≡ 1"],
+      "default": "S2-1-tuned config of ours on the TS2Vec encoder, frozen at the end of day 5",
+      "datasets": "suite A",
+      "cells": ["S3-2"]
+    },
+    {
+      "id": "A3",
+      "component": "M3",
+      "structure": "remove",
+      "levels": ["no η (Q6a, 5 seeds)"],
+      "default": "S2-1-tuned config of ours on the TS2Vec encoder, frozen at the end of day 5",
+      "datasets": "suite A",
+      "cells": ["S3-1"]
+    },
+    {
+      "id": "A3-jitter",
+      "component": "M3",
+      "structure": "swap",
+      "levels": [
+        "input Gaussian jitter, σ matched on S1 val to the default's view diversity (Q6a, 5 seeds)"
+      ],
+      "datasets": "suite A",
+      "cells": ["S3-1"]
+    },
+    {
+      "id": "A3-input-mask",
+      "component": "M3",
+      "structure": "swap",
+      "levels": ["input-level masking"],
+      "datasets": "suite A",
+      "cells": ["S3-2"]
+    },
+    {
+      "id": "A3-sweep",
+      "component": "M3",
+      "structure": "sweep",
+      "levels": ["masking prob: 3 non-default values"],
+      "datasets": "suite Sm",
+      "cells": ["S3-5"]
+    },
+    {
+      "id": "A4",
+      "component": "M4",
+      "structure": "swap",
+      "levels": ["straight-through Gumbel-sigmoid"],
+      "datasets": "suite A",
+      "cells": ["S3-4"]
+    },
+    {
+      "id": "A5",
+      "component": "M7",
+      "structure": "remove",
+      "levels": ["β = 0"],
+      "datasets": "suite A",
+      "cells": ["S3-4"]
+    },
+    {
+      "id": "A5-sweep",
+      "component": "M7",
+      "structure": "sweep",
+      "levels": ["β: 3 non-default values"],
+      "datasets": "suite Sm",
+      "cells": ["S3-5"]
+    },
+    {
+      "id": "A6",
+      "component": "M8",
+      "structure": "remove",
+      "levels": ["no MMD term"],
+      "datasets": "suite A",
+      "cells": ["S3-2"]
+    },
+    {
+      "id": "A6-adv",
+      "component": "M6",
+      "structure": "swap",
+      "levels": ["PRI -> adversarial objective (5 seeds)"],
+      "datasets": "suite A",
+      "cells": ["S3-1"]
+    },
+    {
+      "id": "A7",
+      "component": "M9",
+      "structure": "remove",
+      "levels": ["λ = 0"],
+      "datasets": "suite A",
+      "cells": ["S3-4"]
+    },
+    {
+      "id": "A8",
+      "component": "M11",
+      "structure": "remove",
+      "levels": ["α = 0"],
+      "datasets": "suite A",
+      "cells": ["S3-4"]
+    },
+    {
+      "id": "A9-sweep",
+      "component": "M12",
+      "structure": "sweep",
+      "levels": ["M: 3 non-default values"],
+      "datasets": "suite Sm",
+      "cells": ["S3-5"]
+    },
+    {
+      "id": "A9-joint",
+      "component": "M12",
+      "structure": "swap",
+      "levels": ["joint update"],
+      "datasets": "suite A",
+      "cells": ["S3-4"]
+    },
+    {
+      "id": "A10",
+      "structure": "swap",
+      "levels": [
+        "random matched masks (5 seeds)",
+        "dataset-level learned mask (5 seeds)",
+        "RandAug control from S2"
+      ],
+      "tests": "per-instance adaptivity",
+      "datasets": "suite A",
+      "cells": ["S3-1", "S2-8"]
+    },
+    {
+      "id": "A11",
+      "component": ["M10", "M11"],
+      "structure": "swap",
+      "levels": ["aug net + TS2Vec hierarchical loss (5 seeds)", "loss-only arm in S2"],
+      "tests": "loss L_con vs TS2Vec hierarchical loss (2×2 design)",
+      "datasets": "suite A",
+      "cells": ["S3-1", "S2-6"]
+    },
+    {
+      "id": "A12-add",
+      "structure": "add-on-top",
+      "levels": ["ours + TS2Vec two-crop"],
+      "tests": "cropping",
+      "datasets": "suite A",
+      "cells": ["S3-2"]
+    },
+    {
+      "id": "A12-remove",
+      "structure": "remove",
+      "levels": ["TS2Vec without crop"],
+      "tests": "cropping",
+      "datasets": "suite A",
+      "cells": ["S3-3"]
+    }
+  ],
+  "costMeasurements": [
+    {
+      "id": "K1",
+      "what": ["timing", "memory"],
+      "methods": ["all arms"],
+      "protocol": "before S1: every arm runs 100 iterations on ETTh1-m, Electricity-m, a UCR dataset and PenDigits; SimMTM on Electricity-m at its published batch size (gradient accumulation to the same effective batch if > 40 GB, recorded and re-costed); sets r for TS2Vec-cm; drives the budget recalibration rule",
+      "cell": "S0-3"
+    },
+    {
+      "id": "K2",
+      "what": [
+        "wall-clock per iteration and in total",
+        "peak memory (torch.cuda.max_memory_allocated)",
+        "FLOPs per iteration (fvcore), aug-net share separate",
+        "inference latency"
+      ],
+      "methods": ["ours (tuned)", "ours (untuned)", "B1", "B4", "B6"],
+      "protocol": "ETTh1-m, Electricity-m, PenDigits; same GPU, same batch, no co-located jobs, 3 repeats, drop 20 warm-up iterations",
+      "cell": "S4-5"
+    },
+    {
+      "id": "K3",
+      "what": ["tuning cost (Q3c): measured GPU-h of all tuning trials per arm, from logs"],
+      "cell": "S4-5"
+    },
+    {
+      "id": "K4",
+      "what": ["time-to-target: GPU-h for each arm to reach the val score of the weaker arm"],
+      "cell": "S4-5"
+    }
+  ],
+  "analysis": [
+    {
+      "id": "N1",
+      "kind": "failure-cases",
+      "question": "Datasets where ours loses to the grid or TS2Vec by more than 1 SD: inspect masks (collapse to all-ones/all-zeros, or high mask entropy); report the ‖h‖₀ fraction distribution per dataset",
+      "cells": ["S4-6"]
+    },
+    {
+      "id": "N2",
+      "kind": "slices",
+      "question": "UCR by length, train size, number of classes and type; forecasting by horizon group and uni/multi; gain vs TS2Vec with CIs",
+      "cells": ["S4-6"]
+    },
+    {
+      "id": "N3",
+      "kind": "mechanism-probe",
+      "question": "C1b: Q6a no-η vs hidden-η vs jitter-η; Q6b label preservation on v* and v for 7 view types on A-UEA-10 + A-UCR-30; Q6b′ k-NN entropy and within-instance view distance; Q6d synthetic IoU",
+      "cells": ["S3-1", "S4-4", "S0-4"]
+    },
+    {
+      "id": "N4",
+      "kind": "mechanism-probe",
+      "question": "C2a: Q4 controls; per-instance mask variance (mean over t of the variance across instances of π_t, vs ≈0 for the dataset-level control); MI between clustered masks and y",
+      "cells": ["S3-1", "S4-6"]
+    },
+    {
+      "id": "N5",
+      "kind": "mechanism-probe",
+      "question": "C2c sanity: fit h and g to crop/scale targets on 100 series; error < 1e-3",
+      "cells": ["S0-4"]
+    },
+    {
+      "id": "N6",
+      "kind": "qualitative",
+      "question": "5 random and 5 failure instances per family, selected by a fixed seed, labelled illustrative",
+      "cells": ["S4-6"]
+    }
+  ],
+  "leakageChecks": [
+    {
+      "what": "chronological splits",
+      "how": "assert max(train) < min(val) < min(test); pretraining sees only train"
+    },
+    { "what": "normalization", "how": "scaler fit on train only; unit test" },
+    { "what": "causal encoding", "how": "future-perturbation difference = 0" },
+    {
+      "what": "UCR/UEA train-test duplicates",
+      "how": "hash z-normalized series; flag exact and near (r > 0.999) duplicates; report counts and results with flagged items excluded"
+    },
+    {
+      "what": "tuning/held-out separation",
+      "how": "no held-out or ablation-subset dataset ID appears in any tuning log; Weather/ETTm2 never appear in tuning"
+    },
+    {
+      "what": "no pretrained weights from other corpora",
+      "how": "all baselines retrained from scratch"
+    },
+    {
+      "what": "pre-registration",
+      "how": "untuned-default config hash and all search spaces committed before S0; tuned configs frozen and hashed before any test evaluation"
+    },
+    {
+      "what": "oracle isolation",
+      "how": "assertion that oracle (test-selected) results are not inputs to any Q3 test or untagged table"
+    },
+    { "what": "native protocol", "how": "fine-tuning early stopping reads val only" }
+  ],
+  "humanEval": {
+    "needed": false,
+    "reason": "all metrics are computed automatically; mask visualizations are labelled illustrative only and no interpretable-mask claim is made"
+  },
+  "decisionPoints": [
+    {
+      "after": "S0",
+      "if": "measured costs (S0-3) push the planned total above 3,000 GPU-h",
+      "then": "apply the contingency cuts in order before starting S1, until reserve ≥150"
+    },
+    {
+      "after": "S0",
+      "if": "synthetic IoU (S0-4) < 0.3 with mask collapse",
+      "then": "treat as a bug; stop and fix before S1"
+    },
+    {
+      "after": "S0",
+      "if": "synthetic IoU (S0-4) < 0.3 without collapse",
+      "then": "Q6d is falsified; drop the factorization-recovery claim; continue"
+    },
+    {
+      "after": "S0",
+      "if": "untuned ours (S0-5) worse than TS2Vec beyond 2×SE in both families",
+      "then": "drop the untuned / no-tuning wording of C2b now; cut S2-3 (−90) and report the arm as failed"
+    },
+    {
+      "after": "S0",
+      "if": "untuned ours ≤ loss-only in both families",
+      "then": "flag that C2/C4-as-augmentation is at risk; S1 decides"
+    },
+    {
+      "after": "S0",
+      "if": "TS2Vec reproduction fails",
+      "then": "fix (≤20 GPU-h from reserve); if not fixed by end of day 2, report against the reproduced TS2Vec and note the deviation"
+    },
+    {
+      "after": "S1",
+      "if": "both families pass the gate",
+      "then": "proceed to S2; choose 5 or 8 forecasting seeds by the effect/SD ratio"
+    },
+    {
+      "after": "S1",
+      "if": "one family passes",
+      "then": "proceed; the failing family's C4/C2 claims are pre-registered as at risk and reported whatever S2 shows"
+    },
+    {
+      "after": "S1",
+      "if": "ours beats TS2Vec but not loss-only in both families",
+      "then": "attribute the gain to the loss; drop C2a, C2b and C3 as augmentation claims; S2 runs only S2-2/4/5/6/9/11/12; cancel S3-1 and S4-1/2"
+    },
+    {
+      "after": "S1",
+      "if": "ours fails vs TS2Vec in both families",
+      "then": "stop the main-performance claims; run S3-1/S3-2 + S4-4 only, as a mechanism/negative-results report"
+    },
+    {
+      "after": "S1",
+      "if": "no-η is not worse",
+      "then": "flag C1b at risk; S3-1 decides"
+    },
+    {
+      "after": "S1",
+      "if": "the S1 forecasting effect is below 2× its paired SD",
+      "then": "raise S2 forecasting to 8 seeds for the 9 forecasting arms (+210 GPU-h from reserve) and apply cuts 1-2 immediately"
+    },
+    {
+      "after": "S2",
+      "if": "the C4 win rules pass",
+      "then": "claim C4, worded per horizon group",
+      "else": "partial (e.g. classification only): restrict the claim to what passes; fail on both: report negative results, run S3 must-cells only, cancel S4-1/2"
+    },
+    {
+      "after": "S2",
+      "if": "untuned ours is non-inferior to the grid in all families",
+      "then": "claim 'no trial-and-error tuning needed' ('no domain knowledge' additionally needs the Q3b cross-domain/cross-archive condition)",
+      "else": "drop that wording; keep 'competitive with tuned augmentation' only if tuned ours is non-inferior"
+    },
+    {
+      "after": "S2",
+      "if": "ours does not beat loss-only (Holm) in a family",
+      "then": "do not attribute the gain to the aug net in that family"
+    },
+    {
+      "after": "S3",
+      "if": "any Q4 control (random matched, dataset-level, RandAug) is within threshold in both families",
+      "then": "drop C2a and call the method 'learned augmentation'"
+    },
+    {
+      "after": "S3",
+      "if": "the jitter-η variant does not recover ≥50% of the gain",
+      "then": "state that the η effect is consistent with masking regularization rather than Theorem 1"
+    },
+    {
+      "after": "S3",
+      "if": "adversarial or LEAVES ≥ PRI",
+      "then": "drop the 'PRI instead of adversarial' claim"
+    },
+    {
+      "after": "S3",
+      "if": "aug net + hierarchical loss ≤ TS2Vec",
+      "then": "state that the aug net's benefit is loss-dependent"
+    },
+    {
+      "after": "S3",
+      "if": "a sweep range moves MSE > 5% or accuracy > 2 pt and the range exceeds 2× pooled seed SE",
+      "then": "flag that hyperparameter as a limitation",
+      "else": "report 'within noise at 3 seeds'"
+    },
+    {
+      "after": "S4",
+      "if": "≥2/3 Q5 pairs improve in each family",
+      "then": "claim 'encoder-agnostic for forecasting and classification'",
+      "else": "≥2/3 in one family only: limit the claim to that family; otherwise name the backbones that improve, or drop C3 if ≤1 in both"
+    },
+    {
+      "after": "S4",
+      "if": "untuned ours fails Q3a",
+      "then": "no efficiency claim"
+    }
+  ],
+  "stoppingRules": [
+    "Stop a stage when its budget + 15% is spent; trigger the contingency cuts",
+    "No new arms or trials after configs are frozen; never re-tune after seeing test results",
+    "Reserve exhausted: stop could, then should cells",
+    "No hyperparameter retry for any arm; only a verified code bug may trigger a rerun, and then all S1 arms rerun (≤136 GPU-h, from reserve)",
+    "Contingency cuts in order: (1) S4-7 stress and S4-3 capacity (−55); (2) ETTm2 S2-17 and cross-archive S2-16 (−42); (3) TS-TCC comparison row S2-13, kept as a Q5 backbone (−60); (4) S3-5 reduced to mask-prob only (−72); (5) S3-4 and S3-2 from 3 to 2 seeds (−80); gating ablations and main cells stay at 5 seeds, untuned ours at 3, nothing below 3",
+    "Reserve ≈234 GPU-h covers the S0 pipeline fix (≤20), an S1 bug rerun (≤136) and the 8-seed forecasting escalation (+210)"
+  ],
+  "risks": [
+    {
+      "text": "Untuned ours has 3 seeds (vs 5 for the grid)",
+      "mitigation": "non-inferiority uses seeds 1-3 paired; the wider CI makes the test conservative against ours"
+    },
+    {
+      "text": "Held-out coverage is limited: forecasting has only Weather and ETTm2; classification transfer is within-archive plus one cross-archive test (UCR -> UEA)",
+      "mitigation": "the 'no domain knowledge' claim is worded accordingly"
+    },
+    {
+      "text": "k-NN entropy estimates in high dimension are biased",
+      "mitigation": "only relative comparisons between view types, under a shared frozen random projection or layer"
+    },
+    {
+      "text": "The dataset-level mask control is lag-aligned but not phase-aligned in forecasting windows, so it may be weak there; variable-length UEA datasets are padded",
+      "mitigation": "the Q4 conclusion leans on classification (aligned series) and the RandAug control"
+    },
+    {
+      "text": "Forecasting tests treat (dataset × horizon) cells as units, but cells within a dataset are correlated",
+      "mitigation": "leave-one-dataset-out is the guard; a dataset-level test with 4 datasets has little power and is not claimed"
+    },
+    {
+      "text": "Sensitivity is unexplored for λ, α, τ, aug-net architecture, shared extractor and L",
+      "mitigation": "the untuned-default arm tests the practical 'no tuning' claim directly"
+    },
+    {
+      "text": "LEAVES runs on our encoder and on classification only; its native results may differ",
+      "mitigation": "the native linear probe is reported"
+    },
+    {
+      "text": "SimMTM may need gradient accumulation on Electricity-m, which changes per-step statistics",
+      "mitigation": "recorded; the native protocol is also reported"
+    },
+    {
+      "text": "Q5 transfers aug hyperparameters from TS2Vec rather than tuning them per backbone, which may understate gains (conservative for C3); capacity checks use transferred configs without re-tuning"
+    },
+    {
+      "text": "Reserve is ≈234 GPU-h; escalation plus a bug rerun would exceed it",
+      "mitigation": "forces cuts 1-3"
+    },
+    {
+      "text": "Baseline tuning in S2-1a starts before the S1 gate (≈341 GPU-h at risk)",
+      "mitigation": "reused for negative-result reporting if S1 fails"
+    }
+  ]
+}

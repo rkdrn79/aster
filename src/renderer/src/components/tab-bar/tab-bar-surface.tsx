@@ -152,9 +152,8 @@ export function renderTabBarSurface({
           <div
             ref={tabStripRef}
             data-active-tab-docked={activeTabDockSide ?? undefined}
-            // Why: only `border-r` here — a strip-level `border-l` would render a heavier L-corner than the first tab's own `border-l`.
             className={[
-              'terminal-tab-strip flex h-full min-w-0 max-w-full flex-1 items-stretch overflow-x-auto overflow-y-hidden border-r border-border/70',
+              'terminal-tab-strip flex h-full min-w-0 max-w-full flex-1 items-stretch gap-0.5 overflow-x-auto overflow-y-hidden',
               getTabStripScrollMaskClassName(tabStripOverflowState, activeTabDockSide)
             ]
               .filter(Boolean)
@@ -224,7 +223,7 @@ export function renderTabBarSurface({
       >
         <DropdownMenuTrigger asChild>
           <button
-            className="ml-2 my-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+            className="ml-1 my-auto flex size-6 shrink-0 items-center justify-center rounded-[8px] text-muted-foreground transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-foreground data-[state=open]:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] data-[state=open]:text-foreground"
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
             title={translate('auto.components.tab.bar.TabBar.b1a132357f', 'New tab')}
             // Why: aria-label matches the tooltip so E2E can locate the "+" via getByRole('button', { name: 'New tab' }).
@@ -236,7 +235,7 @@ export function renderTabBarSurface({
         <DropdownMenuContent
           align="start"
           sideOffset={6}
-          className="w-72 max-w-[calc(100vw-1rem)] rounded-[11px] border-border/80 p-1 shadow-[0_16px_36px_rgba(0,0,0,0.24)]"
+          className="w-72 max-w-[calc(100vw-1rem)]"
           onCloseAutoFocus={(event) => {
             // Why: Radix restores focus to the "+" trigger on close, stealing it from the freshly-mounted terminal.
             event.preventDefault()

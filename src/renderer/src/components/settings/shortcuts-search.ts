@@ -8,7 +8,7 @@ export const getTerminalShortcutPolicySearchEntry = createLocalizedCatalog(
   (): SettingsSearchEntry => ({
     title: translate(
       'auto.components.settings.shortcuts.search.f052906167',
-      'Shortcuts in Terminal'
+      'Shortcuts in terminal'
     ),
     description: translate(
       'auto.components.settings.shortcuts.search.ebd7d81e1d',

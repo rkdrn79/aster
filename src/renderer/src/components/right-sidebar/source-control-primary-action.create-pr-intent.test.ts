@@ -350,7 +350,7 @@ describe('resolvePrimaryAction Create PR intent', () => {
     }
   )
 
-  it('routes unpublished commits through Create PR intent while keeping Publish Branch in the commit area', () => {
+  it('routes unpublished commits through Create PR intent while keeping Publish branch in the commit area', () => {
     const input = inputs({
       upstreamStatus: { hasUpstream: false, ahead: 0, behind: 0 },
       branchCommitsAhead: 2,
@@ -372,13 +372,13 @@ describe('resolvePrimaryAction Create PR intent', () => {
     })
     expect(resolveCommitAreaPrimaryAction(input)).toEqual({
       kind: 'publish',
-      label: 'Publish Branch',
+      label: 'Publish branch',
       title: 'Publish this branch to origin',
       disabled: false
     })
   })
 
-  it('routes patch-equivalent divergence through Create PR intent while keeping Force Push in the commit area', () => {
+  it('routes patch-equivalent divergence through Create PR intent while keeping Force push in the commit area', () => {
     const input = inputs({
       branchCommitsAhead: 4,
       upstreamStatus: {
@@ -406,7 +406,7 @@ describe('resolvePrimaryAction Create PR intent', () => {
     })
     expect(resolveCommitAreaPrimaryAction(input)).toEqual({
       kind: 'push',
-      label: 'Force Push',
+      label: 'Force push',
       title:
         'Remote only has older copies of local commits. Force push 4 branch commits with lease to update origin/feature.',
       disabled: false

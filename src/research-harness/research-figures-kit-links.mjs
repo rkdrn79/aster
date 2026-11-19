@@ -9,6 +9,8 @@ import { oneOf } from './research-figures-options.mjs'
 import { makeDot } from './research-figures-shapes.mjs'
 import { inkColor } from './research-figures-style.mjs'
 import { boxOf, routeObstacles } from './research-figures-route.mjs'
+import { warnKit } from './research-figures-cards.mjs'
+import { forkSpot, lined, railForkOf } from './research-figures-kit-rail.mjs'
 
 const GRID = 8
 const toGrid = (value, round = Math.round) => round(value / GRID) * GRID
@@ -139,8 +141,11 @@ export function linkMethods(core, kit) {
       }
       return { axis: keys[0] === 'x' ? 0 : 1, value: given[keys[0]] }
     }
-    return { axis: mainAxis(from, others), value: given }
+    const forced = oneOf('axis', spec.axis, ['x', 'y'])
+    return { axis: forced ? (forced === 'x' ? 0 : 1) : mainAxis(from, others), value: given }
   }
+  const warn = (message) => (core.warn ?? warnKit)([message])
+  const railFork = railForkOf({ arrow, dot, shared })
   return {
     /**
      * A skip (residual) connection: leaves the main path at `from` (an arrow id, its middle,
@@ -191,10 +196,13 @@ export function linkMethods(core, kit) {
     },
     /**
      * One source to several targets: a trunk (with `label`) to one junction dot, then a branch to
-     * each. A branch takes its own role, label and side (`roles`, `labels`, `labelSides`, or
-     * `to: [{ id, role, label, labelSide }]`); a label sits beside its last run, away from the
-     * trunk. The main axis is the one the targets all lie beyond the source on (`split: { y }`
-     * forces it); the dot sits half way across the gap (`split` moves it along that axis).
+     * each. A branch takes its own role, label, side and port (`roles`, `labels`, `labelSides`, or
+     * `to: [{ id, role, label, labelSide, toSide, toAt }]`); a label sits beside its last run,
+     * away from the trunk. The main axis is the one the targets all lie beyond the source on
+     * (`axis: 'x' | 'y'` or `split: { y }` forces it); the dot sits half way across the gap,
+     * keeping a 16-unit trunk (`split` moves it). Targets in one row along that axis (or `rail:
+     * 'above' | 'below' | 'left' | 'right'`) hang off a shared rail beside them instead, one drop
+     * each, so no branch runs through another target (`rail: false` keeps the dot).
      */
     fork(spec) {
       const ends = spec.to.map((entry, index) => branchOf(spec, entry, index))
@@ -204,13 +212,41 @@ export function linkMethods(core, kit) {
       const chosen = splitOf(spec, source ?? { c: origin }, targets)
       const { axis } = chosen
       const other = 1 - axis
+      const railSide =
+        oneOf('rail', spec.rail === true ? 'auto' : spec.rail || null, [
+          'auto',
+          'above',
+          'below',
+          'left',
+          'right'
+        ]) ?? (spec.rail !== false && targets.length > 1 && lined(targets, axis) ? 'auto' : null)
+      if (railSide) {
+        // Why beside the row: a row along the main axis is reached from the side it faces.
+        const side =
+          railSide !== 'auto'
+            ? railSide
+            : axis === 0 || lined(targets, 0)
+              ? origin[1] > Math.max(...targets.map((box) => box.hi[1]))
+                ? 'below'
+                : 'above'
+              : origin[0] > Math.max(...targets.map((box) => box.hi[0]))
+                ? 'right'
+                : 'left'
+        return railFork(spec, ends, targets, source, origin, side)
+      }
       const centre = targets.reduce((sum, box) => sum + box.c[axis], 0) / targets.length
       const forward = centre >= origin[axis]
       const near = forward
         ? Math.min(...targets.map((box) => box.lo[axis]))
         : Math.max(...targets.map((box) => box.hi[axis]))
       const edge = source ? (forward ? source.hi[axis] : source.lo[axis]) : origin[axis]
-      const split = at(axis, chosen.value ?? splitSpot(edge, near), origin[other])
+      const spot = forkSpot(edge, near)
+      if (source && spot.tight && chosen.value === undefined) {
+        warn(
+          `fork ${spec.id}: only ${Math.round(Math.abs(near - edge))} units between ${spec.from} and its nearest target, too little for a trunk and heads; set them 40 or more apart, or use rail: 'above' | 'below' (a shared rail beside the targets)`
+        )
+      }
+      const split = at(axis, chosen.value ?? spot.value, origin[other])
       const trunk = arrow({
         ...shared(spec),
         id: `${spec.id}-trunk`,

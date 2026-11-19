@@ -58,7 +58,7 @@ async function expectQuickOpenAndRuntimeHealthy(
   fixture: PairedQuickOpenLargeTreeFixture
 ): Promise<void> {
   const dialog = client.page.getByRole('dialog', { name: 'Go to file' })
-  const input = dialog.getByPlaceholder('Go to file...')
+  const input = dialog.getByPlaceholder('Go to file')
   const loading = dialog.getByText('Loading files...')
   await client.page.clock.install()
   const queryOracle = async (targetPath: string) =>

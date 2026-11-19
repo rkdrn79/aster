@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Goal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import '@/components/ai/ai-motion.css'
 import { translate } from '@/i18n/i18n'
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
 import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client-types'
@@ -20,9 +21,9 @@ import { NativeChatImageAttachments } from './NativeChatTranscriptChrome'
 import type { deriveNativeChatRowContent } from '../../../../shared/native-chat-row-content'
 import { splitAsterContext } from '../../../../shared/aster-context-block'
 import { NativeChatUserMessageContext } from './NativeChatUserMessageContext'
+import { NATIVE_CHAT_ROW_ACTIONS_REVEAL } from './native-chat-row-action'
 
-const USER_META_REVEAL =
-  'transition-opacity can-hover:pointer-events-none can-hover:opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 [.group:has(:focus-visible)_&]:pointer-events-auto [.group:has(:focus-visible)_&]:opacity-100'
+const USER_META_REVEAL = NATIVE_CHAT_ROW_ACTIONS_REVEAL
 
 /** Under a user message: copy + timestamp, revealed together like the agent controls row. Until
  *  confirmed, a quiet "Sending…" stays visible in the time's place and copy keeps its own reveal,
@@ -122,8 +123,10 @@ export function NativeChatUserMessageRow({
         className={cn(
           'max-w-[80%] text-sm',
           from
-            ? 'select-text border-l-2 border-border/60 pl-3 text-chat-foreground'
-            : 'rounded-xl border border-chat-user-border bg-chat-user-surface px-3.5 py-2.5 text-chat-foreground-strong'
+            ? 'select-text border-l border-border pl-3 text-chat-foreground'
+            : 'rounded-xl border border-chat-user-border bg-chat-user-surface px-4 py-2 text-chat-foreground-strong',
+          // A message just sent rises from the composer; one already in the chat stays still.
+          !from && sending && 'ai-rise'
         )}
       >
         {markdown ? (
@@ -169,7 +172,7 @@ export function NativeChatUserMessageRow({
       </div>
       {message.sentAs === 'goal' ? (
         <div className="flex items-center gap-1 text-xs text-chat-foreground-faint">
-          <Goal className="size-3" aria-hidden />
+          <Goal className="size-4" aria-hidden />
           <span>{translate('components.native-chat.goal.sentAsGoal', 'Sent as goal')}</span>
         </div>
       ) : null}

@@ -29,7 +29,7 @@ describe('resource manager terminal copy', () => {
     ).toEqual([
       {
         id: 'summary',
-        text: 'Resource Manager - 512 MB · Σ RSS - 2 terminal sessions',
+        text: 'Resource manager - 512 MB · Σ RSS - 2 terminal sessions',
         emphasized: false
       },
       {
@@ -50,7 +50,7 @@ describe('resource manager terminal copy', () => {
     ).toEqual([
       {
         id: 'summary',
-        text: 'Resource Manager - memory unavailable - 0 terminal sessions',
+        text: 'Resource manager - memory unavailable - 0 terminal sessions',
         emphasized: false
       },
       { id: 'space-scan', text: 'Space scan ready', emphasized: true },
@@ -93,6 +93,6 @@ describe('resource manager terminal copy', () => {
         sessionCount: 1,
         spaceScanReady: true
       })
-    ).toBe('Resource Manager, 1 terminal session, Space scan ready')
+    ).toBe('Resource manager, 1 terminal session, Space scan ready')
   })
 })

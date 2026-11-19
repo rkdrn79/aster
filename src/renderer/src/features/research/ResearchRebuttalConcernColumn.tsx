@@ -1,12 +1,4 @@
-import {
-  Check,
-  ChevronDown,
-  FilePenLine,
-  FlaskConical,
-  MessageCircle,
-  Plus,
-  Users
-} from 'lucide-react'
+import { Check, ChevronDown, FilePenLine, FlaskConical, MessageCircle, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -25,6 +17,7 @@ import { POINT_TYPE_LABELS } from './research-rebuttal-highlights'
 import { RebuttalTranslationLine } from './ResearchRebuttalTranslation'
 import { sharedWith, type RebuttalAnswer } from './research-rebuttal-view'
 import type { ClusterLinks, RebuttalActions } from './use-research-rebuttal-actions'
+import { INSET_WELL, TAG_CHIP } from './research-surface-classes'
 
 const ACTION_META: Record<RebuttalClusterAction, { label: string; Icon: typeof FlaskConical }> = {
   experiment: { label: 'New experiment', Icon: FlaskConical },
@@ -71,19 +64,14 @@ export function ResearchRebuttalConcernColumn({
   }
 
   return (
-    <div
-      className={cn(
-        'min-w-0 space-y-2 p-3',
-        stacked ? 'border-b border-border' : 'border-r border-border'
-      )}
-    >
-      <div className="flex flex-wrap items-center gap-1.5 text-2xs">
-        <span className="font-mono text-muted-foreground">{answerLabel}</span>
+    <div className={cn(INSET_WELL, 'm-2 min-w-0 space-y-2 px-3 py-3', !stacked && 'mr-0')}>
+      <div className="flex flex-wrap items-center gap-2 text-2xs">
+        <span className="font-mono font-medium text-muted-foreground">{answerLabel}</span>
         {points.map((point) => (
           <span
             key={point.id}
             title={POINT_TYPE_LABELS[point.type]}
-            className="rounded-sm bg-muted px-1 py-px font-mono text-3xs text-muted-foreground"
+            className={cn(TAG_CHIP, 'font-mono')}
           >
             {point.origin === 'prediction' ? 'Anticipated' : localPointLabel(point.id)}
           </span>
@@ -91,10 +79,10 @@ export function ResearchRebuttalConcernColumn({
         <span className="text-muted-foreground">{POINT_TYPE_LABELS[first?.type ?? 'other']}</span>
         {shared.length ? (
           <span
-            className="ml-auto inline-flex items-center gap-1 rounded-sm bg-muted px-1 py-px text-3xs text-muted-foreground"
+            className={cn(TAG_CHIP, 'ml-auto')}
             title={`The same concern from ${shared.join(', ')}: one answer serves them all.`}
           >
-            <Users className="size-3" aria-hidden /> Also {shared.join(', ')}
+            Also {shared.join(', ')}
           </span>
         ) : null}
       </div>
@@ -105,7 +93,7 @@ export function ResearchRebuttalConcernColumn({
       {points.map((point) =>
         point.quote ? (
           <div key={point.id} className="space-y-1">
-            <p className="text-xs leading-5 text-muted-foreground">
+            <p className="border-l-2 border-border pl-3 text-xs leading-5 text-muted-foreground">
               <span className="font-mono text-3xs">
                 {points.length > 1 ? `${localPointLabel(point.id)} ` : ''}
               </span>
@@ -115,7 +103,7 @@ export function ResearchRebuttalConcernColumn({
           </div>
         ) : point.origin === 'prediction' ? (
           <p key={point.id} className="text-xs leading-5 text-muted-foreground">
-            Predicted by the simulated reviewer, not something they wrote.
+            Predicted by the simulated reviewer, not something they wrote
           </p>
         ) : null
       )}
@@ -126,7 +114,7 @@ export function ResearchRebuttalConcernColumn({
         </p>
       ) : null}
       {cluster && !readOnly ? (
-        <div className="flex flex-wrap items-center gap-1 pt-0.5">
+        <div className="-mx-1 flex flex-wrap items-center gap-1 pt-0.5">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="xs" variant="ghost">
@@ -143,20 +131,26 @@ export function ResearchRebuttalConcernColumn({
                 >
                   {ACTION_META[action].label}
                   {cluster.action === action ? (
-                    <Check className="ml-auto size-3" aria-hidden />
+                    <Check className="ml-auto size-4" aria-hidden />
                   ) : null}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
           {links?.onOpenExperiment ? (
-            <Button size="xs" variant="ghost" onClick={links.onOpenExperiment}>
+            <Button
+              size="xs"
+              variant="ghost"
+
+              onClick={links.onOpenExperiment}
+            >
               <FlaskConical aria-hidden /> {links.experimentName ?? 'Open Experiment'}
             </Button>
           ) : links?.onCreateExperiment && cluster.action === 'experiment' ? (
             <Button
               size="xs"
               variant="ghost"
+
               onClick={() => links.onCreateExperiment && void run(links.onCreateExperiment)}
             >
               <Plus aria-hidden /> Create Experiment
@@ -171,6 +165,7 @@ export function ResearchRebuttalConcernColumn({
             <Button
               size="xs"
               variant="ghost"
+
               onClick={() =>
                 void run(() => actions.askAgent({ kind: 'paper-change', clusterId: cluster.id }))
               }

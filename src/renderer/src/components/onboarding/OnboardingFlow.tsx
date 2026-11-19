@@ -95,7 +95,7 @@ const stepCopy = {
 const stepTooltipLabels = {
   agent: {
     get value() {
-      return translate('components.onboarding.flow.stepTooltip.agent', 'Default Agent')
+      return translate('components.onboarding.flow.stepTooltip.agent', 'Default agent')
     }
   },
   theme: {
@@ -227,7 +227,7 @@ export default function OnboardingFlow({
           aria-modal="true"
           data-onboarding-modal
           className={cn(
-            'relative flex h-[calc(100vh-2rem)] max-h-[960px] min-h-0 w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition-[max-width] duration-[760ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+            'relative flex h-[calc(100vh-2rem)] max-h-[960px] min-h-0 w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-[0_10px_24px_rgba(0,0,0,0.18)]',
             'max-w-[1100px]'
           )}
         >
@@ -248,7 +248,7 @@ export default function OnboardingFlow({
               />
             </div>
 
-            <div className="mt-10 flex items-center gap-2 transition-[margin-top] duration-[760ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none">
+            <div className="mt-10 flex items-center gap-2">
               {flow.progressSteps.map(({ step, index: realStepIndex }, progressIdx) => {
                 const isActive = realStepIndex === stepIndex
                 const isDone = realStepIndex < stepIndex
@@ -261,7 +261,7 @@ export default function OnboardingFlow({
                         className={cn(
                           // Why: the visible bars stay 4px tall, but the invisible
                           // hit area makes hover/click/tooltip targeting reliable.
-                          'relative h-1 rounded-full outline-none transition-all duration-300 before:absolute before:-inset-y-2 before:-inset-x-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card',
+                          'relative h-1 rounded-full outline-none transition-colors duration-150 before:absolute before:-inset-y-2 before:-inset-x-1 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card',
                           isActive
                             ? 'w-10 bg-foreground'
                             : isDone
@@ -292,7 +292,7 @@ export default function OnboardingFlow({
 
             <div className="mt-8 shrink-0">
               {stepIndex === 0 && (
-                <div className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                <div className="mb-2 text-xs font-medium text-muted-foreground">
                   {translateAsterProductCopy(
                     'auto.components.onboarding.OnboardingFlow.1b5e182e9f',
                     'Welcome to Aster'
@@ -311,7 +311,7 @@ export default function OnboardingFlow({
 
             <div
               className={cn(
-                'min-h-0 flex-1 transition-[margin-top] duration-[760ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+                'min-h-0 flex-1',
                 // Why: agent step pins permissions below a capped agent grid scroll
                 // region; other steps keep the shared outer scroll container.
                 currentStep.id === 'agent'

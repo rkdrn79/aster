@@ -6,13 +6,14 @@ This is the **UI/visual design** doc for Aster — color tokens, typography, com
 
 Aster is a research development environment: projects, experiments, runs, writing and the agents that work on them, on top of git worktrees, terminals and editors. It has two layouts over the same workspaces — **Research** (the default; projects, workbench, writing, library, planning, compute) and **Code** (the worktree list, terminals and editors). Both share one visual identity.
 
-### Identity: ink on paper
+### Identity: graphite
 
 The identity should read as **calm, precise and distinctive** — a lab notebook, not a dashboard.
 
-- **Paper.** Light surfaces are warm off-white (`--background` paper, `--card` white sheets lifted on it). The left sidebar is a slightly deeper paper tint (`--worktree-sidebar`) so the navigation column reads as one panel.
-- **Ink.** Text is blue-black (`--foreground`), secondary text is a lighter ink (`--muted-foreground`). Dark mode inverts the metaphor: a deep blue-black ink surface with pale text, not neutral gray.
-- **Monochrome ink, no brand hue.** `--primary` (also `--sidebar-primary`, `--worktree-sidebar-ring`) is the same blue-black ink as text in light mode and the near-white ink in dark mode. Use it for the single primary action in a flow, selection (text selection, the Cmd+J cursor, the selected row) and the current page in navigation. Focus rings (`--ring`) are a neutral gray. Never add a decorative accent hue.
+- **Inset panels.** The sidebar, main area and right sidebar are rounded panels (`--shell-radius`) floating on a slightly deeper window shell (`--shell`) with an 8px gap (`assets/app-shell.css`). The sidebar panel is `--worktree-sidebar`, the main panel `--background`.
+- **Surface steps, not lines.** Neutral zinc surfaces with no warm tint: shell → panel → `--card` → `--raised`. Tracks (tabs, segmented controls) are `--muted`; the selected segment and the current page are `--raised` with `shadow-raised`. Rows on floating surfaces highlight with `--highlight`.
+- **Ink.** Text is `--foreground`, secondary text `--muted-foreground`. Dark mode is near-black zinc with pale text.
+- **Monochrome ink, no brand hue.** `--primary` (also `--sidebar-primary`, `--worktree-sidebar-ring`) is the same ink as text: black on light, white on dark. Use it for the single primary action in a flow, selection (text selection, the Cmd+J cursor, the selected row) and the current page in navigation. Focus rings (`--ring`) are a neutral gray. Never add a decorative accent hue.
 - **User accent.** Ink is only the default: Settings → Appearance → Accent Color lets users pick a color. `src/shared/accent-color-tokens.ts` derives `--primary`, `--primary-foreground`, `--ring`, the sidebar primary/ring tokens and `--ai-action-accent` from it for light and dark, nudged to at least 3:1 on the canvas. Reach the accent only through those tokens — never hard-code ink or a hue for these jobs — so the user's choice applies everywhere. `--orca-security-*` and `.plugin-security-chrome` stay host-owned and ignore it.
 - **The mark.** The six-spoke asterisk (`resources/logo.svg`). Render it with `ProductLogoMark` (`app-shell/ProductLogoMark.tsx`), which paints it with `currentColor`, so it follows text tokens. Don't put it on a hard-coded tile or recolor it with filters.
 - **Color is still reserved.** Beyond ink, color carries state (destructive, warning, success, agent states, git decorations) or data identity (`--chart-*`). Chrome stays paper and ink.
@@ -56,7 +57,7 @@ Tokens come in pairs: a **surface** and a **foreground** that meets contrast on 
 
 The `sidebar` family expands into `--sidebar`, `--sidebar-foreground`, `--sidebar-primary`, `--sidebar-primary-foreground`, `--sidebar-accent`, `--sidebar-accent-foreground`, `--sidebar-border`, and `--sidebar-ring` — use them inside the worktree sidebar so its hover/selected/focus states stay consistent and don't bleed into other panels. `editor-surface` is its own token (not just `background`) because Monaco and the markdown editor have a slightly darker surface in dark mode to match VS Code conventions; reach for it whenever you're rendering an editor pane.
 
-Inside the left sidebar the root carries `.left-sidebar-tokens`, which remaps `--accent` (hover) and `--secondary` (current page) onto the sidebar family. That is why a shadcn `ghost` button inside the sidebar hovers correctly and `variant="secondary"` marks the current page with the neutral ink wash — use those variants in sidebar navigation instead of hand-rolled row classes.
+Inside the left sidebar the root carries `.left-sidebar-tokens`, which remaps `--accent` (hover) and `--secondary` (current page) onto the sidebar family. That is why a shadcn `ghost` button inside the sidebar hovers correctly and `variant="secondary"` marks the current page as a raised row — use those variants in sidebar navigation instead of hand-rolled row classes.
 
 ### Data colors
 
@@ -101,11 +102,11 @@ This keeps light/dark parity automatic.
 ## Typography
 
 - **Family:** `Geist` is loaded as a single variable woff2 (weight range 100–900). Always reach for `Geist` for sans, never `Inter` or system sans.
-- **Section labels** (sidebar groups, "Current workspace", card eyebrows): `text-2xs font-semibold uppercase tracking-widest text-muted-foreground`. The research and code sidebars share this exact recipe.
+- **Section labels** (sidebar groups, "Current workspace", card eyebrows): `text-xs font-medium text-muted-foreground`, sentence case, normal tracking. No wide-tracked uppercase labels. The research and code sidebars share this exact recipe.
 - **Mono:** `var(--font-mono)` — used for paths, terminal-adjacent UI, code, and anywhere monospace conveys "this is literal."
 - **Body letter-spacing:** `0.01em` (set globally on `body`). Don't override per component.
 - **Sizes:** Tailwind's default scale. Common sizes in this repo:
-  - 11px (uppercase meta, sidebar headers, captions) — pair with `font-weight: 600` and `text-transform: uppercase` and `letter-spacing: 0.05em` for category labels.
+  - 11px (meta, captions) — weight 400 or 500, sentence case, no extra letter spacing. Weights are 400 and 500; 600 is for rare emphasis (page, dialog and section titles); never 700+. No negative tracking under 16px. Numbers use `tabular-nums`.
   - 12px (sub-text, paths, secondary content)
   - 13px (sidebar items, dense list rows)
   - 14px (default body, button text in `default` size)
@@ -119,7 +120,7 @@ The native chat uses four steps and no others. Never write an arbitrary size (`t
 | ---------------- | ------- | ---------------------------------------------------------------------------------------------------------- |
 | `text-sm`        | 14px    | Anything the user reads: message prose, tool and agent activity rows, card titles and bodies, the composer |
 | `text-xs`        | 12px    | Labels, timestamps, counters, secondary lines under a row                                                  |
-| `text-2xs`       | 11px    | Captions, attribution, uppercase category labels                                                           |
+| `text-2xs`       | 11px    | Captions, attribution, category labels (sentence case)                                                     |
 | `text-3xs`       | 10px    | Badges and mono pills                                                                                      |
 | `text-chat-code` | 12px    | Code blocks, diffs, commands and tool output                                                               |
 
@@ -135,17 +136,21 @@ The chat root (`.native-chat-appearance`) redefines these steps as ratios of the
 
 ## Radius
 
-`--radius: 0.5rem` (8px) is the base — slightly tighter than shadcn's default, for a precise feel; the rest are computed (`--radius-sm` = 0.6×, `--radius-md` = 0.8×, `--radius-lg` = 1×, `--radius-xl` = 1.4×, etc.). Buttons and inputs use `rounded-md`; the `Card` primitive uses `rounded-xl`; badges use `rounded-full`. Match the existing primitive's radius rather than introducing a new one.
+`--radius: 0.625rem` (10px) is the base; the rest are computed (`--radius-sm` 6, `--radius-md` 8, `--radius-lg` 10, `--radius-xl` 14, `--radius-2xl` 18). Radius follows size: keycaps, tags and small badges 4–6 (`rounded`, `rounded-sm`); rows, inputs and every button 8–10 (`rounded-md`, `rounded-lg`; buttons are never full pills); cards 12–16 (`rounded-xl`); panels, menus, dialogs and toasts 14–20. A nested radius is the outer radius minus the padding, never below 4. Pills (`rounded-full`) stay only for segmented-control and tab tracks, avatars, dots and switches. Counts and meta are quiet text, not filled pills; shortcuts are small keycaps. Match the existing primitive's radius rather than introducing a new one.
 
 ## Elevation & shadows
 
-Aster uses shadows sparingly. Three levels in practice:
+Aster uses shadows sparingly; each tier carries its own 1px ring, so floating surfaces need no border. Values are per theme (`--elevation-*` in `main.css`):
 
-1. **Inset hairline** — `border` + `border` token. The default. Almost everything sits at this level.
-2. **Subtle lift** — `shadow-xs` + a single-token border. Outline buttons, embedded cards.
-3. **Floating** — `shadow-floating` (`0 10px 24px rgba(0, 0, 0, 0.18)`). Popovers, popups that escape the editor surface. Reserved.
+1. **Raised** — `shadow-raised`. The selected segment, the current page, the primary button.
+2. **Floating** — `shadow-floating` with the `surface-floating` utility (`assets/surfaces.css`). Menus, popovers, selects, hover cards, toasts, tooltips.
+3. **Modal** — `shadow-modal` with `surface-modal`. Dialogs, sheets, the command palette.
 
-Don't add a fourth level. If something needs more emphasis than "floating," you're probably reaching for the focus `ring` instead.
+Panels have no shadow: they read by surface step. Don't add a fourth level. If something needs more emphasis than "floating," you're probably reaching for the focus `ring` instead.
+
+## Motion
+
+Tokens and utilities live in `assets/motion.css`. One easing for everything, `ease-out-quint` (`cubic-bezier(0.22, 1, 0.36, 1)`), with no overshoot or bounce; Tailwind's default transition curve and `ease-in/out` map to it, and `ease-spring`/`ease-spring-pop` are kept only as aliases of it. Durations `--duration-instant/fast/base/slow` are 120/160/200/320 ms: press 120; hover, colour and toggles 160; menus, popovers and tooltips 200; dialogs, sheets, toasts and layout changes 320. Floating surfaces fade and rise 6px from their trigger; presses scale to 0.98. Never `transition-all` (name the properties), never animate width, height, top or left, no hover scale or lift, and nothing loops unless it is live (loading skeletons, running work). Floating surfaces use `motion-floating`, dialogs `motion-dialog`, scrims `motion-fade`, tooltips `motion-tooltip`; buttons press with `press-scale`; work in progress may use `text-shimmer`; a finished step draws `AnimatedCheck`. Tabs and single-choice toggle groups slide one highlight between items (`useSegmentIndicator`). Every utility drops movement under `prefers-reduced-motion` and keeps a short fade.
 
 ## Components
 
@@ -228,7 +233,8 @@ Icons come from **`lucide-react`**. Don't import a second icon library.
 - **Default size:** `size-4` (16px). `Button` auto-applies this to any `<svg>` it contains via `[&_svg:not([class*='size-'])]:size-4`, so most call sites don't need to set a size on the icon.
 - **`size-3` / `size-3.5`:** for metadata, captions, and dense list rows where 16px is too loud.
 - **`size-7`+:** for featured/empty-state hero icons only.
-- **Stroke width:** lucide's default 2px. Don't override per-icon.
+- **Stroke width:** 1.5, set once in `assets/motion.css` for every lucide icon at the default stroke. Don't override per-icon.
+- **No sparkle for AI.** Don't use `Sparkles`, `Sparkle` or `WandSparkles` to mean "AI"; use a plain icon that says what the action does (`PenLine` to draft text, `Wrench` to fix, `GitMerge` to resolve), or no icon. Remove decorative icons.
 - **Color:** inherit from surrounding text — `text-muted-foreground` for secondary, `text-destructive` for destructive, etc. Don't apply a token to the SVG directly when the parent already carries the right color.
 - **Spinner:** the canonical loading icon is `<Loader2 className="size-4 animate-spin" />`. For 3s+ multi-step work, prefer a label that names the stage ("Cloning…" → "Installing…") over an unlabeled spinner. See _UX rule 1_.
 
@@ -299,7 +305,7 @@ Use this rubric when reviewing any Aster screen, screenshot, or prototype. A goo
 - **Keyboard navigation:** prefer searchable command surfaces for long option lists. Add search fields when users need to find repositories, branches, worktrees, agents, commands, settings, files, or providers from a list.
 - **Shortcut labels:** show shortcut chips only for shortcuts that are actually implemented and useful at that location. Labels must match the platform binding. If a shortcut strategy is undecided, do not expose a placeholder label in product UI.
 - **Alignment:** rows and columns must line up to a visible grid. Left-align text and labels for scanability; right-align numbers, counts, shortcuts, and trailing metadata when comparison matters; center-align only compact icon controls, empty states, and table cells where symmetry is the clearest read.
-- **Copy quality:** displayed text must be typo-free, concise, and specific. Prefer direct verbs and concrete nouns. Remove filler like "please", "simply", "just", "you can", and generic success language that is not backed by state.
+- **Copy quality:** displayed text must be typo-free, concise, and specific. Prefer direct verbs and concrete nouns. Remove filler like "please", "simply", "just", "you can", and generic success language that is not backed by state. Sentence case everywhere (titles, labels, buttons, menu items); no exclamation marks; no trailing period on short labels; short placeholders ("Search", not "Search anything…"); no hype words.
 - **Dialogs and overlays:** choose a dialog size that matches the amount of input. Short confirmations stay compact; forms with multi-line text, path pickers, provider setup, or review content need a larger dialog or sheet. Floating surfaces must use the documented shadow/elevation and background treatment so they read as above the page.
 - **Empty and error states:** when data is missing, show a direct action to acquire or configure that data. Use toasts for transient failures or confirmations; persist errors inline when the user needs to read, retry, copy, or act on the message.
 - **External links:** add direct links when the user may need provider docs, token settings, billing/setup pages, Git provider resources, or troubleshooting context. Put links near the relevant empty state, error, helper text, or setup step instead of burying them in a generic menu.

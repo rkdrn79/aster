@@ -69,7 +69,7 @@ function TurnDiffFileRow({
           aria-expanded={open}
           onClick={() => setOpen(!open)}
         >
-          <ChevronRight aria-hidden className={open ? 'size-3.5 rotate-90' : 'size-3.5'} />
+          <ChevronRight aria-hidden className={open ? 'size-4 rotate-90' : 'size-4'} />
         </Button>
       </div>
       <NativeChatExpandable open={open}>
@@ -89,8 +89,8 @@ export function NativeChatTurnDiffRollup({
   return (
     <Collapsible className="text-xs text-muted-foreground">
       <CollapsibleTrigger asChild>
-        <Button variant="ghost" size="xs" className="group w-full min-w-0 justify-start gap-1.5">
-          <span className="min-w-0 truncate">
+        <Button variant="ghost" size="xs" className="group w-full min-w-0 justify-start">
+          <span className="min-w-0 truncate tabular-nums">
             {diff.files.length === 1
               ? translate('components.native-chat.turnDiff.one', '1 changed file')
               : translate('components.native-chat.turnDiff.many', '{{count}} changed files', {
@@ -103,7 +103,7 @@ export function NativeChatTurnDiffRollup({
           ) : null}
           <ChevronRight
             aria-hidden
-            className="size-3.5 shrink-0 transition-transform group-data-[state=open]:rotate-90 motion-reduce:transition-none"
+            className="size-4 shrink-0 transition-transform group-data-[state=open]:rotate-90 motion-reduce:transition-none"
           />
         </Button>
       </CollapsibleTrigger>

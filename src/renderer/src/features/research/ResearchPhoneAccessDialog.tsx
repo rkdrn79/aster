@@ -38,6 +38,7 @@ export function ResearchPhoneAccessDialog({
   )
   const [pairing, setPairing] = useState<ShownPairing | null>(null)
   const [copied, setCopied] = useState(false)
+  const [relayUrlCopied, setRelayUrlCopied] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [setupTerminalOpen, setSetupTerminalOpen] = useState(false)
   // Why: the guided setup waits for the saved-URL check, so a saved relay never flashes it.
@@ -71,6 +72,7 @@ export function ResearchPhoneAccessDialog({
 
   const updateRelayUrl = (next: string): void => {
     setRelayUrl(next)
+    setRelayUrlCopied(false)
     window.localStorage.setItem(RELAY_URL_STORAGE_KEY, next.trim())
   }
 
@@ -92,6 +94,16 @@ export function ResearchPhoneAccessDialog({
     })
     setPairing({ environmentId, hostName, link: next.webClientUrl, qr })
     setCopied(false)
+  }
+
+  // Why copy only: the field stays masked, since its key opens the relay to anyone who sees it.
+  const copyRelayUrl = async (): Promise<void> => {
+    try {
+      await window.api.ui.writeClipboardText(relayUrl.trim())
+      setRelayUrlCopied(true)
+    } catch (cause) {
+      setError(String(cause))
+    }
   }
 
   // Why the main-process clipboard: Electron refuses navigator.clipboard writes here.
@@ -126,7 +138,7 @@ export function ResearchPhoneAccessDialog({
             off.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-2">
           <Label htmlFor={relayUrlFieldId}>Relay URL</Label>
           <Input
             id={relayUrlFieldId}
@@ -136,14 +148,18 @@ export function ResearchPhoneAccessDialog({
             onChange={(event) => updateRelayUrl(event.target.value)}
           />
           {hasRelayUrl ? (
-            <Button
-              size="xs"
-              variant="link"
-              className="self-start"
-              onClick={() => void window.api.shell.openUrl(RELAY_GUIDE_URL)}
-            >
-              Relay setup guide
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button size="xs" variant="ghost" onClick={() => void copyRelayUrl()}>
+                <Copy aria-hidden /> {relayUrlCopied ? 'Copied' : 'Copy relay URL'}
+              </Button>
+              <Button
+                size="xs"
+                variant="link"
+                onClick={() => void window.api.shell.openUrl(RELAY_GUIDE_URL)}
+              >
+                Relay setup guide
+              </Button>
+            </div>
           ) : null}
         </div>
         {hasRelayUrl || !savedUrlChecked ? null : (

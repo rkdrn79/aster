@@ -20,7 +20,7 @@ export function TaskPageGitLabItemList({
   } = model
   return (
     <div className="flex min-h-0 max-h-full flex-col rounded-md border border-t-0 border-border/50 bg-muted/50 overflow-hidden rounded-t-none shadow-sm">
-      <div className="flex-none grid grid-cols-[80px_minmax(0,3fr)_120px_110px_50px] gap-3 border-b border-border/50 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+      <div className="flex-none grid grid-cols-[80px_minmax(0,3fr)_120px_110px_50px] gap-3 border-b border-border/50 px-3 py-2 text-[10px] font-medium text-muted-foreground">
         <span>{translate('auto.components.TaskPage.eb10c32872', 'ID')}</span>
         <span>{translate('auto.components.TaskPage.16cba35bee', 'Title')}</span>
         <span>{translate('auto.components.TaskPage.00b7ffb952', 'Type / State')}</span>

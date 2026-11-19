@@ -65,12 +65,7 @@ function attribute(tag: string, name: string): string | null {
   return match ? decodeXmlText(match[1]) : null
 }
 
-/** Reads the first entry of an arXiv API Atom feed; null when the feed has no real paper. */
-export function parseArxivAtomFeed(xml: string): ArxivPaperMetadata | null {
-  const entry = xml.match(/<entry>([\s\S]*?)<\/entry>/)?.[1]
-  if (!entry) {
-    return null
-  }
+function parseArxivEntry(entry: string): ArxivPaperMetadata | null {
   const idUrl = element(entry, 'id')
   const title = element(entry, 'title')
   if (!idUrl || !title || /\/api\/errors/.test(idUrl)) {
@@ -103,4 +98,18 @@ export function parseArxivAtomFeed(xml: string): ArxivPaperMetadata | null {
     absUrl: `https://arxiv.org/abs/${arxivId}`,
     pdfUrl: pdfHref?.replace(/^http:/, 'https:') ?? `https://arxiv.org/pdf/${arxivId}`
   }
+}
+
+/** Reads the first entry of an arXiv API Atom feed; null when the feed has no real paper. */
+export function parseArxivAtomFeed(xml: string): ArxivPaperMetadata | null {
+  const entry = xml.match(/<entry>([\s\S]*?)<\/entry>/)?.[1]
+  return entry ? parseArxivEntry(entry) : null
+}
+
+/** Every paper of an arXiv API search feed, in the feed's order. */
+export function parseArxivAtomEntries(xml: string): ArxivPaperMetadata[] {
+  return [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].flatMap((match) => {
+    const paper = parseArxivEntry(match[1])
+    return paper ? [paper] : []
+  })
 }

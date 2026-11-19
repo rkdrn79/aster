@@ -119,7 +119,7 @@ function useMoreDestinations(): MoreDestination[] {
   if (shouldShowAgentDashboardButton(settings)) {
     destinations.push({
       id: 'agent-dashboard',
-      label: translate('dashboard.sidebar.dashboardLabel', 'Agent Dashboard'),
+      label: translate('dashboard.sidebar.dashboardLabel', 'Agent dashboard'),
       Icon: LayoutDashboard,
       view: null,
       open: () => {

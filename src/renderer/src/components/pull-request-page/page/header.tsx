@@ -205,7 +205,7 @@ export function PullRequestPageHeader({
         <div className="mt-4 flex flex-wrap items-center gap-x-2.5 gap-y-2 text-[13px] text-muted-foreground">
           <span
             className={cn(
-              'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium',
+              'inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-[12px] font-medium',
               stateBadgeTone
             )}
           >
@@ -220,7 +220,7 @@ export function PullRequestPageHeader({
                 className="size-5"
               />
             ) : null}
-            <span className="font-semibold text-foreground">
+            <span className="font-medium text-foreground">
               {workItem.author ??
                 translate('auto.components.PullRequestPage.77d9388fb0', 'unknown')}
             </span>
@@ -232,7 +232,7 @@ export function PullRequestPageHeader({
                 {baseBranch}
               </span>
             ) : (
-              <span className="italic">
+              <span className="text-muted-foreground">
                 {translate('auto.components.PullRequestPage.c44b70352b', 'base branch')}
               </span>
             )}
@@ -242,7 +242,7 @@ export function PullRequestPageHeader({
                 {headBranch}
               </span>
             ) : (
-              <span className="italic">
+              <span className="text-muted-foreground">
                 {translate('auto.components.PullRequestPage.00b7b82329', 'head branch')}
               </span>
             )}

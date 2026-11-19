@@ -58,7 +58,7 @@ export function VaultGroupHeader({
   return (
     <button
       type="button"
-      className="flex h-8 w-full items-center gap-2 border-y border-sidebar-border bg-sidebar-accent/60 px-3 text-left text-xs font-semibold text-foreground transition-colors hover:bg-sidebar-accent"
+      className="flex h-8 w-full items-center gap-2 border-y border-sidebar-border bg-sidebar-accent/60 px-3 text-left text-xs font-medium text-foreground transition-colors hover:bg-sidebar-accent"
       onClick={onToggle}
       aria-expanded={!collapsed}
     >
@@ -69,7 +69,7 @@ export function VaultGroupHeader({
         )}
       />
       <span className="min-w-0 flex-1 truncate">{group.label}</span>
-      <span className="rounded-md border border-sidebar-border bg-background px-2 py-0.5 text-[11px] font-semibold tabular-nums leading-none text-foreground shadow-xs">
+      <span className="text-[11px] tabular-nums leading-none text-muted-foreground">
         {group.sessions.length}
       </span>
     </button>
@@ -110,7 +110,7 @@ export function VaultScopeSwitch({
       className="h-7 w-full rounded-md border border-sidebar-border bg-sidebar-accent/35 shadow-xs"
       aria-label={translate(
         'auto.components.right.sidebar.AiVaultPanelControls.scopeAriaLabel',
-        'Session History scope: {{value0}}',
+        'Session history scope: {{value0}}',
         {
           value0:
             scope === 'workspace'
@@ -173,7 +173,7 @@ export function VaultHostScopeMenu({
           className="h-6 max-w-24 shrink-0 gap-1 px-1.5 text-[11px] font-medium text-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground @max-[340px]/ai-vault:w-6 @max-[340px]/ai-vault:px-0"
           aria-label={translate(
             'auto.components.right.sidebar.AiVaultPanelControls.hostScopeAriaLabel',
-            'Session History host: {{value0}}',
+            'Session history host: {{value0}}',
             { value0: label }
           )}
         >
@@ -243,7 +243,7 @@ export function VaultViewMenu({
           )}
           aria-label={translate(
             'auto.components.right.sidebar.AiVaultPanelControls.viewOptionsAriaLabel',
-            'Session History view options'
+            'Session history view options'
           )}
         >
           <ListFilter className="size-3" />
@@ -266,7 +266,7 @@ export function VaultViewMenu({
       <DropdownMenuContent align="end" sideOffset={6} className="w-56">
         {/* Why: Select all / Clear lets users isolate one agent without unchecking 15 boxes. */}
         <div className="flex items-center justify-between px-2 py-1">
-          <span className="text-[11px] font-semibold text-muted-foreground">
+          <span className="text-[11px] font-medium text-muted-foreground">
             {translate('auto.components.right.sidebar.AiVaultPanelControls.agents', 'Agents')}
           </span>
           {/* Why: real menu items so arrow keys reach them; plain buttons are skipped by Radix roving focus. */}

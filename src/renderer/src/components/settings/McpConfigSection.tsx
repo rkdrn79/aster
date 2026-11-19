@@ -304,7 +304,7 @@ export function McpConfigSection({ repo }: McpConfigSectionProps): React.JSX.Ele
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <h3 className="text-sm font-semibold">
-            {translate('auto.components.settings.McpConfigSection.55eea3ef47', 'MCP Configs')}
+            {translate('auto.components.settings.McpConfigSection.55eea3ef47', 'MCP configs')}
           </h3>
           <p className="text-xs text-muted-foreground">
             {translate(

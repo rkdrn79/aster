@@ -84,7 +84,7 @@ export function AgentPermissionsSetting(props: AgentPermissionsSettingProps): Re
   const { mode, nonAutoMode, onChange, onChangeNonAuto, autoSupported = true } = props
   const title = translate(
     'auto.components.settings.AgentsPane.agentPermissions',
-    'Agent Permissions'
+    'Agent permissions'
   )
   const showOthers = mode === 'auto' && onChangeNonAuto !== undefined
   return (
@@ -116,20 +116,17 @@ export function AgentPermissionsSetting(props: AgentPermissionsSettingProps): Re
             { value: 'yolo', label: agentPermissionModeLabel('yolo') }
           ]}
         />
-        {/* Kept mounted at zero height so it can animate; inert keeps it out of focus and a11y while hidden. */}
+        {/* Kept mounted at zero height so its contents can fade; inert keeps it out of focus and a11y while hidden. */}
         <div
           inert={!showOthers}
           aria-hidden={!showOthers}
-          className={cn(
-            'grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none',
-            showOthers ? 'grid-rows-[1fr]' : 'grid-rows-[0fr] delay-100'
-          )}
+          className={cn('grid', showOthers ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}
         >
           <div className="min-h-0 overflow-hidden">
             {/* Fades in after the row has mostly opened and out before it closes, so it never shows half-clipped. */}
             <div
               className={cn(
-                'flex items-center gap-2 whitespace-nowrap pt-1.5 transition-[opacity,translate] ease-out motion-reduce:transition-none',
+                'flex items-center gap-2 whitespace-nowrap pt-1.5 transition-[opacity,translate] motion-reduce:transition-none',
                 showOthers
                   ? 'translate-y-0 opacity-100 delay-100 duration-150'
                   : '-translate-y-1 opacity-0 duration-100'

@@ -176,9 +176,9 @@ function FrontMatterBanner({ raw }: { raw: string }): React.JSX.Element {
 
   return (
     <div className="border-b border-border/60 bg-muted/40 px-3 py-2">
-      <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-        {translate('auto.components.editor.EditorContent.e4b074749d', 'Front Matter')}
-        <span className="ml-2 font-normal normal-case tracking-normal opacity-70">
+      <div className="mb-1 text-[10px] font-medium text-muted-foreground">
+        {translate('auto.components.editor.EditorContent.e4b074749d', 'Front matter')}
+        <span className="ml-2 font-normal opacity-70">
           {translate('auto.components.editor.EditorContent.56dba34e1a', '(edit in source mode)')}
         </span>
       </div>

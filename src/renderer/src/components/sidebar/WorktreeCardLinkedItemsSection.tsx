@@ -62,7 +62,7 @@ export function WorktreeCardLinkedItemsSection({
       rows: rows.filter((row) => row.item.type !== 'issue')
     },
     {
-      label: translate('workspace.links.tasks', 'Issues & tasks'),
+      label: translate('workspace.links.tasks', 'Issues and tasks'),
       rows: rows.filter((row) => row.item.type === 'issue')
     }
   ].filter((group) => group.rows.length)

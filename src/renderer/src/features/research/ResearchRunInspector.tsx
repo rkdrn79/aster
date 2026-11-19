@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
 import { relativePathInsideRoot } from '../../../../shared/cross-platform-path'
 import type { ResearchRunRecord } from '../../../../shared/research/research-records'
 import {
@@ -25,6 +24,9 @@ import {
   type ResearchRunStatusFacts
 } from './research-run-status-label'
 import { ResearchRunStatusLine } from './ResearchRunStatusLine'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { cn } from '@/lib/utils'
+import { RAISED_CARD } from './research-surface-classes'
 import { isWindowVisible } from '@/lib/window-visibility-interval'
 import { useRemoteHostLabel } from './research-host-label'
 import { ResearchRunDetails } from './ResearchRunDetails'
@@ -232,10 +234,10 @@ export function RunInspector({
   const wandb = useResearchRunWandb(run, manifest)
 
   return (
-    <div className="space-y-5 rounded-xl border border-border bg-card p-5">
+    <div className={cn(RAISED_CARD, 'space-y-5 p-5')}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="truncate text-base font-semibold">{run.name}</h2>
+          <h2 className="truncate text-base font-medium">{run.name}</h2>
           <p className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1 text-xs text-muted-foreground">
             <ResearchRunStatusLine facts={status} />
             {[reportedBy, remoteHost, watched]
@@ -282,18 +284,20 @@ export function RunInspector({
           ) : null}
           {activeGroup ? (
             <div className="space-y-3">
-              <div className="flex flex-wrap gap-1">
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                size="xs"
+                aria-label="Metric"
+                value={activeGroup}
+                onValueChange={(value) => value && setSelectedMetric(value)}
+              >
                 {metricGroups.slice(0, 8).map((group) => (
-                  <Button
-                    key={group}
-                    size="xs"
-                    variant={activeGroup === group ? 'secondary' : 'ghost'}
-                    onClick={() => setSelectedMetric(group)}
-                  >
+                  <ToggleGroupItem key={group} value={group}>
                     {metricGroupLabel(group)}
-                  </Button>
+                  </ToggleGroupItem>
                 ))}
-              </div>
+              </ToggleGroup>
               <ResearchMetricCurve
                 series={[
                   {
@@ -344,7 +348,7 @@ export function RunInspector({
               </table>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No numeric metrics found.</p>
+            <p className="text-sm text-muted-foreground">No numeric metrics found</p>
           )}
         </div>
       ) : null}
@@ -372,7 +376,7 @@ export function RunInspector({
           </h3>
           {configError ? <p className="text-xs text-destructive">{configError}</p> : null}
           {config !== null ? (
-            <pre className="scrollbar-sleek mt-2 max-h-56 overflow-auto rounded-md bg-muted p-3 text-xs whitespace-pre-wrap">
+            <pre className="scrollbar-sleek mt-2 max-h-56 overflow-auto rounded-lg bg-muted/70 p-3 text-xs whitespace-pre-wrap dark:bg-muted/55">
               {config.slice(0, 100_000)}
               {config.length > 100_000 ? '\n… First 100,000 characters shown.' : ''}
             </pre>

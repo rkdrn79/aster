@@ -376,7 +376,7 @@ export function ResearchRebuttalPage(): React.JSX.Element {
         <ResearchPageHeader title="Rebuttal" />
         <ResearchPageBody>
           <ResearchEmptyState icon={MessageSquareReply} title="No project open">
-            Open a project to write its rebuttal.
+            Open a project to write its rebuttal
           </ResearchEmptyState>
         </ResearchPageBody>
       </section>

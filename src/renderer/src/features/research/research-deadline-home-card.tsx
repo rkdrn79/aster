@@ -11,6 +11,7 @@ import {
 } from './research-deadline-progress'
 import { deadlineTone, formatDayCount } from './research-deadline-format'
 import { useConferenceTrackingActions } from './use-conference-tracking-actions'
+import { HOME_CARD_ARROW, HOME_CARD_HEADER, RAISED_CARD } from './research-surface-classes'
 import { useDeadlineClock } from './use-deadline-clock'
 
 const UPCOMING_SHOWN = 4
@@ -37,9 +38,9 @@ function DayCount({ epochMs, now }: { epochMs: number; now: number }): React.JSX
   return (
     <span
       className={cn(
-        'shrink-0 tabular-nums text-muted-foreground',
-        tone === 'urgent' && 'font-semibold text-destructive',
-        tone === 'soon' && 'font-semibold text-foreground'
+        'shrink-0 text-2xs leading-4 tabular-nums text-muted-foreground',
+        tone === 'urgent' && 'text-destructive',
+        tone === 'soon' && 'text-foreground'
       )}
     >
       {formatDayCount(epochMs, now)}
@@ -95,22 +96,19 @@ export function ResearchHomeDeadlines(): React.JSX.Element {
           : null
 
   return (
-    <section
-      aria-label="Deadlines"
-      className="min-w-0 overflow-hidden rounded-lg border border-border bg-card"
-    >
+    <section aria-label="Deadlines" className={cn(RAISED_CARD, 'min-w-0 overflow-hidden')}>
       <button
         type="button"
-        className="flex w-full items-center gap-2 rounded-t-lg px-4 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={HOME_CARD_HEADER}
         onClick={() => openResearchHome('research-deadlines')}
       >
         <span className="flex-1 text-sm font-medium">Deadlines</span>
-        <ArrowRight className="size-4 text-muted-foreground" aria-hidden />
+        <ArrowRight className={HOME_CARD_ARROW} aria-hidden />
       </button>
       {upcoming.length > 0 ? (
-        <ul className="space-y-2 border-t border-border px-4 py-3">
+        <ul className="space-y-0.5 px-2 pb-2">
           {upcoming.map((entry) => (
-            <li key={entry.key} className="flex items-baseline gap-2 text-xs">
+            <li key={entry.key} className="flex items-baseline gap-2 rounded-sm px-3 py-2 text-xs">
               <span className="min-w-0 flex-1 truncate" title={`${entry.title} ${entry.label}`}>
                 {entry.title}
                 <span className="text-muted-foreground"> · {entry.label}</span>
@@ -120,9 +118,9 @@ export function ResearchHomeDeadlines(): React.JSX.Element {
           ))}
         </ul>
       ) : status ? (
-        <p className="border-t border-border px-4 py-4 text-xs text-muted-foreground">{status}</p>
+        <p className="px-4 pb-4 text-xs text-muted-foreground">{status}</p>
       ) : (
-        <div className="space-y-2 border-t border-border px-4 py-3 text-xs">
+        <div className="space-y-2 px-4 pb-4 text-xs">
           <p className="text-muted-foreground">
             {tracking?.trackedSeries.length
               ? 'No upcoming tracked deadlines.'

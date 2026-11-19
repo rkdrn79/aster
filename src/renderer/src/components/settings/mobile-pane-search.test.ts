@@ -8,9 +8,9 @@ describe('getMobilePaneSearchEntries', () => {
   // in. Search ranking breaks ties by index, so a reorder silently reranks rows.
   it('keeps Network Interface in its original catalog position', () => {
     expect(getMobilePaneSearchEntries().map((entry) => entry.title)).toEqual([
-      'Mobile Pairing',
-      'Connected Devices',
-      'Network Interface',
+      'Mobile pairing',
+      'Connected devices',
+      'Network interface',
       'When you leave the mobile app',
       'Machine name'
     ])
@@ -34,7 +34,7 @@ describe('shouldOpenMobilePairingAddress', () => {
   })
 
   it('opens for queries that target the address picker', () => {
-    expect(shouldOpenMobilePairingAddress('Network Interface')).toBe(true)
+    expect(shouldOpenMobilePairingAddress('Network interface')).toBe(true)
     expect(shouldOpenMobilePairingAddress('tailscale')).toBe(true)
     expect(shouldOpenMobilePairingAddress('  LAN  ')).toBe(true)
   })

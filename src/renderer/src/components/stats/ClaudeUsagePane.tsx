@@ -1,13 +1,5 @@
 import { useEffect } from 'react'
-import {
-  Activity,
-  Coins,
-  DatabaseZap,
-  FolderKanban,
-  Gauge,
-  Sparkles,
-  Waypoints
-} from 'lucide-react'
+import { Activity, Coins, DatabaseZap, FolderKanban, Gauge, Hash, Waypoints } from 'lucide-react'
 import type { ClaudeUsageRange, ClaudeUsageScope } from '../../../../shared/claude-usage-types'
 import { useAppStore } from '../../store'
 import { ClaudeUsageDetails } from './ClaudeUsageDetails'
@@ -76,7 +68,7 @@ export function ClaudeUsagePane(): React.JSX.Element {
 
   const title = translate(
     'auto.components.stats.ClaudeUsagePane.6afacbee37',
-    'Claude Usage Tracking'
+    'Claude usage tracking'
   )
   const enableLabel = translate(
     'auto.components.stats.ClaudeUsagePane.424cd50412',
@@ -171,7 +163,7 @@ export function ClaudeUsagePane(): React.JSX.Element {
           <StatCard
             label={translate('auto.components.stats.ClaudeUsagePane.ea71fae8fc', 'Input tokens')}
             value={formatTokens(summary?.inputTokens ?? 0)}
-            icon={<Sparkles className="size-4" />}
+            icon={<Hash className="size-4" />}
           />
           <StatCard
             label={translate('auto.components.stats.ClaudeUsagePane.2b8a2f14aa', 'Output tokens')}
@@ -215,7 +207,7 @@ export function ClaudeUsagePane(): React.JSX.Element {
           <StatCard
             label={translate(
               'auto.components.stats.ClaudeUsagePane.0f3e696ca9',
-              'Sessions / Turns'
+              'Sessions / turns'
             )}
             value={`${(summary?.sessions ?? 0).toLocaleString()} / ${(summary?.turns ?? 0).toLocaleString()}`}
             icon={<FolderKanban className="size-4" />}

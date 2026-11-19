@@ -191,7 +191,7 @@ export function ExternalFileChangeCompareDialog({
           >
             {translate(
               'auto.components.editor.ExternalFileChangeCompareDialog.3fa2b8d417',
-              'Reload from Disk'
+              'Reload from disk'
             )}
           </Button>
           <Button
@@ -205,7 +205,7 @@ export function ExternalFileChangeCompareDialog({
           >
             {translate(
               'auto.components.editor.ExternalFileChangeCompareDialog.a95d02c644',
-              'Keep My Edits'
+              'Keep my edits'
             )}
           </Button>
         </DialogFooter>

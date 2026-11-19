@@ -162,7 +162,7 @@ export function AutomationListExternalRow({
                 <Play className="size-3.5" />
                 <span className="min-w-0 truncate">
                   {disabledMessage ??
-                    translate('auto.components.automations.AutomationsPage.2faecab10b', 'Run Now')}
+                    translate('auto.components.automations.AutomationsPage.2faecab10b', 'Run now')}
                 </span>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -202,7 +202,7 @@ export function AutomationListExternalRow({
           <Play className="size-3.5" />
           <span className="min-w-0 truncate">
             {disabledMessage ??
-              translate('auto.components.automations.AutomationsPage.2faecab10b', 'Run Now')}
+              translate('auto.components.automations.AutomationsPage.2faecab10b', 'Run now')}
           </span>
         </ContextMenuItem>
         <ContextMenuItem

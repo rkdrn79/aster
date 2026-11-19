@@ -2,7 +2,7 @@ import { figureFilePaths } from '../../../../research-harness/research-figures-m
 import type { FigureReference } from './research-figure-recreate'
 import type { FigureSendTrack } from './research-figure-chat-send'
 import { useFigureEditorHandle } from './research-figure-editor-handle'
-import type { FigureRequestHost } from './research-figure-prompt-context'
+import { figureRequestPlotTarget, type FigureRequestHost } from './research-figure-prompt-context'
 import { readProjectText, type ProjectFileOwner } from './research-project-files'
 import { resolveManuscriptFile } from './research-writing-source'
 import { readWritingManuscript, type WritingProjectScope } from './research-writing-project'
@@ -44,16 +44,32 @@ export async function manuscriptSource(
     : null
 }
 
-/** "Before send" for the open figure, read off its canvas; null when no figure is open. */
+/**
+ * "Before send" for the open figure, read off its canvas, or the open plot (whose files its turn
+ * keeps); null when neither is open.
+ */
 export async function openFigureSendTrack(
-  host: Pick<FigureRequestHost, 'api' | 'target'>
+  host: Pick<FigureRequestHost, 'api' | 'target' | 'plot' | 'folder' | 'owner'>
 ): Promise<FigureSendTrack | null> {
+  const plot = figureRequestPlotTarget(host)
+  if (plot) {
+    return { target: plot, beforeText: null, plot: true }
+  }
   if (!host.api || !host.target) {
     return null
   }
   // Why load it here: the export code pulls in Excalidraw, which the page keeps out of its chunk.
   const { figureSceneText } = await import('./research-figures-export')
   return { target: host.target, beforeText: figureSceneText(host.api) }
+}
+
+/** The plot the New figure dialog asked the agent for: its chat and History use its slug. */
+export function newPlotSendTrack(
+  owner: ProjectFileOwner,
+  folder: string,
+  slug: string
+): FigureSendTrack {
+  return { target: { owner, folder, slug }, beforeText: null, plot: true }
 }
 
 /** "Before send" for a figure the New figure dialog just wrote: its blank page on disk. */

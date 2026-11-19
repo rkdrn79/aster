@@ -106,7 +106,7 @@ export function TaskPageJiraContent({
         className="@container flex min-h-0 max-h-full flex-col overflow-hidden rounded-md rounded-t-none border border-t-0 border-border/50 bg-background shadow-sm"
       >
         <div className="flex min-h-10 flex-none flex-wrap items-center justify-between gap-3 border-b border-border/50 bg-muted/35 px-3 py-1">
-          <div className="min-w-0 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+          <div className="min-w-0 text-[11px] font-medium text-muted-foreground">
             {translate('auto.components.TaskPage.63b2abd3aa', 'Jira issues')}
           </div>
           <TaskPageJiraViewControls
@@ -192,7 +192,7 @@ export function TaskPageJiraContent({
                       )
                     : translate(
                         'auto.components.TaskPage.94d900518d',
-                        'No issues match the selected preset.'
+                        'No issues match the selected preset'
                       )}
               </p>
             </div>

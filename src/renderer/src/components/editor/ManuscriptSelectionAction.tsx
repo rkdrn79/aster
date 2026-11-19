@@ -7,6 +7,7 @@ import { useResearchRecords } from '@/features/research/research-records-store'
 import { ResearchWritingReviseComposer } from '@/features/research/research-writing-revise-composer'
 import { isWritingTeXFile } from '@/features/research/research-writing-source'
 import { selectWritingOwner } from '@/features/research/research-writing-project'
+import { noteWritingTexSelection } from '@/features/research/research-writing-tex-selection'
 import {
   captureMonacoManuscriptSelection,
   MAX_MANUSCRIPT_SELECTION_LENGTH,
@@ -69,6 +70,13 @@ export function ManuscriptSelectionAction({
       return
     }
     const updateAffordance = (): void => {
+      if (isWritingManuscript) {
+        noteWritingTexSelection(
+          worktreeId,
+          filePath,
+          captureMonacoManuscriptSelection(editorInstance, filePath, relativePath)
+        )
+      }
       const model = editorInstance.getModel()
       const selected = editorInstance.getSelection()
       if (
@@ -106,8 +114,17 @@ export function ManuscriptSelectionAction({
       action.dispose()
       selectionListener.dispose()
       scrollListener.dispose()
+      noteWritingTexSelection(worktreeId, filePath, null)
     }
-  }, [editorInstance, enabled, worktreeId, isWritingManuscript, openRevision])
+  }, [
+    editorInstance,
+    enabled,
+    worktreeId,
+    isWritingManuscript,
+    openRevision,
+    filePath,
+    relativePath
+  ])
 
   return (
     <>

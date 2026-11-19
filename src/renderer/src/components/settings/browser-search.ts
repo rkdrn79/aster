@@ -73,7 +73,7 @@ export function getBrowserPaneSearchEntries(
 ): SettingsSearchEntry[] {
   return [
     {
-      title: translate('auto.components.settings.browser.search.c3903322d2', 'Default Home Page'),
+      title: translate('auto.components.settings.browser.search.c3903322d2', 'Default home page'),
       description: translate(
         'auto.components.settings.browser.search.a942905148',
         'URL opened when creating a new browser tab. Leave empty to open a blank tab.'
@@ -92,7 +92,7 @@ export function getBrowserPaneSearchEntries(
     {
       title: translate(
         'auto.components.settings.browser.search.5e755920c9',
-        'Default Search Engine'
+        'Default search engine'
       ),
       description: translate(
         'auto.components.settings.browser.search.0628d5943b',
@@ -117,7 +117,7 @@ export function getBrowserPaneSearchEntries(
       ]
     },
     {
-      title: translate('auto.components.settings.browser.search.072b7f5c1f', 'Default Zoom'),
+      title: translate('auto.components.settings.browser.search.072b7f5c1f', 'Default zoom'),
       description: translate(
         'auto.components.settings.browser.search.c3d89ed4d0',
         'Zoom level applied to newly opened browser tabs.'
@@ -139,7 +139,7 @@ export function getBrowserPaneSearchEntries(
       ]
     },
     {
-      title: translate('auto.components.settings.browser.search.5cb082b3e3', 'Link Routing'),
+      title: translate('auto.components.settings.browser.search.5cb082b3e3', 'Link routing'),
       description: getBrowserLinkRoutingDescription(platform),
       keywords: [
         ...translateSearchKeyword('auto.components.settings.browser.search.2d2d995c58', 'browser'),
@@ -203,7 +203,7 @@ export function getBrowserPaneSearchEntries(
     {
       title: translate(
         'auto.components.settings.browser.search.19ea5607cf',
-        'Localhost Worktree Labels'
+        'Localhost worktree labels'
       ),
       description: translate(
         'auto.components.settings.browser.search.4e0fdf0a3f',
@@ -223,7 +223,7 @@ export function getBrowserPaneSearchEntries(
       ]
     },
     {
-      title: translate('auto.components.settings.browser.search.96afedcb5c', 'Session & Cookies'),
+      title: translate('auto.components.settings.browser.search.96afedcb5c', 'Session and cookies'),
       description: translate(
         'auto.components.settings.browser.search.060ac1fcba',
         'Import cookies from Chrome, Edge, or other browsers to use existing logins inside Aster.'

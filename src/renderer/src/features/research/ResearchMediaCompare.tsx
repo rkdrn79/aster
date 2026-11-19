@@ -106,9 +106,7 @@ export function ResearchMediaCompare({
 
   return (
     <section className="space-y-3" aria-label="Media comparison">
-      <h2 className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
-        Media
-      </h2>
+      <h2 className="text-xs font-medium text-muted-foreground">Media</h2>
       {failed.map((run) => {
         const read = reads.get(run.id)
         return read?.status === 'error' ? (
@@ -156,7 +154,7 @@ export function ResearchMediaCompare({
           These Runs share no media label and step, so each column shows what its Run has here.
         </p>
       ) : current && key && columns.length > 1 && !current.sharedSteps.includes(key.step) ? (
-        <p className="text-xs text-muted-foreground">Not every Run has media at this step.</p>
+        <p className="text-xs text-muted-foreground">Not every Run has media at this step</p>
       ) : null}
       {columns.length ? (
         <div className="scrollbar-sleek overflow-x-auto pb-2">

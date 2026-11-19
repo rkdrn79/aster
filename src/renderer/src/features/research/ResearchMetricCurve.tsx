@@ -5,17 +5,19 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { MetricEvent } from './research-source-reader'
 import { chartSegments, emaSmooth, lastEventAtRepeatedX } from './research-metric-chart'
 import { metricColumnDecimals } from './research-metric-column-format'
-import { ResearchMetricChartPlot, type PlotSeries } from './ResearchMetricChartPlot'
+import { ResearchMetricChartPlot, SeriesSwatch, type PlotSeries } from './ResearchMetricChartPlot'
 
 type CurveSeries = { id: string; name: string; events: MetricEvent[] }
 
-// Categorical order from STYLEGUIDE; a sixth series folds into muted ink instead of cycling.
-const COLORS = [
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)'
+// One accent on the run that matters; the others are graphite steps told apart by their dash, like
+// a printed figure. A sixth series folds into muted ink instead of cycling.
+type SeriesStyle = { color: string; dash?: string }
+const LEAD: SeriesStyle = { color: 'var(--chart-2)' }
+const NEUTRAL: SeriesStyle[] = [
+  { color: 'var(--chart-1)' },
+  { color: 'var(--chart-1)', dash: '6 4' },
+  { color: 'var(--muted-foreground)' },
+  { color: 'var(--muted-foreground)', dash: '2 3' }
 ]
 const FOLDED_COLOR = 'var(--muted-foreground)'
 const SMOOTHING = { off: 0, low: 0.6, high: 0.9 } as const
@@ -29,29 +31,38 @@ function isSmoothing(value: string): value is Smoothing {
 export function ResearchMetricCurve({
   series,
   xLabel,
-  valueLabel = 'value'
+  valueLabel = 'value',
+  leadId
 }: {
   series: CurveSeries[]
   xLabel: string
   /** Names the y-axis for screen readers, e.g. `loss / train`. */
   valueLabel?: string
+  /** The run drawn in the accent; the first series when unset. */
+  leadId?: string
 }): React.JSX.Element {
   const [logY, setLogY] = useState(false)
   const [smoothing, setSmoothing] = useState<Smoothing>('off')
   const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set())
 
-  const prepared = useMemo(
-    () =>
-      series.map((entry, index) => ({
+  const prepared = useMemo(() => {
+    const lead = series.some((entry) => entry.id === leadId) ? leadId : series[0]?.id
+    let neutral = 0
+    return series.map((entry) => {
+      const isLead = entry.id === lead
+      const style: SeriesStyle | undefined = isLead ? LEAD : NEUTRAL[neutral++]
+      return {
         id: entry.id,
         name: entry.name,
-        color: COLORS[index] ?? FOLDED_COLOR,
-        folded: index >= COLORS.length,
+        color: style?.color ?? FOLDED_COLOR,
+        dash: style?.dash,
+        lead: isLead,
+        folded: !style,
         raw: chartSegments(entry.events).map(lastEventAtRepeatedX),
         eventCount: entry.events.length
-      })),
-    [series]
-  )
+      }
+    })
+  }, [series, leadId])
   const pointCount = prepared.reduce((total, entry) => total + entry.raw.flat().length, 0)
   const repeatedStepEvents =
     prepared.reduce((total, entry) => total + entry.eventCount, 0) - pointCount
@@ -68,7 +79,7 @@ export function ResearchMetricCurve({
     }))
 
   if (!pointCount) {
-    return <p className="text-sm text-muted-foreground">No points for this metric.</p>
+    return <p className="text-sm text-muted-foreground">No points for this metric</p>
   }
 
   function toggle(id: string): void {
@@ -85,7 +96,7 @@ export function ResearchMetricCurve({
     <div className="space-y-2">
       <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-xs text-muted-foreground">
         <label
-          className={cn('flex items-center gap-1.5', !canLog && 'opacity-50')}
+          className={cn('flex items-center gap-2', !canLog && 'opacity-50')}
           title={canLog ? undefined : 'Log scale needs every value above zero'}
         >
           <Switch
@@ -96,7 +107,7 @@ export function ResearchMetricCurve({
           />
           Log scale
         </label>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <span id="metric-curve-smoothing">Smoothing</span>
           <ToggleGroup
             type="single"
@@ -125,8 +136,8 @@ export function ResearchMetricCurve({
           decimals={metricColumnDecimals(allValues)}
         />
       ) : (
-        <p className="rounded-md border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
-          Every run is hidden; pick one in the legend.
+        <p className="rounded-lg bg-muted/60 p-6 text-center text-xs text-muted-foreground dark:bg-muted/45">
+          Every run is hidden; pick one in the legend
         </p>
       )}
       {prepared.length > 1 ? (
@@ -139,15 +150,11 @@ export function ResearchMetricCurve({
                 onClick={() => toggle(entry.id)}
                 title={hidden.has(entry.id) ? 'Show on the chart' : 'Hide from the chart'}
                 className={cn(
-                  'flex items-center gap-1.5 rounded-sm px-1 py-0.5 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                  'flex items-center gap-2 rounded-md px-2 py-0.5 transition-colors duration-(--duration-fast) hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   hidden.has(entry.id) && 'text-muted-foreground line-through'
                 )}
               >
-                <span
-                  aria-hidden
-                  className="h-0.5 w-3 rounded-full"
-                  style={{ backgroundColor: entry.color }}
-                />
+                <SeriesSwatch color={entry.color} dash={entry.dash} />
                 {entry.name}
                 {entry.folded ? <span className="text-muted-foreground">(other)</span> : null}
                 {!entry.raw.length ? (
@@ -160,12 +167,12 @@ export function ResearchMetricCurve({
       ) : null}
       {pointCount === 1 ? (
         <p className="text-2xs text-muted-foreground">
-          One point so far; the curve fills in as the run logs more.
+          One point so far; the curve fills in as the run logs more
         </p>
       ) : null}
       {pointCount > 1000 ? (
         <p className="text-2xs text-muted-foreground">
-          Display downsampled; table summaries use every parsed value.
+          Display downsampled; table summaries use every parsed value
         </p>
       ) : null}
       {repeatedStepEvents > 0 ? (

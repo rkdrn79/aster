@@ -22,7 +22,7 @@ export function NativeChatUserMessageContext({
   const lines = context.body ? context.body.split('\n').length : 0
   const label = context.label || translate('components.native-chat.userMessage.context', 'Aster')
   return (
-    <div className="mt-1.5 min-w-0 select-none" data-native-chat-user-message-context="">
+    <div className="mt-2 min-w-0 select-none" data-native-chat-user-message-context="">
       <Button
         type="button"
         variant="ghost"
@@ -35,7 +35,7 @@ export function NativeChatUserMessageContext({
         onClick={() => disclosure.setOpen(!disclosure.open)}
       >
         <ChevronRight
-          className={cn('size-3 transition-transform', disclosure.open && 'rotate-90')}
+          className={cn('size-4 transition-transform', disclosure.open && 'rotate-90')}
           aria-hidden
         />
         <span className="min-w-0 truncate text-chat-foreground-faint">
@@ -55,7 +55,7 @@ export function NativeChatUserMessageContext({
       <NativeChatExpandable open={disclosure.open}>
         <pre
           id={bodyId}
-          className="scrollbar-sleek mt-1 max-h-72 overflow-auto rounded-md border border-border/60 bg-muted/40 p-2 font-mono text-xs whitespace-pre-wrap break-words text-chat-foreground select-text"
+          className="scrollbar-sleek mt-1 max-h-72 overflow-auto rounded-md border border-chat-code-border bg-chat-code-surface p-2 font-mono text-xs whitespace-pre-wrap break-words text-chat-foreground select-text"
         >
           {context.body}
         </pre>

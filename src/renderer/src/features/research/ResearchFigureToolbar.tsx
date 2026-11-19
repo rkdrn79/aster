@@ -8,7 +8,7 @@ import {
   MoreHorizontal,
   Palette,
   Save,
-  Sparkles
+  SquareDashedMousePointer
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -39,11 +39,17 @@ export { sendArrangeShortcut, type ArrangeShortcut } from './research-figure-arr
 
 const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform)
 const chord = (keys: string, other: string): string => (isMac ? keys : other)
+/** Every control in the row is 28 px tall; quiet ones are ghost, one action is filled. */
+const TOOL = 'h-7'
+
+function ToolbarDivider(): React.JSX.Element {
+  return <span className="mx-1 h-4 w-px shrink-0 rounded-full bg-border" aria-hidden />
+}
 
 type Props = {
   dirty: boolean
   busy: 'saving' | 'exporting' | null
-  /** When the last save finished, for "Saved ✓ · 2s ago". */
+  /** When the last save finished, for "Saved · 2s ago". */
   savedAt: number | null
   areaMode: boolean
   selectionCount: number
@@ -153,18 +159,20 @@ export function ResearchFigureToolbar(props: Props): React.JSX.Element {
     <Button
       size="xs"
       variant={areaMode ? 'secondary' : 'ghost'}
+      className={TOOL}
       aria-pressed={areaMode}
       aria-label="Generate in area"
       title={`Drag over the canvas, or select a frame, then say what goes there (${chord('⌘⇧G', 'Ctrl+Shift+G')})`}
       onClick={props.onGenerateInArea}
     >
-      <Sparkles aria-hidden /> Generate
+      <SquareDashedMousePointer aria-hidden /> Generate
     </Button>
   )
   const ask = (
     <Button
       size="xs"
       variant="ghost"
+      className={TOOL}
       aria-label="Ask about selection"
       title={`Ask the agent about the selected elements (${chord('⌘K', 'Ctrl+K')})`}
       disabled={selectionCount === 0}
@@ -181,9 +189,9 @@ export function ResearchFigureToolbar(props: Props): React.JSX.Element {
   ) => (
     <DropdownMenu {...control}>
       <DropdownMenuTrigger asChild>
-        <Button size="xs" variant="ghost" aria-label={label} title={label}>
+        <Button size="xs" variant="ghost" className={TOOL} aria-label={label} title={label}>
           <Icon aria-hidden />
-          <ChevronDown aria-hidden />
+          <ChevronDown aria-hidden className="opacity-60" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-56" onCloseAutoFocus={keepHandoffFocus}>
@@ -230,29 +238,25 @@ export function ResearchFigureToolbar(props: Props): React.JSX.Element {
       ref={measure}
       role="toolbar"
       aria-label="Figure tools"
-      className="flex shrink-0 flex-nowrap items-center gap-1 overflow-hidden border-b border-border px-3 py-1.5"
+      className="flex h-11 shrink-0 flex-nowrap items-center gap-1 overflow-hidden border-b border-border px-3"
     >
       {show('save') ? save : null}
-      {show('save') && (show('generate') || show('ask')) ? (
-        <span className="mx-1 h-4 w-px shrink-0 bg-border" aria-hidden />
-      ) : null}
+      {show('save') && (show('generate') || show('ask')) ? <ToolbarDivider /> : null}
       {show('generate') ? generate : null}
       {show('ask') ? ask : null}
-      {show('arrange') || show('colors') || show('parts') ? (
-        <span className="mx-1 h-4 w-px shrink-0 bg-border" aria-hidden />
-      ) : null}
+      {show('arrange') || show('colors') || show('parts') ? <ToolbarDivider /> : null}
       {show('arrange') ? iconMenu('Arrange', LayoutGrid, arrangeItems) : null}
       {show('colors') || menu === 'colors' || menu === 'style' ? colors : null}
       {show('parts') ? iconMenu('ML parts', Library, partsItems) : null}
       {fontPt !== null && !layout.overflow.length ? (
         <span
-          className="px-1 text-xs text-muted-foreground tabular-nums"
+          className="ml-1 inline-flex h-5 items-center text-2xs text-muted-foreground tabular-nums"
           title="Text size when printed"
         >
           {fontPt} pt
         </span>
       ) : null}
-      <div className="ml-auto flex shrink-0 items-center gap-1">
+      <div className="ml-auto flex shrink-0 items-center gap-2">
         {show('page') || menu === 'page' ? (
           <ResearchFigurePageControl
             open={menu === 'page'}
@@ -262,7 +266,7 @@ export function ResearchFigureToolbar(props: Props): React.JSX.Element {
         {show('paper') ? (
           <Button
             size="xs"
-            variant="outline"
+            className={TOOL}
             aria-label="Use in paper"
             title={`Use in paper (${chord('⌘⇧L', 'Ctrl+Shift+L')})`}
             onClick={() => setPaperOpen(true)}
@@ -279,7 +283,13 @@ export function ResearchFigureToolbar(props: Props): React.JSX.Element {
         {layout.overflow.length ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon-xs" variant="ghost" aria-label="More figure tools" title="More">
+              <Button
+                size="icon-xs"
+                variant="ghost"
+                className="size-7"
+                aria-label="More figure tools"
+                title="More"
+              >
                 <MoreHorizontal aria-hidden />
               </Button>
             </DropdownMenuTrigger>
@@ -309,7 +319,7 @@ export function ResearchFigureToolbar(props: Props): React.JSX.Element {
                   case 'generate':
                     return (
                       <DropdownMenuItem key={slot} onSelect={props.onGenerateInArea}>
-                        <Sparkles aria-hidden /> Generate in area
+                        <SquareDashedMousePointer aria-hidden /> Generate in area
                       </DropdownMenuItem>
                     )
                   case 'paper':

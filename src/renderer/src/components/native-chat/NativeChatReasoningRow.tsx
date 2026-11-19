@@ -55,7 +55,7 @@ export function NativeChatReasoningRow({
           {/* Laid out like a tool run's header, so its glyph sits in the same column. */}
           <button
             type="button"
-            className="group/reasoning flex min-h-6 w-full min-w-0 items-center gap-1.5 rounded-md py-0.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+            className="group/reasoning flex min-h-7 w-full min-w-0 items-center gap-2 rounded-md py-0.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           >
             {headline === label ? null : <span className="sr-only">{label}: </span>}
             <NativeChatToolRunIcon iconName="brain" className="text-chat-foreground-faint" />
@@ -65,7 +65,7 @@ export function NativeChatReasoningRow({
             <NativeChatReasoningChevron />
           </button>
         </CollapsibleTrigger>
-        <CollapsibleContent animation="height" data-native-chat-member-detail>
+        <CollapsibleContent data-native-chat-reveal="" data-native-chat-member-detail>
           <NativeChatReasoningBody
             rowKey={disclosureKey}
             markdown={markdown}

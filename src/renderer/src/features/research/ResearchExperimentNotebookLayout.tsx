@@ -16,9 +16,7 @@ export function NotebookSection({
   return (
     <section aria-label={label} className="space-y-3">
       <div className="flex min-h-6 items-center justify-between gap-3">
-        <h2 className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
-          {label}
-        </h2>
+        <h2 className="text-[15px] font-medium">{label}</h2>
         {action ? <div className="flex shrink-0 items-center gap-1">{action}</div> : null}
       </div>
       {children}
@@ -57,7 +55,7 @@ export function NotebookRow({
   actions?: React.ReactNode
 }): React.JSX.Element {
   return (
-    <li className={cn('flex items-start gap-3 py-2.5', className)} {...rest}>
+    <li className={cn('flex items-start gap-3 py-3', className)} {...rest}>
       <span className="flex h-5 w-4 shrink-0 items-center justify-center text-muted-foreground">
         {marker}
       </span>
@@ -86,7 +84,7 @@ export function NotebookDraftNotice({
   return (
     <div
       role="status"
-      className="space-y-1 rounded-md border border-dashed border-border px-3 py-2 text-xs"
+      className="space-y-1 rounded-lg bg-muted/60 px-3 py-2 text-xs dark:bg-muted/45"
     >
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span className="font-medium">Draft</span>

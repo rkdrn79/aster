@@ -89,7 +89,7 @@ export function SourceControlGroupOrderSetting({
   const value = normalizeSourceControlGroupOrder(settings.sourceControlGroupOrder)
   const title = translate(
     'auto.components.settings.GitPane.sourceControlGroupOrderTitle',
-    'Source Control Group Order'
+    'Source control group order'
   )
   const description = translate(
     'auto.components.settings.GitPane.sourceControlGroupOrderDescription',
@@ -168,7 +168,7 @@ export function GitPane({
 
   const visibleSections = [
     matchesSettingsSearch(searchQuery, {
-      title: translate('auto.components.settings.GitPane.330f584b50', 'Branch Prefix'),
+      title: translate('auto.components.settings.GitPane.330f584b50', 'Branch prefix'),
       description: translate(
         'auto.components.settings.GitPane.1ffaadf0a0',
         'Prefix added to branch names when creating worktrees.'
@@ -181,7 +181,7 @@ export function GitPane({
     }) ? (
       <SearchableSetting
         key="branch-prefix"
-        title={translate('auto.components.settings.GitPane.330f584b50', 'Branch Prefix')}
+        title={translate('auto.components.settings.GitPane.330f584b50', 'Branch prefix')}
         description={translate(
           'auto.components.settings.GitPane.1ffaadf0a0',
           'Prefix added to branch names when creating worktrees.'
@@ -190,7 +190,7 @@ export function GitPane({
         className="space-y-3"
       >
         <div className="space-y-0.5">
-          <Label>{translate('auto.components.settings.GitPane.330f584b50', 'Branch Prefix')}</Label>
+          <Label>{translate('auto.components.settings.GitPane.330f584b50', 'Branch prefix')}</Label>
           <p className="text-xs text-muted-foreground">
             {translate(
               'auto.components.settings.GitPane.1ec5c91e1d',
@@ -210,7 +210,7 @@ export function GitPane({
               }`}
             >
               {option === 'git-username'
-                ? translate('auto.components.settings.GitPane.a182c5125e', 'Git Username')
+                ? translate('auto.components.settings.GitPane.a182c5125e', 'Git username')
                 : option === 'custom'
                   ? translate('auto.components.settings.GitPane.1f32ba27a6', 'Custom')
                   : translate('auto.components.settings.GitPane.3d172725cc', 'None')}
@@ -296,7 +296,7 @@ export function GitPane({
     matchesSettingsSearch(searchQuery, {
       title: translate(
         'auto.components.settings.GitPane.sourceControlGroupOrderTitle',
-        'Source Control Group Order'
+        'Source control group order'
       ),
       description: translate(
         'auto.components.settings.GitPane.sourceControlGroupOrderDescription',

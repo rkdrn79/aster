@@ -4,8 +4,11 @@
 // manuscript's folder keep working where they are.
 import { cleanRelative, figuresFolderFor } from './research-figures-model.mjs'
 
-/** Sources are committed; exports are rebuilt when the figure opens, so Git never sees them. */
-export const FIGURE_WORK_GITIGNORE = '*.pdf\n*.svg\n*.png\n'
+/**
+ * Sources are committed; exports are rebuilt when the figure opens (or the plot runs), so Git
+ * never sees them, nor a plot's manifest.
+ */
+export const FIGURE_WORK_GITIGNORE = '*.pdf\n*.svg\n*.png\n*.plot.json\n'
 
 export function figureWorkFolder(recordRoot) {
   return `${cleanRelative(recordRoot)}/figures`
@@ -41,7 +44,9 @@ export function parsePublicationRecord(text) {
  * `shadowed`. A paper PDF that is the copy of a working figure is not a figure of its own.
  */
 export function mergeFigureListings({ workFolder, work, paperFolder, paper }) {
-  const beside = workFolder === paperFolder ? { figures: [], others: [] } : paper
+  const beside = workFolder === paperFolder ? { figures: [], plots: [], others: [] } : paper
+  // Why only the working folder's: a plot's script and its run live in the record tree.
+  const plots = (work.plots ?? []).map((plot) => ({ ...plot, folder: workFolder }))
   const slugs = new Set(work.figures.map((figure) => figure.slug))
   const names = new Set(work.others.map((entry) => entry.name))
   const figures = [
@@ -50,7 +55,7 @@ export function mergeFigureListings({ workFolder, work, paperFolder, paper }) {
       .filter((figure) => !slugs.has(figure.slug))
       .map((figure) => ({ ...figure, folder: paperFolder, location: 'paper' }))
   ].sort((a, b) => a.slug.localeCompare(b.slug))
-  const copies = new Set([...slugs].map((slug) => `${slug}.pdf`))
+  const copies = new Set([...slugs, ...plots.map((plot) => plot.slug)].map((slug) => `${slug}.pdf`))
   const others = [
     ...work.others.map((entry) => ({ ...entry, folder: workFolder })),
     ...beside.others
@@ -60,7 +65,7 @@ export function mergeFigureListings({ workFolder, work, paperFolder, paper }) {
   const shadowed = beside.figures
     .filter((figure) => slugs.has(figure.slug))
     .map((figure) => ({ slug: figure.slug, folder: paperFolder }))
-  return { figures, others, shadowed }
+  return { figures, plots, others, shadowed }
 }
 
 /**

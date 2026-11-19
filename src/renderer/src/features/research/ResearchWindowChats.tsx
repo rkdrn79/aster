@@ -22,6 +22,9 @@ import { researchChatSessionTabs } from './ResearchAgentChatPane'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
 import { useResearchWindowChatRequest } from './research-window-surface'
 import { ResearchChatBranchMenuItem } from './ResearchChatBranchMenuItem'
+import { researchChatIsSubtask } from './research-chat-branches'
+import { useResearchRecords } from './research-records-store'
+import { ResearchChatForkStatus } from './ResearchChatStatusBadge'
 
 const EMPTY_TABS: readonly Tab[] = []
 // How long a started chat may take to show up in this window's list before the spinner gives up.
@@ -49,9 +52,21 @@ export function ResearchWindowChats({
   const workspaceTabs = useAppStore(
     (state) => state.unifiedTabsByWorktree[target.workspaceId] ?? EMPTY_TABS
   )
+  const records = useResearchRecords((state) => state.document)
+  // Subtasks open from the chat they report to, not from this list.
   const chats = useMemo(
-    () => (hostId ? researchChatSessionTabs(useAppStore.getState(), workspaceTabs, hostId) : []),
-    [hostId, workspaceTabs]
+    () =>
+      hostId
+        ? researchChatSessionTabs(useAppStore.getState(), workspaceTabs, hostId).filter(
+            (tab) =>
+              !researchChatIsSubtask(
+                records,
+                { hostId, workspaceId: target.workspaceId },
+                tab.entityId
+              )
+          )
+        : [],
+    [hostId, records, target.workspaceId, workspaceTabs]
   )
   const [selectedId, setSelectedId] = useState<string | null>(null)
   // The chats before a start from here; the first one outside it is the chat that start made.
@@ -114,7 +129,7 @@ export function ResearchWindowChats({
         aria-label="Chats"
         className="flex w-60 shrink-0 flex-col border-r border-border bg-muted/20"
       >
-        <div className="flex items-center gap-1 border-b border-border px-2 py-1.5">
+        <div className="flex items-center gap-1 border-b border-border px-2 py-2">
           <ResearchAgentPicker
             workspaceId={target.workspaceId}
             disabled={starting}
@@ -127,7 +142,7 @@ export function ResearchWindowChats({
             <Plus aria-hidden /> New chat
           </ResearchAgentPicker>
         </div>
-        <nav className="scrollbar-sleek min-h-0 flex-1 space-y-0.5 overflow-y-auto p-1.5">
+        <nav className="scrollbar-sleek min-h-0 flex-1 space-y-0.5 overflow-y-auto p-2">
           {chats.map((tab) => (
             <div key={tab.id} className="group flex min-w-0 items-center gap-0.5">
               <Button
@@ -139,7 +154,8 @@ export function ResearchWindowChats({
                 onClick={() => choose(tab.id)}
               >
                 <MessageSquare aria-hidden />
-                <span className="min-w-0 truncate">{chatLabel(tab)}</span>
+                <span className="min-w-0 flex-1 truncate text-left">{chatLabel(tab)}</span>
+                <ResearchChatForkStatus tab={tab} hostId={hostId} />
               </Button>
               {/* Why: shown on hover, focus or while open so each row reads as a title first. */}
               <span className="flex opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100">
@@ -168,7 +184,7 @@ export function ResearchWindowChats({
           ) : null}
         </nav>
         <p className="border-t border-border px-3 py-2 text-2xs text-muted-foreground">
-          Terminals stay in the main window.
+          Terminals stay in the main window
         </p>
       </aside>
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">

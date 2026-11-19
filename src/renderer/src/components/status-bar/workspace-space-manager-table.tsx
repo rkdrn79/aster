@@ -50,7 +50,7 @@ export function WorkspaceSpaceManagerTable({
             <div
               className={cn(
                 WORKSPACE_SPACE_TABLE_GRID_CLASS,
-                'shrink-0 border-b border-border/60 px-3 py-1.5 text-2xs font-medium uppercase tracking-wider text-muted-foreground'
+                'shrink-0 border-b border-border/60 px-3 py-1.5 text-2xs font-medium text-muted-foreground'
               )}
             >
               <div className="flex items-center">

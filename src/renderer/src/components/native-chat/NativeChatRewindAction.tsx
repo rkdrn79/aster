@@ -2,6 +2,7 @@ import { Undo2 } from 'lucide-react'
 import { useConfirmationDialog } from '@/components/confirmation-dialog-context'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
+import { NATIVE_CHAT_ROW_ACTION_CLASS } from './native-chat-row-action'
 import type { NativeChatRewindSurface } from './use-native-chat-rewind'
 
 export function NativeChatRewindAction({
@@ -19,7 +20,7 @@ export function NativeChatRewindAction({
         {/* Styled like the copy button beside it in the same hover strip. */}
         <button
           type="button"
-          className="flex size-6 shrink-0 items-center justify-center rounded-md text-chat-foreground-faint transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-disabled:opacity-50"
+          className={NATIVE_CHAT_ROW_ACTION_CLASS}
           aria-label={label}
           aria-description={rewind.disabledReason ?? undefined}
           aria-disabled={Boolean(rewind.disabledReason)}
@@ -29,7 +30,7 @@ export function NativeChatRewindAction({
             }
           }}
         >
-          <Undo2 className="size-3.5" />
+          <Undo2 className="size-4" />
         </button>
       </TooltipTrigger>
       <TooltipContent side="top" sideOffset={4} className="max-w-64">

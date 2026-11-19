@@ -52,7 +52,7 @@ function ActivePill({
   onClear: () => void
 }): React.JSX.Element {
   return (
-    <span className="inline-flex h-6 items-center gap-1 rounded-full border border-border/60 bg-muted/50 pl-2 pr-1 text-[11px] text-foreground">
+    <span className="inline-flex h-6 items-center gap-1 rounded-md border border-border/60 bg-muted/50 pl-2 pr-1 text-[11px] text-foreground">
       <span className="text-muted-foreground">{label}:</span>
       <span className="max-w-[160px] truncate font-medium">{value}</span>
       <button
@@ -63,7 +63,7 @@ function ActivePill({
           { value0: label }
         )}
         onClick={onClear}
-        className="rounded-full p-0.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+        className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
         <X className="size-3" />
       </button>
@@ -187,7 +187,7 @@ export default function PRFilterDropdowns({
             <ListFilter className="size-3.5" />
             {translate('auto.components.github.PRFilterDropdowns.79c54552f7', 'Filters')}
             {activeCount > 0 ? (
-              <span className="ml-0.5 rounded-full bg-muted px-1.5 text-[10px] font-medium text-foreground">
+              <span className="ml-0.5 text-[10px] tabular-nums text-muted-foreground">
                 {activeCount}
               </span>
             ) : null}

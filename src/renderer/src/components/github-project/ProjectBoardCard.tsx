@@ -64,7 +64,7 @@ export default function ProjectBoardCard({
             <span
               className={cn(
                 'line-clamp-2 text-xs font-medium leading-snug',
-                restricted && 'italic'
+                restricted && 'text-muted-foreground'
               )}
             >
               {title}

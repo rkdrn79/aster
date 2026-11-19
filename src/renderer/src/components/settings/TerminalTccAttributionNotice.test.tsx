@@ -71,7 +71,7 @@ it('navigates to Manage Sessions from the banner action', async () => {
   })
 
   const button = container.querySelector('button')
-  expect(button?.textContent).toContain('Open Manage Sessions')
+  expect(button?.textContent).toContain('Open Manage sessions')
   await act(async () => {
     button?.click()
   })

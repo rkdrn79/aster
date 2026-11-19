@@ -1,6 +1,7 @@
 // The kit never writes NaN. JSON turns NaN into null, and a scene with null coordinates breaks
 // the figure in Aster, so every item's numbers are checked when it is drawn and again on save,
 // and the error names the kit call, its id and the option that was not a number.
+import { warnKit } from './research-figures-cards.mjs'
 
 const finite = (value) => typeof value === 'number' && Number.isFinite(value)
 
@@ -117,9 +118,10 @@ export function assertFiniteItems(items, { owner, call } = {}) {
 
 /**
  * Wraps every method of `fig` so the innermost kit call running is known (`current()`), to name
- * it in an error. Getters stay getters; a promise's call ends when it settles.
+ * it in an error. Getters stay getters; a promise's call ends when it settles, and until then it
+ * is listed in `pending` so save() can wait for a call the script did not await.
  */
-export function trackKitCalls(fig) {
+export function trackKitCalls(fig, pending = new Set()) {
   const stack = []
   for (const [name, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(fig))) {
     const method = descriptor.value
@@ -138,12 +140,34 @@ export function trackKitCalls(fig) {
         done()
         throw error
       }
-      if (result && typeof result.then === 'function') {
-        return result.finally(done)
+      // Why not tracked: a call that placed its items at once (image) needs no waiting.
+      if (result && typeof result.then === 'function' && !result.asterPlaced) {
+        const entry = { name, id: spec?.id, promise: null }
+        entry.promise = result.finally(() => {
+          done()
+          pending.delete(entry)
+        })
+        pending.add(entry)
+        return entry.promise
       }
       done()
       return result
     }
   }
   return () => stack.at(-1) ?? null
+}
+
+/** Waits for the calls the script did not await (fig.plot without await) and names them. */
+export async function settleKitCalls(pending) {
+  const late = [...pending]
+  if (!late.length) {
+    return
+  }
+  await Promise.allSettled(late.map((entry) => entry.promise))
+  warnKit(
+    late.map(
+      (entry) =>
+        `fig.${entry.name}(${entry.id ? `{ id: '${entry.id}' }` : ''}) was not awaited; save() waited for it, but later calls could not use it: write await fig.${entry.name}(…)`
+    )
+  )
 }

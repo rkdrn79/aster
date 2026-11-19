@@ -100,6 +100,6 @@ it('shows Aster download progress and restart action for a future update', () =>
   expect(
     screen.getByText("Aster v0.1.0-preview.2 is downloaded. Restart when you're ready.")
   ).toBeTruthy()
-  fireEvent.click(screen.getByRole('button', { name: 'Restart to Update' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Restart to update' }))
   expect(props.onInstallRetry).toHaveBeenCalledOnce()
 })

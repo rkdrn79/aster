@@ -108,7 +108,7 @@ export function GHCommentComposer({
       <GitHubMarkdownComposer
         value={body}
         onChange={setBody}
-        placeholder={translate('auto.components.GitHubItemDialog.c5c117270e', 'Add a comment…')}
+        placeholder={translate('auto.components.GitHubItemDialog.c5c117270e', 'Add a comment')}
         disabled={submitting}
         minHeightClassName="min-h-28 pb-14 pr-14"
         className="w-full"

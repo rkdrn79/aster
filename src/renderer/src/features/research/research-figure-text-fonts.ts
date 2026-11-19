@@ -8,8 +8,12 @@
  * the font is in. Pure apart from the `fontReady` check the caller passes.
  */
 
-/** Excalidraw's font families by id (its `FONT_FAMILY`), as CSS names. */
+import { PAPER_SERIF } from '../../../../research-harness/research-figures-paper-fonts.mjs'
+
+/** Excalidraw's font families by id (its `FONT_FAMILY`), as CSS names, and the paper faces. */
 const FAMILY_NAMES: Readonly<Record<number, string>> = {
+  [PAPER_SERIF.cm.id]: `"${PAPER_SERIF.cm.name}"`,
+  [PAPER_SERIF.times.id]: `"${PAPER_SERIF.times.name}"`,
   1: 'Virgil',
   2: 'Helvetica',
   3: 'Cascadia',

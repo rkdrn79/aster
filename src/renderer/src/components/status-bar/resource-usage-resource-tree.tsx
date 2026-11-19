@@ -143,11 +143,11 @@ export function ResourceTree({
               </button>
               <div className="flex-1 min-w-0 py-2 pr-3 flex items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-[11px] font-semibold uppercase tracking-wide truncate text-muted-foreground">
+                  <span className="text-[11px] font-medium truncate text-muted-foreground">
                     {group.repoName}
                   </span>
                   {group.hasRemoteChildren && (
-                    <span className="shrink-0 text-[9px] uppercase tracking-wide text-muted-foreground/70">
+                    <span className="shrink-0 text-[10px] text-muted-foreground/70">
                       {translate(
                         'auto.components.status.bar.ResourceUsageStatusSegment.21cacb16d1',
                         '· remote'

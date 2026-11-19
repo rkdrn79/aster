@@ -232,7 +232,7 @@ export function AdvancedNetworkSettingsSection({
           <Label>
             {translate(
               'auto.components.settings.AdvancedNetworkSettingsSection.f00daf6324',
-              'HTTP Proxy'
+              'HTTP proxy'
             )}
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -267,7 +267,7 @@ export function AdvancedNetworkSettingsSection({
               <Label htmlFor="settings-http-proxy-url">
                 {translate(
                   'auto.components.settings.AdvancedNetworkSettingsSection.f00daf6324',
-                  'HTTP Proxy'
+                  'HTTP proxy'
                 )}
               </Label>
               <Input
@@ -309,7 +309,7 @@ export function AdvancedNetworkSettingsSection({
               <Label htmlFor="settings-http-proxy-bypass-rules">
                 {translate(
                   'auto.components.settings.AdvancedNetworkSettingsSection.f6d76cc8f4',
-                  'Proxy Bypass Rules'
+                  'Proxy bypass rules'
                 )}
               </Label>
               <Textarea

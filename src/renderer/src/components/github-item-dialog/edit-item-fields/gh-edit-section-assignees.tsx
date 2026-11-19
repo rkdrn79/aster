@@ -34,7 +34,7 @@ export function GHEditSectionAssigneesColumn({
 }): React.JSX.Element {
   return (
     <section className="min-w-0">
-      <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="mb-2 flex items-center justify-between text-[11px] font-medium text-muted-foreground">
         <span>{translate('auto.components.GitHubItemDialog.83ac703dda', 'Assignees')}</span>
         <Popover open={popoverOpen} onOpenChange={onPopoverOpenChange}>
           <PopoverTrigger asChild>
@@ -45,7 +45,7 @@ export function GHEditSectionAssigneesColumn({
                 'auto.components.GitHubItemDialog.76adcf5fe2',
                 'Edit assignees'
               )}
-              className="rounded p-0.5 text-muted-foreground transition hover:bg-accent hover:text-foreground disabled:opacity-50"
+              className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
             >
               {isPending ? (
                 <LoaderCircle className="size-3 animate-spin" />
@@ -145,7 +145,7 @@ export function GHEditSectionAssigneesPill({
         <button
           type="button"
           disabled={isPending || repoAssignees.loading}
-          className="group/assignees inline-flex items-center gap-1 rounded-full border border-border/30 bg-muted/20 px-2 py-0.5 text-[11px] transition hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50"
+          className="group/assignees inline-flex items-center gap-1 rounded-md border border-border/30 bg-muted/20 px-2 py-0.5 text-[11px] transition-[filter,box-shadow] hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50"
         >
           {localAssignees.length === 0 ? (
             <span className="text-muted-foreground">

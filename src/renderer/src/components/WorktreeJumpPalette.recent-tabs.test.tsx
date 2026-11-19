@@ -256,8 +256,8 @@ describe('WorktreeJumpPalette recent chats & terminals', () => {
     const rows = getRenderedRowIds().filter((id) => id.length > 0)
     expect(rows[0].startsWith(encodePaletteIdentity(['workspace-tab']))).toBe(true)
     expect(rows.some((id) => id.startsWith(encodePaletteIdentity(['worktree'])))).toBe(true)
-    expect(testContainer.textContent).toContain('Recent Chats & Terminals')
-    expect(testContainer.textContent).toContain('Recent Workspaces')
+    expect(testContainer.textContent).toContain('Recent chats & terminals')
+    expect(testContainer.textContent).toContain('Recent workspaces')
   })
 
   it('keeps duplicate persisted tab ids as separate recent rows and digit targets', async () => {
@@ -284,7 +284,7 @@ describe('WorktreeJumpPalette recent chats & terminals', () => {
     await renderPalette(makeManyTabState(12))
 
     expect(getTabRowIds()).toHaveLength(6)
-    expect(testContainer.textContent).toContain('Recent Workspaces')
+    expect(testContainer.textContent).toContain('Recent workspaces')
     // Why: the worktree section shrinks against the recent rows so the list holds at 10 total —
     // it must never uncap, not even for the frame before the order snapshot lands.
     expect(getWorktreeRows().length).toBeLessThanOrEqual(4)
@@ -762,7 +762,7 @@ describe('WorktreeJumpPalette recent chats & terminals', () => {
     // Why: high-signal current tabs stay scannable (ask-question / permission badge) even though
     // idle "where you are" rows are still dropped.
     expect(getTabRowIds()).toEqual(['tab-beta', 'tab-alpha'])
-    expect(testContainer.textContent).toContain('Current Tab')
+    expect(testContainer.textContent).toContain('Current tab')
   })
 
   it('keeps the current tab in recent when its agent is working', async () => {
@@ -861,7 +861,7 @@ describe('WorktreeJumpPalette recent chats & terminals', () => {
     })
 
     // The seeded filter narrows the recent rows instead of dropping the section.
-    expect(testContainer.textContent).toContain('Recent Chats & Terminals')
+    expect(testContainer.textContent).toContain('Recent chats & terminals')
     expect(getTabRowIds()).toEqual(['tab-alpha'])
 
     await act(async () => {

@@ -359,7 +359,6 @@ export function ReviewNotesAnimatedVisual(props: { reducedMotion: boolean }): JS
           </button>
           <button type="button" className="ravs-send-btn" data-send-btn>
             <SendIcon />
-            <span className="ravs-send-glow" />
           </button>
         </span>
       </div>

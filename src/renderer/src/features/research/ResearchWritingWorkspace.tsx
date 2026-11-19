@@ -1,4 +1,5 @@
 /* oxlint-disable react-doctor/no-adjust-state-on-prop-change -- Why: editor tab ownership and manuscript bytes resolve through the existing workspace/runtime services after the selected source changes. */
+import './research-pane-motion.css'
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { MoreHorizontal } from 'lucide-react'
 import type { ExperimentRecord } from '../../../../shared/research/research-records'
@@ -39,10 +40,8 @@ import { useManuscriptPresence } from './useWritingManuscriptPresence'
 import { useWritingSynctexNavigation } from './research-writing-synctex-navigation'
 import { useWritingSourceExternalRefresh } from './useWritingSourceExternalRefresh'
 import { useWritingAgentFocus } from './useWritingAgentFocus'
-import { useResearchClaims } from './use-research-claims'
-import { ResearchClaimsChip } from './ResearchClaimsPanel'
-import { askWritingAgentAboutClaim, updateClaimText } from './research-claims-apply'
 import { ResearchWritingClaimsSplit } from './ResearchWritingClaimsSplit'
+import { useWritingDrawers } from './research-writing-drawers'
 
 function subscribeWideLayout(onChange: () => void): () => void {
   const query = window.matchMedia('(min-width: 1280px)')
@@ -81,8 +80,6 @@ export function ResearchWritingWorkspace({
   const [paneOrder, setPaneOrder] = useState(() => readWritingPaneOrder(record.id))
   useWritingAgentFocus(record, setActivePane, setVisiblePanes)
   const wideLayout = useSyncExternalStore(subscribeWideLayout, wideLayoutSnapshot, () => false)
-  const [claimsOpen, setClaimsOpen] = useState(false)
-  const claims = useResearchClaims(record, claimsOpen)
   const openKey = useRef<string | null>(null)
   const recordsError = useResearchRecords((state) => state.error)
   const presence = useManuscriptPresence(record, manuscript?.sourcePath ?? null, presenceKey)
@@ -154,6 +151,12 @@ export function ResearchWritingWorkspace({
     selectTexFile: setSelectedTexPath
   })
   const synctexAvailable = !projectOnly && record.hostId === 'local'
+  const drawers = useWritingDrawers({
+    record,
+    projectOnly,
+    onOpenSource: synctex.jumpToSource,
+    showAgent: () => showPane('agent')
+  })
 
   function togglePane(index: 0 | 1 | 2): void {
     const next = toggleWritingPaneVisibility(visiblePanes, index)
@@ -242,13 +245,7 @@ export function ResearchWritingWorkspace({
         context={rootFile?.relativePath}
         actions={
           <>
-            {sourceFile && claims.available ? (
-              <ResearchClaimsChip
-                audit={claims.audit}
-                open={claimsOpen}
-                onToggle={() => setClaimsOpen((open) => !open)}
-              />
-            ) : null}
+            {sourceFile ? drawers.chips : null}
             {sourceFile && (
               <ResearchWritingPanelToggles
                 wide={wideLayout}
@@ -269,9 +266,12 @@ export function ResearchWritingWorkspace({
                   Main TeX file…
                 </DropdownMenuItem>
                 {sourceFile ? (
-                  <DropdownMenuItem onSelect={() => setClaimsOpen(true)}>
-                    Claims and numbers
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem onSelect={drawers.openCheck}>Check writing</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={drawers.openClaims}>
+                      Claims and numbers
+                    </DropdownMenuItem>
+                  </>
                 ) : null}
                 {record.hostId === 'local' && (
                   <DropdownMenuItem
@@ -310,7 +310,7 @@ export function ResearchWritingWorkspace({
       {!formOpen && formError && !needsSetup && (
         <p
           role="alert"
-          className="shrink-0 border-b border-destructive/30 px-4 py-2 text-xs text-destructive"
+          className="shrink-0 border-b border-border px-4 py-2 text-xs text-destructive"
         >
           {formError}
         </p>
@@ -337,6 +337,7 @@ export function ResearchWritingWorkspace({
                   <ResearchWritingAgentPane
                     experiment={record}
                     visible={wideLayout ? visiblePanes[0] : activePane === 'agent'}
+                    onOpenCheck={drawers.openCheck}
                   />
                 }
                 source={
@@ -367,25 +368,7 @@ export function ResearchWritingWorkspace({
               />
             </>
           }
-          claimsPanel={
-            claimsOpen
-              ? {
-                  claims,
-                  onOpenSource: synctex.jumpToSource,
-                  onClose: () => setClaimsOpen(false),
-                  onUpdateText: (claim) => updateClaimText(record, claim),
-                  onAskAgent: projectOnly
-                    ? undefined
-                    : async (claim) => {
-                        const error = await askWritingAgentAboutClaim(record, claim)
-                        if (!error) {
-                          showPane('agent')
-                        }
-                        return error
-                      }
-                }
-              : null
-          }
+          drawer={drawers.drawer}
         />
       ) : needsSetup && !formOpen ? (
         <ResearchWritingSetup

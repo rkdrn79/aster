@@ -6,7 +6,7 @@ export const getBrowserUsePaneSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.browser.use.search.a1414dcefb',
-      'Install Browser Use Skill'
+      'Install browser use skill'
     ),
     description: translate(
       'auto.components.settings.browser.use.search.a7e82445fa',
@@ -41,7 +41,7 @@ export const getBrowserUsePaneSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.browser.use.search.614c756ab1',
-      'Import Browser Cookies'
+      'Import browser cookies'
     ),
     description: translate(
       'auto.components.settings.browser.use.search.2fb24d17db',

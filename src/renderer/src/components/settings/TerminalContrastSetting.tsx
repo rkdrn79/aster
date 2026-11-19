@@ -28,7 +28,7 @@ export function TerminalContrastSetting({ settings, updateSettings }: Props): Re
     setPreviousValue(value)
     setDraft(value ?? LIGHT_BG_MIN_CONTRAST)
   }
-  const title = translate('auto.components.settings.contrast.title', 'Color Contrast')
+  const title = translate('auto.components.settings.contrast.title', 'Color contrast')
   const description = translate(
     'auto.components.settings.contrast.description',
     'Improve text readability or preserve the colors chosen by terminal programs.'

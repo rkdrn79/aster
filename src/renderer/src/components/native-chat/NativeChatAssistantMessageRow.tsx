@@ -8,6 +8,7 @@ import { NativeChatToolRun } from './NativeChatToolRun'
 import { NativeChatCodeBlock, NativeChatPlainCodeBlock } from './NativeChatCodeBlock'
 import { NativeChatAgentControls, NativeChatImageAttachments } from './NativeChatTranscriptChrome'
 import type { useNativeChatWorkRun } from './use-native-chat-work-run'
+import { NATIVE_CHAT_ROW_ACTIONS_REVEAL } from './native-chat-row-action'
 
 function messageIsStreaming(
   message: NativeChatMessage,
@@ -99,7 +100,8 @@ export function NativeChatAssistantMessageRow({
           onScrollToTop={scrollToTop}
           {...(props.branchable ? { branchMessageId: message.id } : {})}
           className={cn(
-            'mt-1 w-fit select-none transition-opacity can-hover:pointer-events-none can-hover:opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 [.group:has(:focus-visible)_&]:pointer-events-auto [.group:has(:focus-visible)_&]:opacity-100',
+            'mt-1 w-fit select-none',
+            NATIVE_CHAT_ROW_ACTIONS_REVEAL,
             // They hang into the gap below; a section keeps them inside its border instead.
             !inSubagentSection && '-mb-5'
           )}

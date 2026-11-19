@@ -274,8 +274,8 @@ export function SshStatusSegment({
           }
         }}
       >
-        <div className="px-2 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-          {translate('auto.components.status.bar.SshStatusSegment.6e8a9a4242', 'Remote Hosts')}
+        <div className="px-2 pt-1.5 pb-1 text-[11px] font-medium text-muted-foreground">
+          {translate('auto.components.status.bar.SshStatusSegment.6e8a9a4242', 'Remote hosts')}
         </div>
         {connectedRuntimeHosts.map((host) => (
           <RuntimeHostStatusRow
@@ -325,7 +325,7 @@ export function SshStatusSegment({
         >
           {translate(
             'auto.components.status.bar.SshStatusSegment.3ad70e0365',
-            'Manage Remote Hosts…'
+            'Manage remote hosts…'
           )}
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -1,4 +1,4 @@
-import { Copy, Sparkles } from 'lucide-react'
+import { Copy } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '../ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
@@ -32,7 +32,6 @@ export function BrowserUseExamples(): React.JSX.Element {
   return (
     <div className="rounded-xl border border-border/60 bg-card/50 p-4">
       <div className="flex items-center gap-2">
-        <Sparkles className="size-3.5 text-muted-foreground" />
         <p className="text-sm font-medium">
           {translate(
             'auto.components.settings.BrowserUseExamples.2a180694f7',

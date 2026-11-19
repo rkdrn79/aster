@@ -104,9 +104,7 @@ function SetupSection(props: {
   return (
     <section className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <h4 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
-          {props.title}
-        </h4>
+        <h4 className="text-[11px] font-medium text-muted-foreground">{props.title}</h4>
         <span className="text-[11px] tabular-nums text-muted-foreground">
           {doneCount}/{props.steps.length}
         </span>

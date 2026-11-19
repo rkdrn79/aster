@@ -116,7 +116,7 @@ describe('MobilePairingQrSection', () => {
     )
 
     const images = Array.from(
-      document.querySelectorAll<HTMLImageElement>('img[alt="QR Code for mobile pairing"]')
+      document.querySelectorAll<HTMLImageElement>('img[alt="QR code for mobile pairing"]')
     )
     expect(images.map((image) => image.style.width).sort()).toEqual(['218px', '436px'])
     expect(images.map((image) => image.style.height).sort()).toEqual(['218px', '436px'])

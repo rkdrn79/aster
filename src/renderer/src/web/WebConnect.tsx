@@ -21,6 +21,7 @@ import { translate } from '@/i18n/i18n'
 import { readWebDeviceKeySupport } from './web-device-key-support'
 import { webSessionPairingGuidance } from './web-pairing-security-guidance'
 import { PRODUCT_NAME } from '../../../shared/product-brand'
+import { maskEndpointSecrets } from '../../../shared/endpoint-display'
 
 type WebConnectProps = {
   initialPairingInput: string | null
@@ -179,7 +180,8 @@ export default function WebConnect({
 
         {parsedOffer && (
           <div className="rounded-md border border-border bg-muted px-3 py-2 text-xs text-muted-foreground">
-            {translate('auto.web.WebConnect.4a4c017be1', 'Endpoint:')} {parsedOffer.endpoint}
+            {translate('auto.web.WebConnect.4a4c017be1', 'Endpoint:')}{' '}
+            {maskEndpointSecrets(parsedOffer.endpoint)}
           </div>
         )}
 

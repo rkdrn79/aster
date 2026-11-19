@@ -96,7 +96,7 @@ export function ProjectViewToolbar({ tableState }: { tableState: ProjectViewTabl
       ) : null}
       {table ? (
         <>
-          <span className="ml-auto rounded-full border border-border/50 bg-background px-2 py-0.5 text-[11px]">
+          <span className="ml-auto text-[11px] tabular-nums text-muted-foreground">
             {visibleTable?.totalCount ?? table.totalCount}
           </span>
           {selectedViewUrl ? (
@@ -233,7 +233,7 @@ function ProjectSearchInput({
             setValue('')
             apply('')
           }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
         >
           <X className="size-3.5" />
         </button>

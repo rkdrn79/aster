@@ -4,14 +4,14 @@ export type AccentColorScheme = 'light' | 'dark'
 
 /** The `--background` canvases from main.css that the readability guard measures against. */
 export const ACCENT_CANVAS: Record<AccentColorScheme, string> = {
-  light: '#f9f8f5',
-  dark: '#101216'
+  light: '#ffffff',
+  dark: '#111113'
 }
 
 /** Ink used on the accent when white reads worse; matches main.css's default ink pairs. */
 const DARK_ON_ACCENT: Record<AccentColorScheme, string> = {
-  light: '#161921',
-  dark: '#101216'
+  light: '#18181b',
+  dark: '#111113'
 }
 
 // Why 3:1: WCAG non-text contrast, so selection, focus and the current page stay visible.

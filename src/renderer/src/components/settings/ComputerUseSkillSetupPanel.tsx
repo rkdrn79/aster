@@ -33,14 +33,14 @@ export function ComputerUseSkillSetupPanel(): React.JSX.Element {
 
   return (
     <AgentSkillSetupPanel
-      title={translate('auto.components.settings.ComputerUsePane.93255aaf18', 'Computer Use skill')}
+      title={translate('auto.components.settings.ComputerUsePane.93255aaf18', 'Computer use skill')}
       description={translate(
         'auto.components.settings.ComputerUsePane.1735461723',
         'Enables agents to inspect and operate local desktop apps.'
       )}
       command={installCommand}
-      terminalTitle="Computer Use setup"
-      terminalAriaLabel="Computer Use skill install terminal"
+      terminalTitle="Computer use setup"
+      terminalAriaLabel="Computer use skill install terminal"
       terminalWorktreeId="settings-computer-use-skill-terminal"
       terminalShellOverride={activeSkillRuntime.terminalShellOverride}
       terminalRuntime={activeSkillRuntime.agentRuntime}

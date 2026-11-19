@@ -54,7 +54,7 @@ export function NativeChatModelCombobox({
     >
       <CommandInput ref={search} placeholder={searchLabel} />
       {readOnly && readOnlyReason ? (
-        <div className="px-3 py-1.5 text-xs text-muted-foreground">{readOnlyReason}</div>
+        <div className="px-3 py-2 text-xs text-muted-foreground">{readOnlyReason}</div>
       ) : null}
       <CommandList
         animateHeight
@@ -99,8 +99,8 @@ export function NativeChatModelCombobox({
                   />
                   {/* Why always there: a row that gains the check must not re-wrap its text while
                     the picker is open. */}
-                  <span className="ml-auto flex size-3.5 shrink-0 items-center justify-center">
-                    {current ? <Check className="size-3.5 text-muted-foreground" /> : null}
+                  <span className="ml-auto flex size-4 shrink-0 items-center justify-center">
+                    {current ? <Check className="size-4 text-muted-foreground" /> : null}
                   </span>
                 </CommandItem>
               )

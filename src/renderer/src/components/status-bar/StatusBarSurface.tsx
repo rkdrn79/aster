@@ -153,7 +153,7 @@ export function StatusBarSurface({
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-3 rounded px-1 py-0.5 hover:bg-accent/70"
+                    className="inline-flex items-center gap-3 rounded-md px-1.5 py-0.5 transition-colors duration-150 hover:bg-foreground/[0.06] data-[state=open]:bg-foreground/[0.06]"
                     aria-label={translate(
                       'auto.components.status.bar.UsageRosterPanel.title',
                       'Usage'
@@ -275,7 +275,7 @@ export function StatusBarSurface({
                 <button
                   onClick={handleRefresh}
                   disabled={isRefreshing}
-                  className="p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+                  className="rounded-md p-0.5 text-muted-foreground transition-colors duration-150 hover:bg-foreground/[0.06] hover:text-foreground disabled:opacity-40"
                   aria-label={translate(
                     'auto.components.status.bar.StatusBar.3325d996cb',
                     'Refresh rate limits'

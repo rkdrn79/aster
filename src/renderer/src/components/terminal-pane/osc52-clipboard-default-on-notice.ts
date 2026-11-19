@@ -46,7 +46,7 @@ export function useOsc52ClipboardDefaultOnNotice(persistedUIReady: boolean): voi
         action: {
           label: translate(
             'auto.components.terminal.pane.osc52.clipboard.default.on.notice.action',
-            'Open Setting'
+            'Open setting'
           ),
           onClick: () => {
             // Why clear here too: sonner's action path deletes the toast without firing

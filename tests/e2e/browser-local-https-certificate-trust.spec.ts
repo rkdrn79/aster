@@ -149,11 +149,11 @@ test.describe('local HTTPS certificate trust', () => {
       ).toBeVisible()
       // The certificate-failure branch keeps its safe recovery actions and the
       // certificate-specific hint, but never the local-server connectivity hint.
-      await expect(firstSlot.getByRole('button', { name: 'Copy Address' })).toBeVisible()
+      await expect(firstSlot.getByRole('button', { name: 'Copy address' })).toBeVisible()
       await expect(failureOverlayRetryButton(firstSlot)).toBeVisible()
       await expect(firstSlot.getByText(/use a trusted local certificate/i)).toBeVisible()
       await expect(firstSlot.getByText(/make sure the server is running/i)).toHaveCount(0)
-      await firstSlot.getByRole('button', { name: 'Proceed Anyway (Unsafe)' }).click()
+      await firstSlot.getByRole('button', { name: 'Proceed anyway (unsafe)' }).click()
       await expect
         .poll(() => readBrowserHeading(orcaPage, firstTab.id), { timeout: 10_000 })
         .toBe('Local HTTPS request 1')
@@ -171,7 +171,7 @@ test.describe('local HTTPS certificate trust', () => {
       // Why: approval is scoped to the first guest WebContents, not its shared
       // profile partition, so this sibling still requires an explicit decision.
       await expect(
-        secondSlot.getByRole('button', { name: 'Proceed Anyway (Unsafe)' })
+        secondSlot.getByRole('button', { name: 'Proceed anyway (unsafe)' })
       ).toBeVisible()
 
       const probeTab = await createBrowserTab(orcaPage, worktreeId, siblingProbeServer.url)
@@ -196,7 +196,7 @@ test.describe('local HTTPS certificate trust', () => {
       await expect(
         firstSlot.getByRole('heading', { name: "Connection isn't secure" })
       ).toBeVisible()
-      await expect(firstSlot.getByRole('button', { name: 'Proceed Anyway (Unsafe)' })).toBeVisible()
+      await expect(firstSlot.getByRole('button', { name: 'Proceed anyway (unsafe)' })).toBeVisible()
       await expect.poll(secondPortServer.documentRequestCount).toBe(0)
     } finally {
       await Promise.all([firstServer.close(), secondPortServer.close(), siblingProbeServer.close()])

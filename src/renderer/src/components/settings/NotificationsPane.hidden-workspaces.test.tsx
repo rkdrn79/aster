@@ -25,7 +25,7 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-const LABEL = 'Notify About Hidden Workspaces'
+const LABEL = 'Notify about hidden workspaces'
 
 function renderPane(enabled = true) {
   const defaults = getDefaultSettings('/tmp')

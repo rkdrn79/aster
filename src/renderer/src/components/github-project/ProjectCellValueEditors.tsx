@@ -118,7 +118,7 @@ export function ProjectDateCell({
 export function ProjectLabelChip({ label }: { label: GitHubProjectLabel }): React.JSX.Element {
   return (
     <span
-      className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium leading-none text-[var(--github-project-chip-fg-light)] dark:text-[var(--github-project-chip-fg-dark)]"
+      className="inline-flex items-center rounded-sm px-1.5 py-0.5 text-[10px] font-medium leading-none text-[var(--github-project-chip-fg-light)] dark:text-[var(--github-project-chip-fg-dark)]"
       style={chipStyle(labelChipColors(label.color))}
     >
       {label.name}

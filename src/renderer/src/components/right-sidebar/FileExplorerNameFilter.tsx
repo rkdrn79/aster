@@ -20,7 +20,9 @@ export function FileExplorerNameFilter({
 }: FileExplorerNameFilterProps): React.JSX.Element {
   return (
     <div
-      className="flex h-8 items-center gap-1 rounded-md border border-border bg-input/50 px-2 focus-within:border-ring focus-within:ring-1 focus-within:ring-ring"
+      // Why these classes: the same field as the shared Input, so the explorer's two queries match
+      // every other text box.
+      className="flex h-8 items-center gap-1.5 rounded-lg border border-input bg-raised px-2.5 shadow-xs transition-[box-shadow,border-color] duration-150 focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/25 dark:bg-input/30"
       data-ignore-file-explorer-keys="true"
     >
       <ListFilter className="size-3.5 shrink-0 text-muted-foreground" />

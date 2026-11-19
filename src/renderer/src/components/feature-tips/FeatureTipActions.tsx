@@ -39,7 +39,7 @@ export function FeatureTipActions({
     <>
       {showSkip ? (
         <Button variant="ghost" onClick={onSkip} disabled={primaryBusy}>
-          {translate('auto.components.feature.tips.FeatureTipActions.eb04abece8', 'Maybe Later')}
+          {translate('auto.components.feature.tips.FeatureTipActions.eb04abece8', 'Maybe later')}
         </Button>
       ) : null}
       <Button

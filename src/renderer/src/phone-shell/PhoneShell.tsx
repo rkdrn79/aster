@@ -2,6 +2,7 @@ import { Suspense, useRef } from 'react'
 import { FolderPlus, Plus, RefreshCw } from 'lucide-react'
 import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
 import { useAppStore } from '@/store'
+import { cn } from '@/lib/utils'
 import { RecoverableRenderErrorBoundary } from '@/components/error-boundaries/RecoverableRenderErrorBoundary'
 import { TerminalWorkbenchContainer } from '@/components/TerminalWorkbenchContainer'
 import type { VirtualizedScrollAnchor } from '@/hooks/useVirtualizedScrollAnchor'
@@ -28,6 +29,7 @@ import {
 } from './phone-workspace-actions'
 import { PhoneAgentsScreen } from './PhoneAgentsScreen'
 import { PhoneExperimentScreen } from './PhoneExperimentScreen'
+import { PhoneConnectionBanner } from './PhoneConnectionStatus'
 import { PhoneHeader, PhoneHeaderAction } from './PhoneHeader'
 import { PhoneHomeScreen } from './PhoneHomeScreen'
 import { PhoneNewAgentScreen } from './PhoneNewAgentScreen'
@@ -35,6 +37,7 @@ import { PhoneProjectScreen } from './PhoneProjectScreen'
 import { PhoneFilesScreen } from './PhoneFilesScreen'
 import { PhoneRunDetailScreen } from './PhoneRunDetailScreen'
 import { PhoneRunsScreen } from './PhoneRunsScreen'
+import { isPhoneResearchScreen, PhoneResearchScreens } from './PhoneResearchScreens'
 import { refreshAllPhoneResearchOverviews } from './phone-research-overviews'
 import { PHONE_TAB_TITLES, PhoneTabBar } from './PhoneTabBar'
 import { PhoneTerminalComposer } from './PhoneTerminalComposer'
@@ -78,11 +81,16 @@ function PhoneTabScreen({
   screen: PhoneScreen | null
   sessions: PhoneSession[]
 }): React.JSX.Element | null {
+  if (isPhoneResearchScreen(screen)) {
+    return <PhoneResearchScreens screen={screen} />
+  }
   if (screen?.kind === 'project') {
     return <PhoneProjectScreen projectKey={screen.projectKey} sessions={sessions} />
   }
   if (screen?.kind === 'new-agent') {
-    return <PhoneNewAgentScreen initialWorktreeId={screen.worktreeId} />
+    return (
+      <PhoneNewAgentScreen initialWorktreeId={screen.worktreeId} initialPrompt={screen.prompt} />
+    )
   }
   if (screen?.kind === 'experiment') {
     return <PhoneExperimentScreen worktreeId={screen.worktreeId} slug={screen.experiment} />
@@ -192,7 +200,14 @@ export default function PhoneShell({ layout }: { layout: AppChromeLayout }): Rea
       data-phone-shell=""
     >
       <PhoneHeader {...header} />
-      <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      <PhoneConnectionBanner />
+      <main
+        className={cn(
+          'relative flex min-h-0 flex-1 flex-col overflow-hidden',
+          // Why: tab screens pad their own lists; a page or session would sit under a sideways notch.
+          (page || workbench) && 'pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]'
+        )}
+      >
         {layout.shouldMountTerminalWorkbench ? (
           <TerminalWorkbenchContainer
             isVisible={workbench !== null && layout.terminalWorkbenchVisible}
@@ -236,7 +251,14 @@ export default function PhoneShell({ layout }: { layout: AppChromeLayout }): Rea
         />
       ) : workbench ? (
         <PhoneTerminalComposer />
-      ) : page || screen?.kind === 'new-agent' ? null : (
+      ) : page ? (
+        // Why: a page has no tab bar to keep its last row off the home indicator.
+        <div
+          aria-hidden
+          className="shrink-0 bg-background"
+          style={{ height: frame.keyboardOpen ? 0 : 'env(safe-area-inset-bottom)' }}
+        />
+      ) : screen?.kind === 'new-agent' ? null : (
         <PhoneTabBar
           needsYouCount={sessions.filter((session) => phoneSessionNeedsYou(session.state)).length}
         />

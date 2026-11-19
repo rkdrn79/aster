@@ -25,7 +25,7 @@ export function NativeChatInstallStrip(props: {
   return (
     <div
       data-native-chat-install="strip"
-      className="flex items-center gap-3 rounded-xl border border-input bg-card px-3.5 py-3 text-sm shadow-xs"
+      className="flex items-center gap-3 rounded-xl border border-input bg-card px-4 py-3 text-sm shadow-xs"
     >
       <NativeChatInstallTile
         agent={slot.observation.subject.agent}
@@ -33,7 +33,7 @@ export function NativeChatInstallStrip(props: {
         large={false}
       />
       <div className="min-w-0 flex-1">
-        <p className="font-semibold text-foreground">{card.title}</p>
+        <p className="font-medium text-foreground">{card.title}</p>
         {status ? (
           <p
             role="status"
@@ -46,7 +46,7 @@ export function NativeChatInstallStrip(props: {
         {progress ? (
           <Progress
             value={progress.percent ?? 100}
-            className="mt-2 h-1.5"
+            className="mt-2 h-1"
             aria-label={translate('components.managed-runtime.progress', '{{agent}} download', {
               agent: agentLabel
             })}

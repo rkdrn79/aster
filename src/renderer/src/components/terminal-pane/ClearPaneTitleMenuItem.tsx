@@ -15,7 +15,7 @@ export function ClearPaneTitleMenuItem({
       <X />
       {translate(
         'auto.components.terminal.pane.TerminalContextMenu.clearPaneTitle',
-        'Clear Pane Title'
+        'Clear pane title'
       )}
       {shortcut ? <DropdownMenuShortcut>{shortcut}</DropdownMenuShortcut> : null}
     </DropdownMenuItem>

@@ -81,7 +81,7 @@ describe('JiraIssueWorkspace optimistic edits', () => {
     runtimeMocks.jiraAddIssueCommentForTarget.mockResolvedValue({ ok: true, id: 'added' })
     render(<StoreBackedWorkspace initial={jiraIssue('Old title')} />)
     await flushPromises()
-    fireEvent.change(screen.getByPlaceholderText('Add a Jira comment...'), {
+    fireEvent.change(screen.getByPlaceholderText('Add a Jira comment'), {
       target: { value: 'New comment' }
     })
     fireEvent.click(screen.getByRole('button', { name: 'Comment' }))

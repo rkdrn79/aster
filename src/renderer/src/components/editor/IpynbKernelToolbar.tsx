@@ -58,7 +58,7 @@ function kernelLabel({ environment, status, setup }: KernelState): string {
   }
   return environment
     ? environmentLabel(environment)
-    : translate('auto.components.editor.IpynbViewer.selectKernel', 'Select Kernel')
+    : translate('auto.components.editor.IpynbViewer.selectKernel', 'Select kernel')
 }
 
 function EnvironmentItems({ environments }: { environments: PythonEnvironment[] }) {

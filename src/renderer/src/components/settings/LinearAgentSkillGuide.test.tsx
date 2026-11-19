@@ -28,12 +28,12 @@ describe('LinearAgentSkillGuide', () => {
 
     expect(markup).toContain('Setup checklist')
     expect(markup).toContain('2 of 3 ready')
-    expect(markup).toContain('Task Sources')
+    expect(markup).toContain('Task sources')
     expect(markup).toContain('Skill install panel')
     expect(markup).not.toContain('Ready below')
     expect(markup).not.toContain('Install below')
     expect(markup).not.toContain('Agent skill')
-    expect(markup).not.toContain('Open Task Sources setup')
+    expect(markup).not.toContain('Open Task sources setup')
   })
 
   it('marks the checklist complete when every step is done', () => {

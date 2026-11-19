@@ -88,7 +88,7 @@ export function ResearchFigurePreview({
 
   return (
     <section aria-label={`Figure ${name}`} className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-1.5 text-xs">
+      <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2 text-xs">
         <span className="font-medium">{name}</span>
         <span className="text-muted-foreground">Read-only · made outside Figures</span>
         {canCopy ? (
@@ -108,7 +108,7 @@ export function ResearchFigurePreview({
           onClick={() =>
             void window.api.ui
               .writeClipboardText(line)
-              .then(() => toast.success('LaTeX line copied.'))
+              .then(() => toast.success('LaTeX line copied'))
           }
         >
           <Copy aria-hidden /> Copy \includegraphics

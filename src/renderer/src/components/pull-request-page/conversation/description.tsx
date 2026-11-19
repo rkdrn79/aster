@@ -142,8 +142,8 @@ export function ConversationDescription({
             className="min-w-0 max-w-full overflow-hidden break-words text-[14px] leading-relaxed [&_a]:break-all [&_code]:break-words [&_pre]:max-w-full"
           />
         ) : (
-          <span className="italic text-muted-foreground">
-            {translate('auto.components.PullRequestPage.c8ea6c7c4c', 'No description provided.')}
+          <span className="text-muted-foreground">
+            {translate('auto.components.PullRequestPage.c8ea6c7c4c', 'No description provided')}
           </span>
         )}
       </div>

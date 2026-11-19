@@ -8,6 +8,7 @@ import {
 } from '../../../../research-harness/research-figures-style.mjs'
 import { inkedImages, pageWithStyle, restylePlan, restyleSvg } from './research-figure-restyle'
 import { svgFileData } from './research-figure-svg-files'
+import { illustrationRecord, repaintedIllustration } from './research-figure-illustration'
 
 export type PaperStyleChoice = { style: string; accent?: string | null }
 export type PaperStyleResult = { recolored: number; kept: number; style: FigureStyle }
@@ -56,6 +57,16 @@ async function restyledFiles(
     const file = byKey.get(key)
     if (file) {
       next.set(id, file)
+    }
+  }
+  // Why repainted by role: an illustration names its colour roles, so it takes the new palette.
+  for (const element of elements) {
+    const record = illustrationRecord(element)
+    const fileId = element.type === 'image' ? element.fileId : null
+    const svg = record && fileId && files[fileId] ? svgText(files[fileId].dataURL) : null
+    const file = record && svg ? await repaintedIllustration(svg, record, to) : null
+    if (file) {
+      next.set(element.id, file)
     }
   }
   return next

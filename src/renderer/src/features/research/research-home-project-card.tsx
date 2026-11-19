@@ -20,6 +20,7 @@ import {
 import { ResearchComputeProjectDot } from './ResearchComputeProjectDot'
 import { ResearchSlackProjectDialog } from './ResearchSlackProjectDialog'
 import { ResearchWandbProjectDialog } from './ResearchWandbProjectDialog'
+import { RAISED_CARD, STEP_ON_HOVER } from './research-surface-classes'
 
 const WORKSPACES_SHOWN = 4
 
@@ -77,7 +78,7 @@ export function ResearchProjectCard({
 
   return (
     <div
-      className="relative rounded-lg border border-border bg-card"
+      className={cn(RAISED_CARD, STEP_ON_HOVER, 'group/project relative')}
       onContextMenu={(event) => {
         // Why: React bubbles events out of portals; the open menu or rename dialog keeps its own.
         if (!(event.target instanceof Node) || !event.currentTarget.contains(event.target)) {
@@ -91,42 +92,41 @@ export function ResearchProjectCard({
       <button
         type="button"
         className={cn(
-          'flex w-full items-start gap-3 p-4 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-          others.length > 0 ? 'rounded-t-lg' : 'rounded-lg'
+          'flex w-full items-start gap-3 p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+          others.length > 0 ? 'rounded-t-xl' : 'rounded-xl'
         )}
         onClick={() => enterResearchWorkspace(primary)}
       >
-        <span className="mt-1.5">
-          <ResearchComputeProjectDot color={project.badgeColor} />
-        </span>
         <span className="min-w-0 flex-1">
           {/* Why: only the title row shares its line with the menu and arrow at the top right. */}
-          <span className="block pr-16">
+          <span className="flex items-center gap-2 pr-16">
+            <span className="flex w-3 shrink-0 justify-center">
+              <ResearchComputeProjectDot color={project.badgeColor} />
+            </span>
             <TruncatedSidebarLabel
               text={project.name}
-              className="text-base font-semibold"
+              className="text-[15px] font-medium"
               tooltipSide="top"
             />
           </span>
-          {/* Why: each "·" leads its part; one starting a line lands in the clipped -ml-4. */}
-          <span className="mt-1 block overflow-hidden">
-            <span className="-ml-4 flex flex-wrap text-xs text-muted-foreground">
-              {parts.map((part) => (
-                <span
-                  key={part.text}
-                  className={cn(
-                    'inline-flex whitespace-nowrap',
-                    part.tone === 'running' && 'font-medium text-foreground',
-                    part.tone === 'attention' && 'font-medium text-status-warning'
-                  )}
-                >
-                  <span aria-hidden className="w-4 text-center font-normal text-muted-foreground">
-                    ·
-                  </span>
-                  {part.text}
-                </span>
-              ))}
-            </span>
+          {/* Counts are quiet meta text; colour marks only what is running or waits on you. */}
+          <span className="mt-1 flex flex-wrap items-center gap-x-2 pl-5 text-xs text-muted-foreground tabular-nums">
+            {parts.map((part, index) => (
+              <span
+                key={part.text}
+                className={cn(
+                  'inline-flex items-center gap-1 whitespace-nowrap',
+                  part.tone === 'running' && 'text-foreground',
+                  part.tone === 'attention' && 'text-status-warning'
+                )}
+              >
+                {index > 0 ? <span aria-hidden>·</span> : null}
+                {part.tone === 'running' ? (
+                  <span aria-hidden className="size-1.5 rounded-full bg-status-success" />
+                ) : null}
+                {part.text}
+              </span>
+            ))}
           </span>
         </span>
       </button>
@@ -147,7 +147,10 @@ export function ResearchProjectCard({
             />
           </DropdownMenuContent>
         </DropdownMenu>
-        <ArrowRight className="pointer-events-none size-4 text-muted-foreground" aria-hidden />
+        <ArrowRight
+          className="pointer-events-none size-4 text-muted-foreground transition-transform duration-(--duration-fast) ease-out-quint group-hover/project:translate-x-0.5 motion-reduce:transition-none"
+          aria-hidden
+        />
       </div>
       <DropdownMenu
         modal={false}
@@ -176,7 +179,7 @@ export function ResearchProjectCard({
         </DropdownMenuContent>
       </DropdownMenu>
       {others.length > 0 ? (
-        <div className="flex flex-wrap gap-1 border-t border-border px-3 py-2">
+        <div className="flex flex-wrap gap-1 px-3 pb-3 pl-7">
           {others.map((workspace) => (
             <Button
               key={workspace.id}

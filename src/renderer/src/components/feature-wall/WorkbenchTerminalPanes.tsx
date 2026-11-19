@@ -322,7 +322,7 @@ function Prompt(props: { children: ReactNode; claude?: boolean }): JSX.Element {
 }
 
 function PassedCheck(): JSX.Element {
-  return <span className="mr-1.5 font-bold text-emerald-600">✓</span>
+  return <span className="mr-1.5 font-medium text-status-success">✓</span>
 }
 
 function PlaywrightIndex(props: { children: ReactNode }): JSX.Element {

@@ -123,10 +123,7 @@ export function StatusBarUsageChangeNoticeCard({
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span
-                    className="flex size-6 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-foreground"
-                    aria-hidden="true"
-                  >
+                  <span className="flex shrink-0 text-muted-foreground" aria-hidden="true">
                     <BarChart3 className="size-3.5" />
                   </span>
                   <div className="text-sm font-semibold leading-snug">{title}</div>

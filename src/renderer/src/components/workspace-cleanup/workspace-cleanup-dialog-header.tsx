@@ -37,7 +37,7 @@ export function WorkspaceCleanupDialogHeader({
         <DialogTitle className="min-w-0 text-base">
           {translate(
             'auto.components.workspace.cleanup.WorkspaceCleanupDialog.b2c1331844',
-            'Delete Inactive Workspaces'
+            'Delete inactive workspaces'
           )}
         </DialogTitle>
         <div className="flex shrink-0 items-center gap-2">

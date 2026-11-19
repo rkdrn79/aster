@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { CircleStop, Ellipsis, PanelLeft, Settings } from 'lucide-react'
 import {
   DropdownMenu,
@@ -11,48 +10,8 @@ import {
 import { useAppStore } from '@/store'
 import { cn } from '@/lib/utils'
 import { useCompactDrawer } from '@/app-shell/compact-drawer-store'
-import {
-  runtimeHostConnectionStateForEntry,
-  type RuntimeHostConnectionState
-} from '@/runtime/runtime-host-connection-state'
-import { readStoredWebRuntimeEnvironment } from '@/web/web-runtime-environment'
 import { PhoneNotifyMenuItem } from './PhoneNotifyMenuItem'
-
-function hostStateLabel(state: RuntimeHostConnectionState): string {
-  switch (state) {
-    case 'connected':
-      return 'Connected'
-    case 'workspace-window-closed':
-      return 'Connected, no workspace window'
-    case 'checking':
-      return 'Checking'
-    case 'reconnecting':
-      return 'Reconnecting'
-    case 'runtime-unavailable':
-      return 'Server not answering'
-    case 'disconnected':
-      return 'Disconnected'
-  }
-}
-
-/** The paired host this phone drives, named the way it was paired. */
-function useHostStatus(): {
-  name: string
-  endpoint: string | null
-  state: RuntimeHostConnectionState
-} {
-  const environment = useMemo(() => readStoredWebRuntimeEnvironment(), [])
-  const entry = useAppStore((state) =>
-    environment ? state.runtimeStatusByEnvironmentId.get(environment.id) : undefined
-  )
-  const endpoint = environment?.endpoints[0]?.endpoint ?? null
-  return {
-    name: environment?.name ?? 'Host',
-    endpoint: endpoint ? endpoint.replace(/^wss?:\/\//, '') : null,
-    // Why: the web client only renders once paired, so a missing entry means still checking.
-    state: entry ? runtimeHostConnectionStateForEntry(entry) : 'checking'
-  }
-}
+import { hostStateLabel, usePhoneHostStatus } from './use-phone-host-status'
 
 /**
  * Header overflow: host status, the full sidebar, and Settings, kept off the tab bar. A session
@@ -63,7 +22,7 @@ export function PhoneHeaderMenu({
 }: {
   destructiveAction?: { label: string; run: () => void } | null
 }): React.JSX.Element {
-  const host = useHostStatus()
+  const host = usePhoneHostStatus()
   const setActiveView = useAppStore((state) => state.setActiveView)
   return (
     <DropdownMenu modal={false}>
@@ -83,7 +42,11 @@ export function PhoneHeaderMenu({
               aria-hidden
               className={cn(
                 'size-2 shrink-0 rounded-full',
-                host.state === 'connected' ? 'bg-status-success' : 'bg-status-warning'
+                host.connection === 'connected'
+                  ? 'bg-status-success'
+                  : host.connection === 'reconnecting'
+                    ? 'bg-status-warning'
+                    : 'bg-destructive'
               )}
             />
             {host.name}

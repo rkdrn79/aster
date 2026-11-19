@@ -28,7 +28,7 @@ export function PluginVmRecipeConsentPreview({
     <section className="space-y-3" aria-labelledby="plugin-vm-recipe-consent-heading">
       <h3
         id="plugin-vm-recipe-consent-heading"
-        className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground"
+        className="text-[11px] font-medium text-muted-foreground"
       >
         {translate(
           'auto.components.settings.PluginVmRecipeConsentPreview.heading',

@@ -8,6 +8,9 @@
 @import './markdown-preview.css';
 @import './terminal.css';
 @import './mobile-page.css';
+@import './motion.css';
+@import './app-shell.css';
+@import './surfaces.css';
 @import '../../../shared/styles/scrollbar-sleek.css';
 
 @font-face {
@@ -25,6 +28,23 @@
   font-style: normal;
   font-display: swap;
   unicode-range: U+E000-F8FF, U+F0000-FFFFD, U+100000-10FFFD;
+}
+
+/* The figure paper look's LaTeX faces (GUST Font License, fonts/paper/GUST-FONT-LICENSE.txt). */
+@font-face {
+  font-family: 'Latin Modern Roman';
+  src: url('./fonts/paper/lmroman10-regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TeX Gyre Termes';
+  src: url('./fonts/paper/texgyretermes-regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 /* A matching chat can use a different scheme from the document; portaled menus stay outside it. */
@@ -158,7 +178,13 @@
   --color-git-graph-lane-4: var(--git-graph-lane-4);
   --color-git-graph-lane-5: var(--git-graph-lane-5);
   --color-annotation-highlight: var(--annotation-highlight);
-  --shadow-floating: 0 10px 24px rgb(0 0 0 / 0.18);
+  --color-shell: var(--shell);
+  --color-raised: var(--raised);
+  --color-highlight: var(--highlight);
+  --color-scrim: var(--scrim);
+  --shadow-raised: var(--elevation-raised);
+  --shadow-floating: var(--elevation-floating);
+  --shadow-modal: var(--elevation-modal);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -176,31 +202,38 @@
   --font-mono:
     'SF Mono', SFMono-Regular, ui-monospace, 'Cascadia Code', Menlo, Consolas, 'Liberation Mono',
     monospace;
-  --radius: 0.5rem;
-  /* Aster identity: ink on paper. Warm paper surfaces and monochrome blue-black ink for text,
-     primary actions, selection and the current page; focus rings stay a neutral gray. */
-  --orca-security-background: #f9f8f5;
-  --orca-security-foreground: #161921;
+  --radius: 0.625rem;
+  /* Window shell behind the inset sidebar and main panels (app-shell.css). */
+  --shell: #ebebed;
+  --elevation-raised: 0 1px 2px rgb(24 24 27 / 0.06), 0 0 0 1px rgb(24 24 27 / 0.05);
+  --elevation-floating:
+    0 0 0 1px rgb(24 24 27 / 0.07), 0 4px 10px -4px rgb(24 24 27 / 0.08),
+    0 14px 32px -8px rgb(24 24 27 / 0.18);
+  --elevation-modal: 0 0 0 1px rgb(24 24 27 / 0.07), 0 24px 64px -12px rgb(24 24 27 / 0.28);
+  /* Aster identity: graphite. Neutral zinc surfaces in inset panels on a slightly deeper shell,
+     monochrome ink for text, primary actions, selection and the current page. */
+  --orca-security-background: #ffffff;
+  --orca-security-foreground: #18181b;
   --orca-security-card: #ffffff;
-  --orca-security-card-foreground: #161921;
+  --orca-security-card-foreground: #18181b;
   --orca-security-popover: #ffffff;
-  --orca-security-popover-foreground: #161921;
-  --orca-security-primary: #161921;
-  --orca-security-primary-foreground: #ffffff;
-  --orca-security-secondary: #efede7;
-  --orca-security-secondary-foreground: #161921;
-  --orca-security-muted: #efede7;
-  --orca-security-muted-foreground: #5c6170;
-  --orca-security-accent: #ebe8e1;
-  --orca-security-accent-foreground: #161921;
-  --orca-security-border: #e3dfd6;
-  --orca-security-input: #dcd8ce;
-  --orca-security-ring: #9a9ea8;
-  --background: #f9f8f5;
+  --orca-security-popover-foreground: #18181b;
+  --orca-security-primary: #18181b;
+  --orca-security-primary-foreground: #fafafa;
+  --orca-security-secondary: #f4f4f5;
+  --orca-security-secondary-foreground: #18181b;
+  --orca-security-muted: #f4f4f5;
+  --orca-security-muted-foreground: #6b6b74;
+  --orca-security-accent: #f0f0f2;
+  --orca-security-accent-foreground: #18181b;
+  --orca-security-border: #e6e6e9;
+  --orca-security-input: #dedee3;
+  --orca-security-ring: #8e8e96;
+  --background: #ffffff;
   /* Monaco's built-in light theme paints #fff; keep editor panes on the same sheet. */
   --editor-surface: #ffffff;
-  --foreground: #161921;
-  --bg-titlebar: var(--background);
+  --foreground: #18181b;
+  --bg-titlebar: var(--shell);
   --chat-canvas-mix: 0%;
   --chat-foreground-mix: 82%;
   --chat-strong-mix: 92%;
@@ -217,22 +250,29 @@
   --chat-composer-border-mix: 11%;
   --chat-content-max-width: 46rem;
   --card: #ffffff;
-  --card-foreground: #161921;
+  --card-foreground: #18181b;
   --popover: #ffffff;
-  --popover-foreground: #161921;
-  --primary: #161921;
-  --primary-foreground: #ffffff;
-  --secondary: #efede7;
-  --secondary-foreground: #161921;
-  --muted: #efede7;
-  --muted-foreground: #5c6170;
-  --accent: #ebe8e1;
-  --accent-foreground: #161921;
-  --border: #e3dfd6;
-  --input: #dcd8ce;
-  --ring: #9a9ea8;
+  --popover-foreground: #18181b;
+  --primary: #18181b;
+  --primary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #6b6b74;
+  --accent: #f0f0f2;
+  --accent-foreground: #18181b;
+  /* The selected segment, the current page and other surfaces lifted one step. */
+  --raised: #ffffff;
+  /* Hover and keyboard highlight of rows on menus and other floating surfaces. */
+  --highlight: color-mix(in srgb, var(--foreground) 6%, transparent);
+  /* Behind dialogs and sheets. */
+  --scrim: rgb(24 24 27 / 0.32);
+  /* Hairlines are the text colour at 8%. */
+  --border: rgb(24 24 27 / 0.08);
+  --input: #dedee3;
+  --ring: #8e8e96;
   --terminal-pane-locate: var(--color-blue-600);
-  --ai-action-accent: #161921;
+  --ai-action-accent: #18181b;
   /* "An agent is asking you something" — one hue for every surface that shows
      it (sidebar, tabs, dashboard, kanban). Orange, not amber: it has to stay
      separable from working-yellow at a glance. */
@@ -248,26 +288,26 @@
   --workspace-status-progress: #d4a300;
   /* Categorical run colors (slate ink, orange, teal, ochre, magenta). Order is the CVD-safety
      mechanism: every adjacent pair clears deutan/protan separation and 3:1 on paper and card. */
-  --chart-1: #3d4250;
+  --chart-1: #3f3f46;
   --chart-2: #d05a1c;
   --chart-3: #0e8f7e;
   --chart-4: #a87400;
   --chart-5: #c2387c;
-  --worktree-sidebar: #f2f0ea;
-  --worktree-sidebar-foreground: #161921;
+  --worktree-sidebar: #f7f7f8;
+  --worktree-sidebar-foreground: #18181b;
   /* Hover and the current row: a faint neutral wash of the ink. */
-  --worktree-sidebar-accent: #e6e3dc;
-  --worktree-sidebar-accent-foreground: #161921;
-  --worktree-sidebar-border: #e3dfd6;
-  --worktree-sidebar-ring: #161921;
-  --sidebar: #f6f4ef;
-  --sidebar-foreground: #161921;
-  --sidebar-primary: #161921;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ebe8e1;
-  --sidebar-accent-foreground: #161921;
-  --sidebar-border: #e3dfd6;
-  --sidebar-ring: #9a9ea8;
+  --worktree-sidebar-accent: #ffffff;
+  --worktree-sidebar-accent-foreground: #18181b;
+  --worktree-sidebar-border: #e6e6e9;
+  --worktree-sidebar-ring: #18181b;
+  --sidebar: #f7f7f8;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #18181b;
+  --sidebar-primary-foreground: #fafafa;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e6e6e9;
+  --sidebar-ring: #8e8e96;
   --terminal-pane-title-on-dark-fg: rgb(255 255 255 / 0.52);
   --terminal-pane-title-on-dark-input-fg: rgb(255 255 255 / 0.7);
   --terminal-pane-title-on-dark-placeholder: rgb(255 255 255 / 0.38);
@@ -303,28 +343,34 @@
 /* ── Dark Mode ───────────────────────────────────────── */
 
 .dark {
-  --orca-security-background: #101216;
-  --orca-security-foreground: #e6e8ee;
-  --orca-security-card: #171a20;
-  --orca-security-card-foreground: #e6e8ee;
-  --orca-security-popover: #1a1d24;
-  --orca-security-popover-foreground: #e6e8ee;
-  --orca-security-primary: #e6e8ee;
-  --orca-security-primary-foreground: #101216;
-  --orca-security-secondary: #1f232b;
-  --orca-security-secondary-foreground: #e6e8ee;
-  --orca-security-muted: #1d2028;
-  --orca-security-muted-foreground: #979dab;
-  --orca-security-accent: #2c313c;
-  --orca-security-accent-foreground: #e6e8ee;
-  --orca-security-border: rgb(220 228 255 / 0.08);
-  --orca-security-input: rgb(220 228 255 / 0.14);
-  --orca-security-ring: #6b7180;
-  --background: #101216;
+  --orca-security-background: #111113;
+  --orca-security-foreground: #ececee;
+  --orca-security-card: #18181b;
+  --orca-security-card-foreground: #ececee;
+  --orca-security-popover: #1b1b1f;
+  --orca-security-popover-foreground: #ececee;
+  --orca-security-primary: #f4f4f5;
+  --orca-security-primary-foreground: #111113;
+  --orca-security-secondary: #27272b;
+  --orca-security-secondary-foreground: #ececee;
+  --orca-security-muted: #222226;
+  --orca-security-muted-foreground: #8d8d96;
+  --orca-security-accent: #2a2a2f;
+  --orca-security-accent-foreground: #ececee;
+  --orca-security-border: rgb(255 255 255 / 0.08);
+  --orca-security-input: rgb(255 255 255 / 0.12);
+  --orca-security-ring: #6e6e78;
+  --shell: #050506;
+  --elevation-raised: 0 1px 2px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.05);
+  --elevation-floating:
+    0 0 0 1px rgb(255 255 255 / 0.09), inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 18px 44px -10px rgb(0 0 0 / 0.7);
+  --elevation-modal: 0 0 0 1px rgb(255 255 255 / 0.09), 0 28px 80px -12px rgb(0 0 0 / 0.75);
+  --background: #111113;
   /* Monaco's built-in dark theme paints #1e1e1e; keep editor panes on the same surface. */
   --editor-surface: #1e1e1e;
-  --foreground: #e6e8ee;
-  --bg-titlebar: var(--background);
+  --foreground: #ececee;
+  --bg-titlebar: var(--shell);
   --chat-canvas-mix: 5%;
   --chat-foreground-mix: 78%;
   --chat-strong-mix: 90%;
@@ -340,49 +386,52 @@
   --chat-composer-base: transparent;
   --chat-composer-border-mix: 9%;
   --chat-content-max-width: 46rem;
-  --card: #171a20;
-  --card-foreground: #e6e8ee;
-  --popover: #1a1d24;
-  --popover-foreground: #e6e8ee;
-  --primary: #e6e8ee;
-  --primary-foreground: #101216;
-  --secondary: #1f232b;
-  --secondary-foreground: #e6e8ee;
-  --muted: #1d2028;
-  --muted-foreground: #979dab;
-  --accent: #2c313c;
-  --accent-foreground: #e6e8ee;
-  --border: rgb(220 228 255 / 0.08);
-  --input: rgb(220 228 255 / 0.14);
-  --ring: #6b7180;
+  --card: #18181b;
+  --card-foreground: #ececee;
+  --popover: #1b1b1f;
+  --popover-foreground: #ececee;
+  --primary: #f4f4f5;
+  --primary-foreground: #111113;
+  --secondary: #27272b;
+  --secondary-foreground: #ececee;
+  --muted: #222226;
+  --muted-foreground: #8d8d96;
+  --accent: #2a2a2f;
+  --accent-foreground: #ececee;
+  --raised: #36363c;
+  --highlight: color-mix(in srgb, var(--foreground) 9%, transparent);
+  --scrim: rgb(0 0 0 / 0.6);
+  --border: rgb(255 255 255 / 0.08);
+  --input: rgb(255 255 255 / 0.12);
+  --ring: #6e6e78;
   --terminal-pane-locate: var(--color-blue-400);
-  --ai-action-accent: #e6e8ee;
+  --ai-action-accent: #f4f4f5;
   --agent-question: var(--color-orange-500);
   --agent-question-text: var(--color-orange-300);
   --workspace-status-done: #c7a594;
   --workspace-status-review: #16a34a;
   --workspace-status-progress: #d4a300;
   /* Same five hues stepped for the ink surface (OKLCH L 0.48-0.67, >= 3:1 on canvas and card). */
-  --chart-1: #c3c7d0;
+  --chart-1: #c4c4cc;
   --chart-2: #d8692a;
   --chart-3: #18a08b;
   --chart-4: #b2830f;
   --chart-5: #d9578f;
-  --worktree-sidebar: #15181e;
-  --worktree-sidebar-foreground: #e6e8ee;
-  --worktree-sidebar-accent: #262a33;
-  --worktree-sidebar-accent-foreground: #e6e8ee;
+  --worktree-sidebar: #0e0e10;
+  --worktree-sidebar-foreground: #ececee;
+  --worktree-sidebar-accent: #222226;
+  --worktree-sidebar-accent-foreground: #ececee;
   /* Match --border so the left sidebar's divider lines aren't brighter than the rest of the UI (#5906). */
-  --worktree-sidebar-border: rgb(220 228 255 / 0.08);
-  --worktree-sidebar-ring: #e6e8ee;
-  --sidebar: #171a20;
-  --sidebar-foreground: #e6e8ee;
-  --sidebar-primary: #e6e8ee;
-  --sidebar-primary-foreground: #101216;
-  --sidebar-accent: #2c313c;
-  --sidebar-accent-foreground: #e6e8ee;
-  --sidebar-border: rgb(220 228 255 / 0.08);
-  --sidebar-ring: #6b7180;
+  --worktree-sidebar-border: rgb(255 255 255 / 0.08);
+  --worktree-sidebar-ring: #f4f4f5;
+  --sidebar: #0e0e10;
+  --sidebar-foreground: #ececee;
+  --sidebar-primary: #f4f4f5;
+  --sidebar-primary-foreground: #111113;
+  --sidebar-accent: #222226;
+  --sidebar-accent-foreground: #ececee;
+  --sidebar-border: rgb(255 255 255 / 0.08);
+  --sidebar-ring: #6e6e78;
   --terminal-pane-title-on-dark-fg: rgb(255 255 255 / 0.52);
   --terminal-pane-title-on-dark-input-fg: rgb(255 255 255 / 0.7);
   --terminal-pane-title-on-dark-placeholder: rgb(255 255 255 / 0.38);
@@ -416,9 +465,10 @@
 /* Status and diff colors follow the chat scheme without copying the app palette. */
 :root,
 .native-chat-appearance[data-native-chat-scheme='light'] {
-  --destructive: #e40014;
+  /* Semantic colours, toned down: one red and one green per scheme. */
+  --destructive: #dc2626;
   --destructive-foreground: #fcf3f3;
-  --status-success: #15803d;
+  --status-success: #16a34a;
   --status-success-background: color-mix(in srgb, var(--status-success) 10%, transparent);
   --status-success-border: color-mix(in srgb, var(--status-success) 25%, transparent);
   /* Needs-attention states use yellow, separate from errors and working states. */
@@ -446,9 +496,9 @@
 
 .dark,
 .native-chat-appearance[data-native-chat-scheme='dark'] {
-  --destructive: #ff6568;
+  --destructive: #e5484d;
   --destructive-foreground: #df2225;
-  --status-success: #86efac;
+  --status-success: #4cc38a;
   --status-success-background: color-mix(in srgb, var(--status-success) 10%, transparent);
   --status-success-border: color-mix(in srgb, var(--status-success) 25%, transparent);
   --status-warning: #eab308;
@@ -500,93 +550,6 @@
 
 .dark .linear-priority-bars {
   --linear-priority-bar-inactive-fill: color-mix(in srgb, lch(39.576 1.25 282) 62%, transparent);
-}
-
-[data-sonner-toaster] {
-  font-family: var(--font-sans);
-  /* Why: above the floating workspace (z-45 panel, z-46 launcher), which parks in the toasts' corner. */
-  z-index: var(--toaster-z-index, 47) !important;
-}
-
-/* Keep errors above standard modal backdrops at the existing popover tier.
-   Why: overlays portal straight into body, and `>` plus a :has() on body alone (not in the toaster's
-   selector) keeps unrelated DOM changes from rescanning the page; the old form froze large diffs. */
-body:has(> [data-slot='dialog-overlay'], > [data-slot='sheet-overlay']) {
-  --toaster-z-index: 60;
-}
-
-[data-sonner-toaster] [data-sonner-toast][data-styled='true'] {
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 14px 16px;
-  box-shadow: var(--shadow-floating);
-}
-
-[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-icon] {
-  margin-top: 2px;
-}
-
-[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-content] {
-  min-width: 0;
-  flex: 1 1 calc(100% - 30px);
-  gap: 6px;
-}
-
-/* Why: a folded back toast is squeezed to the front toast's height without clipping, so a taller
-   toast's content hangs below the stack; hovering it re-expands the stack in a loop. clip, not
-   hidden: hidden makes a scroll container that focusing a folded control would scroll. */
-[data-sonner-toaster] [data-sonner-toast][data-expanded='false'][data-front='false'] {
-  overflow: clip;
-}
-
-[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-button] {
-  /* Why: Sonner's native action slots otherwise share the copy row and squeeze
-     long notices; indent the wrapped footer to align with text after the icon. */
-  margin-top: 2px;
-  margin-left: 26px;
-  margin-right: 0;
-}
-
-[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-button] ~ [data-button] {
-  margin-left: 0;
-}
-
-[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-title] {
-  line-height: 1.35;
-}
-
-[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-description] {
-  /* Why: match the 80% body-copy opacity used by the custom-React toast bodies
-     (delete-worktree-failure, local-base-ref-suggestion) so string and JSX
-     descriptions read at the same weight. */
-  color: color-mix(in srgb, var(--popover-foreground) 80%, transparent);
-  line-height: 1.45;
-}
-
-[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-close-button] {
-  /* Why: Sonner's dark-theme defaults can resolve the close icon and button
-     background to the same color; keep the X readable on both Orca themes. */
-  color: var(--popover-foreground);
-  background: var(--popover);
-  border-color: rgb(0 0 0 / 0.14);
-}
-
-[data-sonner-toaster][data-sonner-theme='dark']
-  [data-sonner-toast][data-styled='true']
-  [data-close-button] {
-  color: var(--popover-foreground);
-  background: var(--popover);
-  border-color: rgb(255 255 255 / 0.14);
-}
-
-.dark [data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-close-button] {
-  border-color: rgb(255 255 255 / 0.14);
-}
-
-[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-close-button]:hover {
-  color: var(--accent-foreground);
-  background: var(--accent);
 }
 
 /* ── Base Layer ──────────────────────────────────────── */
@@ -934,7 +897,7 @@ html.native-shell .app-layout {
   position: absolute;
   border-radius: 1px;
   background: var(--tab-group-split-divider);
-  transition: background 100ms ease;
+  transition: background 120ms var(--ease-out-quint);
 }
 
 .tab-group-split-resize-handle.is-vertical::after {
@@ -1059,8 +1022,8 @@ html.native-shell .app-layout {
   color: var(--muted-foreground);
   cursor: pointer;
   transition:
-    background 100ms,
-    color 100ms;
+    background 120ms var(--ease-out-quint),
+    color 120ms var(--ease-out-quint);
 }
 
 .window-controls-btn:hover {
@@ -1090,6 +1053,28 @@ html.native-shell .app-layout {
   -webkit-app-region: drag;
 }
 
+/* Why: with the inset panel shell only an 8px strip above the panels is window chrome, so
+   the research page header ("Figures", "Rebuttal", ...) is where people reach to move the
+   window. Its controls stay clickable. */
+[data-research-page-header] {
+  -webkit-app-region: drag;
+}
+
+[data-research-page-header]
+  :is(
+    button,
+    a,
+    input,
+    select,
+    textarea,
+    [role='button'],
+    [role='tab'],
+    [role='combobox'],
+    [tabindex]
+  ) {
+  -webkit-app-region: no-drag;
+}
+
 /* Why: Electron drag regions swallow renderer pointer events. While regular
    xterm owns focus, make the next top-chrome click observable so it can release
    terminal zoom ownership; after release these surfaces become draggable again. */
@@ -1097,6 +1082,7 @@ html.native-shell .app-layout {
 :root[data-regular-terminal-input-focused] .titlebar-left,
 :root[data-regular-terminal-input-focused] .window-controls-titlebar-spacer,
 :root[data-regular-terminal-input-focused] .right-sidebar-header-drag,
+:root[data-regular-terminal-input-focused] [data-research-page-header],
 :root[data-regular-terminal-input-focused] [data-terminal-focus-release-surface='true'] {
   -webkit-app-region: no-drag;
 }
@@ -1316,8 +1302,8 @@ html.native-shell .app-layout {
   opacity: 0;
   transform: translateY(2px);
   transition:
-    opacity 120ms ease,
-    transform 120ms ease;
+    opacity 120ms var(--ease-out-quint),
+    transform 120ms var(--ease-out-quint);
   pointer-events: none;
   flex-shrink: 0;
   padding: 2px 6px;
@@ -1383,8 +1369,10 @@ html.native-shell .app-layout {
    too close to the sidebar tint to show hover or the current page. Map them onto the
    sidebar family; inline appearance overrides on the same root still win. */
 .left-sidebar-tokens {
-  --accent: color-mix(in srgb, var(--worktree-sidebar-foreground) 7%, var(--worktree-sidebar));
+  --accent: color-mix(in srgb, var(--worktree-sidebar-foreground) 6%, var(--worktree-sidebar));
   --accent-foreground: var(--worktree-sidebar-foreground);
+  /* Tracks (the Research/Code switch) sit one step below the panel; the current page is raised. */
+  --muted: color-mix(in srgb, var(--worktree-sidebar-foreground) 6%, var(--worktree-sidebar));
   --secondary: var(--worktree-sidebar-accent);
   --secondary-foreground: color-mix(
     in srgb,
@@ -1420,7 +1408,6 @@ html.native-shell .app-layout {
   border-right: 1px solid var(--sidebar-border, var(--border));
   overflow-y: auto;
   overflow-x: hidden;
-  transition: width 200ms ease;
 }
 
 /* Why: light-mode sidebar-accent/40 is nearly invisible on the sidebar, while
@@ -1744,12 +1731,11 @@ html.native-shell .app-layout {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 50%, transparent);
 }
 
-/* Why: the virtualized card row is height-measured; animate the grid track
-   instead of explicit height so the reveal stays CSS-owned and interruptible. */
+/* Why: the virtualized card row is height-measured; the grid track opens at once (layout never
+   animates) and the content fades in through compact-agent-expansion-reveal. */
 .compact-agent-expansion-grid {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 180ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .compact-agent-expansion-grid-expanded {
@@ -1787,7 +1773,7 @@ html.native-shell .app-layout {
 }
 
 .compact-agent-expansion-grid-expanded .compact-agent-expansion-content {
-  animation: compact-agent-expansion-reveal 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: compact-agent-expansion-reveal 180ms var(--ease-out-quint) both;
 }
 
 /* Keep the disclosure in the timestamp slot without moving adjacent content. */
@@ -1823,8 +1809,8 @@ html.native-shell .app-layout {
   background: transparent;
   box-shadow: inset 0 0 0 1px transparent;
   transition:
-    background 180ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    background 180ms var(--ease-out-quint),
+    box-shadow 180ms var(--ease-out-quint);
 }
 
 .compact-agent-summary-panel-expanded {
@@ -1913,38 +1899,24 @@ html.native-shell .app-layout {
   pointer-events: none;
   border: 1.5px solid color-mix(in srgb, var(--terminal-pane-locate) 68%, transparent);
   border-radius: inherit;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--terminal-pane-locate) 34%, transparent),
-    0 0 14px color-mix(in srgb, var(--terminal-pane-locate) 36%, transparent);
-  animation: scroll-to-current-workspace-reveal-glow 1.5s ease-out forwards;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--terminal-pane-locate) 34%, transparent);
+  animation: scroll-to-current-workspace-reveal-glow 1.5s var(--ease-out-quint) forwards;
 }
 
 .scroll-to-current-workspace-reveal-highlight--ai::before {
   border-color: color-mix(in srgb, var(--ai-action-accent) 68%, transparent);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--ai-action-accent) 34%, transparent),
-    0 0 14px color-mix(in srgb, var(--ai-action-accent) 36%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ai-action-accent) 34%, transparent);
 }
 
+/* A ring that shows where the revealed row is, then fades; no glow, no growth. */
 @keyframes scroll-to-current-workspace-reveal-glow {
-  0% {
+  0%,
+  40% {
     opacity: 1;
-    transform: scale(0.992);
-  }
-
-  24% {
-    opacity: 0.72;
-    transform: scale(1);
-  }
-
-  60% {
-    opacity: 0.28;
-    transform: scale(1.006);
   }
 
   100% {
     opacity: 0;
-    transform: scale(1.006);
   }
 }
 
@@ -1969,7 +1941,7 @@ html.native-shell .app-layout {
 }
 
 .settings-view-shell {
-  animation: settings-shell-enter 180ms ease-out;
+  animation: settings-shell-enter 180ms var(--ease-out-quint);
 }
 
 .repo-icon-emoji-picker .EmojiPickerReact {
@@ -2000,12 +1972,13 @@ html.native-shell .app-layout {
   overflow: hidden;
 }
 
+/* Height never animates: the content takes its full height at once, then fades and settles 4px. */
 .collapsible-height-content[data-state='open'] {
-  animation: collapsible-down 200ms ease-out;
+  animation: collapsible-down var(--duration-fast) var(--ease-out-quint);
 }
 
 .collapsible-height-content[data-state='closed'] {
-  animation: collapsible-up 180ms ease-out;
+  animation: collapsible-up var(--duration-instant) var(--ease-out-quint);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2017,24 +1990,13 @@ html.native-shell .app-layout {
 
 @keyframes collapsible-down {
   from {
-    height: 0;
     opacity: 0;
-  }
-
-  to {
-    height: var(--radix-collapsible-content-height);
-    opacity: 1;
+    transform: translateY(-4px);
   }
 }
 
 @keyframes collapsible-up {
-  from {
-    height: var(--radix-collapsible-content-height);
-    opacity: 1;
-  }
-
   to {
-    height: 0;
     opacity: 0;
   }
 }
@@ -2051,13 +2013,13 @@ html.native-shell .app-layout {
 .workspace-kanban-sheet-content[data-state='open'] {
   animation-name: workspace-kanban-sheet-in;
   animation-duration: 300ms;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-timing-function: var(--ease-out-quint);
 }
 
 .workspace-kanban-sheet-content[data-state='closed'] {
   animation-name: workspace-kanban-sheet-out;
   animation-duration: 200ms;
-  animation-timing-function: cubic-bezier(0.7, 0, 0.84, 0);
+  animation-timing-function: var(--ease-out-quint);
 }
 
 /* Why: this board is attached to the worktree sidebar, not floating above it;
@@ -2094,7 +2056,7 @@ html.native-shell .app-layout {
 }
 
 [data-workspace-board-trigger][data-workspace-board-preview='true'] {
-  animation: workspace-board-trigger-preview-pulse 1.4s ease-out infinite;
+  animation: workspace-board-trigger-preview-pulse 1.4s var(--ease-out-quint) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2213,7 +2175,8 @@ html.native-shell .app-layout {
   background: var(--sidebar-ring);
   color: var(--sidebar);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   box-shadow: 0 0 0 2px var(--sidebar);
 }
 
@@ -2222,14 +2185,11 @@ html.native-shell .app-layout {
   height: 3px;
   border-radius: 9999px;
   background: var(--sidebar-ring);
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--sidebar-ring) 24%, transparent),
-    0 8px 20px color-mix(in srgb, var(--sidebar-ring) 36%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--sidebar-ring) 24%, transparent);
   opacity: 0;
   transition:
-    transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    width 120ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity 80ms ease-out;
+    transform 120ms var(--ease-out-quint),
+    opacity 120ms var(--ease-out-quint);
   /* Why no `width`: it is not compositable, so hinting it only pins a layer that
      has to be re-rastered every frame of the transition anyway. */
   will-change: transform, opacity;
@@ -2276,10 +2236,8 @@ html.native-shell .app-layout {
 
 .sidebar-header {
   padding: 12px 16px 8px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted-foreground);
 }
 
@@ -2353,7 +2311,7 @@ html.native-shell .app-layout {
 
 .landing-title {
   font-size: 48px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--muted-foreground);
   letter-spacing: -0.02em;
 }
@@ -2574,7 +2532,7 @@ html.native-shell .app-layout {
 }
 
 .animate-update-card-enter {
-  animation: update-card-enter 200ms ease-out both;
+  animation: update-card-enter 200ms var(--ease-out-quint) both;
 }
 
 /* Why: `skills update` reports no parseable progress, so the skill-update bar is
@@ -2589,7 +2547,7 @@ html.native-shell .app-layout {
 }
 
 .animate-update-card-exit {
-  animation: update-card-exit 150ms ease-in both;
+  animation: update-card-exit 150ms var(--ease-out-quint) both;
 }
 
 /* Waveform bars in the FeatureTipsModal voice tip — purely decorative. */
@@ -2638,7 +2596,7 @@ html.native-shell .app-layout {
 }
 
 .animate-cli-tip-command-line {
-  animation: cli-tip-command-line 160ms ease-out both;
+  animation: cli-tip-command-line 160ms var(--ease-out-quint) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2718,7 +2676,7 @@ html.native-shell .app-layout {
 }
 
 .animate-cmd-j-tip-result-in {
-  animation: cmd-j-tip-result-in 120ms ease-out both;
+  animation: cmd-j-tip-result-in 120ms var(--ease-out-quint) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2754,7 +2712,7 @@ html.native-shell .app-layout {
 /* Shared click pulse for feature-wall fake cursors. Matches the Editor tour
    ring so every animated mouse click reads as the same interaction. */
 .feature-wall-click-ring {
-  animation: feature-wall-click-ring 460ms ease-out forwards;
+  animation: feature-wall-click-ring 460ms var(--ease-out-quint) forwards;
 }
 
 @keyframes feature-wall-click-ring {
@@ -2789,7 +2747,7 @@ html.native-shell .app-layout {
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  transition: opacity 280ms ease;
+  transition: opacity 280ms var(--ease-out-quint);
 }
 .feature-wall-orch-arrows[data-fading='true'] {
   opacity: 0;
@@ -2836,15 +2794,15 @@ html.native-shell .app-layout {
   offset-distance: 100%;
   transform: translate(-12px, -12px) scale(1);
   transition:
-    offset-distance 1600ms cubic-bezier(0.25, 0.6, 0.25, 1),
-    transform 280ms ease,
-    opacity 280ms ease;
+    offset-distance 1600ms var(--ease-out-quint),
+    transform 280ms var(--ease-out-quint),
+    opacity 280ms var(--ease-out-quint);
 }
 .feature-wall-bubble.landed {
   opacity: 0;
   offset-distance: 100%;
   transform: translate(-12px, -12px) scale(0.85);
-  transition: opacity 320ms ease 80ms;
+  transition: opacity 320ms var(--ease-out-quint) 80ms;
 }
 
 /* When a message just lands, briefly tint the recipient line so the new
@@ -2861,7 +2819,7 @@ html.native-shell .app-layout {
   }
 }
 .feature-wall-msg-received {
-  animation: feature-wall-msg-pop 1100ms ease-out;
+  animation: feature-wall-msg-pop 1100ms var(--ease-out-quint);
 }
 
 /* Children container fades in once the orchestrator finishes creating. */
@@ -2869,8 +2827,8 @@ html.native-shell .app-layout {
   opacity: 0;
   transform: translateY(6px);
   transition:
-    opacity 320ms ease,
-    transform 320ms ease;
+    opacity 320ms var(--ease-out-quint),
+    transform 320ms var(--ease-out-quint);
 }
 .feature-wall-children-wrapper[data-visible='true'] {
   opacity: 1;
@@ -2888,7 +2846,7 @@ html.native-shell .app-layout {
   }
 }
 .feature-wall-child-card-shell {
-  animation: feature-wall-child-card-in 260ms ease-out both;
+  animation: feature-wall-child-card-in 260ms var(--ease-out-quint) both;
 }
 
 /* Each child agent row stays collapsed until *its* dispatch bubble lands on
@@ -2899,11 +2857,11 @@ html.native-shell .app-layout {
   max-height: 60px;
   transform: none;
   transition:
-    opacity 320ms ease 80ms,
-    transform 320ms ease 80ms,
-    max-height 320ms cubic-bezier(0.4, 0, 0.2, 1) 80ms,
-    margin 320ms cubic-bezier(0.4, 0, 0.2, 1) 80ms,
-    padding 320ms cubic-bezier(0.4, 0, 0.2, 1) 80ms;
+    opacity 320ms var(--ease-out-quint) 80ms,
+    transform 320ms var(--ease-out-quint) 80ms,
+    max-height 320ms var(--ease-out-quint) 80ms,
+    margin 320ms var(--ease-out-quint) 80ms,
+    padding 320ms var(--ease-out-quint) 80ms;
 }
 .feature-wall-spawn-row[data-pending='true'] {
   opacity: 0;
@@ -2915,11 +2873,11 @@ html.native-shell .app-layout {
   padding-top: 0;
   padding-bottom: 0;
   transition:
-    opacity 220ms ease,
-    transform 220ms ease,
-    max-height 320ms cubic-bezier(0.4, 0, 0.2, 1),
-    margin 320ms cubic-bezier(0.4, 0, 0.2, 1),
-    padding 320ms cubic-bezier(0.4, 0, 0.2, 1);
+    opacity 220ms var(--ease-out-quint),
+    transform 220ms var(--ease-out-quint),
+    max-height 320ms var(--ease-out-quint),
+    margin 320ms var(--ease-out-quint),
+    padding 320ms var(--ease-out-quint);
 }
 
 /* Brief one-shot pulse when the Codex limits popover swaps accounts and the
@@ -2942,7 +2900,7 @@ html.native-shell .app-layout {
 .feature-wall-meta-pulse {
   color: rgb(22 163 74);
   font-weight: 600;
-  animation: feature-wall-meta-pulse 1100ms ease-out 1;
+  animation: feature-wall-meta-pulse 1100ms var(--ease-out-quint) 1;
 }
 
 .orca-contextual-tour-target-rings {
@@ -2957,28 +2915,20 @@ html.native-shell .app-layout {
   border: 1px solid color-mix(in srgb, var(--ring) 72%, transparent);
   border-radius: inherit;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--ring) 18%, transparent);
-  opacity: 0;
-  transform-origin: center;
-  animation: contextual-tour-target-ring 1.8s ease-out infinite;
+  opacity: 0.72;
+  /* A still ring marks the target; it fades in once instead of pinging on a loop. */
+  animation: contextual-tour-target-ring var(--duration-slow) var(--ease-out-quint) both;
 }
 
 @keyframes contextual-tour-target-ring {
-  0% {
-    opacity: 0.72;
-    transform: scale(0.68);
-  }
-  72%,
-  100% {
+  from {
     opacity: 0;
-    transform: scale(2.4);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .orca-contextual-tour-target-rings::before {
     animation: none;
-    opacity: 0.72;
-    transform: scale(1.28);
   }
 }
 
@@ -3006,10 +2956,10 @@ html.native-shell .app-layout {
   opacity: 1;
   box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 12%, transparent);
   transition:
-    color 100ms ease,
-    background-color 100ms ease,
-    border-color 100ms ease,
-    box-shadow 100ms ease;
+    color 120ms var(--ease-out-quint),
+    background-color 120ms var(--ease-out-quint),
+    border-color 120ms var(--ease-out-quint),
+    box-shadow 120ms var(--ease-out-quint);
 }
 
 .orca-diff-comment-add-btn:hover {
@@ -3114,9 +3064,9 @@ html.native-shell .app-layout {
     0 1px 3px rgba(0, 0, 0, 0.04),
     0 4px 12px rgba(0, 0, 0, 0.03);
   transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    background-color 150ms ease;
+    border-color 150ms var(--ease-out-quint),
+    box-shadow 150ms var(--ease-out-quint),
+    background-color 150ms var(--ease-out-quint);
 }
 
 .dark .orca-diff-comment-card {
@@ -3190,8 +3140,8 @@ html.native-shell .app-layout {
   cursor: pointer;
   height: 24px;
   transition:
-    background-color 100ms ease,
-    color 100ms ease;
+    background-color 120ms var(--ease-out-quint),
+    color 120ms var(--ease-out-quint);
 }
 
 .orca-diff-comment-edit {
@@ -3275,10 +3225,8 @@ html.native-shell .app-layout {
 }
 
 .orca-diff-comment-popover-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--muted-foreground);
   margin-bottom: 2px;
 }
@@ -3299,8 +3247,8 @@ html.native-shell .app-layout {
   line-height: 1.45;
   outline: none;
   transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease;
+    border-color 150ms var(--ease-out-quint),
+    box-shadow 150ms var(--ease-out-quint);
 }
 
 .dark .orca-diff-comment-popover-textarea {
@@ -3411,5 +3359,5 @@ html.native-shell .app-layout {
 }
 
 .workspace-reference-stack-count[data-multiple-digits='true'] {
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }

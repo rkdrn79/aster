@@ -9,7 +9,7 @@ import {
   type BibtexEntry
 } from '../../../../shared/research/bibtex-entry-reader'
 import { resolveRuntimePath } from '../../../../shared/cross-platform-path'
-import { parseArxivReference } from '../../../../shared/research/research-library-arxiv'
+import { bibtexEntryArxivId } from '../../../../shared/research/research-library-mentions'
 import { readResearchTextFile, researchFileExists } from './research-file-reader'
 import { useResearchLibrary } from './research-library-store'
 import { canDownloadLibraryPdf, downloadLibraryArxivPdf } from './research-library-pdf-download'
@@ -21,19 +21,8 @@ const MAX_ENTRIES = 2_000
 const MAX_PDFS_PER_IMPORT = 50
 const DOWNLOAD_CONCURRENCY = 2
 
-export function bibtexArxivId(entry: BibtexEntry): string | null {
-  for (const value of [entry.fields.eprint, entry.fields.url]) {
-    const id = value ? parseArxivReference(value) : null
-    if (id) {
-      return id
-    }
-  }
-  const citation = [entry.fields.journal, entry.fields.note, entry.fields.howpublished]
-    .filter(Boolean)
-    .join(' ')
-  const inline = citation.match(/\barxiv\s*:\s*([^\s,;}]+)/i)
-  return inline ? parseArxivReference(inline[1]) : null
-}
+/** The arXiv ID a BibTeX entry names; shared with chat paper detection. */
+export const bibtexArxivId = bibtexEntryArxivId
 
 function httpUrl(value: string | undefined): string | undefined {
   if (!value || value.length > 4096) {

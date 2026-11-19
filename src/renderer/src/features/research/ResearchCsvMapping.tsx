@@ -48,7 +48,7 @@ export function ResearchCsvMapping({
           {columns
             .filter((name) => name !== selectedX)
             .map((name) => (
-              <label key={name} className="flex items-center gap-1.5 text-xs">
+              <label key={name} className="flex items-center gap-2 text-xs">
                 <input
                   type="checkbox"
                   aria-label={`Include metric ${name}`}

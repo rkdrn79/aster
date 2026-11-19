@@ -114,8 +114,8 @@ describe('AgentKanbanBoard', () => {
 
   it('renders the three default columns in order', () => {
     renderBoard([])
-    const headers = screen.getAllByText(/Needs You|Working|Done/)
-    expect(headers.map((h) => h.textContent)).toEqual(['Needs You', 'Working', 'Done'])
+    const headers = screen.getAllByText(/Needs you|Working|Done/)
+    expect(headers.map((h) => h.textContent)).toEqual(['Needs you', 'Working', 'Done'])
   })
 
   it('hides the agent map from dashboard chrome', () => {
@@ -124,7 +124,7 @@ describe('AgentKanbanBoard', () => {
     expect(screen.queryByRole('button', { name: 'Agent Map' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Dashboard' })).not.toBeInTheDocument()
     expect(screen.queryByRole('group', { name: 'Dashboard view' })).not.toBeInTheDocument()
-    expect(screen.getByText('Needs You')).toBeInTheDocument()
+    expect(screen.getByText('Needs you')).toBeInTheDocument()
   })
 
   it('names the visible column regions and keeps cards inside their region', () => {
@@ -132,9 +132,9 @@ describe('AgentKanbanBoard', () => {
 
     expect(
       screen.getAllByRole('region').map((region) => region.getAttribute('aria-label'))
-    ).toEqual(['Needs You', 'Working', 'Done'])
+    ).toEqual(['Needs you', 'Working', 'Done'])
     expect(
-      within(screen.getByRole('region', { name: 'Needs You' })).getByText('needs-review')
+      within(screen.getByRole('region', { name: 'Needs you' })).getByText('needs-review')
     ).toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Idle' })).not.toBeInTheDocument()
   })

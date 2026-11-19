@@ -128,7 +128,7 @@ export function ResearchWritingPage(): React.JSX.Element {
         <ResearchPageHeader title="Writing" />
         <ResearchPageBody>
           <ResearchEmptyState icon={FilePenLine} title="No project open">
-            Open a project to write its paper.
+            Open a project to write its paper
           </ResearchEmptyState>
         </ResearchPageBody>
       </section>

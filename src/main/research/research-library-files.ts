@@ -1,18 +1,11 @@
 import { readFile, realpath, stat } from 'node:fs/promises'
 import { basename, extname, relative, sep } from 'node:path'
 import { net } from 'electron'
-import type { ArxivPaperMetadata } from '../../shared/research/research-library'
-import {
-  parseArxivAtomFeed,
-  parseArxivReference
-} from '../../shared/research/research-library-arxiv'
 import { isDescendantOrEqual } from '../ipc/filesystem-path-containment'
 import { resolveDesktopAuthorizedPath } from '../ipc/local-file-access-resolution'
 import { mainProcessState } from '../startup/main-process-state'
 import { downloadArxivPdfToWorkspace, writeLibraryPaperFile } from './research-library-pdf-download'
 
-const LOOKUP_TIMEOUT_MS = 20_000
-const MAX_FEED_CHARS = 1024 * 1024
 const MAX_PDF_BYTES = 64 * 1024 * 1024
 
 function isPdf(bytes: Uint8Array): boolean {
@@ -34,32 +27,6 @@ function safePdfFileName(sourcePath: string): string {
     .replace(/^[-.]+|-+$/g, '')
     .slice(0, 120)
   return `${stem || 'paper'}.pdf`
-}
-
-export async function lookupArxivPaper(reference: string): Promise<ArxivPaperMetadata> {
-  const arxivId = parseArxivReference(reference)
-  if (!arxivId) {
-    throw new Error('Enter an arXiv ID such as 2410.12345, or an arXiv/alphaXiv link.')
-  }
-  const response = await net.fetch(
-    `https://export.arxiv.org/api/query?id_list=${encodeURIComponent(arxivId)}&max_results=1`,
-    { headers: { Accept: 'application/atom+xml' }, signal: AbortSignal.timeout(LOOKUP_TIMEOUT_MS) }
-  )
-  if (response.status === 429 || response.status === 503) {
-    throw new Error('arXiv is rate limiting requests. Try again in a minute.')
-  }
-  if (!response.ok) {
-    throw new Error(`arXiv lookup failed (HTTP ${response.status}).`)
-  }
-  const feed = await response.text()
-  if (feed.length > MAX_FEED_CHARS) {
-    throw new Error('arXiv returned an unexpectedly large response.')
-  }
-  const paper = parseArxivAtomFeed(feed)
-  if (!paper) {
-    throw new Error(`arXiv has no paper ${arxivId}.`)
-  }
-  return paper
 }
 
 export async function downloadArxivPdf(

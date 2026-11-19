@@ -273,7 +273,7 @@ export function ConflictReviewPanel({
           <div className="flex items-center justify-center gap-2">
             <Button type="button" size="sm" variant="outline" onClick={onReturnToSourceControl}>
               <GitMerge className="size-3.5" />
-              {translate('auto.components.editor.ConflictComponents.28e7db4a90', 'Source Control')}
+              {translate('auto.components.editor.ConflictComponents.28e7db4a90', 'Source control')}
             </Button>
             <Button type="button" size="sm" variant="ghost" onClick={onDismiss}>
               <X className="size-3.5" />

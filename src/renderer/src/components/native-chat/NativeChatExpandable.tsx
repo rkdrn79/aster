@@ -1,7 +1,7 @@
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 
-/** Grows and shrinks its content so the rows around it move instead of jumping. Children
- *  mount only while open or closing, so open-only work belongs in a child component. */
+/** Shows its content in place and fades it in; height never animates. Children mount only
+ *  while open, so open-only work belongs in a child component. */
 export function NativeChatExpandable({
   open,
   children
@@ -11,7 +11,7 @@ export function NativeChatExpandable({
 }): React.JSX.Element {
   return (
     <Collapsible open={open}>
-      <CollapsibleContent animation="height" data-native-chat-member-detail>
+      <CollapsibleContent data-native-chat-reveal="" data-native-chat-member-detail>
         {children}
       </CollapsibleContent>
     </Collapsible>

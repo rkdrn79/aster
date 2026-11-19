@@ -113,7 +113,7 @@ export function LinearIssueActivity({
               />
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex min-w-0 items-center gap-2 text-sm">
-                  <span className="truncate font-semibold text-foreground">
+                  <span className="truncate font-medium text-foreground">
                     {comment.user?.displayName ??
                       translate('auto.components.LinearIssueWorkspace.ca8778c124', 'Unknown')}
                   </span>

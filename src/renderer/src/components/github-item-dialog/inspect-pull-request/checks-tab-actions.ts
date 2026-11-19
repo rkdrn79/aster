@@ -211,7 +211,7 @@ export async function fixBrokenGitHubChecks({
   }
   if (failedChecksLength === 0) {
     toast.message(
-      translate('auto.components.GitHubItemDialog.1690fd7f4a', 'No broken checks to fix.')
+      translate('auto.components.GitHubItemDialog.1690fd7f4a', 'No broken checks to fix')
     )
     return
   }

@@ -176,7 +176,7 @@ export function ShortcutFilterRail({
         )}
         className="shrink-0 space-y-2"
       >
-        <p className="text-[11px] font-semibold tracking-[0.05em] text-muted-foreground uppercase">
+        <p className="text-[11px] font-medium text-muted-foreground">
           {translate('auto.components.settings.ShortcutFilterRail.28b63545bf', 'Status')}
         </p>
         <div className="grid gap-1">

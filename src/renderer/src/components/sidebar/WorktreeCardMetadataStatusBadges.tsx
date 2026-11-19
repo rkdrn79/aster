@@ -36,9 +36,8 @@ export function IssueStateBadge({ state }: { state: IssueInfo['state'] }): React
       <MetadataStatusBadge
         label={translate(
           'auto.components.sidebar.WorktreeCardMetadataStatusBadges.e888362def',
-          'State: Closed'
+          'State: closed'
         )}
-        className="border-purple-500/25 bg-purple-500/5 text-purple-600 dark:text-purple-300"
       >
         <CircleCheck />
       </MetadataStatusBadge>
@@ -49,7 +48,7 @@ export function IssueStateBadge({ state }: { state: IssueInfo['state'] }): React
     <MetadataStatusBadge
       label={translate(
         'auto.components.sidebar.WorktreeCardMetadataStatusBadges.fe188062a1',
-        'State: Open'
+        'State: open'
       )}
       className="border-emerald-500/25 bg-emerald-500/5 text-emerald-600 dark:text-emerald-300"
     >
@@ -77,7 +76,7 @@ export function LinearStateBadge({
     : /progress|doing|started|active/.test(normalized)
   const Icon = done ? CircleCheck : cancelled ? CircleX : active ? Clock : CircleDot
   const tone = done
-    ? 'border-purple-500/25 bg-purple-500/5 text-purple-600 dark:text-purple-300'
+    ? ''
     : cancelled
       ? 'border-rose-500/25 bg-rose-500/5 text-rose-600 dark:text-rose-300'
       : active
@@ -114,9 +113,8 @@ export function ReviewStateBadge({
       <MetadataStatusBadge
         label={translate(
           'auto.components.sidebar.WorktreeCardMetadataStatusBadges.f394b3e86e',
-          'State: Merged'
+          'State: merged'
         )}
-        className="border-purple-500/25 bg-purple-500/5 text-purple-600 dark:text-purple-300"
       >
         <GitMerge />
       </MetadataStatusBadge>
@@ -128,7 +126,7 @@ export function ReviewStateBadge({
       <MetadataStatusBadge
         label={translate(
           'auto.components.sidebar.WorktreeCardMetadataStatusBadges.e888362def',
-          'State: Closed'
+          'State: closed'
         )}
         className="border-rose-500/25 bg-rose-500/5 text-rose-600 dark:text-rose-300"
       >
@@ -142,7 +140,7 @@ export function ReviewStateBadge({
       <MetadataStatusBadge
         label={translate(
           'auto.components.sidebar.WorktreeCardMetadataStatusBadges.2931b42b09',
-          'State: Draft {{value0}}',
+          'State: draft {{value0}}',
           { value0: label }
         )}
         className="border-border bg-muted/30 text-muted-foreground"
@@ -156,7 +154,7 @@ export function ReviewStateBadge({
     <MetadataStatusBadge
       label={translate(
         'auto.components.sidebar.WorktreeCardMetadataStatusBadges.fe188062a1',
-        'State: Open'
+        'State: open'
       )}
       className="border-emerald-500/25 bg-emerald-500/5 text-emerald-600 dark:text-emerald-300"
     >

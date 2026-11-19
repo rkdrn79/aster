@@ -120,7 +120,7 @@ export function useOnboardingFlowActions({
             setBusyLabel(
               translate(
                 'components.onboarding.flow.actions.openingAddProject',
-                'Opening Add Project...'
+                'Opening Add project...'
               )
             )
             const closed = await closeWith('completed', ONBOARDING_FINAL_STEP, 'add_project_modal')
@@ -196,7 +196,7 @@ export function useOnboardingFlowActions({
     const stepNumber = currentStep.stepNumber
     const valueKind = currentStep.valueKind
     setBusyLabel(
-      translate('components.onboarding.flow.actions.openingAddProject', 'Opening Add Project...')
+      translate('components.onboarding.flow.actions.openingAddProject', 'Opening Add project...')
     )
     try {
       const closed = await closeWith('completed', ONBOARDING_FINAL_STEP, 'add_project_modal')

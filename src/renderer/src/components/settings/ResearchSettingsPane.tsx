@@ -16,17 +16,29 @@ import {
   useReadingLanguage
 } from '@/features/research/research-reading-language'
 import { openResearchHome } from '@/features/research/research-navigation'
+import {
+  CHAT_PAPER_MODES,
+  chooseChatPaperMode,
+  useChatPaperMode
+} from '@/features/research/research-chat-papers-mode'
 import { Button } from '../ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { AgentDefaultSetting } from './AgentDefaultSetting'
+import {
+  ResearchFigureAgentSetting,
+  ResearchFigureReferencesSetting
+} from './ResearchFigureAgentSettings'
 import { SearchableSetting } from './SearchableSetting'
 import { SettingsRow } from './SettingsFormControls'
 import { SettingsSectionStack } from './SettingsSectionStack'
 import { matchesSettingsSearch, type SettingsSearchEntry } from './settings-search'
 import {
+  getResearchChatPapersSearchEntry,
   getResearchComputeSearchEntry,
   getResearchDeadlineZoneSearchEntry,
   getResearchDefaultAgentSearchEntry,
+  getResearchFigureAgentSearchEntry,
+  getResearchFigureReferencesSearchEntry,
   getResearchReadingLanguageSearchEntry
 } from './research-settings-search'
 
@@ -63,6 +75,15 @@ export function ResearchSettingsPane({
         ) : null,
         shown(getResearchReadingLanguageSearchEntry()) ? (
           <ResearchReadingLanguageSetting key="library" />
+        ) : null,
+        shown(getResearchChatPapersSearchEntry()) ? (
+          <ResearchChatPapersSetting key="papers" />
+        ) : null,
+        shown(getResearchFigureAgentSearchEntry()) ? (
+          <ResearchFigureAgentSetting key="figure-agent" />
+        ) : null,
+        shown(getResearchFigureReferencesSearchEntry()) ? (
+          <ResearchFigureReferencesSetting key="figure-references" />
         ) : null,
         shown(getResearchComputeSearchEntry()) ? (
           <ResearchComputeSetting key="compute" onOpenSshHosts={onOpenSshHosts} />
@@ -147,6 +168,41 @@ function ResearchReadingLanguageSetting(): React.JSX.Element {
             </SelectTrigger>
             <SelectContent>
               {READING_LANGUAGES.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        }
+      />
+    </SearchableSetting>
+  )
+}
+
+function ResearchChatPapersSetting(): React.JSX.Element {
+  const entry = getResearchChatPapersSearchEntry()
+  const mode = useChatPaperMode()
+  return (
+    <SearchableSetting {...entry} id={entry.targetSectionId}>
+      <SettingsRow
+        label={entry.title}
+        description={entry.description}
+        control={
+          <Select
+            value={mode}
+            onValueChange={(value) => {
+              const next = CHAT_PAPER_MODES.find((option) => option.id === value)
+              if (next) {
+                chooseChatPaperMode(next.id)
+              }
+            }}
+          >
+            <SelectTrigger className="w-[180px]" aria-label={entry.title}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CHAT_PAPER_MODES.map((option) => (
                 <SelectItem key={option.id} value={option.id}>
                   {option.label}
                 </SelectItem>

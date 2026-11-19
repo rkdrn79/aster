@@ -103,7 +103,7 @@ async function revealPreviewAction(page: Page, fixtureName: string): Promise<Loc
   const fixtureRow = page.locator('[data-file-explorer-row]').filter({ hasText: fixtureName })
   await expect(fixtureRow).toBeVisible({ timeout: 30_000 })
   await fixtureRow.click()
-  const openPreviewToSide = page.getByRole('button', { name: 'Open Preview to the Side' })
+  const openPreviewToSide = page.getByRole('button', { name: 'Open preview to the side' })
   await expect(openPreviewToSide).toBeVisible({ timeout: 30_000 })
   return openPreviewToSide
 }
@@ -712,7 +712,7 @@ test('asks before a paired preview reads a sibling directory', async ({
         targetWorktreeId: worktreeId
       }
     )
-    const openPreviewToSide = page.getByRole('button', { name: 'Open Preview to the Side' })
+    const openPreviewToSide = page.getByRole('button', { name: 'Open preview to the side' })
     await expect(openPreviewToSide).toBeVisible({ timeout: 30_000 })
     await openPreviewToSide.click()
     await expect

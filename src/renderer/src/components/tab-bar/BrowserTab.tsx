@@ -16,12 +16,12 @@ import { CLOSE_ALL_CONTEXT_MENUS_EVENT } from '@/lib/close-all-context-menus'
 import { getLiveBrowserUrl } from '../browser-pane/describe-page/live-browser-url-registry'
 import type { TabDragItemData } from '../tab-group/useTabDragSplit'
 import {
-  ACTIVE_TAB_INDICATOR_CLASSES,
   getDropIndicatorClasses,
   getTabRootStateClasses,
   getTabStripBorderClasses,
   type DropIndicator
 } from './drop-indicator'
+import { ActiveTabIndicator } from './active-tab-indicator'
 import { preventMiddleButtonDefault } from './middle-button-default-guard'
 import { translate } from '@/i18n/i18n'
 import { TAB_LABEL_WIDTH_CLASSES } from './tab-width-rules'
@@ -151,7 +151,7 @@ export default function BrowserTab({
       data-pinned={isPinned ? 'true' : 'false'}
       {...attributes}
       {...listeners}
-      className={`group relative flex items-center h-full px-1.5 text-xs cursor-pointer select-none outline-none focus:outline-none focus-visible:outline-none ${getTabStripBorderClasses(hasTabsToRight, { includeTopBorder: includeTopTabBorder })} ${getDropIndicatorClasses(dropIndicator ?? null)} ${getTabRootStateClasses(isActive)}`}
+      className={`group relative my-1 flex h-[calc(100%-8px)] items-center rounded-[8px] px-2 text-xs cursor-pointer select-none outline-none focus:outline-none focus-visible:outline-none ${getTabStripBorderClasses(hasTabsToRight, { includeTopBorder: includeTopTabBorder })} ${getDropIndicatorClasses(dropIndicator ?? null)} ${getTabRootStateClasses(isActive)}`}
       onPointerDown={(e) => {
         onTabPointerDown(
           e,
@@ -175,7 +175,7 @@ export default function BrowserTab({
         }
       }}
     >
-      {isActive && <span className={ACTIVE_TAB_INDICATOR_CLASSES} aria-hidden />}
+      {isActive && <ActiveTabIndicator />}
       {/* Why: the browser tab icon is the only non-terminal, non-editor
           surface in the tab strip. Coloring the Globe blue (matching the
           in-app browser's identity and the default tab insertion bar)
@@ -264,7 +264,7 @@ export default function BrowserTab({
             <>
               <DropdownMenuItem onSelect={onDuplicate}>
                 <Copy className="size-3.5" />
-                {translate('auto.components.tab.bar.BrowserTab.5d6e89891f', 'Duplicate Tab')}
+                {translate('auto.components.tab.bar.BrowserTab.5d6e89891f', 'Duplicate tab')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
@@ -272,8 +272,8 @@ export default function BrowserTab({
           <DropdownMenuItem onSelect={onTogglePin}>
             {isPinned ? <PinOff className="size-3.5" /> : <Pin className="size-3.5" />}
             {isPinned
-              ? translate('auto.components.tab.bar.BrowserTab.c5aaee8c39', 'Unpin Tab')
-              : translate('auto.components.tab.bar.BrowserTab.911542656f', 'Pin Tab')}
+              ? translate('auto.components.tab.bar.BrowserTab.c5aaee8c39', 'Unpin tab')
+              : translate('auto.components.tab.bar.BrowserTab.911542656f', 'Pin tab')}
           </DropdownMenuItem>
           <CopyTabIdMenuItem unifiedTabId={dragData.unifiedTabId} />
           <DropdownMenuSeparator />
@@ -283,7 +283,7 @@ export default function BrowserTab({
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={onCloseOthers} disabled={tabCount <= 1}>
             <CopyX className="size-3.5" />
-            {translate('components.tab.bar.BrowserTab.closeOthers', 'Close Others')}
+            {translate('components.tab.bar.BrowserTab.closeOthers', 'Close others')}
           </DropdownMenuItem>
           <CloseSplitPaneMenuItem onCloseSplitPane={onCloseSplitPane} />
           <DropdownMenuItem
@@ -291,7 +291,7 @@ export default function BrowserTab({
             disabled={!isHttpUrl}
           >
             <ExternalLink className="size-3.5" />
-            {translate('auto.components.tab.bar.BrowserTab.6e0bc8f3a8', 'Open In Browser')}
+            {translate('auto.components.tab.bar.BrowserTab.6e0bc8f3a8', 'Open in browser')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

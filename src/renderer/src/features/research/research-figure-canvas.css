@@ -1,17 +1,95 @@
-/* Why: Excalidraw's chrome is violet; the app keeps a monochrome ink look with its own tokens. */
+/* Why: Excalidraw's chrome is violet; the app keeps a monochrome ink look. The canvas is always
+   a light sheet of paper (its theme stays light), so its chrome uses the light graphite values in
+   either app theme instead of the app's tokens. */
 [data-research-figure-canvas] .excalidraw,
 [data-research-figure-canvas] .excalidraw.theme--dark {
-  --color-primary: var(--foreground);
-  --color-primary-darker: var(--foreground);
-  --color-primary-darkest: var(--foreground);
-  --color-primary-hover: var(--foreground);
-  --color-primary-light: var(--accent);
-  --color-primary-light-darker: var(--accent);
-  --color-surface-primary-container: var(--accent);
-  --color-on-primary-container: var(--foreground);
-  --color-brand-hover: var(--foreground);
-  --color-brand-active: var(--foreground);
-  --color-selection: var(--foreground);
+  --color-primary: #18181b;
+  --color-primary-darker: #18181b;
+  --color-primary-darkest: #18181b;
+  --color-primary-hover: #18181b;
+  --color-primary-light: #ececef;
+  --color-primary-light-darker: #e4e4e7;
+  --color-surface-primary-container: #ececef;
+  --color-on-primary-container: #18181b;
+  --color-brand-hover: #18181b;
+  --color-brand-active: #18181b;
+  --color-selection: #18181b;
+  /* The tool palette, the bottom bar and Excalidraw's menus float like Aster's raised surfaces. */
+  --island-bg-color: #ffffff;
+  --shadow-island:
+    0 0 0 1px rgb(24 24 27 / 0.07), 0 1px 2px rgb(24 24 27 / 0.06),
+    0 12px 28px -12px rgb(24 24 27 / 0.24);
+  --border-radius-lg: 10px;
+  --border-radius-md: 8px;
+  --button-hover-bg: #f0f0f2;
+}
+
+/* The tool palette: one raised pill-ended island, its tools soft squares inside it. */
+[data-research-figure-canvas] .excalidraw .App-toolbar.Island {
+  padding: 4px;
+  border-radius: 14px;
+}
+[data-research-figure-canvas] .excalidraw .App-toolbar .ToolIcon__icon {
+  border-radius: 10px;
+  transition: background-color var(--duration-fast) var(--ease-out-quint);
+}
+[data-research-figure-canvas] .excalidraw .App-toolbar .ToolIcon__keybinding {
+  opacity: 0.55;
+}
+[data-research-figure-canvas] .excalidraw .zoom-actions,
+[data-research-figure-canvas] .excalidraw .undo-redo-buttons {
+  border-radius: 10px;
+  box-shadow: var(--shadow-island);
+}
+[data-research-figure-canvas] .excalidraw .zoom-button,
+[data-research-figure-canvas] .excalidraw .undo-redo-buttons button {
+  background-color: #ffffff !important;
+}
+[data-research-figure-canvas] .excalidraw .zoom-button:hover,
+[data-research-figure-canvas] .excalidraw .undo-redo-buttons button:hover {
+  background-color: #f0f0f2 !important;
+}
+[data-research-figure-canvas] .excalidraw .App-bottom-bar > .Island {
+  border-radius: 14px;
+}
+[data-research-figure-canvas] .excalidraw .dropdown-menu-button,
+[data-research-figure-canvas] .excalidraw .help-icon {
+  border: 0;
+  border-radius: 10px;
+  box-shadow: var(--shadow-island);
+  background-color: #ffffff;
+}
+[data-research-figure-canvas] .excalidraw .dropdown-menu .dropdown-menu-container {
+  border-radius: 14px;
+  box-shadow: var(--shadow-island);
+}
+
+/* Aster's own controls on the paper: light like Excalidraw's, in either app theme. */
+.research-canvas-island {
+  background: #ffffff;
+  color: #3f3f46;
+  box-shadow: var(--shadow-island-aster);
+  --shadow-island-aster:
+    0 0 0 1px rgb(24 24 27 / 0.07), 0 1px 2px rgb(24 24 27 / 0.06),
+    0 12px 28px -12px rgb(24 24 27 / 0.24);
+}
+.research-canvas-tool {
+  color: #3f3f46;
+  transition:
+    background-color var(--duration-fast) var(--ease-out-quint),
+    color var(--duration-fast) var(--ease-out-quint);
+}
+.research-canvas-tool:hover {
+  background: #f0f0f2;
+  color: #18181b;
+}
+.research-canvas-divider {
+  background: #e4e4e7;
+}
+.research-canvas-tool[aria-pressed='true'],
+.research-canvas-tool[aria-expanded='true'] {
+  background: #ececef;
+  color: #18181b;
 }
 
 /* Why: the toolbar's ML parts button opens the same library, and the trigger clips in narrow panes. */
@@ -34,9 +112,10 @@
   accent-color: var(--foreground);
 }
 
-/* Why: Excalidraw's bars stay in the part of the canvas the Inspector leaves visible. */
+/* Why: Excalidraw's bars stay in the part of the canvas the floating Inspector (248 px and its
+   8 px inset) leaves visible. */
 [data-research-figure-canvas][data-inspector-open] .excalidraw .layer-ui__wrapper {
-  width: calc(100% - 248px);
+  width: calc(100% - 256px);
 }
 
 /*
@@ -67,4 +146,36 @@
   .excalidraw
   canvas.excalidraw__canvas {
   filter: url('#aster-figure-deuteranopia');
+}
+
+/* Aster's measuring marks on the paper (selection box, distances, gap handles): ink, never a hue,
+   the same in either app theme because the paper stays light. */
+.research-figure-marquee {
+  border: 1px solid rgb(24 24 27 / 0.55);
+  background: rgb(24 24 27 / 0.04);
+}
+.research-figure-measure-line {
+  background: #18181b;
+}
+.research-figure-measure-pill {
+  background: #18181b;
+  color: #ffffff;
+  font-size: 10px;
+  line-height: 16px;
+  border-radius: 4px;
+  padding: 0 4px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.research-figure-gap-handle {
+  background: #18181b;
+  box-shadow: 0 0 0 1.5px #ffffff;
+  border-radius: 2px;
+}
+
+/* Why: the figure menu opens down over the insert tools beside it; they step aside while it is
+   open instead of showing through it. */
+[data-research-figure-canvas]:has(.excalidraw .dropdown-menu)
+  > [role='toolbar'].research-canvas-island {
+  visibility: hidden;
 }

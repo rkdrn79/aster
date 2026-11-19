@@ -22,6 +22,7 @@ vi.mock('../ipc/local-file-access-resolution', () => ({
 import {
   embedSvgFonts,
   figurePdfPageHtml,
+  svgEmbeddedFamilies,
   svgFontFamilies,
   svgHasEmbeddedFonts
 } from './research-figure-pdf-page'
@@ -44,6 +45,14 @@ describe('figure PDF page', () => {
       /^<svg[^>]*><defs><style>@font-face\{font-family:"Liberation Sans";src:url\(data:font\/woff2;base64,AAAA\)/
     )
     expect(svgHasEmbeddedFonts(embedded)).toBe(true)
+    expect([...svgEmbeddedFamilies(embedded)]).toEqual(['Liberation Sans'])
+  })
+
+  it('reads which families an SVG already embeds, quoted or not', () => {
+    const svg =
+      '<svg><defs><style>@font-face{font-family:"Latin Modern Roman";src:url(data:font/otf;base64,AA) format("opentype");}@font-face { font-family: Excalifont; src: url(x); }</style></defs></svg>'
+    expect([...svgEmbeddedFamilies(svg)].sort()).toEqual(['Excalifont', 'Latin Modern Roman'])
+    expect(svgEmbeddedFamilies(SVG).size).toBe(0)
   })
 
   it('prints one page exactly the figure size, with scripts off', () => {

@@ -139,12 +139,12 @@ export function createCompactCommentMarkdownComponents(
     // Spans preserve compact flow on shared surfaces; roles keep the source
     // heading hierarchy navigable when the PR sidebar promotes them visually.
     h1: ({ children }) => (
-      <span className="comment-md-h comment-md-h1 font-bold" role="heading" aria-level={1}>
+      <span className="comment-md-h comment-md-h1 font-semibold" role="heading" aria-level={1}>
         {children}
       </span>
     ),
     h2: ({ children }) => (
-      <span className="comment-md-h comment-md-h2 font-bold" role="heading" aria-level={2}>
+      <span className="comment-md-h comment-md-h2 font-semibold" role="heading" aria-level={2}>
         {children}
       </span>
     ),
@@ -242,7 +242,7 @@ export function createCompactCommentMarkdownComponents(
     // user scroll to see the full table.
     table: ({ children }) => (
       <div className="my-1 max-w-full overflow-x-auto">
-        <table className="text-[10px] border-collapse [&_td]:border [&_td]:border-border/40 [&_td]:px-1 [&_td]:py-0.5 [&_th]:border [&_th]:border-border/40 [&_th]:px-1 [&_th]:py-0.5 [&_th]:font-semibold [&_th]:text-left">
+        <table className="text-[10px] border-collapse [&_td]:border [&_td]:border-border/40 [&_td]:px-1 [&_td]:py-0.5 [&_th]:border [&_th]:border-border/40 [&_th]:px-1 [&_th]:py-0.5 [&_th]:font-medium [&_th]:text-left">
           {children}
         </table>
       </div>
@@ -355,7 +355,7 @@ export function createDocumentCommentMarkdownComponents(
     // dialog is wide enough to show them, but still needs overflow containment.
     table: ({ children }) => (
       <div className="my-3 max-w-full overflow-x-auto rounded-md border border-border/60">
-        <table className="min-w-full border-collapse text-[13px] [&_td]:border [&_td]:border-border/50 [&_td]:px-2 [&_td]:py-1.5 [&_th]:border [&_th]:border-border/50 [&_th]:bg-muted/60 [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left [&_th]:font-semibold">
+        <table className="min-w-full border-collapse text-[13px] [&_td]:border [&_td]:border-border/50 [&_td]:px-2 [&_td]:py-1.5 [&_th]:border [&_th]:border-border/50 [&_th]:bg-muted/60 [&_th]:px-2 [&_th]:py-1.5 [&_th]:text-left [&_th]:font-medium">
           {children}
         </table>
       </div>

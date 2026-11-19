@@ -98,14 +98,14 @@ export function useRightSidebarActivityItems({
       {
         id: 'pr-checks',
         icon: ListChecks,
-        title: translate('auto.components.right.sidebar.index.parentPrChecks', 'PR Checks'),
+        title: translate('auto.components.right.sidebar.index.parentPrChecks', 'PR checks'),
         shortcut: '',
         folderOnly: true
       },
       {
         id: 'source-control',
         icon: GitBranch,
-        title: translate('auto.components.right.sidebar.index.0314901467', 'Source Control'),
+        title: translate('auto.components.right.sidebar.index.0314901467', 'Source control'),
         shortcut: sourceControlShortcut === 'Unassigned' ? '' : sourceControlShortcut,
         gitOnly: true
       },

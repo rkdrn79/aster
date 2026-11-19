@@ -13,9 +13,9 @@ function renderActions(onContinueInNewSession?: () => void): string {
         session={session}
         detailsExpanded={false}
         detailsId="session-details"
-        detailsTooltip="Show Details"
+        detailsTooltip="Show details"
         resumeDisabled={false}
-        resumeLabel="Resume in New Tab"
+        resumeLabel="Resume in new tab"
         worktreeInfo={null}
         onToggleDetails={vi.fn()}
         showJumpToWorktree={false}
@@ -35,7 +35,7 @@ describe('SessionRowTrailingActions', () => {
     const markup = renderActions(vi.fn())
 
     expect(markup).toContain('data-testid="ai-vault-session-continue-in-new-session"')
-    expect(markup).toContain('aria-label="Hand Off to Another Agent"')
+    expect(markup).toContain('aria-label="Hand off to another agent"')
     // Why: edge-usage action lives in the hover group; the gating class is what
     // keeps it click-proof while the row is unhovered.
     const buttonMarkup = markup.split('data-testid="ai-vault-session-continue-in-new-session"')[0]

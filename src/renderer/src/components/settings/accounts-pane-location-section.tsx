@@ -19,7 +19,7 @@ export function renderAccountsLocationSection(
   } = model
   const accountRuntimeControls = wslSupportedPlatform ? (
     <SearchableSetting
-      title={translate('auto.components.settings.AccountsPane.f54b4fbd71', 'Account Location')}
+      title={translate('auto.components.settings.AccountsPane.f54b4fbd71', 'Account location')}
       description={translate(
         'auto.components.settings.AccountsPane.2cd197025c',
         'Choose whether provider accounts are inspected and added in {{value0}} or WSL.',

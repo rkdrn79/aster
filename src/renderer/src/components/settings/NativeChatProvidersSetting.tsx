@@ -41,7 +41,7 @@ function ProviderStatus({
   if (!enabledInAgents) {
     return (
       <span>
-        {translate('settings.chat.providers.agentDisabled', 'Turned off in Agent settings')}
+        {translate('settings.chat.providers.agentDisabled', 'Turned off in agent settings')}
       </span>
     )
   }

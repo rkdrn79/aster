@@ -1,26 +1,12 @@
 import { FIGURE_UNITS_PER_INCH } from '../../../../research-harness/research-figures-model.mjs'
 
-export type PageWidthPreset = { id: string; label: string; widthIn: number }
-
-export const PAGE_WIDTHS: readonly PageWidthPreset[] = [
-  { id: 'single', label: 'Single', widthIn: 3.25 },
-  { id: 'onehalf', label: '1.5-col', widthIn: 5 },
-  { id: 'double', label: 'Double', widthIn: 6.75 }
-]
-
-/** Column and text widths of the venues people submit to, in inches. */
-export const PAGE_VENUES: readonly {
-  id: string
-  label: string
-  single: number | null
-  double: number
-}[] = [
-  { id: 'icml', label: 'ICML', single: 3.25, double: 6.75 },
-  { id: 'cvpr', label: 'CVPR', single: 3.25, double: 6.875 },
-  { id: 'acl', label: 'ACL', single: 3.03, double: 6.3 },
-  { id: 'neurips', label: 'NeurIPS', single: null, double: 5.5 },
-  { id: 'arxiv', label: 'arXiv', single: null, double: 6.5 }
-]
+// Why from the harness: plots (aster_plot.py) take the same widths, so both stay in step.
+export {
+  PAGE_VENUES,
+  PAGE_WIDTHS,
+  type PageVenue,
+  type PageWidthPreset
+} from '../../../../research-harness/research-figures-pages.mjs'
 
 /** Wider than a column: the paper sets it as `figure*` across both. */
 export const FULL_WIDTH_FROM_IN = 3.5

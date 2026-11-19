@@ -1,0 +1,865 @@
+{
+  "title": "Instance-adaptive augmentation for time-series contrastive learning",
+  "method": "A parametric augmentation network learns per-instance views (factorization mask h, transformation mask g, latent masking noise) with a PRI objective and a temporal-consistency loss; an encoder is trained contrastively (global InfoNCE + local subsequence loss), alternating with the augmenter every M steps.",
+  "scope": {
+    "target": "ICLR full paper",
+    "compute": {
+      "gpuHours": 450,
+      "hardware": "8x A100 40GB",
+      "source": "user"
+    },
+    "outOfScope": [
+      {
+        "item": "irregularly sampled series",
+        "reason": "the method assumes a fixed sampling grid"
+      },
+      {
+        "item": "anomaly detection benchmarks",
+        "reason": "no claim about anomaly detection"
+      }
+    ]
+  },
+  "claims": [
+    {
+      "id": "C1",
+      "text": "Learned per-instance views beat hand-picked and adaptive augmentations for forecasting and classification",
+      "kind": "performance",
+      "weight": "main",
+      "evidence": ["Q1", "Q2"],
+      "status": "planned"
+    },
+    {
+      "id": "C2",
+      "text": "The approach is encoder-agnostic and improves several contrastive backbones",
+      "kind": "generality",
+      "weight": "main",
+      "evidence": ["Q3"],
+      "status": "planned"
+    },
+    {
+      "id": "C3",
+      "text": "Factorization keeps task-relevant information while adding variance",
+      "kind": "mechanism",
+      "weight": "secondary",
+      "evidence": ["Q4"],
+      "status": "planned"
+    },
+    {
+      "id": "C4",
+      "text": "Good views preserve task information for any downstream task",
+      "kind": "analysis",
+      "weight": "main",
+      "status": "argued-only"
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "claim": "C1",
+      "text": "Does our method beat the strongest augmentation-based and adaptive-view baselines on forecasting?",
+      "hypothesis": "Lower MSE than the best baseline on at least 5 of 7 forecasting datasets",
+      "predictionIfFalse": "No better than the best fixed augmentation tuned with equal trials",
+      "minEffect": "2% relative MSE or 0.5 seed std, whichever is larger",
+      "experiment": "ts-aug-forecasting"
+    },
+    {
+      "id": "Q2",
+      "claim": "C1",
+      "text": "Does it beat them on UCR and UEA classification?",
+      "hypothesis": "Higher mean accuracy and better mean rank than TS2Vec and InfoTS",
+      "predictionIfFalse": "Mean rank no better than TS2Vec",
+      "minEffect": "1 point mean accuracy"
+    },
+    {
+      "id": "Q3",
+      "claim": "C2",
+      "text": "Does it improve two other contrastive frameworks?",
+      "hypothesis": "Improves TS-TCC and CoST on 3 of 4 datasets",
+      "predictionIfFalse": "Gains only for the TS2Vec backbone",
+      "minEffect": "1% relative MSE"
+    },
+    {
+      "id": "Q4",
+      "claim": "C3",
+      "text": "Do learned masks keep informative steps?",
+      "hypothesis": "Masks keep injected signal segments in synthetic data",
+      "predictionIfFalse": "Mask overlap with injected segments at chance",
+      "minEffect": "IoU 0.2 above random masks"
+    }
+  ],
+  "methodComponents": [
+    {
+      "id": "M1",
+      "name": "factorization mask h",
+      "ablation": "A1"
+    },
+    {
+      "id": "M2",
+      "name": "transformation mask g",
+      "ablation": "A2"
+    },
+    {
+      "id": "M3",
+      "name": "temporal-consistency loss L_t",
+      "ablation": "A3"
+    },
+    {
+      "id": "M4",
+      "name": "alternating schedule M",
+      "ablation": "none",
+      "reason": "standard GAN-style schedule; covered by the sensitivity sweep over M"
+    }
+  ],
+  "baselines": [
+    {
+      "id": "B1",
+      "name": "TS2Vec",
+      "role": "strongest-recent",
+      "why": "Strongest published encoder on these benchmarks; our default backbone",
+      "source": "rerun-official-code",
+      "reproduce": {
+        "cell": "S0.reproduce-B1",
+        "tolerance": "MSE within 3% of the published ETTh1 number"
+      },
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same epochs and batch",
+        "tuning": {
+          "trials": 20,
+          "space": "lr x wd x temperature",
+          "selectionSplit": "val"
+        }
+      }
+    },
+    {
+      "id": "B2",
+      "name": "InfoTS",
+      "role": "closest-prior",
+      "why": "Closest adaptive-augmentation method",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same epochs",
+        "tuning": {
+          "trials": 20,
+          "space": "lr x meta-lr",
+          "selectionSplit": "val"
+        }
+      },
+      "reproduce": {
+        "cell": "S0.reproduce-B2",
+        "tolerance": "accuracy within 1 point of the published UCR mean"
+      }
+    },
+    {
+      "id": "B3",
+      "name": "Fixed augmentations (jitter+scale+crop)",
+      "role": "simplest",
+      "why": "What practitioners do today",
+      "source": "reimplemented",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same epochs",
+        "tuning": {
+          "trials": 20,
+          "space": "augmentation strengths",
+          "selectionSplit": "val"
+        }
+      }
+    }
+  ],
+  "notCompared": [
+    {
+      "name": "AutoTCL",
+      "reason": "concurrent work without released code"
+    }
+  ],
+  "baselineSearch": {
+    "sources": [
+      "project Library",
+      "related-work section",
+      "papers citing InfoTS",
+      "UCR/UEA leaderboards"
+    ],
+    "searchedAt": "2026-11-17",
+    "candidates": 9,
+    "closest": [
+      {
+        "method": "InfoTS",
+        "title": "Time Series Contrastive Learning with Information-Aware Augmentations",
+        "arxiv": "2303.11911",
+        "year": 2023,
+        "why": "learns which augmentations to use from information criteria",
+        "baseline": "B2"
+      },
+      {
+        "method": "TS2Vec",
+        "title": "TS2Vec: Towards Universal Representation of Time Series",
+        "arxiv": "2106.10466",
+        "year": 2021,
+        "why": "the contrastive framework the method plugs into",
+        "baseline": "B1"
+      },
+      {
+        "method": "AutoTCL",
+        "title": "Parametric Augmentation for Time Series Contrastive Learning",
+        "arxiv": "2402.10434",
+        "year": 2024,
+        "why": "also learns per-instance augmentations",
+        "reason": "concurrent work without released code"
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "id": "D1",
+      "name": "ETTh1",
+      "role": "main",
+      "why": "standard long-horizon benchmark",
+      "splits": {
+        "train": "60%",
+        "select": "val 20%",
+        "report": "test"
+      }
+    },
+    {
+      "id": "D2",
+      "name": "Electricity",
+      "role": "main",
+      "why": "multivariate, high dimensional",
+      "splits": {
+        "select": "val",
+        "report": "test"
+      }
+    },
+    {
+      "id": "D3",
+      "name": "UCR 128",
+      "role": "main",
+      "why": "standard classification suite",
+      "splits": {
+        "select": "val",
+        "report": "test"
+      }
+    },
+    {
+      "id": "D4",
+      "name": "Weather",
+      "role": "heldout",
+      "why": "not used while developing",
+      "splits": {
+        "select": "val",
+        "report": "test"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "name": "mse",
+      "direction": "minimize",
+      "split": "test",
+      "primary": true,
+      "why": "benchmark convention"
+    },
+    {
+      "name": "mae",
+      "direction": "minimize",
+      "split": "test",
+      "primary": false,
+      "why": "robust to outliers; reviewers expect both"
+    },
+    {
+      "name": "accuracy",
+      "direction": "maximize",
+      "split": "test",
+      "primary": false,
+      "why": "classification convention"
+    }
+  ],
+  "statistics": {
+    "seedsMain": 5,
+    "repeatUnit": "seed",
+    "variance": "std",
+    "test": "paired-bootstrap",
+    "aggregate": "mean rank + win/tie/loss"
+  },
+  "hyperparameters": {
+    "selectionSplit": "val",
+    "methodTrials": 20,
+    "baselineTrials": 20,
+    "tuningCostIncluded": true,
+    "saturationCheck": "S1.saturation-B1 gives TS2Vec 100 trials on ETTh1",
+    "sensitivity": [
+      {
+        "knob": "beta",
+        "levels": [0.01, 0.1, 1]
+      },
+      {
+        "knob": "M",
+        "levels": [1, 5, 10]
+      }
+    ]
+  },
+  "protocol": {
+    "checkpoint": "last epoch",
+    "postprocessing": "ridge regression head fit on train, selected on val",
+    "sharedByAllArms": true
+  },
+  "matrix": [
+    {
+      "cell": "S0.reproduce-B1",
+      "stage": "S0",
+      "question": "Q1",
+      "purpose": "sanity",
+      "tier": "must",
+      "factors": {
+        "method": "B1",
+        "dataset": "D1"
+      },
+      "seeds": 1,
+      "cost": {
+        "gpuHoursEach": 0.5,
+        "source": "paper"
+      },
+      "expect": "MSE within 3% of the published number"
+    },
+    {
+      "cell": "S0.reproduce-B2",
+      "stage": "S0",
+      "question": "Q2",
+      "purpose": "sanity",
+      "tier": "must",
+      "factors": {
+        "method": "B2",
+        "dataset": "D3-subset"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 0.6,
+        "source": "paper"
+      },
+      "expect": "within 1 point of the published number"
+    },
+    {
+      "cell": "S0.overfit-ours",
+      "stage": "S0",
+      "purpose": "sanity",
+      "tier": "must",
+      "factors": {
+        "method": "ours",
+        "dataset": "D1"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 0.2,
+        "source": "estimate"
+      },
+      "expect": "loss reaches near zero on one batch"
+    },
+    {
+      "cell": "S1.pilot-ours",
+      "stage": "S1",
+      "question": "Q1",
+      "purpose": "pilot",
+      "tier": "must",
+      "factors": {
+        "method": "ours",
+        "dataset": "D1",
+        "budget": "reduced"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 2,
+        "source": "timing-cell"
+      },
+      "expect": "beats B3 at reduced budget"
+    },
+    {
+      "cell": "S1.saturation-B1",
+      "stage": "S1",
+      "question": "Q1",
+      "purpose": "tuning",
+      "tier": "should",
+      "factors": {
+        "method": "B1",
+        "dataset": "D1",
+        "trials": 100
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 8,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.main-ours",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "ours",
+        "dataset": "D1+D2"
+      },
+      "compareTo": ["S2.main-B1", "S2.main-B2", "S2.main-B3"],
+      "seeds": 5,
+      "cost": {
+        "gpuHoursEach": 12,
+        "source": "timing-cell"
+      }
+    },
+    {
+      "cell": "S2.main-B1",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "B1",
+        "dataset": "D1+D2"
+      },
+      "seeds": 5,
+      "cost": {
+        "gpuHoursEach": 10,
+        "source": "paper"
+      }
+    },
+    {
+      "cell": "S2.main-B2",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "B2",
+        "dataset": "D1+D2"
+      },
+      "seeds": 5,
+      "cost": {
+        "gpuHoursEach": 12,
+        "source": "paper"
+      }
+    },
+    {
+      "cell": "S2.main-B3",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "B3",
+        "dataset": "D1+D2"
+      },
+      "seeds": 5,
+      "cost": {
+        "gpuHoursEach": 8,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.cls-ours",
+      "stage": "S2",
+      "question": "Q2",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "ours",
+        "dataset": "D3"
+      },
+      "compareTo": ["S2.cls-B1"],
+      "seeds": 5,
+      "cost": {
+        "gpuHoursEach": 6.0,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.cls-B1",
+      "stage": "S2",
+      "question": "Q2",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "B1",
+        "dataset": "D3"
+      },
+      "seeds": 5,
+      "cost": {
+        "gpuHoursEach": 4.8,
+        "source": "paper"
+      }
+    },
+    {
+      "cell": "S3.abl-h",
+      "stage": "S3",
+      "question": "Q1",
+      "purpose": "ablation",
+      "tier": "must",
+      "ablation": "A1",
+      "factors": {
+        "method": "ours-no-h",
+        "dataset": "D1"
+      },
+      "seeds": 3,
+      "cost": {
+        "gpuHoursEach": 2,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.abl-g",
+      "stage": "S3",
+      "question": "Q1",
+      "purpose": "ablation",
+      "tier": "must",
+      "ablation": "A2",
+      "factors": {
+        "method": "ours-no-g",
+        "dataset": "D1"
+      },
+      "seeds": 3,
+      "cost": {
+        "gpuHoursEach": 2,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.abl-lt",
+      "stage": "S3",
+      "question": "Q1",
+      "purpose": "ablation",
+      "tier": "should",
+      "ablation": "A3",
+      "factors": {
+        "method": "ours-no-lt",
+        "dataset": "D1"
+      },
+      "seeds": 3,
+      "cost": {
+        "gpuHoursEach": 2,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.sens-beta-M",
+      "stage": "S3",
+      "question": "Q1",
+      "purpose": "sensitivity",
+      "tier": "should",
+      "factors": {
+        "method": "ours",
+        "dataset": "D1",
+        "sweep": "beta x M"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 18,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S4.tstcc",
+      "stage": "S4",
+      "question": "Q3",
+      "purpose": "generality",
+      "tier": "should",
+      "factors": {
+        "method": "ours",
+        "backbone": "TS-TCC",
+        "dataset": "D1"
+      },
+      "seeds": 3,
+      "cost": {
+        "gpuHoursEach": 6,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S4.cost",
+      "stage": "S4",
+      "question": "Q3",
+      "purpose": "generality",
+      "tier": "should",
+      "factors": {
+        "method": "ours",
+        "backbone": "CoST",
+        "dataset": "D4"
+      },
+      "seeds": 3,
+      "cost": {
+        "gpuHoursEach": 6,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S4.timing",
+      "stage": "S4",
+      "purpose": "cost",
+      "tier": "must",
+      "factors": {
+        "method": "ours vs B1",
+        "dataset": "D1"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 1,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S4.masks",
+      "stage": "S4",
+      "question": "Q4",
+      "purpose": "analysis",
+      "tier": "could",
+      "factors": {
+        "method": "ours",
+        "dataset": "synthetic"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 2,
+        "source": "estimate"
+      }
+    }
+  ],
+  "ablations": [
+    {
+      "id": "A1",
+      "component": "M1",
+      "structure": "remove",
+      "default": "full method at 100 epochs",
+      "budget": "reduced (100 epochs)",
+      "cells": ["S3.abl-h"]
+    },
+    {
+      "id": "A2",
+      "component": "M2",
+      "structure": "remove",
+      "default": "full method at 100 epochs",
+      "budget": "reduced (100 epochs)",
+      "cells": ["S3.abl-g"]
+    },
+    {
+      "id": "A3",
+      "component": "M3",
+      "structure": "remove",
+      "default": "full method at 100 epochs",
+      "budget": "reduced (100 epochs)",
+      "cells": ["S3.abl-lt"]
+    }
+  ],
+  "costMeasurements": [
+    {
+      "id": "K1",
+      "what": ["wall-clock per epoch", "peak memory"],
+      "methods": ["ours", "B1", "B2"],
+      "protocol": "same GPU, batch 32, 3 warm-up steps excluded, median of 10",
+      "cell": "S4.timing"
+    }
+  ],
+  "analysis": [
+    {
+      "id": "N1",
+      "kind": "failure-cases",
+      "question": "Which series do the masks hurt?"
+    },
+    {
+      "id": "N2",
+      "kind": "mechanism-probe",
+      "question": "Do masks align with injected informative segments?",
+      "cells": ["S4.masks"]
+    },
+    {
+      "id": "N3",
+      "kind": "contingent",
+      "trigger": "after S2: any dataset where ours loses or ties",
+      "question": "Why does it lose there?",
+      "budgetGpuHours": 10
+    }
+  ],
+  "leakageChecks": [
+    {
+      "what": "no test data in normalization statistics",
+      "how": "fit the scaler on train only"
+    }
+  ],
+  "humanEval": {
+    "needed": false,
+    "reason": "outputs are scalar forecasts and labels"
+  },
+  "stages": [
+    {
+      "id": "S0",
+      "name": "sanity",
+      "budgetGpuHours": 2,
+      "gate": "B1 reproduces within 3% on ETTh1; ours overfits one batch"
+    },
+    {
+      "id": "S1",
+      "name": "cheap falsifier",
+      "budgetGpuHours": 12,
+      "gate": "ours beats B3 on the pilot at reduced budget"
+    },
+    {
+      "id": "S2",
+      "name": "main results",
+      "budgetGpuHours": 300,
+      "gate": "all seeds finished; comparison as pre-registered"
+    },
+    {
+      "id": "S3",
+      "name": "ablations and sensitivity",
+      "budgetGpuHours": 40,
+      "gate": "every component ablated"
+    },
+    {
+      "id": "S4",
+      "name": "generality, cost, analysis",
+      "budgetGpuHours": 46,
+      "gate": "cost measured; analyses written"
+    }
+  ],
+  "decisionPoints": [
+    {
+      "after": "S1",
+      "if": "ours loses to B3 on the pilot",
+      "then": "stop and propose a diagnosis Experiment",
+      "else": "propose S2"
+    },
+    {
+      "after": "S2",
+      "if": "effect below the minimum on more than half the datasets",
+      "then": "downgrade C1 to competitive and ask the person before S3",
+      "else": "propose S3"
+    }
+  ],
+  "stoppingRules": [
+    "Stop a stage when its budget is spent; ask before borrowing from a later stage",
+    "Three failed Runs of the same cell: checkpoint with the person",
+    "A gate that fails twice sends the plan back to draft"
+  ],
+  "risks": [
+    {
+      "text": "InfoTS reproduction may fail",
+      "mitigation": "report it as a limitation and keep B1"
+    }
+  ],
+  "premortem": {
+    "requests": [
+      {
+        "id": "PM1",
+        "reviewer": "R1",
+        "category": "missing-baseline",
+        "request": "Compare against AutoTCL and other automatic augmentation methods",
+        "likelihood": "high",
+        "resolution": {
+          "as": "plan",
+          "items": ["S2.main-B2"]
+        }
+      },
+      {
+        "id": "PM2",
+        "reviewer": "R1",
+        "category": "unfair-comparison",
+        "request": "Were baselines tuned with the same trials?",
+        "likelihood": "medium",
+        "resolution": {
+          "as": "plan",
+          "items": ["S1.saturation-B1"]
+        }
+      },
+      {
+        "id": "PM3",
+        "reviewer": "R1",
+        "category": "hyperparameters",
+        "request": "How sensitive is it to beta and M?",
+        "likelihood": "medium",
+        "resolution": {
+          "as": "plan",
+          "items": ["S3.sens-beta-M"]
+        }
+      },
+      {
+        "id": "PM4",
+        "reviewer": "R1",
+        "category": "metric",
+        "request": "Report MAE next to MSE",
+        "likelihood": "low",
+        "resolution": {
+          "as": "plan",
+          "items": ["S2.main-ours"]
+        }
+      },
+      {
+        "id": "PM5",
+        "reviewer": "R2",
+        "category": "missing-dataset",
+        "request": "Evaluate on Weather and Traffic",
+        "likelihood": "high",
+        "resolution": {
+          "as": "plan",
+          "items": ["S4.cost"]
+        }
+      },
+      {
+        "id": "PM6",
+        "reviewer": "R2",
+        "category": "cost",
+        "request": "What does learning the augmentation cost per epoch?",
+        "likelihood": "high",
+        "resolution": {
+          "as": "plan",
+          "items": ["S4.timing"]
+        }
+      },
+      {
+        "id": "PM7",
+        "reviewer": "R2",
+        "category": "model-variety",
+        "request": "Does it help a transformer encoder?",
+        "likelihood": "low",
+        "resolution": {
+          "as": "out-of-scope",
+          "reason": "the claim covers contrastive CNN frameworks only"
+        }
+      },
+      {
+        "id": "PM8",
+        "reviewer": "R3",
+        "category": "missing-ablation",
+        "request": "Is the gain from h or from L_t?",
+        "likelihood": "high",
+        "resolution": {
+          "as": "plan",
+          "items": ["A1", "A3"]
+        }
+      },
+      {
+        "id": "PM9",
+        "reviewer": "R3",
+        "category": "analysis",
+        "request": "Explain weaker multivariate results",
+        "likelihood": "medium",
+        "resolution": {
+          "as": "plan",
+          "items": ["N3"]
+        }
+      },
+      {
+        "id": "PM10",
+        "reviewer": "R3",
+        "category": "claim-gap",
+        "request": "The 'any downstream task' claim is not tested",
+        "likelihood": "medium",
+        "resolution": {
+          "as": "out-of-scope",
+          "reason": "C4 is argued-only and worded as such"
+        }
+      }
+    ]
+  }
+}

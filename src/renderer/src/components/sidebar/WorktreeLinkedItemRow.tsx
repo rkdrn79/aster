@@ -29,7 +29,7 @@ export function WorktreeLinkedItemRow({
   const source = getWorkspaceAttachmentSourceLabel(item)
   const provider = workspaceAttachmentProviderLabel(item)
   const observedCount = item.origins?.filter((origin) => origin.kind === 'observed').length ?? 0
-  const sessionsLabel = translate('workspace.links.sessions', 'Sessions & terminals')
+  const sessionsLabel = translate('workspace.links.sessions', 'Sessions and terminals')
   return (
     <Collapsible
       data-workspace-linked-item=""
@@ -77,7 +77,7 @@ export function WorktreeLinkedItemRow({
                   disabled={disabled}
                   aria-label={translate(
                     'workspace.links.sessionsForItem',
-                    'Sessions & terminals for {{label}} · {{count}}',
+                    'Sessions and terminals for {{label}} · {{count}}',
                     { label, count: observedCount }
                   )}
                 >

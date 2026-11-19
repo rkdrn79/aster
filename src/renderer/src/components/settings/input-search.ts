@@ -6,7 +6,7 @@ export const getInputPaneSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.input.search.d952ce9b46',
-      'Middle-click Paste from Selection'
+      'Middle-click paste from selection'
     ),
     description: translate(
       'auto.components.settings.input.search.874d88f4a6',

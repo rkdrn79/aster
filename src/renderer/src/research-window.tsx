@@ -1,10 +1,8 @@
 import './assets/main.css'
 import { StrictMode, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ExternalLink } from 'lucide-react'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { Button } from '@/components/ui/button'
 import { ConfirmationDialogProvider } from './components/confirmation-dialog'
 import EditorAutosaveController from './components/editor/EditorAutosaveController'
 import { RecoverableRenderErrorBoundary } from './components/error-boundaries/RecoverableRenderErrorBoundary'
@@ -17,7 +15,6 @@ import { useAppStore } from './store'
 import { PRODUCT_NAME } from '../../shared/product-brand'
 import { normalizeExecutionHostId, parseExecutionHostId } from '../../shared/execution-host'
 import {
-  RESEARCH_WINDOW_PAGES,
   RESEARCH_WINDOW_PAGE_LABELS,
   isResearchWindowPage,
   researchWindowTargetFromSearch,
@@ -26,6 +23,7 @@ import {
 } from '../../shared/research-page-window'
 import { ResearchPreviewPage } from './features/research/ResearchPreviewPage'
 import { ResearchWindowChats } from './features/research/ResearchWindowChats'
+import { ResearchSubtaskInspectDialog } from './features/research/ResearchSubtaskStrip'
 import { isResearchPage } from './features/research/research-navigation'
 import { isResearchWindowState } from './features/research/research-window-state'
 import {
@@ -35,6 +33,7 @@ import {
 import { ResearchWindowHostBanner } from './features/research/ResearchWindowHostBanner'
 import { ResearchWindowRemoteServices } from './features/research/ResearchWindowRemoteServices'
 import { ResearchWindowPalette } from './features/research/ResearchWindowPalette'
+import { ResearchWindowTopBar } from './features/research/ResearchWindowTopBar'
 import { selectResearchWorkspaceContext } from './features/research/research-workspace-context'
 import { replaceRuntimeEnvironmentRevisions } from './runtime/runtime-environment-revision'
 import { disableStructuredAgentLaunchPersistence } from './lib/structured-agent-session-launch-persistence'
@@ -155,31 +154,16 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
         {/* Why: the Writing editor saves through this; the main window's lives in its terminal view. */}
         <EditorAutosaveController />
         <ConfirmationDialogProvider>
-          <div className="flex h-screen min-h-0 flex-col bg-background text-foreground">
-            <header className="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
-              <span className="min-w-0 max-w-64 truncate text-sm font-semibold">
-                {projectName ?? pageLabel}
-              </span>
-              <nav aria-label="Project sections" className="flex items-center gap-0.5">
-                {RESEARCH_WINDOW_PAGES.map((page) => (
-                  <Button
-                    key={page}
-                    size="xs"
-                    variant={page === currentPage ? 'secondary' : 'ghost'}
-                    aria-current={page === currentPage ? 'page' : undefined}
-                    onClick={() => showSection(page)}
-                  >
-                    {RESEARCH_WINDOW_PAGE_LABELS[page]}
-                  </Button>
-                ))}
-              </nav>
-              <Button variant="ghost" size="xs" className="ml-auto" onClick={openInMain}>
-                <ExternalLink aria-hidden />
-                {t('research.window.openInMain', 'Open in main window')}
-              </Button>
-            </header>
-            {ready ? <ResearchWindowHostBanner /> : null}
-            <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          {/* Why the shell: like the main window, the page is an inset panel under a title bar. */}
+          <div className="flex h-screen min-h-0 flex-col bg-shell text-foreground">
+            <ResearchWindowTopBar
+              title={projectName ?? pageLabel}
+              currentPage={currentPage}
+              onShowSection={showSection}
+              onOpenInMain={openInMain}
+            />
+            <main className="mx-2 mb-2 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-background">
+              {ready ? <ResearchWindowHostBanner /> : null}
               {!ready ? (
                 <p role="status" className="p-6 text-sm text-muted-foreground">
                   {waitingForMain
@@ -195,6 +179,7 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
               )}
             </main>
           </div>
+          <ResearchSubtaskInspectDialog />
         </ConfirmationDialogProvider>
         {ready ? (
           <ResearchWindowPalette

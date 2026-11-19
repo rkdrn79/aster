@@ -31,6 +31,28 @@ The Figure kit in `src/research-harness/vendor/` bundles:
 - **Photographs** from Wikimedia Commons (`vendor/photos/`), each dedicated to the public domain
   under CC0 1.0 by its author; titles, authors and source pages are in
   `vendor/photos/SOURCES.json`.
+- **Microsoft Fluent Emoji** Flat images (`vendor/illustrations/fluent/`), copyright Microsoft
+  Corporation, MIT License (full text in `vendor/illustrations/fluent/LICENSE`), taken from
+  microsoft/fluentui-emoji at commit 1ffb34c and recoloured into the kit's colour roles by
+  `config/scripts/vendor-figure-illustrations.mjs`.
+- **IBM Carbon Design System** pictograms (`vendor/illustrations/carbon/`), copyright IBM Corp.,
+  under the Apache License, Version 2.0 (full text in `vendor/illustrations/carbon/LICENSE`), taken
+  from carbon-design-system/carbon at commit f615c75 (no IBM-brand pictograms) and recoloured to
+  one ink. Each file's source, licence and tags are in `vendor/illustrations/SOURCES.json`.
+
+## Figure paper fonts
+
+The Figures page's paper look sets text in two LaTeX faces, bundled unmodified in
+`src/renderer/src/assets/fonts/paper/` from TeX Live (version 2.004 of each):
+
+- **Latin Modern Roman 10 Regular** (`lmroman10-regular.otf`), copyright 2003, 2009 B. Jackowski
+  and J. M. Nowacki (on behalf of TeX users groups);
+- **TeX Gyre Termes Regular** (`texgyretermes-regular.otf`), copyright 2006, 2009 for TeX Gyre
+  extensions by B. Jackowski and J. M. Nowacki (on behalf of TeX users groups).
+
+Both are released under the GUST Font License (full text in
+`src/renderer/src/assets/fonts/paper/GUST-FONT-LICENSE.txt`). Exported figures carry the face
+they use inside the SVG and PDF.
 
 ## Orca
 

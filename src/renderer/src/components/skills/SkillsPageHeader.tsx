@@ -52,7 +52,7 @@ export function SkillsPageHeader({
             <Button
               variant="ghost"
               size="icon"
-              className="size-7 shrink-0 rounded-full"
+              className="size-7 shrink-0"
               onClick={onClose}
               aria-label={translate(
                 'auto.components.skills.SkillsPage.closeSkills',

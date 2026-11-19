@@ -11,7 +11,7 @@ async function openSourceControl(page: Page): Promise<void> {
     const state = window.__store?.getState()
     state?.setRightSidebarOpen(true)
   })
-  await page.getByRole('button', { name: /Source Control/ }).click()
+  await page.getByRole('button', { name: /Source control/ }).click()
   await page.getByTestId('source-control-filter-toggle').click()
   await expect(page.getByPlaceholder(/Filter files/)).toBeVisible()
 }

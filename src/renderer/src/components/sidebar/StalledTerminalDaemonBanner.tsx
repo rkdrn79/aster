@@ -56,7 +56,7 @@ export function StalledTerminalDaemonBanner(): React.JSX.Element | null {
       <div className="flex items-start gap-2">
         <TriangleAlert className="mt-px size-3.5 shrink-0 text-destructive" aria-hidden="true" />
         <div className="min-w-0 flex-1 space-y-1.5">
-          <p className="text-xs font-semibold leading-snug">
+          <p className="text-xs font-medium leading-snug">
             {translate('terminal.stalledDaemonBanner.title', 'Terminal service may need a restart')}
           </p>
           <p className="text-xs leading-snug text-muted-foreground">

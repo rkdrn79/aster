@@ -76,7 +76,7 @@ function PhoneDeviceRow({
     }
   }
   return (
-    <li className="flex items-center justify-between gap-2 py-1.5">
+    <li className="flex items-center justify-between gap-2 py-2">
       <div className="min-w-0">
         <p className="truncate text-xs font-medium">{deviceTitle(device)}</p>
         <p className="truncate text-xs text-muted-foreground">
@@ -192,7 +192,7 @@ export function ResearchPhoneAccessDevices({
           {devices.length > 0 ? (
             <ChevronRight
               aria-hidden
-              className={cn('size-3.5 transition-transform', open && 'rotate-90')}
+              className={cn('size-4 transition-transform', open && 'rotate-90')}
             />
           ) : null}
           {summaryText(devices)}

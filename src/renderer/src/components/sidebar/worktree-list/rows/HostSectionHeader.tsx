@@ -16,14 +16,12 @@ function SectionMetricsBadge({ count }: { count: number }): React.JSX.Element {
 
   return (
     <span
-      className="inline-flex h-4 shrink-0 overflow-hidden rounded-full border border-worktree-sidebar-border bg-worktree-sidebar-accent text-[9px] font-medium leading-none text-muted-foreground/90"
+      className="inline-flex h-4 shrink-0 text-[11px] leading-none text-muted-foreground tabular-nums"
       aria-label={totalLabel}
     >
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="inline-flex h-full min-w-4 items-center justify-center px-1.5">
-            {count}
-          </span>
+          <span className="inline-flex h-full items-center">{count}</span>
         </TooltipTrigger>
         <TooltipContent side="bottom" sideOffset={6}>
           {totalLabel}
@@ -71,7 +69,7 @@ export function HostSectionHeader({
         data-host-header-drag-id={row.hostId}
         aria-expanded={!row.collapsed}
         className={cn(
-          'group/host-header flex h-8 w-full cursor-pointer items-center gap-2 rounded-md border px-2 text-left transition-all',
+          'group/host-header flex h-8 w-full cursor-pointer items-center gap-2 rounded-md border px-2 text-left transition-[background-color,border-color,opacity]',
           onDragPointerDown && 'cursor-grab active:cursor-grabbing',
           isBlocked
             ? 'border-destructive/40 bg-destructive/10'
@@ -99,7 +97,7 @@ export function HostSectionHeader({
         <div className="flex min-w-0 flex-1 items-center gap-1.5">
           <span
             className={cn(
-              'min-w-0 truncate text-[12px] font-semibold leading-none',
+              'min-w-0 truncate text-[12px] font-medium leading-none',
               isDisconnected ? 'text-muted-foreground' : 'text-foreground'
             )}
           >

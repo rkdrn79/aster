@@ -153,14 +153,8 @@ export function SparseDirectoryPicker({
           </div>
           <Command shouldFilter={false} className="min-h-0 flex-1">
             <CommandInput
-              placeholder={translate(
-                'sparsePreset.findOrTypePath',
-                'Find a folder, or type any path…'
-              )}
-              aria-label={translate(
-                'sparsePreset.findOrTypePath',
-                'Find a folder, or type any path…'
-              )}
+              placeholder={translate('sparsePreset.findOrTypePath', 'Find a folder or type a path')}
+              aria-label={translate('sparsePreset.findOrTypePath', 'Find a folder or type a path')}
               value={query}
               onValueChange={setQuery}
             />

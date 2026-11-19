@@ -25,7 +25,7 @@ export function showOsc52ClipboardBlockedToast(): void {
       action: {
         label: translate(
           'auto.components.terminal.pane.osc52.clipboard.blocked.toast.97c98f1afe',
-          'Open Setting'
+          'Open setting'
         ),
         onClick: () => {
           const store = useAppStore.getState()

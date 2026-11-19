@@ -42,7 +42,7 @@ describe('GeneralRemoteServerUpdates', () => {
     storeMock.state.refreshRemoteServerUpdates.mockClear()
 
     const button = container.querySelector('button')
-    expect(button?.textContent).toContain('Check for Server Updates')
+    expect(button?.textContent).toContain('Check for server updates')
     expect(button?.querySelector('svg.lucide-refresh-cw')).not.toBeNull()
     expect(button?.querySelector('svg.lucide-download')).toBeNull()
     expect(container.textContent).toContain('1 paired server · 1 up to date')

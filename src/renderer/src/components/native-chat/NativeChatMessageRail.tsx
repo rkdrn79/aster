@@ -158,7 +158,7 @@ export const NativeChatMessageRail = memo(function NativeChatMessageRail({
             onReaderScroll?.(event.deltaY * scale)
             element.scrollTop += event.deltaY * scale
           }}
-          className="absolute top-1/2 right-2.5 z-10 flex w-6 -translate-y-1/2 flex-col"
+          className="absolute top-1/2 right-2 z-10 flex w-6 -translate-y-1/2 flex-col"
         >
           {ticks.map((item) => {
             // The pointer or keyboard owns the fill while a preview is open; otherwise
@@ -194,8 +194,9 @@ export const NativeChatMessageRail = memo(function NativeChatMessageRail({
                 <span
                   aria-hidden
                   className={cn(
-                    'h-[3px] rounded-full transition-[width,background-color] duration-150 motion-reduce:transition-none',
-                    lit ? 'w-5 bg-foreground' : 'w-3 bg-foreground/50',
+                    // One width, scaled: the lit tick grows without animating layout.
+                    'h-0.5 w-5 rounded-full transition-[scale,background-color] duration-150 motion-reduce:transition-none',
+                    lit ? 'bg-foreground' : 'scale-x-60 bg-foreground/50',
                     item.id === pendingId &&
                       'animate-pulse motion-reduce:animate-none motion-reduce:opacity-60'
                   )}

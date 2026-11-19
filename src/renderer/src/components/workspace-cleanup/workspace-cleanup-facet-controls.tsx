@@ -20,9 +20,7 @@ export function FacetSection({
   return (
     <section className="border-b border-border px-3 py-2.5 last:border-b-0">
       <div className="flex items-baseline justify-between gap-2">
-        <h4 className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
-          {title}
-        </h4>
+        <h4 className="text-[11px] font-medium text-muted-foreground">{title}</h4>
         <span
           className="shrink-0 tabular-nums text-[11px] text-muted-foreground"
           data-facet-count={title}
@@ -68,7 +66,7 @@ export function FacetToggleList<T extends string>({
                 )
               }
               className={cn(
-                'inline-flex h-6 items-center rounded-full border border-border px-2 text-[11px] font-medium text-muted-foreground transition-colors',
+                'inline-flex h-6 items-center rounded-md border border-border px-2 text-[11px] font-medium text-muted-foreground transition-colors',
                 'hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
                 active && 'bg-accent text-accent-foreground'
               )}

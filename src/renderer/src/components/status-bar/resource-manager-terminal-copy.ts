@@ -56,7 +56,7 @@ export function getResourceManagerTooltipLines(args: {
       id: 'summary',
       text: translate(
         'auto.components.status.bar.resource.manager.terminal.copy.tooltipSummary',
-        'Resource Manager - {{memory}} - {{sessions}}',
+        'Resource manager - {{memory}} - {{sessions}}',
         { memory: memoryLabel, sessions: formatTerminalSessionCount(args.sessionCount) }
       ),
       emphasized: false
@@ -94,14 +94,14 @@ export function getResourceManagerAriaLabel(args: {
   if (args.spaceScanReady) {
     return translate(
       'auto.components.status.bar.resource.manager.terminal.copy.ariaLabelWithSpaceScan',
-      'Resource Manager, {{sessions}}, {{spaceScan}}',
+      'Resource manager, {{sessions}}, {{spaceScan}}',
       { sessions, spaceScan: spaceScanReadyLabel() }
     )
   }
 
   return translate(
     'auto.components.status.bar.resource.manager.terminal.copy.ariaLabel',
-    'Resource Manager, {{sessions}}',
+    'Resource manager, {{sessions}}',
     { sessions }
   )
 }

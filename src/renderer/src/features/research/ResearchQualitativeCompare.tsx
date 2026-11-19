@@ -66,9 +66,7 @@ export function ResearchQualitativeCompare({
   return (
     <section className="space-y-3" aria-label="Qualitative output comparison">
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <h2 className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Sample outputs
-        </h2>
+        <h2 className="text-xs font-medium text-muted-foreground">Sample outputs</h2>
         {scope ? <SampleJudgeButton onLaunch={session.judge} /> : null}
       </div>
       <SampleRatingToolbar session={session} />
@@ -184,7 +182,7 @@ export function ResearchQualitativeCompare({
                     footer={
                       session.activeMode !== 'single' ? null : !entry ? (
                         <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
-                          Only local research/ catalog Runs can be rated.
+                          Only local research/ catalog Runs can be rated
                         </p>
                       ) : session.hasSample(entry.ref, activeId) ? (
                         <SingleRatingControls session={session} entry={entry} sampleId={activeId} />

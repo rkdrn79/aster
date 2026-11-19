@@ -204,12 +204,12 @@ describe('SidebarSettingsHelpMenu', () => {
 
   it('hides upstream feedback from Aster', () => {
     const html = renderToStaticMarkup(<SidebarSettingsHelpMenu />)
-    expect(html).not.toContain('Send Feedback')
+    expect(html).not.toContain('Send feedback')
   })
 
-  it('renders Keyboard Shortcuts menu item', () => {
+  it('renders Keyboard shortcuts menu item', () => {
     const html = renderToStaticMarkup(<SidebarSettingsHelpMenu />)
-    expect(html).toContain('Keyboard Shortcuts')
+    expect(html).toContain('Keyboard shortcuts')
   })
 
   it('renders the Onboarding menu item by default', () => {
@@ -235,7 +235,7 @@ describe('SidebarSettingsHelpMenu', () => {
       'Changelog',
       'Discord',
       'Check for Updates',
-      'Send Feedback',
+      'Send feedback',
       'Milestones'
     ]) {
       expect(html).not.toContain(label)

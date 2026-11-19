@@ -8,9 +8,9 @@ export function ResearchWorkbenchHiddenTabNotice({ tab }: { tab: Tab }): React.J
   }
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 p-5 text-center">
-      <p className="text-sm font-medium">This agent belongs to another area.</p>
+      <p className="text-sm font-medium">This agent belongs to another area</p>
       <p className="max-w-sm text-xs text-muted-foreground">
-        Open it from Writing, Library, or Background tasks, or start a Workbench conversation.
+        Open it from Writing, Library, or Background tasks, or start a Workbench conversation
       </p>
     </div>
   )

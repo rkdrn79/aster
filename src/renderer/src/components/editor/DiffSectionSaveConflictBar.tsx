@@ -31,7 +31,7 @@ export function DiffSectionSaveConflictBar({
         <Button type="button" size="xs" variant="outline" onClick={onReload}>
           {translate(
             'auto.components.editor.ExternalFileChangeBanner.3fa2b8d417',
-            'Reload from Disk'
+            'Reload from disk'
           )}
         </Button>
         <Button type="button" size="xs" variant="outline" onClick={onOverwrite}>

@@ -68,7 +68,7 @@ export function ConversationTabActivity({
             : translate('auto.components.GitHubItemDialog.1506916c09', 'Comments')}
         </span>
         {comments.length + (item.type === 'issue' ? resolvedTimelineItemsLength : 0) > 0 && (
-          <span className="rounded-full border border-border/50 bg-muted/30 px-1.5 py-0.5 text-[11px] tabular-nums text-muted-foreground">
+          <span className="text-[11px] tabular-nums text-muted-foreground">
             {comments.length + (item.type === 'issue' ? resolvedTimelineItemsLength : 0)}
           </span>
         )}
@@ -100,7 +100,7 @@ export function ConversationTabActivity({
       {item.type === 'issue' ? (
         issueConversationEntries.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border/50 px-3 py-6 text-left text-[13px] text-muted-foreground">
-            {translate('auto.components.GitHubItemDialog.timeline.noActivity', 'No activity yet.')}
+            {translate('auto.components.GitHubItemDialog.timeline.noActivity', 'No activity yet')}
           </div>
         ) : (
           <div className="flex min-w-0 flex-col gap-3">
@@ -119,7 +119,7 @@ export function ConversationTabActivity({
         )
       ) : comments.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border/50 px-3 py-6 text-left text-[13px] text-muted-foreground">
-          {translate('auto.components.GitHubItemDialog.5a94f3d0e9', 'No comments yet.')}
+          {translate('auto.components.GitHubItemDialog.5a94f3d0e9', 'No comments yet')}
         </div>
       ) : visibleComments.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border/50 px-3 py-6 text-center text-[13px] text-muted-foreground">

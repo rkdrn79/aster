@@ -134,7 +134,7 @@ export function WorkspaceCleanupConfirmRemove({
           </div>
         ) : null}
         <div className="flex items-center justify-between border-b border-border px-5 py-2.5">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+          <div className="text-[11px] font-medium text-muted-foreground">
             {translate(
               'auto.components.workspace.cleanup.WorkspaceCleanupDialog.selectedForDeletionCount',
               'Selected for deletion: {{value0}}',

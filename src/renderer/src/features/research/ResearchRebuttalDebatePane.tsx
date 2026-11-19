@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { ResearchChip } from './research-chip'
 import { withAsterContext } from '../../../../shared/aster-context-block'
 import { useResearchRecords } from './research-records-store'
 import { ResearchAgentChatPane } from './ResearchAgentChatPane'
@@ -98,16 +98,16 @@ export function ResearchRebuttalDebatePane({
       excludeSessionIds={excludeSessionIds}
       toolbar={
         boundSessionId ? (
-          <div className="shrink-0 space-y-1.5 border-b border-border bg-muted/40 px-3 py-2">
+          <div className="mx-3 mt-1 mb-2 shrink-0 space-y-2 rounded-lg bg-muted/60 px-3 py-2 dark:bg-muted/45">
             <p className="text-2xs leading-4 text-muted-foreground">
               Simulation of {reviewerId} from their review and score. Not the real reviewer. It
               critiques; only you or the Rebuttal agent write replies.
             </p>
             <div className="flex flex-wrap items-center gap-1">
               {QUICK_ASKS.map(({ request, label }) => (
-                <Button key={request} size="xs" variant="outline" onClick={() => void ask(request)}>
+                <ResearchChip key={request} onClick={() => void ask(request)}>
                   {label}
-                </Button>
+                </ResearchChip>
               ))}
               <ResearchRebuttalTurnChips actor={`reviewer:${reviewerId}`} />
             </div>
@@ -118,7 +118,7 @@ export function ResearchRebuttalDebatePane({
             ) : null}
           </div>
         ) : (
-          <p className="shrink-0 border-b border-border bg-muted/40 px-3 py-1.5 text-2xs text-muted-foreground">
+          <p className="mx-3 mt-1 mb-2 shrink-0 rounded-lg bg-muted/60 px-3 py-2 text-2xs text-muted-foreground dark:bg-muted/45">
             Simulation of {reviewerId}. Not the real reviewer.
           </p>
         )

@@ -38,7 +38,7 @@ export function SshHostAdvancedFields({
         <div className="space-y-4 pt-3">
           <div className="space-y-1.5">
             <Label htmlFor="add-ssh-proxy-command">
-              {translate('auto.components.settings.SshTargetForm.c7d0e18ecb', 'Proxy Command')}
+              {translate('auto.components.settings.SshTargetForm.c7d0e18ecb', 'Proxy command')}
             </Label>
             <Input
               id="add-ssh-proxy-command"
@@ -59,7 +59,7 @@ export function SshHostAdvancedFields({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="add-ssh-jump-host">
-              {translate('auto.components.settings.SshTargetForm.b2ab248ded', 'Jump Host')}
+              {translate('auto.components.settings.SshTargetForm.b2ab248ded', 'Jump host')}
             </Label>
             <Input
               id="add-ssh-jump-host"

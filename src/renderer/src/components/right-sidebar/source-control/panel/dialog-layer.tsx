@@ -119,7 +119,7 @@ export function SourceControlDialogLayer({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-sm">
-              {translate('auto.components.right.sidebar.SourceControl.574d2f4413', 'Clear Notes')}
+              {translate('auto.components.right.sidebar.SourceControl.574d2f4413', 'Clear notes')}
             </DialogTitle>
             <DialogDescription className="text-xs">{clearNotesDescription}</DialogDescription>
           </DialogHeader>
@@ -139,7 +139,7 @@ export function SourceControlDialogLayer({
               disabled={isClearingNotes || clearNotesCount === 0}
             >
               <Trash2 className="size-4" />
-              {translate('auto.components.right.sidebar.SourceControl.574d2f4413', 'Clear Notes')}
+              {translate('auto.components.right.sidebar.SourceControl.574d2f4413', 'Clear notes')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -157,7 +157,7 @@ export function SourceControlDialogLayer({
             <DialogTitle className="text-sm">
               {translate(
                 'auto.components.right.sidebar.SourceControl.476b77745b',
-                'Change Base Ref'
+                'Change base ref'
               )}
             </DialogTitle>
             <DialogDescription className="text-xs">
@@ -184,7 +184,7 @@ export function SourceControlDialogLayer({
         actionId="resolveConflicts"
         title={translate(
           'auto.components.right.sidebar.SourceControl.19652ddd76',
-          'Resolve Conflicts With AI'
+          'Resolve conflicts with AI'
         )}
         description={translate(
           'auto.components.right.sidebar.SourceControl.901140f47d',
@@ -218,7 +218,7 @@ export function SourceControlDialogLayer({
         actionId="commitMessage"
         title={translate(
           'auto.components.right.sidebar.SourceControl.6b122529d4',
-          'Generate Commit Message'
+          'Generate commit message'
         )}
         description={translate(
           'auto.components.right.sidebar.SourceControl.f4c766f1ca',
@@ -238,7 +238,7 @@ export function SourceControlDialogLayer({
         actionId="pullRequest"
         title={translate(
           'auto.components.right.sidebar.SourceControl.1a6a6e0bc5',
-          'Generate Hosted Review Details'
+          'Generate hosted review details'
         )}
         description={translate(
           'auto.components.right.sidebar.SourceControl.f4c766f1ca',

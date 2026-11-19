@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CalendarClock, ExternalLink, RefreshCw, Sparkles } from 'lucide-react'
+import { CalendarClock, Coins, ExternalLink, RefreshCw } from 'lucide-react'
 import { translate } from '@/i18n/i18n'
 import { useAppStore } from '../../store'
 import { Button } from '../ui/button'
@@ -59,7 +59,7 @@ export function GrokUsagePane(): React.JSX.Element {
               openGrokAccounts()
             }}
           >
-            {translate('auto.components.stats.GrokUsagePane.c3e4f5a6b7', 'Set up in Accounts')}
+            {translate('auto.components.stats.GrokUsagePane.c3e4f5a6b7', 'Set up in accounts')}
           </Button>
         </div>
       </div>
@@ -118,7 +118,7 @@ export function GrokUsagePane(): React.JSX.Element {
         <StatCard
           label={translate('auto.components.stats.GrokUsagePane.e5a6b7c8d9', 'Weekly credits used')}
           value={weeklyPercent !== null ? `${weeklyPercent}%` : '—'}
-          icon={<Sparkles className="size-4" />}
+          icon={<Coins className="size-4" />}
         />
         <StatCard
           label={translate(

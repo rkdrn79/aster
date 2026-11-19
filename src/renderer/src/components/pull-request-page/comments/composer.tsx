@@ -139,7 +139,7 @@ export function GHCommentComposer({
           requestAnimationFrame(autoGrow)
         }}
         onKeyDown={handleKeyDown}
-        placeholder={translate('auto.components.PullRequestPage.d2030fc8cd', 'Add a comment…')}
+        placeholder={translate('auto.components.PullRequestPage.d2030fc8cd', 'Add a comment')}
         rows={4}
         mentionOptions={mentionOptions}
         wrapperClassName="flex min-h-20 w-full items-stretch"

@@ -20,6 +20,7 @@ import { requestWritingAgentFocus } from './research-writing-agent-focus'
 import { bindWritingAgentSession, launchWritingAgent } from './research-writing-agent-session'
 import { projectWritingRecordId, selectWritingOwner } from './research-writing-project'
 import { researchConversationHome, writingAgentScopeKey } from './research-conversation-home'
+import { researchChatIsSubtask } from './research-chat-branches'
 import {
   bindRebuttalAgentSession,
   launchRebuttalAgent,
@@ -103,7 +104,16 @@ export function ResearchSidebarAgentConversations({
         // Why no sort: picking a chat binds it, and moving the bound one up reordered the list
         // on every click; the list keeps the tabs' own order and marks the bound chat instead.
         // Why exclude reviewer chats: picking one here would make a simulation the author agent.
-        return home.kind === kind && !reviewerSessions.has(entry.entityId)
+        // Why exclude subtasks: each opens from the chat it reports to.
+        return (
+          home.kind === kind &&
+          !reviewerSessions.has(entry.entityId) &&
+          !researchChatIsSubtask(
+            records,
+            { hostId: context.hostId!, workspaceId: context.workspaceId ?? '' },
+            entry.entityId
+          )
+        )
       })
     : []
   const boundTab = dedicatedTabs.find((entry) => entry.entityId === sessionId)

@@ -184,7 +184,7 @@ export function PluginMarketplacePreviewDialog({
               <p className="text-sm leading-6">{preview.manifest.description}</p>
             ) : null}
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+              <p className="text-[11px] font-medium text-muted-foreground">
                 {translate(
                   'auto.components.settings.PluginMarketplacePreviewDialog.includes',
                   'Includes'
@@ -209,7 +209,7 @@ export function PluginMarketplacePreviewDialog({
             </div>
             {preview.manifest.capabilities.length > 0 ? (
               <div className="space-y-2">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+                <p className="text-[11px] font-medium text-muted-foreground">
                   {translate(
                     'auto.components.settings.PluginMarketplacePreviewDialog.capabilities',
                     'Requested access'

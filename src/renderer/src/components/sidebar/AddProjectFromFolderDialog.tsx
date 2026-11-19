@@ -141,7 +141,7 @@ const AddProjectFromFolderDialog = React.memo(function AddProjectFromFolderDialo
           <DialogTitle>
             {translate(
               'auto.components.sidebar.AddProjectFromFolderDialog.7d1f51678c',
-              'Add Project'
+              'Add project'
             )}
           </DialogTitle>
           <DialogDescription>
@@ -172,7 +172,7 @@ const AddProjectFromFolderDialog = React.memo(function AddProjectFromFolderDialo
             )}
             {translate(
               'auto.components.sidebar.AddProjectFromFolderDialog.7d1f51678c',
-              'Add Project'
+              'Add project'
             )}
           </Button>
         </DialogFooter>

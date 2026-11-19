@@ -50,11 +50,9 @@ export function DictationIndicator() {
       data-testid="dictation-indicator"
       className={cn(
         'fixed bottom-12 left-1/2 z-50 -translate-x-1/2 overflow-hidden',
-        'border border-border bg-popover/95 text-sm text-popover-foreground shadow-floating backdrop-blur',
-        'transition-[width,border-radius,opacity] duration-200 ease-out motion-reduce:transition-none',
-        transcript
-          ? 'w-[min(28rem,calc(100vw-2rem))] rounded-xl'
-          : 'max-w-[min(28rem,calc(100vw-2rem))] rounded-full',
+        'rounded-xl border border-border bg-popover/95 text-sm text-popover-foreground shadow-floating backdrop-blur',
+        'transition-opacity duration-200 motion-reduce:transition-none',
+        transcript ? 'w-[min(28rem,calc(100vw-2rem))]' : 'max-w-[min(28rem,calc(100vw-2rem))]',
         isClipping && 'border-destructive/40 text-destructive'
       )}
     >

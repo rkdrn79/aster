@@ -413,7 +413,7 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
       '[data-contextual-tour-target="workspace-creation-name"]'
     )
     expect(projectSection?.textContent).not.toContain('Task Source')
-    expect(nameSection?.textContent).toContain('Create From')
+    expect(nameSection?.textContent).toContain('Create from')
     const nameInput = current.container.querySelector('[aria-label="workspace name"]')
     expect(nameInput?.getAttribute('data-repo-backed-search-count')).toBe('2')
     expect(nameInput?.getAttribute('data-repo-backed-search-names')).toBe('Repo A,Repo B')
@@ -808,7 +808,7 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
     })
 
     expect(findRunTargetItem('Add SSH host')).toBeTruthy()
-    expect(findRunTargetItem(`Add Remote ${PRODUCT_NAME} Server`)).toBeTruthy()
+    expect(findRunTargetItem(`Add remote ${PRODUCT_NAME} server`)).toBeTruthy()
   })
 
   it('opens the remote Orca server add dialog over the composer without leaving for Settings', () => {
@@ -819,7 +819,7 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
 
     openRunTargetPicker(current.container)
     act(() => findRunTargetItem('Add host')?.click())
-    act(() => findRunTargetItem(`Add Remote ${PRODUCT_NAME} Server`)?.click())
+    act(() => findRunTargetItem(`Add remote ${PRODUCT_NAME} server`)?.click())
 
     const dialog = document.body.querySelector('[data-testid="add-remote-host-dialog"]')
     expect(dialog?.getAttribute('data-mode')).toBe('server')
@@ -852,10 +852,10 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
 
     openRunTargetPicker(current.container)
 
-    expect(document.body.textContent).toContain('Per-Workspace Environment')
+    expect(document.body.textContent).toContain('Per-workspace environment')
     const ephemeralVmItem = [
       ...document.body.querySelectorAll<HTMLElement>('[role="option"]')
-    ].find((item) => item.textContent?.includes('Per-Workspace Environment'))
+    ].find((item) => item.textContent?.includes('Per-workspace environment'))
     expect(ephemeralVmItem).toBeTruthy()
     act(() => ephemeralVmItem?.click())
 
@@ -891,7 +891,7 @@ describe('NewWorkspaceComposerCard folder task source mode', () => {
     const runTargetShell = current.container.querySelector<HTMLElement>(
       'div[data-run-target-combobox-root="true"]'
     )
-    expect(runTargetShell?.textContent).toContain('Per-Workspace Environment')
+    expect(runTargetShell?.textContent).toContain('Per-workspace environment')
     openRunTargetPicker(current.container)
 
     const builderItem = [...document.body.querySelectorAll<HTMLElement>('[role="option"]')].find(

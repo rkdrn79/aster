@@ -108,7 +108,7 @@ export function showPreservedBranchToast(
   const expectedHead = preservedBranch.head
   const toastId = preservedBranchToastId(branch, expectedHead)
   const forceDeleteLabel = expectedHead
-    ? translate('auto.store.slices.worktrees.e50495aae6', 'Force Delete Branch')
+    ? translate('auto.store.slices.worktrees.e50495aae6', 'Force delete branch')
     : undefined
   const description = getPreservedBranchDescription(branch, targetName, isWorkspace)
   const forceDelete = expectedHead

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Activity, Brain, DatabaseZap, FolderKanban, Sigma, Sparkles } from 'lucide-react'
+import { Activity, Brain, DatabaseZap, FolderKanban, Hash, Sigma } from 'lucide-react'
 import type { MuseUsageRange, MuseUsageScope } from '../../../../shared/muse-usage-types'
 import { useAppStore } from '../../store'
 import { ClaudeUsageLoadingState } from './ClaudeUsageLoadingState'
@@ -65,7 +65,7 @@ export function MuseUsagePane(): React.JSX.Element {
     void setMuseUsageEnabled(enabled)
   }
 
-  const title = translate('auto.components.stats.MuseUsagePane.title', 'Muse Usage Tracking')
+  const title = translate('auto.components.stats.MuseUsagePane.title', 'Muse usage tracking')
   const enableLabel = translate(
     'auto.components.stats.MuseUsagePane.enableLabel',
     'Enable Muse usage analytics'
@@ -160,7 +160,7 @@ export function MuseUsagePane(): React.JSX.Element {
           <StatCard
             label={translate('auto.components.stats.OpenCodeUsagePane.d637a892ed', 'Input tokens')}
             value={formatTokens(summary?.inputTokens ?? 0)}
-            icon={<Sparkles className="size-4" />}
+            icon={<Hash className="size-4" />}
           />
           <StatCard
             label={translate('auto.components.stats.OpenCodeUsagePane.7aa4d8ce35', 'Output tokens')}
@@ -183,7 +183,7 @@ export function MuseUsagePane(): React.JSX.Element {
           <StatCard
             label={translate(
               'auto.components.stats.OpenCodeUsagePane.7e9433469a',
-              'Sessions / Events'
+              'Sessions / events'
             )}
             value={`${(summary?.sessions ?? 0).toLocaleString()} / ${(summary?.events ?? 0).toLocaleString()}`}
             icon={<FolderKanban className="size-4" />}

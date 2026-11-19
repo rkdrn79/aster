@@ -65,10 +65,10 @@ export async function stopRendererJankProbe(page: Page): Promise<RendererJank> {
 }
 
 export async function triggerVaultRefresh(page: Page): Promise<void> {
-  const refreshButton = page.getByRole('button', { name: 'Refresh Session History' })
+  const refreshButton = page.getByRole('button', { name: 'Refresh session history' })
   await page.evaluate(() => {
     const button = document.querySelector<HTMLButtonElement>(
-      'button[aria-label="Refresh Session History"]'
+      'button[aria-label="Refresh session history"]'
     )
     if (!button) {
       throw new Error('Vault refresh button unavailable')

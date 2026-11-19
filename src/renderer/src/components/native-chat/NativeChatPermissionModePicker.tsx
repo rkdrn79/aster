@@ -33,14 +33,14 @@ function ModeName(props: { mode: AgentChatPermissionMode; truncate?: boolean }):
   const label = nativeChatPermissionModeLabel(props.mode)
   const body = (
     <>
-      <Icon className="size-3.5 shrink-0" aria-hidden />
+      <Icon className="size-4 shrink-0" aria-hidden />
       {props.truncate ? <span className="truncate">{label}</span> : <span>{label}</span>}
     </>
   )
   return props.mode === 'full-access' ? (
-    <span className="flex min-w-0 items-center gap-1.5 text-status-warning">{body}</span>
+    <span className="flex min-w-0 items-center gap-1 text-status-warning">{body}</span>
   ) : (
-    <span className="flex min-w-0 items-center gap-1.5">{body}</span>
+    <span className="flex min-w-0 items-center gap-1">{body}</span>
   )
 }
 
@@ -79,7 +79,7 @@ function NativeChatPermissionModePickerInner({
               className="max-w-40 min-w-0 shrink"
             >
               <ModeName mode={current} truncate />
-              <ChevronDown className="size-3" />
+              <ChevronDown className="size-4" />
             </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
@@ -87,7 +87,13 @@ function NativeChatPermissionModePickerInner({
           {title}
         </TooltipContent>
       </Tooltip>
-      <DropdownMenuContent align="start" side="top" collisionPadding={8} className="w-72">
+      <DropdownMenuContent
+        data-native-chat-surface=""
+        align="start"
+        side="top"
+        collisionPadding={8}
+        className="w-72"
+      >
         <DropdownMenuRadioGroup aria-label={title} value={current}>
           {modes.map((mode) => (
             <DropdownMenuRadioItem

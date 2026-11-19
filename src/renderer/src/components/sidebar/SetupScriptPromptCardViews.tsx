@@ -48,7 +48,7 @@ export function DetectedSetupPreview({
 }: DetectedSetupPreviewProps): React.JSX.Element {
   return (
     <div className="mt-3 border-t border-worktree-sidebar-border pt-3">
-      <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+      <div className="mb-2 flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
         <PackageCheck className="size-3.5" />
         {translate(
           'auto.components.sidebar.SetupScriptPromptCardViews.7275f674cc',

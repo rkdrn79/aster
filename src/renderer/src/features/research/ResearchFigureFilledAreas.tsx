@@ -107,7 +107,7 @@ export function ResearchFigureFilledAreas({
           )}
           style={{ left: area.box.x + area.box.width, top: area.box.y - 2 }}
         >
-          <Check className="size-3 text-status-success" aria-hidden />
+          <Check className="size-4 text-status-success" aria-hidden />
           <span className="text-muted-foreground">Filled</span>
           <Button
             size="xs"

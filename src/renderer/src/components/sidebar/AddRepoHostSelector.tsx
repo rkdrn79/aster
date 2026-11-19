@@ -142,14 +142,14 @@ export function AddRepoHostSelector({
                     {onAddSshHost ? (
                       <button
                         type="button"
-                        className="flex w-full flex-col rounded-sm px-2.5 py-2 text-left hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                        className="flex w-full flex-col rounded-lg px-2.5 py-2 text-left transition-colors duration-100 hover:bg-highlight focus-visible:bg-highlight focus-visible:outline-none"
                         onClick={() => {
                           setAddHostOpen(false)
                           onOpenChange(false)
                           onAddSshHost()
                         }}
                       >
-                        <span className="text-xs font-medium">
+                        <span className="text-[13px] font-medium">
                           {translate(
                             'auto.components.sidebar.AddRepoHostSelector.addSshHost',
                             'Add SSH host'
@@ -166,14 +166,14 @@ export function AddRepoHostSelector({
                     {onAddRemoteServer ? (
                       <button
                         type="button"
-                        className="flex w-full flex-col rounded-sm px-2.5 py-2 text-left hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                        className="flex w-full flex-col rounded-lg px-2.5 py-2 text-left transition-colors duration-100 hover:bg-highlight focus-visible:bg-highlight focus-visible:outline-none"
                         onClick={() => {
                           setAddHostOpen(false)
                           onOpenChange(false)
                           onAddRemoteServer()
                         }}
                       >
-                        <span className="text-xs font-medium">
+                        <span className="text-[13px] font-medium">
                           {translate(
                             'auto.components.sidebar.AddRepoHostSelector.addRemoteServer',
                             'Add remote server'
@@ -190,14 +190,14 @@ export function AddRepoHostSelector({
                     {onAddWslHost ? (
                       <button
                         type="button"
-                        className="flex w-full flex-col rounded-sm px-2.5 py-2 text-left hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                        className="flex w-full flex-col rounded-lg px-2.5 py-2 text-left transition-colors duration-100 hover:bg-highlight focus-visible:bg-highlight focus-visible:outline-none"
                         onClick={() => {
                           setAddHostOpen(false)
                           onOpenChange(false)
                           onAddWslHost()
                         }}
                       >
-                        <span className="text-xs font-medium">
+                        <span className="text-[13px] font-medium">
                           {translate(
                             'auto.components.sidebar.AddRepoHostSelector.addWslHost',
                             'Add WSL distro'

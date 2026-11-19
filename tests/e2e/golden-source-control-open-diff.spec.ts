@@ -46,7 +46,7 @@ test('@golden opens an unstaged file diff from Source Control', async ({
     `${realpathSync(path.join(fixture.worktreePath, GOLDEN_CHANGED_PATH)).replaceAll('\\', '/')} (diff)`
   )
 
-  const probe = orcaPage.getByRole('button', { name: /Source Control/ })
+  const probe = orcaPage.getByRole('button', { name: /Source control/ })
   await probe.focus()
   await expect(probe).toBeFocused()
 })

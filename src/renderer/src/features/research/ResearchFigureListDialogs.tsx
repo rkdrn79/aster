@@ -83,7 +83,7 @@ export function ResearchFigureRenameDialog({
           </DialogDescription>
         </DialogHeader>
         <form className="space-y-3" onSubmit={(event) => void submit(event)}>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="figure-rename-title">Title</Label>
             <Input
               id="figure-rename-title"
@@ -92,7 +92,7 @@ export function ResearchFigureRenameDialog({
               onChange={(event) => setTitle(event.target.value)}
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="figure-rename-file">File name</Label>
             <Input
               id="figure-rename-file"

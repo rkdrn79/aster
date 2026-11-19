@@ -5,7 +5,7 @@ import { test, expect } from './helpers/orca-app'
 
 test.use({ seedTestRepo: false })
 
-const cases = (['New File', 'New Folder', 'Rename'] as const).flatMap((operation) =>
+const cases = (['New file', 'New folder', 'Rename'] as const).flatMap((operation) =>
   [false, true].map((redispatch) => ({ operation, redispatch }))
 )
 
@@ -94,7 +94,7 @@ for (const { operation, redispatch } of cases) {
     await expect(input).toBeVisible()
     await expect(input).toHaveValue('議事録')
     await expect(explorer.getByRole('button', { name: '議事録', exact: true })).toHaveCount(0)
-    const suffix = redispatch ? '' : operation === 'New Folder' ? '-完成' : '.md'
+    const suffix = redispatch ? '' : operation === 'New folder' ? '-完成' : '.md'
     if (suffix) {
       await input.press('End')
       await input.pressSequentially(suffix)
@@ -105,7 +105,7 @@ for (const { operation, redispatch } of cases) {
       explorer.getByRole('button', { name: `議事録${suffix}`, exact: true })
     ).toBeVisible()
     expect((await stat(path.join(folder, `議事録${suffix}`))).isDirectory()).toBe(
-      operation === 'New Folder'
+      operation === 'New folder'
     )
     await cdp.detach()
   })

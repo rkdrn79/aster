@@ -94,7 +94,10 @@ function straight(a, b, axis, gap, share, given = null) {
   } else {
     const low = Math.max(span(a, other)[0], span(b, other)[0])
     const high = Math.min(span(a, other)[1], span(b, other)[1])
-    level = high - low >= share ? (given ?? (low + high) / 2) : null
+    // Why the smaller end: a dot or a switch terminal is narrower than the shared span asked
+    // for, yet lies wholly level with the box; it gets a straight run, not a detour round it.
+    const narrowest = Math.min(...[a, b].map((end) => span(end, other)[1] - span(end, other)[0]))
+    level = high - low >= Math.min(share, narrowest - 0.01) ? (given ?? (low + high) / 2) : null
   }
   if (level === null) {
     return null

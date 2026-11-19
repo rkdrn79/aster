@@ -52,7 +52,7 @@ export function FloatingTerminalEmptyState({
           <span className="truncate text-left leading-none">
             {translate(
               'auto.components.floating.terminal.FloatingTerminalPanel.3215fc73e9',
-              'New Terminal'
+              'New terminal'
             )}
           </span>
           <FloatingEmptyStateShortcut shortcut={newTerminalShortcut} />
@@ -68,7 +68,7 @@ export function FloatingTerminalEmptyState({
           <span className="truncate text-left leading-none">
             {translate(
               'auto.components.floating.terminal.FloatingTerminalPanel.629528690b',
-              'New Markdown Note'
+              'New Markdown note'
             )}
           </span>
           <FloatingEmptyStateShortcut shortcut={newMarkdownShortcut} />
@@ -83,7 +83,7 @@ export function FloatingTerminalEmptyState({
           <span className="truncate text-left leading-none">
             {translate(
               'auto.components.floating.terminal.FloatingTerminalPanel.88ffb502e5',
-              'Open Markdown Note'
+              'Open Markdown note'
             )}
           </span>
           <FloatingEmptyStateShortcut shortcut={openMarkdownShortcut} />
@@ -99,7 +99,7 @@ export function FloatingTerminalEmptyState({
             <span className="truncate text-left leading-none">
               {translate(
                 'auto.components.floating.terminal.FloatingTerminalPanel.8b07759314',
-                'New Browser'
+                'New browser'
               )}
             </span>
             <FloatingEmptyStateShortcut shortcut={newBrowserShortcut} />

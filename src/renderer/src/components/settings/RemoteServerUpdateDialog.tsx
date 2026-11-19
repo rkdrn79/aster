@@ -154,7 +154,7 @@ export function RemoteServerUpdateDialog(): React.JSX.Element {
           <DialogTitle>
             {translate(
               'auto.components.settings.RemoteServerUpdateDialog.title',
-              'Update Remote Aster Servers'
+              'Update remote Aster servers'
             )}
           </DialogTitle>
           <DialogDescription>
@@ -192,7 +192,7 @@ export function RemoteServerUpdateDialog(): React.JSX.Element {
               ) : (
                 translate(
                   'auto.components.settings.RemoteServerUpdateDialog.empty',
-                  'No paired Remote Aster Servers.'
+                  'No paired remote Aster servers.'
                 )
               )}
             </div>

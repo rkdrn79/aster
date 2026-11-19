@@ -58,7 +58,7 @@ export function ResearchAgentPicker({
   label: string
   children: React.ReactNode
   size?: 'xs' | 'sm'
-  variant?: 'outline' | 'ghost'
+  variant?: 'default' | 'outline' | 'ghost'
   align?: 'start' | 'center' | 'end'
   className?: string
 }): React.JSX.Element {

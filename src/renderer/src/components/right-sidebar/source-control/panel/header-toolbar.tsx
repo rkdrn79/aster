@@ -277,12 +277,12 @@ export function SourceControlHeaderToolbar({
                 }}
                 placeholder={translate(
                   'auto.components.right.sidebar.SourceControl.c35baf2f1e',
-                  'Filter files…'
+                  'Filter files'
                 )}
                 className="min-w-0 w-full flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground/60"
                 aria-label={translate(
                   'auto.components.right.sidebar.SourceControl.c35baf2f1e',
-                  'Filter files…'
+                  'Filter files'
                 )}
               />
             </div>

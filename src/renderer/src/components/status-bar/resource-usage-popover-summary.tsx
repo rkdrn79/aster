@@ -21,7 +21,7 @@ export function renderResourceUsagePopoverHeader({
       <div className="flex min-w-0 items-center gap-1.5 text-[11px] font-medium text-foreground">
         <MemoryStick className="size-3 shrink-0 text-muted-foreground" />
         <span className="truncate">
-          {translate('auto.components.status.bar.StatusBar.d1e1a7a6bf', 'Resource Manager')}
+          {translate('auto.components.status.bar.StatusBar.d1e1a7a6bf', 'Resource manager')}
         </span>
       </div>
 

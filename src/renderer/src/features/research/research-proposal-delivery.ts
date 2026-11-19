@@ -28,27 +28,32 @@ async function decisionMessage(proposal: ResearchProposal): Promise<string> {
   })
 }
 
-/** Tells the proposing agent about the user's decision when its session is still open. */
-export async function deliverProposalDecision(
-  experiment: ExperimentRecord,
-  proposal: ResearchProposal
+/** Tells the agent that proposed `proposal` a message when its session is still open. */
+export async function deliverToProposingAgent(
+  workspaceId: string,
+  proposal: ResearchProposal,
+  message: () => Promise<string>
 ): Promise<ProposalDelivery> {
-  const found = recordedAgentTarget(experiment.workspaceId, proposal.agent)
+  const found = recordedAgentTarget(workspaceId, proposal.agent)
   if (!found) {
     return { state: 'no-session' }
   }
   try {
-    const outcome = await sendAgentReviewMessage(
-      found.workspaceId,
-      found.target,
-      await decisionMessage(proposal)
-    )
+    const outcome = await sendAgentReviewMessage(found.workspaceId, found.target, await message())
     return outcome.ok
       ? { state: 'sent', to: found.target.tabTitle || 'the proposing agent' }
       : { state: 'failed', message: outcome.message }
   } catch (cause) {
     return { state: 'failed', message: researchErrorText(cause) }
   }
+}
+
+/** Tells the proposing agent about the user's decision when its session is still open. */
+export function deliverProposalDecision(
+  experiment: ExperimentRecord,
+  proposal: ResearchProposal
+): Promise<ProposalDelivery> {
+  return deliverToProposingAgent(experiment.workspaceId, proposal, () => decisionMessage(proposal))
 }
 
 /** Hands an approved config-only proposal to the Experiment's docked chat to launch. */

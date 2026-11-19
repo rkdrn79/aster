@@ -101,7 +101,7 @@ export function PendingBrowserAnnotationCard({
           onChange={(event) => setComment(event.target.value)}
           placeholder={translate(
             'auto.components.browser.pane.BrowserPane.532bac48c5',
-            'Describe what the agent should change here...'
+            'Describe what the agent should change here'
           )}
           maxLength={GRAB_BUDGET.annotationCommentMaxLength}
           className="h-24 w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"

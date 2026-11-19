@@ -165,7 +165,7 @@ export function PRAssigneesPanel({
 
   return (
     <section>
-      <div className="mb-2 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="mb-2 flex items-center justify-between text-[11px] font-medium text-muted-foreground">
         <span>{translate('auto.components.GitHubItemDialog.83ac703dda', 'Assignees')}</span>
         <Popover open={assigneePopoverOpen} onOpenChange={setAssigneePopoverOpen}>
           <PopoverTrigger asChild>
@@ -176,7 +176,7 @@ export function PRAssigneesPanel({
                 'auto.components.GitHubItemDialog.76adcf5fe2',
                 'Edit assignees'
               )}
-              className="rounded p-0.5 text-muted-foreground transition hover:bg-accent hover:text-foreground disabled:opacity-50"
+              className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:opacity-50"
             >
               {isPending('assignees') ? (
                 <LoaderCircle className="size-3 animate-spin" />

@@ -1,6 +1,7 @@
 import { ActiveSettingsSectionProvider } from './SettingsSection'
 import { SettingsContentScrollElementProvider } from './settings-content-scroll-element'
 import { SettingsSidebar } from './SettingsSidebar'
+import { SettingsCompactNav } from './SettingsCompactNav'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 import type { SettingsInteractionController } from './use-settings-interaction-controller'
@@ -79,24 +80,36 @@ export function renderSettingsLoading(
 export function renderSettingsPage(context: SettingsRenderContext): React.JSX.Element {
   const { model, interactions, navigation, actions, view } = context
   return (
+    // Why the shell gap: under the inset shell the nav and the page float as two panels, like the
+    // app's own sidebar and main area; without it (gap 0) they sit flush as before.
     <div
       ref={interactions.setSettingsRootNode}
-      className="settings-view-shell flex min-h-0 flex-1 overflow-hidden bg-background"
+      className="settings-view-shell flex min-h-0 flex-1 gap-[var(--shell-gap)] overflow-hidden bg-shell"
     >
-      <SettingsSidebar
-        settings={model.settings}
-        activeSectionId={model.activeSectionId}
-        generalGroups={view.generalNavGroups}
-        repoSections={view.repoNavSections}
-        hasRepos={model.repos.length > 0}
-        searchInputRef={interactions.searchInputRef}
-        // Why: deep-links open panes/modals that own focus; plain entry lands in search.
-        searchAutoFocus={model.settingsNavigationTarget == null}
-        onBack={interactions.closeSettingsPageWithPromptGuard}
-        onSelectSection={actions.scrollToSection}
-      />
+      {/* Why: below `md` the side list and the page would split a phone's width into slivers. */}
+      <div className="hidden min-h-0 shrink-0 md:flex">
+        <SettingsSidebar
+          settings={model.settings}
+          activeSectionId={model.activeSectionId}
+          generalGroups={view.generalNavGroups}
+          repoSections={view.repoNavSections}
+          hasRepos={model.repos.length > 0}
+          searchInputRef={interactions.searchInputRef}
+          // Why: deep-links open panes/modals that own focus; plain entry lands in search.
+          searchAutoFocus={model.settingsNavigationTarget == null}
+          onBack={interactions.closeSettingsPageWithPromptGuard}
+          onSelectSection={actions.scrollToSection}
+        />
+      </div>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[var(--shell-radius)] bg-background">
+        <SettingsCompactNav
+          activeSectionId={model.activeSectionId}
+          generalGroups={view.generalNavGroups}
+          repoSections={view.repoNavSections}
+          onBack={interactions.closeSettingsPageWithPromptGuard}
+          onSelectSection={actions.scrollToSection}
+        />
         {!model.isWebClient &&
         shouldShowSettingsHostScopePicker(model.settingsHostScope, model.runtimeEnvironments) ? (
           <SettingsHostScopePicker
@@ -114,13 +127,13 @@ export function renderSettingsPage(context: SettingsRenderContext): React.JSX.El
         >
           <div
             className={cn(
-              'mx-auto flex w-full flex-col gap-10 px-8 pt-10',
+              'mx-auto flex w-full flex-col gap-10 px-4 pt-5 md:px-10 md:pt-9',
               view.isFocusedShortcutsPane ? 'h-full pb-6' : 'pb-24',
               view.isFocusedSetupGuidePane ? 'max-w-6xl' : 'max-w-4xl'
             )}
           >
             {navigation.visibleNavSections.length === 0 ? (
-              <div className="flex min-h-[24rem] items-center justify-center rounded-2xl border border-dashed border-border/60 bg-card/30 text-sm text-muted-foreground">
+              <div className="flex min-h-[24rem] items-center justify-center rounded-2xl bg-muted/50 text-sm text-muted-foreground">
                 {translate(
                   'auto.components.settings.Settings.3c88ec55d6',
                   'No settings found for "'

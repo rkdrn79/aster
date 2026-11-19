@@ -14,15 +14,24 @@ export const researchAgentSessionFields = {
   figureAgentSessionsByScope: z.record(z.string(), z.record(z.string(), chatSessionId)).optional(),
   // Figure chats no figure holds any more (New chat, deleted figure); still listed under Figures.
   figureAgentPastSessionsByScope: z.record(z.string(), z.array(chatSessionId).max(500)).optional(),
-  // Each branched chat, keyed like a conversation home (host, workspace, chat): the chat it was
-  // branched from, and the message it was branched at, counted as that chat shows its messages.
+  // Each copy of a chat, keyed like a conversation home (host, workspace, chat): the chat it was
+  // copied from, and the message it was copied at, counted as that chat shows its messages.
+  // `kind` (absent: branch): a branch the person switched into, a fork left running in the
+  // background, or a subtask whose result goes back to the chat it came from.
   chatBranches: z
     .record(
       z.string().min(1),
       z.object({
         parentSessionId: chatSessionId,
         messageNumber: z.number().int().nonnegative(),
-        createdAt: z.string().min(1).max(64)
+        createdAt: z.string().min(1).max(64),
+        kind: z.enum(['branch', 'fork', 'subtask']).optional(),
+        // A subtask: what it was asked, and what became of its answer.
+        task: z.string().max(4000).optional(),
+        finishedAt: z.string().max(64).optional(),
+        resultPreview: z.string().max(2000).optional(),
+        deliveredAt: z.string().max(64).optional(),
+        dismissedAt: z.string().max(64).optional()
       })
     )
     .optional()

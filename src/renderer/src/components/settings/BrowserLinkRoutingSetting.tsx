@@ -19,7 +19,7 @@ export function BrowserLinkRoutingSetting({
 }: BrowserLinkRoutingSettingProps): React.JSX.Element {
   return (
     <SearchableSetting
-      title={translate('auto.components.settings.BrowserPane.d3eb69c0aa', 'Link Routing')}
+      title={translate('auto.components.settings.BrowserPane.d3eb69c0aa', 'Link routing')}
       description={linkRoutingDescription}
       keywords={[
         'browser',
@@ -36,12 +36,12 @@ export function BrowserLinkRoutingSetting({
     >
       <div className="space-y-0.5">
         <Label>
-          {translate('auto.components.settings.BrowserPane.d3eb69c0aa', 'Link Routing')}
+          {translate('auto.components.settings.BrowserPane.d3eb69c0aa', 'Link routing')}
         </Label>
         <p className="text-xs text-muted-foreground">{linkRoutingDescription}</p>
       </div>
       <Switch
-        aria-label={translate('auto.components.settings.BrowserPane.d3eb69c0aa', 'Link Routing')}
+        aria-label={translate('auto.components.settings.BrowserPane.d3eb69c0aa', 'Link routing')}
         checked={settings.openLinksInApp}
         onCheckedChange={(checked) =>
           updateSettings({

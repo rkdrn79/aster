@@ -141,13 +141,13 @@ describe('TerminalContextMenu', () => {
     }
   )
 
-  it('renders a "Copy Context" item that triggers onCopyAgentSessionContext (issue #5020)', () => {
+  it('renders a "Copy context" item that triggers onCopyAgentSessionContext (issue #5020)', () => {
     const onCopyAgentSessionContext = vi.fn()
     const onForkAgentSession = vi.fn()
     renderMenu({ onCopyAgentSessionContext, onForkAgentSession })
 
     const copyContextItem = items.list.find(
-      (item) => childrenText(item.children) === 'Copy Context'
+      (item) => childrenText(item.children) === 'Copy context'
     )
     expect(copyContextItem).toBeDefined()
 
@@ -165,7 +165,7 @@ describe('TerminalContextMenu', () => {
     })
 
     const handoffItem = items.list.find(
-      (item) => childrenText(item.children) === 'Hand Off to Another Agent'
+      (item) => childrenText(item.children) === 'Hand off to another agent'
     )
     expect(handoffItem).toBeDefined()
 
@@ -179,19 +179,19 @@ describe('TerminalContextMenu', () => {
     expect(items.list.some((item) => childrenText(item.children).includes('Switch to'))).toBe(false)
   })
 
-  it('shows Copy Session ID only for panes with provider identity', () => {
+  it('shows Copy session ID only for panes with provider identity', () => {
     const onCopyAgentSessionId = vi.fn()
     renderMenu({ canCopyAgentSessionId: true, onCopyAgentSessionId })
 
     const item = items.list.find(
-      (candidate) => childrenText(candidate.children) === 'Copy Session ID'
+      (candidate) => childrenText(candidate.children) === 'Copy session ID'
     )
     expect(item).toBeDefined()
     expect(
       items.list
         .map((candidate) => childrenText(candidate.children))
-        .filter((label) => ['Copy Session ID', 'Copy Terminal ID', 'Copy Pane ID'].includes(label))
-    ).toEqual(['Copy Session ID', 'Copy Terminal ID', 'Copy Pane ID'])
+        .filter((label) => ['Copy session ID', 'Copy terminal ID', 'Copy pane ID'].includes(label))
+    ).toEqual(['Copy session ID', 'Copy terminal ID', 'Copy pane ID'])
     item?.onSelect?.()
     expect(onCopyAgentSessionId).toHaveBeenCalledTimes(1)
 
@@ -199,7 +199,7 @@ describe('TerminalContextMenu', () => {
     items.list = []
     renderMenu({ canCopyAgentSessionId: false })
     expect(
-      items.list.some((candidate) => childrenText(candidate.children) === 'Copy Session ID')
+      items.list.some((candidate) => childrenText(candidate.children) === 'Copy session ID')
     ).toBe(false)
   })
 
@@ -324,6 +324,6 @@ describe('TerminalContextMenu', () => {
     const rendered = renderMenu({ quickCommandHostOwnershipPending: true })
 
     expect(rendered).toContain('Loading host…')
-    expect(rendered).not.toContain('Add Quick Command…')
+    expect(rendered).not.toContain('Add quick command…')
   })
 })

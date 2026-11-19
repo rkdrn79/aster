@@ -1,4 +1,5 @@
 import '../assets/main.css'
+import './web-touch-input.css'
 
 import { Suspense, useMemo, useState } from 'react'
 import { lazyWithRetry as lazy } from '@/lib/lazy-with-retry'
@@ -106,6 +107,8 @@ function WebRootBoundary(): React.JSX.Element {
 }
 
 document.title = `${PRODUCT_NAME} Web`
+// Why before render: the phone-only styles in web-touch-input.css key off it, dialogs included.
+document.documentElement.classList.add('web-client')
 
 // Why await: where a new pairing may be stored depends on what this browser can keep secret.
 void initWebDeviceKeySupport()

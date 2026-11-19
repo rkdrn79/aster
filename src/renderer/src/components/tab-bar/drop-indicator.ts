@@ -14,31 +14,28 @@ export function getDropIndicatorClasses(dropIndicator: DropIndicator): string {
   return ''
 }
 
-// Why: a 2px bar on the active tab's BOTTOM edge, bridging the tab into the
-// panel it owns. The active tab also lifts its background with a very subtle
-// color-mix wash (uniform in light and dark, unlike `accent` whose contrast
-// against `card` is lopsided across themes); this bar is the crisp selection
-// marker layered on top. Full `foreground`: a muted bar was lost among many
-// look-alike tabs. z-20 keeps it above the bg lift and the unread amber wash.
-// Horizontal inset is 0 (not -1px): negative insets on the last tab bleed
-// into the strip's scrollWidth, so clicking between active tabs flips the
-// strip between "fits exactly" and "overflows by 1px", which jitters every
-// tab by 1px because the browser preserves scrollLeft near the end.
+// Why: each tab is a rounded chip inset in the strip; the active one is filled by this chip, which
+// ActiveTabIndicator slides in from the previously active tab. A color-mix wash (uniform in light
+// and dark, unlike `accent` whose contrast against `card` is lopsided across themes). -z-10 inside
+// the tab's own stacking context (`isolate`) keeps it under the label and above the strip.
+// Horizontal inset is 0: negative insets on the last tab bleed into the strip's scrollWidth, so
+// clicking between active tabs would flip the strip between fitting and overflowing by 1px.
 export const ACTIVE_TAB_INDICATOR_CLASSES =
-  'pointer-events-none absolute inset-x-0 bottom-0 h-[2px] bg-foreground z-20'
+  'pointer-events-none absolute inset-0 -z-10 rounded-[8px] bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]'
 
 export function getTabRootStateClasses(isActive: boolean): string {
   return isActive
-    ? 'bg-[color-mix(in_srgb,var(--foreground)_6%,var(--card))] text-foreground'
-    : 'bg-card text-muted-foreground hover:text-foreground'
+    ? 'isolate text-foreground'
+    : 'isolate text-muted-foreground transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] hover:text-foreground'
 }
 
+/**
+ * Tabs used to be boxes joined by hairlines; as chips they stand apart on the strip, so no tab
+ * draws a border in either strip (docked or floating panel). Kept as the one place to change that.
+ */
 export function getTabStripBorderClasses(
-  hasTabsToRight: boolean,
-  options?: { includeTopBorder?: boolean }
+  _hasTabsToRight: boolean,
+  _options?: { includeTopBorder?: boolean }
 ): string {
-  const includeTopBorder = options?.includeTopBorder ?? true
-  return [includeTopBorder ? 'border-t' : '', hasTabsToRight ? 'border-r' : '', 'border-border']
-    .filter(Boolean)
-    .join(' ')
+  return ''
 }

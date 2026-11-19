@@ -291,7 +291,7 @@ export function OpenInMenuSetting({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1 space-y-1">
           <Label>
-            {translate('auto.components.settings.OpenInMenuSetting.6ed52fe71e', 'Open In Apps')}
+            {translate('auto.components.settings.OpenInMenuSetting.6ed52fe71e', 'Open in apps')}
           </Label>
           <p className="text-xs text-muted-foreground">
             {translate(

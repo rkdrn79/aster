@@ -9,9 +9,16 @@ import type {
   ResearchUnbackedNumbers,
   ResearchVerificationSummary
 } from '../../shared/research/research-harness-results'
+import type {
+  WritingCheckResult,
+  WritingCodeFolder,
+  WritingSkeleton,
+  WritingSkeletonSection
+} from '../../shared/research/research-writing-results'
 
 type WorkspaceParams = { workspacePath: string }
 type ExperimentParams = WorkspaceParams & { experiment: string }
+type SkeletonParams = WorkspaceParams & { section: WritingSkeletonSection }
 
 export type ResearchLoopStartParams = ExperimentParams & {
   objective: string
@@ -40,6 +47,15 @@ export type ResearchHarnessApi = {
   runFinish: (
     params: WorkspaceParams & { run: string; status: 'failed' | 'cancelled'; note?: string }
   ) => Promise<void>
+  /** The Writing page's mechanical lint of the manuscript (or one of its files). */
+  writingCheck: (params: WorkspaceParams & { file?: string }) => Promise<WritingCheckResult>
+  writingSkeletons: (params: WorkspaceParams) => Promise<WritingSkeleton[]>
+  /** The person's edit of a skeleton; it goes back to draft until they confirm it. */
+  writingSkeletonSet: (
+    params: SkeletonParams & { lines: Record<string, string>; notes?: string }
+  ) => Promise<WritingSkeleton>
+  writingSkeletonConfirm: (params: SkeletonParams) => Promise<WritingSkeleton>
+  writingCodeFolders: (params: WorkspaceParams) => Promise<WritingCodeFolder[]>
 }
 
 export const researchHarnessApi: ResearchHarnessApi = {
@@ -53,5 +69,11 @@ export const researchHarnessApi: ResearchHarnessApi = {
   loopShow: (params) => ipcRenderer.invoke('researchHarness:loopShow', params),
   loopStart: (params) => ipcRenderer.invoke('researchHarness:loopStart', params),
   runPatch: (params) => ipcRenderer.invoke('researchHarness:runPatch', params),
-  runFinish: (params) => ipcRenderer.invoke('researchHarness:runFinish', params)
+  runFinish: (params) => ipcRenderer.invoke('researchHarness:runFinish', params),
+  writingCheck: (params) => ipcRenderer.invoke('researchHarness:writingCheck', params),
+  writingSkeletons: (params) => ipcRenderer.invoke('researchHarness:writingSkeletons', params),
+  writingSkeletonSet: (params) => ipcRenderer.invoke('researchHarness:writingSkeletonSet', params),
+  writingSkeletonConfirm: (params) =>
+    ipcRenderer.invoke('researchHarness:writingSkeletonConfirm', params),
+  writingCodeFolders: (params) => ipcRenderer.invoke('researchHarness:writingCodeFolders', params)
 }

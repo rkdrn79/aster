@@ -162,7 +162,7 @@ export function ResearchFigureRecreateDialog({
           <Label htmlFor="figure-match-page">Give the page the image&apos;s shape</Label>
         </div>
         {page && resultHeight !== undefined ? (
-          <div role="status" className="space-y-1.5 rounded-md bg-muted/60 px-3 py-2 text-xs">
+          <div role="status" className="space-y-2 rounded-md bg-muted/60 px-3 py-2 text-xs">
             <p>
               The page will be <strong>{pageSizeText(page.widthIn, resultHeight)}</strong>
               {matched && !capped ? ' (the image’s shape)' : ''}.
@@ -185,8 +185,8 @@ export function ResearchFigureRecreateDialog({
             ) : null}
             {hasDrawing ? (
               <p className="text-muted-foreground">
-                This page has a drawing. Next you choose a new figure, or a redraw that keeps
-                the current version in History.
+                This page has a drawing. Next you choose a new figure, or a redraw that keeps the
+                current version in History.
               </p>
             ) : null}
           </div>

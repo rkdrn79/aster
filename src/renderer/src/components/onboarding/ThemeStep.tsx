@@ -207,7 +207,7 @@ export function ThemeStep({ theme, onThemeChange, settings, updateSettings }: Th
     {
       id: 'light',
       label: translate('auto.components.onboarding.ThemeStep.ad192706e6', 'Light'),
-      hint: translate('components.onboarding.theme.hints.light', 'Bright & crisp'),
+      hint: translate('components.onboarding.theme.hints.light', 'Bright and crisp'),
       icon: Sun
     }
   ]

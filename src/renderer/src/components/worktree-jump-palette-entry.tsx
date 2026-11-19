@@ -29,7 +29,10 @@ export function WorktreeJumpPaletteEntry({
 }): React.JSX.Element {
   if (entry.type === 'section-header') {
     return (
-      <div className="mx-0.5 mt-3 mb-1 px-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground/70">
+      <div
+        data-palette-section-header
+        className="mx-0.5 mt-3 mb-1 px-3 text-[11px] font-medium text-muted-foreground/70"
+      >
         {entry.label}
       </div>
     )

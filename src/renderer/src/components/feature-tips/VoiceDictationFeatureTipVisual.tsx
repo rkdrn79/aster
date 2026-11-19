@@ -58,9 +58,9 @@ export function VoiceDictationFeatureTipVisual(): JSX.Element {
           <ShortcutKeyCombo
             keys={shortcut.keys}
             doubleTap={shortcut.doubleTap}
-            keyCapClassName="h-7 min-w-7 bg-foreground/[0.08] px-2 font-semibold shadow-xs"
+            keyCapClassName="h-7 min-w-7 bg-foreground/[0.08] px-2 font-medium shadow-xs"
           />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+          <span className="text-[10px] font-medium text-muted-foreground">
             {translate('featureTips.voice.startDictation', 'Start dictation')}
           </span>
         </div>

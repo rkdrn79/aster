@@ -26,7 +26,7 @@ function useSecondTicks(active: boolean): number {
 
 /**
  * The toolbar's save state at a fixed width, so nothing beside it jumps: Save, Saving…, or
- * "Saved ✓ · 2s ago". Edits save themselves 1.5 s after they stop; the button saves now.
+ * "Saved · 2s ago". Edits save themselves 1.5 s after they stop; the button saves now.
  */
 export function ResearchFigureSaveButton({
   dirty,
@@ -48,14 +48,14 @@ export function ResearchFigureSaveButton({
         : dirty
           ? 'Save'
           : savedAt === null
-            ? 'Saved ✓'
-            : `Saved ✓ · ${savedAgoText(Math.max(0, now - savedAt))}`
+            ? 'Saved'
+            : `Saved · ${savedAgoText(Math.max(0, now - savedAt))}`
   return (
     <Button
       size="xs"
       variant={dirty ? 'secondary' : 'ghost'}
       disabled={busy !== null}
-      className="w-36 shrink-0 justify-start"
+      className="h-7 w-36 shrink-0 justify-start"
       aria-label={dirty ? 'Save now (edits also save by themselves)' : label}
       title={dirty ? 'Edits save by themselves after 1.5 s; ⌘S saves now' : 'Saved'}
       onClick={onSave}

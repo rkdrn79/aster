@@ -89,7 +89,7 @@ export function BrowserUseCookieImportStep({
     <SearchableSetting
       title={translate(
         'auto.components.settings.BrowserUsePane.2eb906706c',
-        'Import Browser Cookies'
+        'Import browser cookies'
       )}
       description={translate(
         'auto.components.settings.BrowserUsePane.af8c83ed61',
@@ -107,7 +107,7 @@ export function BrowserUseCookieImportStep({
           <p className="text-sm font-medium">
             {translate(
               'auto.components.settings.BrowserUsePane.2eb906706c',
-              'Import Browser Cookies'
+              'Import browser cookies'
             )}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -204,7 +204,7 @@ export function BrowserUseCookieImportStep({
             )}
             {detectedBrowsers.length > 0 ? <DropdownMenuSeparator /> : null}
             <DropdownMenuItem onSelect={() => void handleImportFromFile()}>
-              {translate('auto.components.settings.BrowserUsePane.be6df68384', 'From File…')}
+              {translate('auto.components.settings.BrowserUsePane.be6df68384', 'From file…')}
             </DropdownMenuItem>
             <BrowserCookieImportDisclosure />
           </DropdownMenuContent>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { GitMerge, GitPullRequestArrow, RefreshCw, Sparkles, TriangleAlert } from 'lucide-react'
+import { GitMerge, GitPullRequestArrow, RefreshCw, TriangleAlert, Bot } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
@@ -78,7 +78,7 @@ export function ConflictSummaryCard({
             {isResolvingWithAI ? (
               <RefreshCw className="size-3.5 animate-spin" />
             ) : (
-              <Sparkles className="size-3.5" />
+              <Bot className="size-3.5" />
             )}
             {translate('auto.components.right.sidebar.SourceControl.f6cb48b6fe', 'Resolve with AI')}
           </Button>

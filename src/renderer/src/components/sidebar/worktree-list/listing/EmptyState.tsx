@@ -29,7 +29,7 @@ export function SidebarWorktreeListEmptyState({
               className="gap-1.5 border border-border/80 text-[11px]"
             >
               <CircleX className="size-3.5" />
-              {translate('auto.components.sidebar.WorktreeList.370c6a55dd', 'Clear Filters')}
+              {translate('auto.components.sidebar.WorktreeList.370c6a55dd', 'Clear filters')}
             </Button>
           )}
         </div>

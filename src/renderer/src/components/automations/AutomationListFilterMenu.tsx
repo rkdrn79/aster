@@ -41,7 +41,7 @@ function FilterPill({
   onClear: () => void
 }): React.JSX.Element {
   return (
-    <span className="inline-flex h-6 items-center gap-1 rounded-full border border-border/60 bg-muted/50 pl-2 pr-1 text-[11px] text-foreground">
+    <span className="inline-flex h-6 items-center gap-1 rounded-md border border-border/60 bg-muted/50 pl-2 pr-1 text-[11px] text-foreground">
       <span className="text-muted-foreground">{label}:</span>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -59,7 +59,7 @@ function FilterPill({
           { value0: label }
         )}
         onClick={onClear}
-        className="rounded-full p-0.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+        className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
         <X className="size-3" />
       </button>
@@ -228,9 +228,7 @@ export function AutomationListFilterMenu({
           <ListFilter className="size-3.5" />
           {translate('auto.components.automations.AutomationListFilterMenu.filters', 'Filters')}
           {activeCount > 0 ? (
-            <span className="rounded-full bg-foreground px-1.5 text-[10px] font-semibold leading-4 text-background">
-              {activeCount}
-            </span>
+            <span className="text-xs text-muted-foreground tabular-nums">{activeCount}</span>
           ) : null}
         </Button>
       </DropdownMenuTrigger>

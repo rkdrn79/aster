@@ -28,7 +28,7 @@ test('cmd+p quick open prioritizes the filename and reveals the full path on hov
   const inputBox = await dialog.locator('[data-cmdk-input-wrapper]').boundingBox()
   expect(inputBox).not.toBeNull()
   expect(inputBox!.height).toBeLessThanOrEqual(45)
-  const input = dialog.locator('input[placeholder="Go to file..."]')
+  const input = dialog.locator('input[placeholder="Go to file"]')
   await input.fill('QuickOpenTarget')
 
   const row = dialog.getByRole('option').filter({ hasText: 'QuickOpenTarget.tsx' }).first()

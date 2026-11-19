@@ -91,7 +91,7 @@ describe('ProjectGroupDeleteDialog', () => {
   it('focuses the delete group action when opened', () => {
     renderDialog()
 
-    expect(document.activeElement).toBe(findButton('Delete Group'))
+    expect(document.activeElement).toBe(findButton('Delete group'))
   })
 
   it('keeps the panel copy and destructive action label stable when project removal is selected', () => {
@@ -102,8 +102,8 @@ describe('ProjectGroupDeleteDialog', () => {
     expect(document.body.textContent).not.toContain('will be removed from Orca')
     expect(document.body.textContent).not.toContain('unless selected below')
     expect(getCheckbox().getAttribute('aria-checked')).toBe('true')
-    expect(findButton('Delete Group')).toBeTruthy()
-    expect(document.body.textContent).not.toContain('Delete Group and Remove Projects')
+    expect(findButton('Delete group')).toBeTruthy()
+    expect(document.body.textContent).not.toContain('Delete group and Remove Projects')
   })
 
   it('disables project choices, cancel, and delete actions while deleting', async () => {
@@ -117,7 +117,7 @@ describe('ProjectGroupDeleteDialog', () => {
     renderDialog({ onConfirm })
 
     act(() => {
-      findButton('Delete Group').click()
+      findButton('Delete group').click()
     })
 
     expect(getCheckbox().disabled).toBe(true)

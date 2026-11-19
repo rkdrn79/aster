@@ -53,7 +53,7 @@ export const slashCommands: SlashCommand[] = [
     get label() {
       return translate(
         'auto.components.editor.rich.markdown.slash.commands.ed4cf0ebce',
-        'Numbered List'
+        'Numbered list'
       )
     },
     aliases: ['ordered', 'ol', 'numbered'],
@@ -74,7 +74,7 @@ export const slashCommands: SlashCommand[] = [
     get label() {
       return translate(
         'auto.components.editor.rich.markdown.slash.commands.56ff3237e7',
-        'Bullet List'
+        'Bullet list'
       )
     },
     aliases: ['bullet', 'ul', 'list'],
@@ -95,7 +95,7 @@ export const slashCommands: SlashCommand[] = [
     get label() {
       return translate(
         'auto.components.editor.rich.markdown.slash.commands.d0d2cdfbdb',
-        'Check List'
+        'Check list'
       )
     },
     aliases: ['todo', 'task', 'checkbox'],
@@ -137,7 +137,7 @@ export const slashCommands: SlashCommand[] = [
     get label() {
       return translate(
         'auto.components.editor.rich.markdown.slash.commands.f82c78a2ee',
-        'Toggle Text'
+        'Toggle text'
       )
     },
     aliases: ['toggle', 'details', 'collapse', 'toggle-text'],
@@ -158,7 +158,7 @@ export const slashCommands: SlashCommand[] = [
     get label() {
       return translate(
         'auto.components.editor.rich.markdown.slash.commands.624b50cf25',
-        'Code Block'
+        'Code block'
       )
     },
     aliases: ['code', 'snippet'],
@@ -215,7 +215,7 @@ export const slashCommands: SlashCommand[] = [
     get label() {
       return translate(
         'auto.components.editor.rich.markdown.slash.commands.e516d3f6e3',
-        'Mermaid Diagram'
+        'Mermaid diagram'
       )
     },
     aliases: ['diagram', 'flowchart', 'chart', 'graph'],
@@ -236,7 +236,7 @@ export const slashCommands: SlashCommand[] = [
     get label() {
       return translate(
         'auto.components.editor.rich.markdown.slash.commands.2bf5544faf',
-        'Inline Math'
+        'Inline math'
       )
     },
     aliases: ['math', 'latex', 'equation', 'formula'],
@@ -257,7 +257,7 @@ export const slashCommands: SlashCommand[] = [
     get label() {
       return translate(
         'auto.components.editor.rich.markdown.slash.commands.6993a38ad1',
-        'Math Block'
+        'Math block'
       )
     },
     aliases: ['display math', 'latex block', 'equation block'],

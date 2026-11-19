@@ -58,7 +58,7 @@ export function EventRepoBadge({ repo }: { repo: Repo | null }): React.JSX.Eleme
   return (
     <div className="flex min-w-0 shrink-0 items-center gap-1.5 rounded-[4px] border border-border bg-accent px-1.5 py-0.5 dark:border-border/60 dark:bg-accent/50">
       <RepoBadgeMark color={repo.badgeColor} />
-      <span className="max-w-[6rem] truncate text-[10px] font-semibold leading-none text-foreground lowercase">
+      <span className="max-w-[6rem] truncate text-[10px] font-medium leading-none text-foreground lowercase">
         {repo.displayName}
       </span>
     </div>
@@ -131,10 +131,10 @@ export function ActivityStatusGroupHeader({
           <AgentStateDot state={group.state} size="sm" />
         </span>
       ) : null}
-      <span className="min-w-0 flex-1 truncate text-[11px] font-semibold uppercase tracking-[0.05em] text-foreground/80 transition-colors group-hover:text-foreground">
+      <span className="min-w-0 flex-1 truncate text-[11px] font-medium text-foreground/80 transition-colors group-hover:text-foreground">
         {group.label}
       </span>
-      <span className="rounded-full border border-border/80 bg-muted/80 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums leading-none text-foreground/80 shadow-xs">
+      <span className="text-xs tabular-nums leading-none text-muted-foreground">
         {group.threads.length}
       </span>
     </div>

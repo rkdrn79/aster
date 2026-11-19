@@ -36,7 +36,7 @@ export function renderDevSettingsSection(context: SettingsRenderContext): React.
   return model.showDesktopOnlySettings && import.meta.env.DEV ? (
     <SettingsSection
       id="dev"
-      title={translate('auto.components.settings.Settings.dev', 'Dev Tools')}
+      title={translate('auto.components.settings.Settings.dev', 'Dev tools')}
       description={translate(
         'auto.components.settings.Settings.devDescription',
         'Dev-only tools for exercising UI states.'

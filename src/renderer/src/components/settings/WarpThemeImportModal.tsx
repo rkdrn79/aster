@@ -115,7 +115,7 @@ export function WarpThemeImportModal({
                 <FileUp className="size-4" />
                 {translate(
                   'auto.components.settings.WarpThemeImportModal.choose_file',
-                  'Choose File'
+                  'Choose file'
                 )}
               </Button>
               <Button
@@ -128,7 +128,7 @@ export function WarpThemeImportModal({
                 <FolderOpen className="size-4" />
                 {translate(
                   'auto.components.settings.WarpThemeImportModal.choose_folder',
-                  'Choose Folder'
+                  'Choose folder'
                 )}
               </Button>
             </div>
@@ -319,17 +319,17 @@ export function WarpThemeImportModal({
             {selectedCount === 1
               ? translate(
                   'auto.components.settings.WarpThemeImportModal.import_theme_one',
-                  'Import 1 Theme'
+                  'Import 1 theme'
                 )
               : selectedCount > 0
                 ? translate(
                     'auto.components.settings.WarpThemeImportModal.import_theme_other',
-                    'Import {{value0}} Themes',
+                    'Import {{value0}} themes',
                     { value0: selectedCount }
                   )
                 : translate(
                     'auto.components.settings.WarpThemeImportModal.import_themes',
-                    'Import Themes'
+                    'Import themes'
                   )}
           </Button>
         </DialogFooter>

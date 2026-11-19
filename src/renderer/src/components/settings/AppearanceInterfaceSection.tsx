@@ -156,13 +156,13 @@ export function AppearanceInterfaceSection({
       ) : null}
 
       <SearchableSetting
-        title={translate('auto.components.settings.AppearancePane.5e6d7aba8d', 'UI Zoom')}
+        title={translate('auto.components.settings.AppearancePane.5e6d7aba8d', 'UI zoom')}
         description={zoomEntry?.description}
         keywords={zoomEntry?.keywords ?? ['zoom', 'scale', 'shortcut']}
         forceVisible={forceVisiblePrimary}
       >
         <SettingsRow
-          label={translate('auto.components.settings.AppearancePane.5e6d7aba8d', 'UI Zoom')}
+          label={translate('auto.components.settings.AppearancePane.5e6d7aba8d', 'UI zoom')}
           // Why: keep only the shortcut hint — the control itself makes "scale the
           // interface" obvious, but the keyboard gesture and its terminal-pane
           // exception are not discoverable from the buttons alone.
@@ -181,13 +181,13 @@ export function AppearanceInterfaceSection({
       </SearchableSetting>
 
       <SearchableSetting
-        title={translate('auto.components.settings.AppearancePane.102d6b5f9b', 'IDE Font')}
+        title={translate('auto.components.settings.AppearancePane.102d6b5f9b', 'IDE font')}
         description={typographyEntry?.description}
         keywords={typographyEntry?.keywords ?? ['font', 'typeface', 'typography']}
         forceVisible={forceVisiblePrimary}
       >
         <SettingsRow
-          label={translate('auto.components.settings.AppearancePane.102d6b5f9b', 'IDE Font')}
+          label={translate('auto.components.settings.AppearancePane.102d6b5f9b', 'IDE font')}
           control={
             <FontAutocomplete
               value={settings.appFontFamily}
@@ -208,7 +208,7 @@ export function AppearanceInterfaceSection({
             <SearchableSetting
               title={translate(
                 'auto.components.settings.AppearancePane.9868f39007',
-                'Titlebar App Name'
+                'Titlebar app name'
               )}
               description={titlebarEntry?.description}
               keywords={titlebarEntry?.keywords ?? ['titlebar', 'orca', 'app', 'name']}
@@ -216,7 +216,7 @@ export function AppearanceInterfaceSection({
               <SettingsSwitchRow
                 label={translate(
                   'auto.components.settings.AppearancePane.9868f39007',
-                  'Titlebar App Name'
+                  'Titlebar app name'
                 )}
                 checked={settings.showTitlebarAppName}
                 onChange={() =>
@@ -229,7 +229,7 @@ export function AppearanceInterfaceSection({
               <SearchableSetting
                 title={translate(
                   'auto.components.settings.AppearancePane.2edf606c46',
-                  'Minimize to Tray on Close'
+                  'Minimize to tray on close'
                 )}
                 description={systemTrayEntry?.description}
                 keywords={systemTrayEntry?.keywords ?? ['tray', 'minimize', 'close']}
@@ -237,7 +237,7 @@ export function AppearanceInterfaceSection({
                 <SettingsSwitchRow
                   label={translate(
                     'auto.components.settings.AppearancePane.2edf606c46',
-                    'Minimize to Tray on Close'
+                    'Minimize to tray on close'
                   )}
                   // Why: platform constraint + "close keeps Orca running" consequence are
                   // both non-obvious from the label alone.
@@ -255,12 +255,12 @@ export function AppearanceInterfaceSection({
 
             {isDesktopMac ? (
               <SearchableSetting
-                title={translate('settings.appearance.menuBarIcon.title', 'Show Menu Bar Icon')}
+                title={translate('settings.appearance.menuBarIcon.title', 'Show menu bar icon')}
                 description={menuBarIconEntry?.description}
                 keywords={menuBarIconEntry?.keywords ?? ['menu bar', 'status item', 'activity']}
               >
                 <SettingsSwitchRow
-                  label={translate('settings.appearance.menuBarIcon.title', 'Show Menu Bar Icon')}
+                  label={translate('settings.appearance.menuBarIcon.title', 'Show menu bar icon')}
                   // Why: this opt-out removes only the status item; macOS Dock
                   // activation and the close-keeps-running lifecycle stay intact.
                   description={translate(

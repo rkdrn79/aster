@@ -54,7 +54,7 @@ export function SetupScriptPromptCardShell({
     >
       <div className="pointer-events-auto rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-[0_10px_24px_rgba(0,0,0,0.18)]">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-semibold leading-snug">
+          <p className="text-sm font-medium leading-snug">
             {translate(
               'auto.components.sidebar.SetupScriptPromptCard.ff1e819a11',
               'Add a setup script'

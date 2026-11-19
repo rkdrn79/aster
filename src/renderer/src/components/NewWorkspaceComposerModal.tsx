@@ -322,7 +322,7 @@ function QuickTabBody({
           {isFolderWorkspaceTarget
             ? translate(
                 'auto.components.sidebar.FolderWorkspaceComposerDialog.title',
-                'Create Folder Workspace'
+                'Create folder workspace'
               )
             : primaryActionLabel}
         </DialogTitle>

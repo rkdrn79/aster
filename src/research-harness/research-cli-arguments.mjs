@@ -11,7 +11,11 @@ const commandGroups = new Set([
   'analysis',
   'wandb',
   'rebuttal',
-  'figures'
+  'figures',
+  'plan',
+  'papers',
+  'writing',
+  'library'
 ])
 const globalValues = new Set(['--project'])
 const globalBooleans = new Set(['--json', '--help'])

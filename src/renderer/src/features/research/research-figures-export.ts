@@ -1,4 +1,4 @@
-import { exportToSvg, serializeAsJSON } from '@excalidraw/excalidraw'
+import { FONT_FAMILY, exportToSvg, serializeAsJSON } from '@excalidraw/excalidraw'
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import {
   FIGURE_UNITS_PER_INCH,
@@ -7,6 +7,7 @@ import {
 } from '../../../../research-harness/research-figures-model.mjs'
 import { cropPhotosForExport } from './research-figure-crops'
 import { figureFileText, sketchFilePath } from './research-figure-document'
+import { embedPaperFonts, registerPaperFonts } from './research-figure-paper-fonts'
 import { writeFigurePreview } from './research-figure-preview'
 import {
   projectAbsolutePath,
@@ -86,10 +87,13 @@ export async function writeFigureExports(
     throw new Error('Update Aster to export figures.')
   }
   const { page, options } = exportInput(api)
+  registerPaperFonts(FONT_FAMILY)
   const svg = await exportToSvg({
     ...options,
     ...(await cropPhotosForExport(options.elements, options.files))
   })
+  // Why inline: the PDF is printed from this SVG elsewhere, where only its own fonts exist.
+  await embedPaperFonts(svg)
   const width = Number(svg.getAttribute('width')) || 1
   const height = Number(svg.getAttribute('height')) || 1
   const exports = await render({

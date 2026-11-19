@@ -149,7 +149,7 @@ export function ProjectLabelsCell({
           <div className="px-2 py-1 text-xs text-muted-foreground">
             {translate(
               'auto.components.github.project.ProjectCell.4b5b871da8',
-              'No labels in this repo.'
+              'No labels in this repo'
             )}
           </div>
         ) : null}

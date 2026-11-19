@@ -126,7 +126,7 @@ export function TerminalMacKeyboardSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.TerminalPane.19f4935159',
-          'JIS Yen (¥) to Backslash (\\\\)'
+          'JIS yen (¥) to backslash (\\\\)'
         )}
         description={translate(
           'auto.components.settings.TerminalPane.1c337bef4a',
@@ -147,7 +147,7 @@ export function TerminalMacKeyboardSection({
         <SettingsSwitchRow
           label={translate(
             'auto.components.settings.TerminalPane.19f4935159',
-            'JIS Yen (¥) to Backslash (\\\\)'
+            'JIS yen (¥) to backslash (\\\\)'
           )}
           description={translate(
             'auto.components.settings.TerminalPane.4263e940e0',

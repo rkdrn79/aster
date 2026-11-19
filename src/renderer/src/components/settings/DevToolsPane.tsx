@@ -1,5 +1,5 @@
 import { toast } from 'sonner'
-import { Bell, Info, OctagonX, Sparkles, Trash2 } from 'lucide-react'
+import { Bell, CircleCheck, Info, OctagonX, Trash2 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { SettingsSubsectionHeader } from './SettingsFormControls'
@@ -107,21 +107,21 @@ function showDeleteFailureToast(): void {
       toast.error(
         translate(
           'auto.components.settings.DevToolsPane.deleteAnywayClicked',
-          'Delete Anyway clicked'
+          'Delete anyway clicked'
         )
       ),
     onViewChanges: () =>
       toast.message(
         translate(
           'auto.components.settings.DevToolsPane.viewChangesClicked',
-          'View Changes clicked'
+          'View changes clicked'
         )
       ),
     onForceDelete: () =>
       toast.error(
         translate(
           'auto.components.settings.DevToolsPane.forceDeleteClicked',
-          'Force Delete clicked'
+          'Force delete clicked'
         ),
         {
           description: translate(
@@ -229,7 +229,7 @@ export function DevToolsPane(): React.JSX.Element {
         'auto.components.settings.DevToolsPane.successToastDescription',
         'Short confirmation state.'
       ),
-      icon: <Sparkles className="size-4" />,
+      icon: <CircleCheck className="size-4" />,
       onClick: () =>
         toast.success(
           translate('auto.components.settings.DevToolsPane.settingsSaved', 'Settings saved'),

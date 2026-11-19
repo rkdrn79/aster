@@ -129,7 +129,7 @@ export function ResearchLibraryArxivDialog({
               {metadata.primaryCategory ? ` · ${metadata.primaryCategory}` : ''}
               {metadata.year ? ` · ${metadata.year}` : ''}
             </p>
-            <h3 className="mt-1 text-sm font-semibold leading-snug">{metadata.title}</h3>
+            <h3 className="mt-1 text-sm font-medium leading-snug">{metadata.title}</h3>
             <p className="mt-1 text-xs text-muted-foreground">
               {metadata.authors.slice(0, AUTHORS_SHOWN).join(', ')}
               {metadata.authors.length > AUTHORS_SHOWN

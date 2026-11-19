@@ -83,7 +83,7 @@ export function ResearchProjectSwitcherList({
         <div className="scrollbar-sleek max-h-[min(320px,50vh)] overflow-y-auto">
           {shown.length === 0 ? (
             // Why not CommandEmpty: the footer items always count, so cmdk never shows it.
-            <p className="px-3 py-5 text-center text-[12px] text-muted-foreground">
+            <p className="px-3 py-5 text-center text-xs text-muted-foreground">
               {searching ? `No other project matches “${query.trim()}”.` : 'No other projects yet.'}
             </p>
           ) : (
@@ -111,7 +111,7 @@ export function ResearchProjectSwitcherList({
         <CommandGroup>
           {showHome ? (
             <CommandItem value={HOME_VALUE} selection="palette" onSelect={onHome}>
-              <LayoutGrid className="size-3.5 text-muted-foreground" aria-hidden />
+              <LayoutGrid className="size-4 text-muted-foreground" aria-hidden />
               <span className="flex-1">All projects</span>
             </CommandItem>
           ) : null}
@@ -121,7 +121,7 @@ export function ResearchProjectSwitcherList({
               selection="palette"
               onSelect={() => onOpenInNewWindow(target)}
             >
-              <AppWindow className="size-3.5 text-muted-foreground" aria-hidden />
+              <AppWindow className="size-4 text-muted-foreground" aria-hidden />
               <span className="min-w-0 flex-1 truncate">
                 Open <span className="font-medium">{target.name}</span> in New Window
               </span>

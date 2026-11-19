@@ -9,7 +9,7 @@ export function ResearchComputeProblems({
     return null
   }
   return (
-    <ul className="space-y-1 rounded-lg border border-status-warning-border bg-status-warning-background p-3 text-xs">
+    <ul className="space-y-1 rounded-xl bg-status-warning-background p-3 text-xs">
       {problems.map(({ host, message }) => (
         <li key={`${host.targetId}:${message}`}>
           <span className="font-medium">{host.label}:</span> {message}

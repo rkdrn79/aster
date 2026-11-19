@@ -102,7 +102,7 @@ test.describe('Tabs', () => {
    * a tab-bar render regression. Clicking the real "+" button and then "New
    * Terminal" drives the same code path a user takes.
    */
-  test('clicking "+" then "New Terminal" creates a new terminal tab', async ({ orcaPage }) => {
+  test('clicking "+" then "New terminal" creates a new terminal tab', async ({ orcaPage }) => {
     const tabsBefore = await countRenderedTabs(orcaPage)
 
     // Why: hidden-window Electron can keep the animated terminal surface

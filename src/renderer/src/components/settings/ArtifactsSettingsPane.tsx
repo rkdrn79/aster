@@ -100,7 +100,7 @@ export function ArtifactsSettingsPane({
         onChange={() => void updateSettings({ artifactSharingEnabled: !sharingEnabled })}
       />
       <SettingsSwitchRow
-        label={translate('auto.components.settings.artifacts.showButton', 'Show Artifacts Button')}
+        label={translate('auto.components.settings.artifacts.showButton', 'Show Artifacts button')}
         description={translate(
           'auto.components.settings.artifacts.showButtonDescription',
           'Show the Artifacts shortcut in the sidebar.'
@@ -135,7 +135,7 @@ export function ArtifactsSettingsPane({
       <section className="space-y-4 py-5">
         <div className="space-y-1">
           <h3 className="text-sm font-medium">
-            {translate('auto.components.settings.artifacts.howToTitle', 'How to use Artifacts')}
+            {translate('auto.components.settings.artifacts.howToTitle', 'How to use artifacts')}
           </h3>
           <p className="text-xs leading-relaxed text-muted-foreground">
             {sharingEnabled

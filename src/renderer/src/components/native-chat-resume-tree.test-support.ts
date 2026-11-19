@@ -141,7 +141,7 @@ export function treeOutline(): string[] {
       return `${level}:chat:${chat}`
     }
     const name = /^Select all chats (?:in|on) (.+)$/.exec(label)?.[1]
-    const kind = item.querySelector('.font-bold')
+    const kind = item.querySelector('[data-resume-kind="machine"]')
       ? 'machine'
       : item.querySelector('.font-semibold')
         ? 'project'

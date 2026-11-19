@@ -69,7 +69,7 @@ export function buildTabCreateMenuOptions(
 
   if (context.windowsShellEntries && context.windowsShellEntries.length > 0) {
     for (const entry of context.windowsShellEntries) {
-      const label = `${translate('auto.components.tab.bar.TabBar.7c1313d237', 'New Terminal:')} ${entry.label}`
+      const label = `${translate('auto.components.tab.bar.TabBar.7c1313d237', 'New terminal:')} ${entry.label}`
       options.push({
         id: `new-terminal-shell:${entry.shell}`,
         kind: 'new-terminal-shell',
@@ -85,7 +85,7 @@ export function buildTabCreateMenuOptions(
       })
     }
   } else {
-    const label = translate('auto.components.tab.bar.TabBar.d364f3c8d4', 'New Terminal')
+    const label = translate('auto.components.tab.bar.TabBar.d364f3c8d4', 'New terminal')
     options.push({
       id: 'new-terminal',
       kind: 'new-terminal',
@@ -100,7 +100,7 @@ export function buildTabCreateMenuOptions(
   }
 
   if (context.hasNewBrowser) {
-    const label = translate('auto.components.tab.bar.TabBar.4833fb2cbe', 'New Browser Tab')
+    const label = translate('auto.components.tab.bar.TabBar.4833fb2cbe', 'New browser tab')
     options.push({
       id: 'new-browser',
       kind: 'new-browser',
@@ -147,8 +147,8 @@ export function buildTabCreateMenuOptions(
 
   if (context.hasSimulator) {
     const label = context.simulatorIsGoTo
-      ? translate('auto.components.tab.bar.TabBar.b426bb2615', 'Go to Mobile Emulator')
-      : translate('auto.components.tab.bar.TabBar.fd2b42aaa3', 'New Mobile Emulator')
+      ? translate('auto.components.tab.bar.TabBar.b426bb2615', 'Go to mobile emulator')
+      : translate('auto.components.tab.bar.TabBar.fd2b42aaa3', 'New mobile emulator')
     options.push({
       id: context.simulatorIsGoTo ? 'go-to-simulator' : 'new-simulator',
       kind: context.simulatorIsGoTo ? 'go-to-simulator' : 'new-simulator',

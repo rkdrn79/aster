@@ -189,7 +189,7 @@ export function RemoteBrowserPageContextMenu({
             >
               {translate(
                 'auto.components.browser.pane.BrowserPane.b5b87d6cbb',
-                'Open Link In Aster Browser'
+                'Open link in Aster browser'
               )}
             </button>
             <button
@@ -205,7 +205,7 @@ export function RemoteBrowserPageContextMenu({
             >
               {translate(
                 'auto.components.browser.pane.BrowserPane.8ce4f6b12e',
-                'Open Link In Default Browser'
+                'Open link in default browser'
               )}
             </button>
             <button
@@ -218,7 +218,7 @@ export function RemoteBrowserPageContextMenu({
             >
               {translate(
                 'auto.components.browser.pane.BrowserPane.efb0e8f7f3',
-                'Copy Link Address'
+                'Copy link address'
               )}
             </button>
             <div className="my-1 h-px bg-border/70" />
@@ -274,7 +274,7 @@ export function RemoteBrowserPageContextMenu({
         >
           {translate(
             'auto.components.browser.pane.BrowserPane.f7ab83f7ed',
-            'Open Page In Default Browser'
+            'Open page in default browser'
           )}
         </button>
         <button
@@ -285,7 +285,7 @@ export function RemoteBrowserPageContextMenu({
             onDismiss()
           }}
         >
-          {translate('auto.components.browser.pane.BrowserPane.1b179ab561', 'Copy Page URL')}
+          {translate('auto.components.browser.pane.BrowserPane.1b179ab561', 'Copy page URL')}
         </button>
       </div>
     </>,

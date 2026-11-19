@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { Button } from '../ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { translate } from '@/i18n/i18n'
+import { maskEndpointSecrets } from '../../../../shared/endpoint-display'
 
 type MobilePairingQrSectionProps = {
   qrDataUrl: string | null
@@ -104,7 +105,7 @@ export function MobilePairingQrSection({
               src={qrDataUrl}
               alt={translate(
                 'auto.components.settings.MobilePane.6436e56546',
-                'QR Code for mobile pairing'
+                'QR code for mobile pairing'
               )}
               className="block"
               style={{
@@ -116,7 +117,11 @@ export function MobilePairingQrSection({
             <Maximize2 className="absolute top-1.5 right-1.5 size-3 text-black/30 can-hover:opacity-0 transition-opacity group-hover:opacity-100" />
           </button>
         ) : null}
-        {endpoint && <span className="text-muted-foreground font-mono text-xs">{endpoint}</span>}
+        {endpoint && (
+          <span className="text-muted-foreground font-mono text-xs">
+            {maskEndpointSecrets(endpoint)}
+          </span>
+        )}
         {qrError ? (
           <p className="flex max-w-sm items-start gap-1.5 text-xs text-destructive" role="alert">
             <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden />
@@ -172,7 +177,7 @@ export function MobilePairingQrSection({
                   src={qrDataUrl}
                   alt={translate(
                     'auto.components.settings.MobilePane.6436e56546',
-                    'QR Code for mobile pairing'
+                    'QR code for mobile pairing'
                   )}
                   className="block"
                   style={{
@@ -183,7 +188,9 @@ export function MobilePairingQrSection({
                 />
               </div>
               {endpoint && (
-                <span className="text-muted-foreground font-mono text-xs">{endpoint}</span>
+                <span className="text-muted-foreground font-mono text-xs">
+                  {maskEndpointSecrets(endpoint)}
+                </span>
               )}
             </div>
           </DialogContent>

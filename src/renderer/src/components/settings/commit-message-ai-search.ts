@@ -6,7 +6,7 @@ export const getCommitMessageAiPaneSearchEntries = createLocalizedCatalog(() => 
   {
     title: translate(
       'auto.components.settings.commit.message.ai.search.24dbdfca78',
-      'Show Source Control AI actions'
+      'Show source control AI actions'
     ),
     description: translate(
       'auto.components.settings.commit.message.ai.search.0b946b2abe',

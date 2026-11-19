@@ -1,8 +1,8 @@
 import { PAGE_FRAME_ID } from '../../../../research-harness/research-figures-model.mjs'
 import type { FigureQuickRequest } from './research-figures-agent-prompts'
 
-/** What is on the canvas, as far as the agent's quick actions care. */
-export type FigureCanvasState = 'none' | 'empty' | 'sketch' | 'drawn'
+/** What is on the canvas, as far as the agent's quick actions care; `plot` when a plot is open. */
+export type FigureCanvasState = 'none' | 'empty' | 'sketch' | 'drawn' | 'plot'
 
 export type FigureQuickActionId = FigureQuickRequest | 'recreate'
 
@@ -25,6 +25,7 @@ const LABELS: Record<FigureQuickActionId, string> = {
   'clean-up': 'Clean up for the paper',
   sketch: 'Turn my sketch into a diagram',
   plot: 'Plot from Runs',
+  'plot-dist': 'Plot a distribution or trajectory',
   recreate: 'Recreate from image'
 }
 const ORDER: readonly FigureQuickActionId[] = [
@@ -32,13 +33,15 @@ const ORDER: readonly FigureQuickActionId[] = [
   'recreate',
   'clean-up',
   'sketch',
-  'plot'
+  'plot',
+  'plot-dist'
 ]
 const PRIMARY: Record<FigureCanvasState, readonly FigureQuickActionId[]> = {
   none: ['draw-method', 'plot'],
   empty: ['draw-method', 'recreate'],
   sketch: ['sketch', 'clean-up'],
-  drawn: ['clean-up', 'draw-method']
+  drawn: ['clean-up', 'draw-method'],
+  plot: ['plot-dist', 'plot']
 }
 
 /** Kit photos and math are drawn images; a sketch is freehand or an image the user brought. */
@@ -61,25 +64,31 @@ export function figureCanvasState(elements: readonly CanvasElement[] | null): Fi
   return content.some(isSketch) ? 'sketch' : 'drawn'
 }
 
+/** A plot is a Python script: the canvas actions wait for a diagram. */
+function diagramOnly(state: FigureCanvasState): string | null {
+  return state === 'plot' ? 'Open a diagram for this; a plot is edited through its script.' : null
+}
+
 function disabledReason(id: FigureQuickActionId, state: FigureCanvasState): string | null {
   switch (id) {
     case 'draw-method':
     case 'plot':
+    case 'plot-dist':
       return null
     case 'recreate':
-      return state === 'none' ? 'Open or create a figure first.' : null
+      return state === 'none' ? 'Open or create a figure first.' : diagramOnly(state)
     case 'clean-up':
       return state === 'none'
         ? 'Open a figure first.'
         : state === 'empty'
           ? 'Nothing to clean up yet.'
-          : null
+          : diagramOnly(state)
     case 'sketch':
       return state === 'none'
         ? 'Open a figure first.'
         : state === 'sketch'
           ? null
-          : 'Paste or draw a sketch on the canvas first.'
+          : (diagramOnly(state) ?? 'Paste or draw a sketch on the canvas first.')
   }
 }
 

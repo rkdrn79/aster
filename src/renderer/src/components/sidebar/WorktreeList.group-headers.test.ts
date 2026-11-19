@@ -193,12 +193,12 @@ describe('WorktreeList lineage child card renderer', () => {
     expect(markup).toContain('aria-expanded="true"')
   })
 
-  it('shows Clear Filters when filters exclude pre-worktree project groups', async () => {
+  it('shows Clear filters when filters exclude pre-worktree project groups', async () => {
     setProjectGroupWithoutWorktreeRowsState(['another-repo'])
     const markup = await renderWorktreeListMarkup()
 
     expect(markup).toContain('No workspaces found')
-    expect(markup).toContain('Clear Filters')
+    expect(markup).toContain('Clear filters')
     expect(markup).not.toContain('Imported Services')
   })
 })

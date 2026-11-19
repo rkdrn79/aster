@@ -64,7 +64,7 @@ export function TerminalWindowSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalWindowSection.ea7b1a158e',
-            'Background Opacity'
+            'Background opacity'
           )}
           description={translate(
             'auto.components.settings.TerminalWindowSection.03acb60aa0',
@@ -75,7 +75,7 @@ export function TerminalWindowSection({
           <NumberField
             label={translate(
               'auto.components.settings.TerminalWindowSection.ea7b1a158e',
-              'Background Opacity'
+              'Background opacity'
             )}
             description={translate(
               'auto.components.settings.TerminalWindowSection.809f37738d',
@@ -96,7 +96,7 @@ export function TerminalWindowSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalWindowSection.2b82242f43',
-            'Window Blur'
+            'Window blur'
           )}
           description={translate(
             'auto.components.settings.TerminalWindowSection.97950bb087',
@@ -110,7 +110,7 @@ export function TerminalWindowSection({
               <Label>
                 {translate(
                   'auto.components.settings.TerminalWindowSection.2b82242f43',
-                  'Window Blur'
+                  'Window blur'
                 )}
               </Label>
               <p className="text-xs text-muted-foreground">
@@ -123,7 +123,7 @@ export function TerminalWindowSection({
             <Switch
               aria-label={translate(
                 'auto.components.settings.TerminalWindowSection.2b82242f43',
-                'Window Blur'
+                'Window blur'
               )}
               checked={settings.windowBackgroundBlur ?? false}
               onCheckedChange={(checked) => updateSettings({ windowBackgroundBlur: checked })}
@@ -171,7 +171,7 @@ export function TerminalWindowSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalWindowSection.36b8402015',
-            'Horizontal Padding'
+            'Horizontal padding'
           )}
           description={translate(
             'auto.components.settings.TerminalWindowSection.25e2f8e8e1',
@@ -182,7 +182,7 @@ export function TerminalWindowSection({
           <NumberField
             label={translate(
               'auto.components.settings.TerminalWindowSection.36b8402015',
-              'Horizontal Padding'
+              'Horizontal padding'
             )}
             description=""
             value={settings.terminalPaddingX ?? 4}
@@ -198,7 +198,7 @@ export function TerminalWindowSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalWindowSection.1afcc1d973',
-            'Vertical Padding'
+            'Vertical padding'
           )}
           description={translate(
             'auto.components.settings.TerminalWindowSection.1846f6ee6a',
@@ -209,7 +209,7 @@ export function TerminalWindowSection({
           <NumberField
             label={translate(
               'auto.components.settings.TerminalWindowSection.1afcc1d973',
-              'Vertical Padding'
+              'Vertical padding'
             )}
             description=""
             value={settings.terminalPaddingY ?? 4}
@@ -225,7 +225,7 @@ export function TerminalWindowSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalWindowSection.3530908ef9',
-            'Hide Mouse While Typing'
+            'Hide mouse while typing'
           )}
           description={translate(
             'auto.components.settings.TerminalWindowSection.1d1920dc8a',
@@ -240,14 +240,14 @@ export function TerminalWindowSection({
             <Label>
               {translate(
                 'auto.components.settings.TerminalWindowSection.3530908ef9',
-                'Hide Mouse While Typing'
+                'Hide mouse while typing'
               )}
             </Label>
           </div>
           <Switch
             aria-label={translate(
               'auto.components.settings.TerminalWindowSection.3530908ef9',
-              'Hide Mouse While Typing'
+              'Hide mouse while typing'
             )}
             checked={settings.terminalMouseHideWhileTyping ?? false}
             onCheckedChange={(checked) =>
@@ -261,7 +261,7 @@ export function TerminalWindowSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalWindowSection.63f8d9336e',
-            'Color Overrides'
+            'Color overrides'
           )}
           description={translate(
             'auto.components.settings.TerminalWindowSection.e86e09b5c7',
@@ -280,18 +280,18 @@ export function TerminalWindowSection({
               </span>
               {translate(
                 'auto.components.settings.TerminalWindowSection.63f8d9336e',
-                'Color Overrides'
+                'Color overrides'
               )}
             </button>
             <div
-              className={`grid overflow-hidden transition-all duration-300 ease-out ${
+              className={`grid overflow-hidden transition-opacity duration-300 ${
                 colorOverridesExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
               }`}
             >
               <div className="min-h-0 space-y-4">
                 {COLOR_OVERRIDE_GROUPS.map((group) => (
                   <div key={group.label} className="space-y-2">
-                    <p className="text-xs font-semibold text-muted-foreground">{group.label}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{group.label}</p>
                     <div className="grid gap-2 sm:grid-cols-2">
                       {group.keys.map((item) => (
                         <ColorField

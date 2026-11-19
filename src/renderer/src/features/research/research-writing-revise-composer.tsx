@@ -160,9 +160,9 @@ function ResearchWritingReviseComposerContent({
         }
       }}
     >
-      <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
+      <div className="flex items-center gap-2 border-b border-border px-3 py-3">
         <MessageSquareText className="size-4 text-muted-foreground" aria-hidden />
-        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold">Revise with Writing agent</h2>
+        <h2 className="min-w-0 flex-1 truncate text-sm font-medium">Revise with Writing agent</h2>
         <Button
           type="button"
           size="icon-xs"
@@ -182,7 +182,7 @@ function ResearchWritingReviseComposerContent({
             {selection.relativePath}:{selection.startLine}
             {selection.endLine !== selection.startLine ? `–${selection.endLine}` : ''}
           </p>
-          <blockquote className="scrollbar-sleek max-h-28 overflow-auto whitespace-pre-wrap break-words rounded-md border-l-2 border-primary/50 bg-muted/40 p-2.5 font-mono text-xs">
+          <blockquote className="scrollbar-sleek max-h-28 overflow-auto whitespace-pre-wrap break-words rounded-md border-l-2 border-primary/50 bg-muted/40 p-3 font-mono text-xs">
             {selection.selectedText}
           </blockquote>
         </div>
@@ -204,7 +204,7 @@ function ResearchWritingReviseComposerContent({
           </p>
         ) : null}
       </div>
-      <div className="flex justify-end gap-2 border-t border-border px-3 py-2.5">
+      <div className="flex justify-end gap-2 border-t border-border px-3 py-3">
         <Button type="button" size="sm" variant="outline" onClick={onClose} disabled={sending}>
           Cancel
         </Button>

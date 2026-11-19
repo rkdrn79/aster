@@ -2,6 +2,7 @@ import { figureFilePaths } from '../../../../research-harness/research-figures-m
 import { parseFigureText } from './research-figure-document'
 import { diffFigureElements, figureDiffCount, type FigureElementDiff } from './research-figure-diff'
 import { snapshotFigure } from './research-figure-history'
+import { snapshotPlot } from './research-plot-history'
 import {
   sameFigureTarget,
   setFigureTurnDiff,
@@ -38,6 +39,12 @@ const EMPTY: FigureElementDiff = { added: [], changed: [], removed: [] }
  */
 export async function settleFigureTurn(turn: FigureTurn): Promise<void> {
   const { target } = turn
+  if (turn.plot) {
+    // Why no diff: a plot has no elements; its version is kept when its files changed.
+    setFigureTurnDiff(turn.id, EMPTY)
+    await snapshotPlot(target, { kind: 'agent-result', what: turn.request })
+    return
+  }
   const open = editor && sameFigureTarget(editor.target, target) ? editor : null
   const after = open
     ? await open.settle(turn).catch(() => null)

@@ -95,7 +95,7 @@ export function TaskPageGitHubFilters({
                 handleSetDefaultTaskPreset(option.id)
               }}
               className={cn(
-                'rounded-md border px-2.5 py-1 text-xs font-medium transition',
+                'rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
                 active
                   ? 'border-border/50 bg-foreground/90 text-background shadow-xs'
                   : 'border-border/60 bg-background text-foreground shadow-xs hover:bg-muted/60'
@@ -135,7 +135,7 @@ export function TaskPageGitHubFilters({
               type="button"
               aria-label={translate('auto.components.TaskPage.b797bdd7c3', 'Clear search')}
               onClick={handleResetGithubTaskSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
             >
               <X className="size-4" />
             </button>

@@ -32,7 +32,7 @@ export function SkillsNoMatchesState({
 }): React.JSX.Element {
   return (
     <div className="flex flex-col items-center gap-2 px-2 py-12 text-center">
-      <p className="text-sm font-semibold">
+      <p className="text-sm font-medium">
         {translate('auto.components.skills.SkillsPage.6a62a0168c', 'No matches')}
       </p>
       <p className="max-w-sm text-xs leading-5 text-muted-foreground">

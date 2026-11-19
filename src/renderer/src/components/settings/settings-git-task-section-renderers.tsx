@@ -11,7 +11,7 @@ export function renderGitSettingsSection(context: SettingsRenderContext): React.
   return (
     <SettingsSection
       id="git"
-      title={translate('auto.components.settings.Settings.70100f94c7', 'Git & Source Control')}
+      title={translate('auto.components.settings.Settings.70100f94c7', 'Git and source control')}
       description={translate(
         'auto.components.settings.Settings.cfa34f4465',
         'Branch naming, base refs, and Git AI Author.'
@@ -54,7 +54,7 @@ export function renderTasksSettingsSection(context: SettingsRenderContext): Reac
   return (
     <SettingsSection
       id="tasks"
-      title={translate('auto.components.settings.Settings.11faa2f7dd', 'Task Sources')}
+      title={translate('auto.components.settings.Settings.11faa2f7dd', 'Task sources')}
       description={translate(
         'auto.components.settings.Settings.tasksDescription',
         'Connect providers, install the Linear skill, and choose what appears in Tasks.'

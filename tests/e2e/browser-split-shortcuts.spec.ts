@@ -15,7 +15,7 @@ import {
 } from './helpers/browser-split-fixture'
 
 function browserFindInput(page: Page) {
-  return page.getByPlaceholder('Find in page...')
+  return page.getByPlaceholder('Find in page')
 }
 
 function browserFindCloseButton(page: Page) {
@@ -25,7 +25,7 @@ function browserFindCloseButton(page: Page) {
 function browserSplitFindInput(page: Page, browserTabId: string) {
   return page
     .locator(`[data-browser-overlay-tab-id="${browserTabId}"]`)
-    .getByPlaceholder('Find in page...')
+    .getByPlaceholder('Find in page')
 }
 
 async function pressFindInBrowserGuest(

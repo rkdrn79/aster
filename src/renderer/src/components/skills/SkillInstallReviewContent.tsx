@@ -65,7 +65,7 @@ export function SkillInstallOutcome({ result }: { result: SkillInstallResult }):
         role="status"
         aria-live="polite"
       >
-        <div className="flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+        <div className="flex shrink-0 text-muted-foreground">
           {result.status === 'failed' || result.status === 'cancelled' ? (
             <AlertTriangle className="size-4" />
           ) : (
@@ -142,7 +142,7 @@ export function SkillInstallReview({
         />
         {version.releaseNotes.trim() ? (
           <p className="break-words whitespace-pre-wrap rounded-lg border border-border/40 bg-muted/40 p-3 text-xs leading-5 text-muted-foreground">
-            <span className="font-semibold text-foreground">
+            <span className="font-medium text-foreground">
               {translate(
                 'auto.components.skills.SkillInstallReviewContent.releaseNotes',
                 'Release notes:'
@@ -155,10 +155,10 @@ export function SkillInstallReview({
       </div>
 
       <div className="space-y-3 rounded-xl border border-border/70 bg-card/40 p-3.5">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="text-[11px] font-medium text-muted-foreground">
           {translate(
             'auto.components.skills.SkillInstallReviewContent.targetHeader',
-            'Installation Target'
+            'Installation target'
           )}
         </div>
         {children}

@@ -256,3 +256,53 @@ export function pointOnPath(points, { at, x, y } = {}) {
   }
   return points[0] ?? null
 }
+
+/** The distance from a point to the segment a→b. */
+function pointSegmentDistance(point, a, b) {
+  const dx = b[0] - a[0]
+  const dy = b[1] - a[1]
+  const span = dx * dx + dy * dy
+  const t = span
+    ? Math.max(0, Math.min(1, ((point[0] - a[0]) * dx + (point[1] - a[1]) * dy) / span))
+    : 0
+  return Math.hypot(point[0] - (a[0] + dx * t), point[1] - (a[1] + dy * t))
+}
+
+/**
+ * How far a box ({ x, y, width, height }) is from a convex polygon (a head's triangle): 0 when
+ * they overlap. Why not the polygon's bounding box: a slanted head's box is far larger than the
+ * head, so labels beside it read as touching.
+ */
+export function boxPolygonDistance(box, polygon) {
+  const corners = [
+    [box.x, box.y],
+    [box.x + box.width, box.y],
+    [box.x + box.width, box.y + box.height],
+    [box.x, box.y + box.height]
+  ]
+  const inBox = (point) =>
+    point[0] >= box.x &&
+    point[0] <= box.x + box.width &&
+    point[1] >= box.y &&
+    point[1] <= box.y + box.height
+  if (polygon.some(inBox) || corners.some((corner) => pointInPolygon(corner, polygon))) {
+    return 0
+  }
+  const edges = (points) =>
+    points.map((point, index) => [point, points[(index + 1) % points.length]])
+  if (edges(polygon).some(([a, b]) => segmentCrossesBox(a, b, box))) {
+    return 0
+  }
+  let best = Infinity
+  for (const [a, b] of edges(polygon)) {
+    for (const corner of corners) {
+      best = Math.min(best, pointSegmentDistance(corner, a, b))
+    }
+  }
+  for (const [a, b] of edges(corners)) {
+    for (const point of polygon) {
+      best = Math.min(best, pointSegmentDistance(point, a, b))
+    }
+  }
+  return best
+}

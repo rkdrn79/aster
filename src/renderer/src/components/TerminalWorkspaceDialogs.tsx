@@ -40,7 +40,7 @@ export function TerminalWorkspaceDialogs({
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-sm">
-              {translate('auto.components.Terminal.21295c6b8c', 'Unsaved Changes')}
+              {translate('auto.components.Terminal.21295c6b8c', 'Unsaved changes')}
             </DialogTitle>
             <DialogDescription className="text-xs">
               {saveDialogFile
@@ -60,7 +60,7 @@ export function TerminalWorkspaceDialogs({
               {translate('auto.components.Terminal.f82e9f02df', 'Cancel')}
             </Button>
             <Button type="button" variant="outline" size="sm" onClick={handleSaveDialogDiscard}>
-              {translate('auto.components.Terminal.0037b21794', "Don't Save")}
+              {translate('auto.components.Terminal.0037b21794', "Don't save")}
             </Button>
             <Button type="button" size="sm" onClick={handleSaveDialogSave}>
               {translate('auto.components.Terminal.cd51e28d8b', 'Save')}
@@ -80,7 +80,7 @@ export function TerminalWorkspaceDialogs({
         <DialogContent className="max-w-sm" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="text-sm">
-              {translate('auto.components.Terminal.2fa9c69ff3', 'Close Window?')}
+              {translate('auto.components.Terminal.2fa9c69ff3', 'Close window?')}
             </DialogTitle>
             <DialogDescription className="text-xs">
               {windowCloseDialogKind === 'unverifiable'

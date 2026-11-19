@@ -198,9 +198,9 @@ export function GHAssigneesCell({
           onClick={(event) => event.stopPropagation()}
           onKeyDown={(event) => event.stopPropagation()}
           className={cn(
-            'inline-flex h-6 max-w-full items-center gap-1 text-left transition disabled:opacity-60',
+            'inline-flex h-6 max-w-full items-center gap-1 text-left transition-colors disabled:opacity-60',
             assignees.length > 0
-              ? 'rounded-full border border-border/40 bg-background/70 px-1.5 hover:bg-muted/60'
+              ? 'rounded-md border border-border/40 bg-background/70 px-1.5 hover:bg-muted/60'
               : 'w-full rounded-sm border border-transparent bg-transparent px-1 hover:bg-muted/40'
           )}
         >
@@ -229,7 +229,7 @@ export function GHAssigneesCell({
           <div className="px-2 py-2 text-xs text-destructive">{metadata.error}</div>
         ) : metadata.data.length === 0 ? (
           <div className="px-2 py-2 text-xs text-muted-foreground">
-            {translate('auto.components.TaskPage.edf4bc4135', 'No assignable users.')}
+            {translate('auto.components.TaskPage.edf4bc4135', 'No assignable users')}
           </div>
         ) : (
           metadata.data.map((user) => {

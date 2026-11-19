@@ -16,7 +16,7 @@ describe('AdvancedPane', () => {
     )
 
     expect(markup).toContain('Compatibility')
-    expect(markup).toContain('HTTP/1.1 Compatibility')
+    expect(markup).toContain('HTTP/1.1 compatibility')
     expect(markup).toContain('aria-checked="false"')
     expect(markup).toContain('Explain HTTP/1.1 compatibility')
     expect(getAdvancedSearchEntry().http1Compatibility.keywords).toContain('support')

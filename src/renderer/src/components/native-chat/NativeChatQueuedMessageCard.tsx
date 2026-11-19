@@ -220,13 +220,13 @@ export function NativeChatQueuedMessageCard({
     <li
       data-queued-message-id={card.messageId}
       data-queued-message-state={card.state}
-      className="px-2.5 py-1.5"
+      className="px-3 py-2"
     >
       <div className="flex items-center gap-2">
         {returned || card.pausedReason === QUEUED_MESSAGE_PAUSED_SEND_FAILED ? (
-          <AlertCircle className="size-3.5 shrink-0 text-destructive" aria-hidden />
+          <AlertCircle className="size-4 shrink-0 text-destructive" aria-hidden />
         ) : (
-          <ListEnd className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+          <ListEnd className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         )}
         <div className="min-w-0 flex-1">
           {sender}
@@ -269,11 +269,11 @@ export function NativeChatQueuedMessageCard({
                     onClick={onSteer}
                     disabled={steerHeld || busy}
                   >
-                    <NativeChatPendingIcon pending={pending === 'send'} className="size-3">
+                    <NativeChatPendingIcon pending={pending === 'send'} className="size-4">
                       {sendNow.steers ? (
-                        <CornerDownRight className="size-3" />
+                        <CornerDownRight className="size-4" />
                       ) : (
-                        <Send className="size-3" />
+                        <Send className="size-4" />
                       )}
                     </NativeChatPendingIcon>
                     {sendNow.label}
@@ -299,8 +299,8 @@ export function NativeChatQueuedMessageCard({
                   disabled={busy}
                   onClick={onDelete}
                 >
-                  <NativeChatPendingIcon pending={pending === 'delete'} className="size-3.5">
-                    <Trash2 className="size-3.5" />
+                  <NativeChatPendingIcon pending={pending === 'delete'} className="size-4">
+                    <Trash2 className="size-4" />
                   </NativeChatPendingIcon>
                 </Button>
               </TooltipTrigger>
@@ -321,10 +321,10 @@ export function NativeChatQueuedMessageCard({
                     )}
                     disabled={busy}
                   >
-                    <MoreHorizontal className="size-3.5" />
+                    <MoreHorizontal className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent data-native-chat-surface="" align="end">
                   {/* A command's text is not a draft: edited, it would become a message. */}
                   {card.command || !onEdit ? null : (
                     <DropdownMenuItem disabled={editDisabled} onSelect={onEdit}>
@@ -353,7 +353,7 @@ export function NativeChatQueuedMessageCard({
         // Indented to the text, past the icon slot and its gap.
         <p
           id={textId}
-          className="scrollbar-sleek mt-1 max-h-60 overflow-y-auto whitespace-pre-wrap break-words pl-5.5 text-sm"
+          className="scrollbar-sleek mt-1 max-h-60 overflow-y-auto whitespace-pre-wrap break-words pl-6 text-sm"
         >
           {line}
         </p>
@@ -377,7 +377,7 @@ function QueuedMessageImageCount({
           aria-label={queuedMessageImageCount(images.length)}
           className="flex shrink-0 items-center gap-0.5 text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <ImageIcon className="size-3.5" aria-hidden />
+          <ImageIcon className="size-4" aria-hidden />
           <span aria-hidden>{images.length}</span>
         </span>
       </TooltipTrigger>
@@ -415,7 +415,7 @@ function QueuedMessageExpandToggle({
         >
           <ChevronDown
             className={cn(
-              'size-3.5 transition-transform motion-reduce:transition-none',
+              'size-4 transition-transform motion-reduce:transition-none',
               expanded && 'rotate-180'
             )}
           />

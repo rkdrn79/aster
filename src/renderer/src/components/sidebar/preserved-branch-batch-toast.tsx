@@ -38,7 +38,7 @@ function PreservedBranchBatchToastBody({
           <Trash2 className="size-3.5" />
           {translate(
             'auto.components.sidebar.preserved.branch.batch.toast.6310412304',
-            'Review {{count}} Branches',
+            'Review {{count}} branches',
             { count: actionableCount }
           )}
         </Button>
@@ -177,7 +177,7 @@ export async function forceDeletePreservedBranchBatch(
             <Trash2 className="size-3.5" />
             {translate(
               'auto.components.sidebar.preserved.branch.batch.toast.d42f1f14e0',
-              'Retry {{count}} Branches',
+              'Retry {{count}} branches',
               { count: failedBranches.length }
             )}
           </Button>

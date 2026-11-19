@@ -1,18 +1,14 @@
-import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { readdir, readFile } from 'node:fs/promises'
-import os from 'node:os'
+import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { catalogPath } from './research-catalog.mjs'
 import { HarnessError } from './research-harness-error.mjs'
+import { createPythonFinder } from './research-python-finder.mjs'
 
 export const WANDB_TAG = 'aster'
 const MAX_NAME_LENGTH = 128
 // Why: W&B refuses these in entity and project names, and they would break the run URL.
 const FORBIDDEN_NAME_CHARACTERS = /[/\\#?%:\s]/u
-const PROBE_TIMEOUT_MS = 30_000
-// Common conda roots; `~/.conda/envs` is where `conda create` puts envs on shared servers.
-const CONDA_ENV_ROOTS = ['.conda/envs', 'miniconda3/envs', 'anaconda3/envs', 'miniforge3/envs']
 
 function nameProblem(value, label) {
   if (typeof value !== 'string' || !value.trim()) {
@@ -112,79 +108,12 @@ export function wandbChildEnvironment(settings, experiment) {
   }
 }
 
-function probePython(command) {
-  return new Promise((resolve) => {
-    let child
-    try {
-      // Why the version check: an old `python` may be Python 2 with a Python 2 wandb.
-      child = spawn(
-        command,
-        ['-c', 'import sys, wandb; sys.exit(0 if sys.version_info >= (3, 6) else 1)'],
-        { stdio: 'ignore', windowsHide: true, timeout: PROBE_TIMEOUT_MS }
-      )
-    } catch {
-      resolve(false)
-      return
-    }
-    child.once('error', () => resolve(false))
-    child.once('close', (code) => resolve(code === 0))
-  })
-}
-
-async function condaPythons(home, platform) {
-  const found = []
-  for (const root of CONDA_ENV_ROOTS) {
-    const envs = await readdir(path.join(home, root), { withFileTypes: true }).catch(() => [])
-    for (const entry of envs
-      .filter((item) => item.isDirectory() || item.isSymbolicLink())
-      .map((item) => item.name)
-      .sort()) {
-      found.push(
-        platform === 'win32'
-          ? path.join(home, root, entry, 'python.exe')
-          : path.join(home, root, entry, 'bin', 'python')
-      )
-    }
-  }
-  return found
-}
-
-function expandHome(command, home) {
-  return command === '~' || command.startsWith('~/') ? path.join(home, command.slice(1)) : command
-}
-
 /**
  * Finds a Python that can `import wandb`: the catalog's `wandb.python`, then `python3` and
  * `python` on PATH, then conda envs. The answer is cached for the life of the process.
  */
-export function createWandbPythonFinder({
-  probe = probePython,
-  listCondaPythons = condaPythons,
-  home = os.homedir(),
-  platform = process.platform
-} = {}) {
-  const cache = new Map()
-  async function discover(explicit) {
-    const onPath = platform === 'win32' ? ['python', 'python3'] : ['python3', 'python']
-    for (const candidate of [explicit ? expandHome(explicit, home) : null, ...onPath]) {
-      if (candidate && (await probe(candidate))) {
-        return candidate
-      }
-    }
-    for (const candidate of await listCondaPythons(home, platform)) {
-      if (await probe(candidate)) {
-        return candidate
-      }
-    }
-    return null
-  }
-  return (explicit = null) => {
-    const key = explicit ?? ''
-    if (!cache.has(key)) {
-      cache.set(key, discover(explicit))
-    }
-    return cache.get(key)
-  }
+export function createWandbPythonFinder(options = {}) {
+  return createPythonFinder({ ...options, modules: ['wandb'] })
 }
 
 export const findWandbPython = createWandbPythonFinder()

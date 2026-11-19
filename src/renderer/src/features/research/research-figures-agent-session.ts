@@ -153,11 +153,13 @@ export async function restoreDeletedFigureChat(
     .update((current) => withRestoredFigureChat(current, scope, slug, sessionId))
 }
 
-/** Shows a chat's figure, when it is bound to one; the page opens on it. */
+/** Shows a chat's figure or plot, when it is bound to one; the page opens on it. */
 export function showFigureOfChat(scope: FiguresAgentScope, sessionId: string): void {
   const slug = figureOfChat(useResearchRecords.getState().document, scope, sessionId)
   if (slug) {
-    selectFigure(scope, { kind: 'figure', slug })
+    const { listing } = useResearchFigures.getState()
+    const plot = listing.plots.some((entry) => entry.slug === slug)
+    selectFigure(scope, plot ? { kind: 'plot', slug } : { kind: 'figure', slug })
   }
 }
 

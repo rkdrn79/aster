@@ -10,7 +10,7 @@ import type {
 } from '../../../../shared/research/research-harness-results'
 import {
   CLAIM_STATUS_LABELS,
-  claimEvidenceText,
+  claimEvidenceValue,
   claimNeedsAttention,
   claimProblemText,
   claimsBySeverity,
@@ -34,13 +34,35 @@ function ClaimStatus({ status }: { status: ResearchClaimStatus }): React.JSX.Ele
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 text-xs',
-        claimNeedsAttention(status) ? 'font-medium text-foreground' : 'text-muted-foreground'
+        'inline-flex h-5 items-center gap-2 rounded-sm bg-muted px-2 text-2xs font-medium',
+        claimNeedsAttention(status) ? 'text-foreground' : 'text-muted-foreground'
       )}
     >
       <span aria-hidden className={cn('size-1.5 rounded-full', STATUS_DOT[status])} />
       {CLAIM_STATUS_LABELS[status]}
     </span>
+  )
+}
+
+/** `run · metric (split) · value`, the value set as a traced figure. */
+function ClaimEvidenceLine({
+  evidence
+}: {
+  evidence: ResearchClaimAudit['evidence'][number]
+}): React.JSX.Element {
+  const metric = evidence.split ? `${evidence.metric} (${evidence.split})` : evidence.metric
+  const value = claimEvidenceValue(evidence)
+  return (
+    <>
+      {[evidence.run, metric].filter(Boolean).join(' · ')}
+      {value ? (
+        <>
+          {' · '}
+          {/* The signature: a figure traced to its Run (surfaces.css → traced-number). */}
+          <span className="traced-number text-foreground">{value}</span>
+        </>
+      ) : null}
+    </>
   )
 }
 
@@ -126,26 +148,26 @@ function ClaimRow({
   return (
     <li
       className={cn(
-        'rounded-md border-l-2 border-transparent',
-        claim.status === 'mismatch' && 'border-l-status-warning bg-status-warning-background'
+        'rounded-lg transition-colors duration-(--duration-fast)',
+        claim.status === 'mismatch' && 'bg-status-warning-background'
       )}
     >
       <button
         type="button"
         disabled={!location}
         title={location ? 'Show in TeX source' : undefined}
-        className="w-full space-y-1 rounded-md px-3 py-2 text-left hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:hover:bg-transparent"
+        className="w-full space-y-2 rounded-lg px-3 py-3 text-left hover:bg-accent/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:hover:bg-transparent"
         onClick={() => location && onOpen(location.file, location.line ?? 1)}
       >
         <ClaimStatus status={claim.status} />
-        <p className="line-clamp-3 text-sm">{claim.text}</p>
+        <p className="line-clamp-3 text-[13px] leading-snug">{claim.text}</p>
         {claim.evidence.map((evidence, index) => (
           <p
             key={`${evidence.run}:${evidence.metric}:${index}`}
             className="truncate text-xs text-muted-foreground"
           >
             {evidence.role === 'supporting' ? 'Supporting: ' : ''}
-            {claimEvidenceText(evidence)}
+            <ClaimEvidenceLine evidence={evidence} />
           </p>
         ))}
         {problem ? (
@@ -178,6 +200,7 @@ export function ResearchClaimsChip({
     <Button
       size="xs"
       variant={open ? 'secondary' : 'ghost'}
+      className="h-7"
       aria-pressed={open}
       title="Show or hide the paper's claims"
       onClick={onToggle}
@@ -230,10 +253,13 @@ export function ResearchClaimsPanel({
     <aside
       ref={panelRef}
       aria-label="Claims"
-      className={cn('flex min-h-0 min-w-0 flex-col bg-background text-foreground', className)}
+      className={cn(
+        'research-panel-in-right flex min-h-0 min-w-0 flex-col bg-background text-foreground',
+        className
+      )}
     >
-      <div className="flex shrink-0 items-center gap-1 border-b border-border px-3 py-1.5">
-        <h2 className="min-w-0 flex-1 truncate text-sm font-medium">Claims</h2>
+      <div className="flex shrink-0 items-center gap-1 border-b border-border px-3 py-2">
+        <h2 className="min-w-0 flex-1 truncate text-[13px] font-medium">Claims</h2>
         {claims.available ? (
           <Button size="xs" variant="ghost" disabled={claims.checking} onClick={claims.recheck}>
             <RefreshCw aria-hidden className={cn(claims.checking && 'animate-spin')} />
@@ -247,7 +273,7 @@ export function ResearchClaimsPanel({
       <div className="scrollbar-sleek min-h-0 flex-1 space-y-4 overflow-auto p-2">
         {!claims.available ? (
           <p className="px-3 py-2 text-xs text-muted-foreground">
-            Claims can be checked in local projects only.
+            Claims can be checked in local projects only
           </p>
         ) : null}
         {claims.error ? (
@@ -269,16 +295,16 @@ export function ResearchClaimsPanel({
             ))}
           </ul>
         ) : audit ? (
-          <p className="px-3 py-2 text-xs text-muted-foreground">No claims recorded yet.</p>
+          <p className="px-3 py-2 text-xs text-muted-foreground">No claims recorded yet</p>
         ) : null}
         {claims.available ? (
           <div className="border-t border-border pt-2">
             <Collapsible>
               <CollapsibleTrigger variant="row">
-                <span className="flex items-center gap-1.5 px-3 text-xs">
+                <span className="flex items-center gap-2 px-3 text-xs">
                   <ChevronRight
                     aria-hidden
-                    className="size-3.5 text-muted-foreground transition-transform group-data-[state=open]:rotate-90"
+                    className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-90"
                   />
                   Unbacked numbers
                 </span>
@@ -293,7 +319,7 @@ export function ResearchClaimsPanel({
                   <p className="px-3 py-2 text-xs text-destructive">{claims.scanError}</p>
                 ) : scan && scan.unbacked.length === 0 ? (
                   <p className="px-3 py-2 text-xs text-muted-foreground">
-                    Every result number in the paper has a claim.
+                    Every result number in the paper has a claim
                   </p>
                 ) : (
                   <ul className="space-y-0.5 pt-1">

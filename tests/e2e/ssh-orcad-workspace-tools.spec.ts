@@ -42,7 +42,7 @@ test('Quick Open finds a file in a monorepo-sized managed workspace', async (// 
     await page.evaluate(() => window.__store?.getState().openModal('quick-open'))
     const dialog = page.getByRole('dialog', { name: 'Go to file' })
     await expect(dialog).toBeVisible()
-    const input = dialog.getByPlaceholder('Go to file...')
+    const input = dialog.getByPlaceholder('Go to file')
     await input.fill('quick-open-needle-target')
     await expect(
       dialog.getByRole('option').filter({ hasText: 'quick-open-needle-target.ts' })

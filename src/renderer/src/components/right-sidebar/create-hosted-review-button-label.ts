@@ -20,13 +20,13 @@ export function getCreateButtonLabel({
   if (pushBeforeCreate && stacked) {
     return translate(
       'auto.components.right.sidebar.create.hosted.review.button.label.96ae7358e0',
-      'Push & Create PR in stack'
+      'Push & create PR in stack'
     )
   }
   if (pushBeforeCreate) {
     return translate(
       'auto.components.right.sidebar.CreateHostedReviewComposer.741ff8a0d2',
-      'Push & Create {{value0}}',
+      'Push & create {{value0}}',
       { value0: shortLabel }
     )
   }

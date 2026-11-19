@@ -34,14 +34,14 @@ export function ResearchFiguresFirstRun({
           <Button size="sm" aria-label="New figure" onClick={() => onNew(null)}>
             <Plus aria-hidden /> New figure
           </Button>
-          <div className="flex max-w-md flex-col items-stretch gap-1.5">
+          <div className="flex max-w-md flex-col items-stretch gap-2">
             <p className="text-xs text-muted-foreground">Or describe one, for example:</p>
             {EXAMPLES.map((example) => (
               <button
                 key={example.name}
                 type="button"
                 aria-label={`Describe: ${example.description}`}
-                className="rounded-md border border-border bg-background px-3 py-1.5 text-left text-xs text-foreground hover:bg-accent"
+                className="rounded-md border border-border bg-background px-3 py-2 text-left text-xs text-foreground hover:bg-accent"
                 onClick={() =>
                   onNew({ start: 'describe', name: example.name, description: example.description })
                 }

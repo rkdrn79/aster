@@ -44,19 +44,19 @@ export function NativeChatOrchestrationWorkers({
           onClick={() => setExpanded(!expanded)}
           className="flex h-8 w-full items-center gap-2 rounded-md px-3 text-left hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         >
-          <Bot aria-hidden="true" className="size-3.5 shrink-0" />
+          <Bot aria-hidden="true" className="size-4 shrink-0" />
           <span className="min-w-0 flex-1 font-medium text-foreground">
             Subagents · {orchestrationWorkerSummaryLabel(summarizeOrchestrationWorkers(workers))}
           </span>
           <ChevronDown
             aria-hidden="true"
-            className={cn('size-3 transition-transform', expanded && 'rotate-180')}
+            className={cn('size-4 transition-transform', expanded && 'rotate-180')}
           />
         </button>
         {expanded ? (
           <ul
             role="list"
-            className="scrollbar-sleek max-h-40 space-y-0.5 overflow-y-auto border-t border-border px-2 py-1.5"
+            className="scrollbar-sleek max-h-40 space-y-0.5 overflow-y-auto border-t border-border p-2"
           >
             {workers.map((worker) => {
               const contents = (
@@ -84,7 +84,7 @@ export function NativeChatOrchestrationWorkers({
                   {worker.tab ? (
                     <button
                       type="button"
-                      className="flex min-h-6 w-full items-center gap-2 rounded-md px-1.5 text-left hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                      className="flex min-h-7 w-full items-center gap-2 rounded-md px-2 text-left hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                       onClick={() => {
                         if (worker.tab) {
                           openSubagentTab(worker.tab)
@@ -94,7 +94,7 @@ export function NativeChatOrchestrationWorkers({
                       {contents}
                     </button>
                   ) : (
-                    <div className="flex min-h-6 items-center gap-2 px-1.5">{contents}</div>
+                    <div className="flex min-h-7 items-center gap-2 px-2">{contents}</div>
                   )}
                 </li>
               )

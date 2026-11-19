@@ -109,7 +109,7 @@ export function GitLabItemDialogView({
                       {visibleLabels.map((label) => (
                         <span
                           key={label}
-                          className="rounded-full border border-border/50 bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                          className="rounded-sm border border-border/50 bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
                         >
                           {label}
                         </span>
@@ -154,7 +154,7 @@ export function GitLabItemDialogView({
                 <TabsTrigger value="conversation">
                   {translate('auto.components.GitLabItemDialog.c996e2962c', 'Conversation')}
                   {details?.comments?.length ? (
-                    <span className="ml-1.5 rounded-full bg-muted px-1.5 text-[10px] font-medium">
+                    <span className="ml-1.5 text-xs tabular-nums text-muted-foreground">
                       {details.comments.length}
                     </span>
                   ) : null}
@@ -163,7 +163,7 @@ export function GitLabItemDialogView({
                   <TabsTrigger value="files">
                     {translate('auto.components.GitLabItemDialog.be3d291837', 'Files')}
                     {details?.files?.length ? (
-                      <span className="ml-1.5 rounded-full bg-muted px-1.5 text-[10px] font-medium">
+                      <span className="ml-1.5 text-xs tabular-nums text-muted-foreground">
                         {details.files.length}
                       </span>
                     ) : null}
@@ -173,7 +173,7 @@ export function GitLabItemDialogView({
                   <TabsTrigger value="pipeline">
                     {translate('auto.components.GitLabItemDialog.02cbe2de44', 'Pipeline')}
                     {details?.pipelineJobs?.length ? (
-                      <span className="ml-1.5 rounded-full bg-muted px-1.5 text-[10px] font-medium">
+                      <span className="ml-1.5 text-xs tabular-nums text-muted-foreground">
                         {details.pipelineJobs.length}
                       </span>
                     ) : null}
@@ -208,7 +208,7 @@ export function GitLabItemDialogView({
                   onChange={(event) => updateCommentDraft(event.target.value)}
                   placeholder={translate(
                     'auto.components.GitLabItemDialog.c08e1d5a57',
-                    'Comment on {{value0}}{{value1}}…',
+                    'Comment on {{value0}}{{value1}}',
                     { value0: prefix, value1: item.number }
                   )}
                   rows={2}

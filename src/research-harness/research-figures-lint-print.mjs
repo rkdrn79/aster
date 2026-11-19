@@ -66,7 +66,11 @@ export function glyphSizeChecks(elements, add, scale = 1) {
     const patch = /-r\d+c\d+$/.test(element.id) && grid && !('cell' in grid) && inGlyph
     // Why not a strip's chips: chipChecks measures those by their height.
     const chip = inGlyph && element.id.startsWith(`${owner}-`) && /-\d+$/.test(element.id)
-    const crop = element.type === 'image' && element.customData?.asterPhoto && !chip
+    const crop =
+      element.type === 'image' &&
+      element.customData?.asterPhoto &&
+      !element.customData?.asterIconPicture &&
+      !chip
     const side = Math.min(element.width, element.height)
     if ((patch || crop) && printPx(side, scale) < CHIP_PX - 0.01) {
       const known = small.get(owner)

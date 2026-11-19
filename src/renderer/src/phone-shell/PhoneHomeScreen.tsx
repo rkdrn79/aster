@@ -14,6 +14,7 @@ import { phoneSessionIsWorking, phoneSessionNeedsYou, type PhoneSession } from '
 import { PhoneEmptyState, PhoneRow, PhoneScrollBody, PhoneSection } from './PhoneListLayout'
 import { usePhoneHostResearchRefresh } from './phone-host-research-reads'
 import { PhoneComputeSection, PhoneDeadlinesSection } from './PhoneHomeResearch'
+import { PhoneDecisionsSection, usePhoneDecisionItems } from './PhoneDecisionsSection'
 import { PhoneHomeScreenCard } from './PhoneHomeScreenCard'
 import { PhoneRecentActivity } from './PhoneRecentActivity'
 import { PhoneSessionRow } from './PhoneSessionRow'
@@ -86,8 +87,10 @@ export function PhoneHomeScreen({ sessions }: { sessions: PhoneSession[] }): Rea
   const openModal = useAppStore((state) => state.openModal)
   const selectTab = usePhoneNavigation((state) => state.selectTab)
   const now = useDeadlineClock(30_000)
-  usePhoneResearchOverviewRefresh(projects.flatMap((project) => project.workspaces[0]?.id ?? []))
+  const primaryIds = projects.flatMap((project) => project.workspaces[0]?.id ?? [])
+  usePhoneResearchOverviewRefresh(primaryIds)
   usePhoneHostResearchRefresh()
+  const decisions = usePhoneDecisionItems(primaryIds)
 
   if (projects.length === 0) {
     return (
@@ -108,6 +111,13 @@ export function PhoneHomeScreen({ sessions }: { sessions: PhoneSession[] }): Rea
   return (
     <PhoneScrollBody>
       <PhoneHomeScreenCard />
+      <PhoneDecisionsSection
+        {...decisions}
+        contextOf={(id) =>
+          projects.length > 1 ? (byWorkspaceId.get(id)?.project.name ?? null) : null
+        }
+        now={now}
+      />
       {needsYou.length > 0 ? (
         <PhoneSection label="Needs you">
           {needsYou.slice(0, NEEDS_YOU_SHOWN).map((session) => (
@@ -125,7 +135,7 @@ export function PhoneHomeScreen({ sessions }: { sessions: PhoneSession[] }): Rea
             />
           ) : null}
         </PhoneSection>
-      ) : (
+      ) : decisions.items.length > 0 ? null : (
         <PhoneSection>
           <PhoneRow
             leading={<CircleCheck className="size-5 text-status-success" aria-hidden />}

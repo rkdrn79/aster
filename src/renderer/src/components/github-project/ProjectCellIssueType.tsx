@@ -125,7 +125,7 @@ export function ProjectIssueTypeCell({
           <ProjectIssueTypeMessage
             message={translate(
               'auto.components.github.project.ProjectCell.943b3dadc9',
-              'This repo has no Issue Types.'
+              'This repo has no issue types.'
             )}
           />
         ) : (

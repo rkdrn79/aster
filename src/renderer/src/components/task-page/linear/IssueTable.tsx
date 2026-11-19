@@ -73,7 +73,7 @@ export function TaskPageLinearIssueTable({
               }
             }}
             className={cn(
-              'group/row grid min-h-12 cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 text-left transition hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring lg:grid-cols-[var(--linear-grid-template)]',
+              'group/row grid min-h-12 cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring lg:grid-cols-[var(--linear-grid-template)]',
               selected && 'bg-accent'
             )}
             style={linearIssueGridStyle}
@@ -129,7 +129,7 @@ export function TaskPageLinearIssueTable({
                 {labels.map((label) => (
                   <span
                     key={label}
-                    className="max-w-[150px] truncate rounded-full border border-border/50 bg-muted/35 px-1.5 py-0.5 text-[11px] text-muted-foreground"
+                    className="max-w-[140px] truncate rounded-sm border border-border/50 bg-muted/35 px-1.5 py-0.5 text-[11px] text-muted-foreground"
                   >
                     {label}
                   </span>

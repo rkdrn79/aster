@@ -45,7 +45,7 @@ export function BrowserSessionCookiesSection({
   return (
     <SearchableSetting
       id="browser-session-cookies"
-      title={translate('auto.components.settings.BrowserPane.113cd2dc9b', 'Session & Cookies')}
+      title={translate('auto.components.settings.BrowserPane.113cd2dc9b', 'Session and cookies')}
       description={translate(
         'auto.components.settings.BrowserPane.aa1074bfe9',
         'Manage browser profiles and import cookies from Chrome, Edge, Comet, or other browsers.'
@@ -66,7 +66,7 @@ export function BrowserSessionCookiesSection({
       <div className="flex items-center justify-between gap-3">
         <div className="space-y-0.5">
           <Label>
-            {translate('auto.components.settings.BrowserPane.2d66a6efb5', 'Session & Cookies')}
+            {translate('auto.components.settings.BrowserPane.2d66a6efb5', 'Session and cookies')}
           </Label>
           <p className="text-xs text-muted-foreground">
             {translate(
@@ -79,7 +79,7 @@ export function BrowserSessionCookiesSection({
         </div>
         <Button variant="outline" size="xs" onClick={onAddProfile} className="shrink-0 gap-1.5">
           <Plus className="size-3" />
-          {translate('auto.components.settings.BrowserPane.6f2584b39e', 'Add Profile')}
+          {translate('auto.components.settings.BrowserPane.6f2584b39e', 'Add profile')}
         </Button>
       </div>
 

@@ -161,9 +161,7 @@ function IterationGroup({
   }
   return (
     <>
-      <div className="px-2 pt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-        {label}
-      </div>
+      <div className="px-2 pt-1 text-[10px] text-muted-foreground">{label}</div>
       {iterations.map((iteration) => (
         <button
           key={iteration.id}

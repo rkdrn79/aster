@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url'
 import test from 'node:test'
 import { makeArrow, makeBox, openFigure } from './research-figures-kit.mjs'
 import { KIT_REFERENCE } from './research-figures-kit-reference.mjs'
-import { kitIndexText, kitReferenceText } from './research-figures-kit-index.mjs'
+import { PAGE_TOPICS, kitIndexText, kitReferenceText } from './research-figures-kit-index.mjs'
 import { headBox } from './research-figures-labels.mjs'
 import { lintFigureScene } from './research-figures-lint.mjs'
 import { figureElement, newFigureScene } from './research-figures-model.mjs'
@@ -76,7 +76,7 @@ test('a loss groups what it compares: one box per set, one link each', async () 
 test('glyphs and badges default to neutral; the flame is not a hue', async () => {
   await withFigure(async (file) => {
     const fig = await openFigure(file)
-    fig.style('neutral', { accent: 'blue' })
+    fig.style('neutral', { accent: 'blue', look: 'preset' })
     fig.features({ id: 'f', x: 20, y: 20 })
     const cells = fig.elements.filter((element) => element.id.startsWith('f-r'))
     assert.ok(
@@ -205,8 +205,15 @@ test('the kit reference lists every kit function', async () => {
 
 test('figures kit prints a short index; names, topics and --all print the detail', async () => {
   const index = kitIndexText()
-  assert.ok(index.length < 9000, `the index is ${index.length} characters`)
+  // Why 9100: the hybrid figures' art topic (one line) came after the 9000 budget was set.
+  assert.ok(index.length < 9100, `the index is ${index.length} characters`)
   for (const entry of KIT_REFERENCE) {
+    // Why a page: a topic shown as one index line keeps its calls on `figures kit <topic>`.
+    if (PAGE_TOPICS.has(entry.topic)) {
+      assert.match(index, new RegExp(`^${entry.topic}: `, 'm'))
+      assert.ok(kitReferenceText(entry.topic).includes(entry.call), entry.name)
+      continue
+    }
     assert.match(index, new RegExp(`^  ${entry.name} `, 'm'))
   }
   const both = kitReferenceText('fig.box, arrow')

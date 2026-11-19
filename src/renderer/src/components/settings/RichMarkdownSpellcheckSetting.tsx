@@ -19,7 +19,7 @@ export function RichMarkdownSpellcheckSetting({
     <SearchableSetting
       title={translate(
         'auto.components.settings.GeneralEditorSettingsSection.b82f86d7d2',
-        'Rich Markdown Spellcheck'
+        'Rich Markdown spellcheck'
       )}
       description={translate(
         'auto.components.settings.GeneralEditorSettingsSection.5195f0b9ef',
@@ -30,7 +30,7 @@ export function RichMarkdownSpellcheckSetting({
       <SettingsSwitchRow
         label={translate(
           'auto.components.settings.GeneralEditorSettingsSection.b82f86d7d2',
-          'Rich Markdown Spellcheck'
+          'Rich Markdown spellcheck'
         )}
         description={translate(
           'auto.components.settings.GeneralEditorSettingsSection.5195f0b9ef',

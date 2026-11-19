@@ -106,7 +106,7 @@ export function WorktreeLinkedItemsField({
       items: items.filter((item) => item.type !== 'issue')
     },
     {
-      label: translate('workspace.links.tasks', 'Issues & tasks'),
+      label: translate('workspace.links.tasks', 'Issues and tasks'),
       items: items.filter((item) => item.type === 'issue')
     }
   ].filter((group) => group.items.length > 0)
@@ -147,7 +147,7 @@ export function WorktreeLinkedItemsField({
         <div className="space-y-3">
           {groups.map((group) => (
             <div key={group.label} className="space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="text-[11px] font-medium text-muted-foreground tabular-nums">
                 {group.label} · {group.items.length}
               </p>
               <div className="divide-y divide-border">

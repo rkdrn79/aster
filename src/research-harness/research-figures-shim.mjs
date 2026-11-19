@@ -3,6 +3,7 @@
 // finds the harness at run time, with no path of this computer in it.
 import { spawn } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import os from 'node:os'
 import path from 'node:path'
 
 /** The shim's file name, in `<figures>/src/` beside the `<slug>.figure.mjs` scripts. */
@@ -13,18 +14,21 @@ const MARK = '// Written by Aster (figures new, figures run); rewritten when Ast
 
 /**
  * The shim's source: it loads the kit from $ASTER_HARNESS (the harness folder or its cli.mjs;
- * `figures run` sets it), else from what `aster research harness-path` (or $ORCA_CLI_COMMAND)
- * prints, and re-exports the kit's names.
+ * `figures run` sets it), else from the harness that last ran a figure on this computer (a
+ * per-user note, ~/.cache/aster/harness), else from what `aster research harness-path` (or
+ * $ORCA_CLI_COMMAND) prints, and re-exports the kit's names.
  */
 export function kitShimText(names) {
   const exported = names.filter((name) => name !== 'default').toSorted()
   return `${MARK}
 // Aster's figure kit, found on whatever computer runs the script. Scripts beside it import it:
 //   ${KIT_SHIM_IMPORT}
-// It looks in $ASTER_HARNESS (\`figures run\` sets it), then asks \`aster research harness-path\`
-// (or $ORCA_CLI_COMMAND).
+// It looks in $ASTER_HARNESS (\`figures run\` sets it), then in the harness that last ran a
+// figure on this computer (~/.cache/aster/harness), then asks \`aster research harness-path\`
+// (or $ORCA_CLI_COMMAND). So \`node <slug>.figure.mjs\` runs directly after one figures run.
 import { execFileSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -45,10 +49,19 @@ function askCli(command) {
   }
 }
 
+function remembered() {
+  try {
+    return readFileSync(path.join(os.homedir(), '.cache', 'aster', 'harness'), 'utf8').trim() || null
+  } catch {
+    return null
+  }
+}
+
 function harnessFolder() {
   const named = process.env.ASTER_HARNESS
   const candidates = [
     () => (named ? (named.endsWith('.mjs') ? path.dirname(named) : named) : null),
+    () => remembered(),
     () => askCli('aster'),
     () => (process.env.ORCA_CLI_COMMAND ? askCli(process.env.ORCA_CLI_COMMAND) : null)
   ]
@@ -59,7 +72,7 @@ function harnessFolder() {
     }
   }
   throw new Error(
-    "Aster's figure kit was not found: run the script with \`node <H>/cli.mjs figures run --figure <slug>\`, or set ASTER_HARNESS to the folder of the cli.mjs that \`aster research harness-path\` prints."
+    "Aster's figure kit was not found: run the script once with \`node <H>/cli.mjs figures run --figure <slug>\` (later direct runs then find it), or set ASTER_HARNESS=<H>, the folder of the cli.mjs that \`aster research harness-path\` prints."
   )
 }
 
@@ -90,8 +103,29 @@ export async function ensureKitShim(project, folder) {
   return { path: relative, written: false }
 }
 
+/**
+ * Notes `harness` in ~/.cache/aster/harness, so a figure script run directly with node (or a
+ * measuring snippet) finds the kit without ASTER_HARNESS. Not under test runners: the note is
+ * the person's.
+ */
+export async function rememberHarness(harness) {
+  if (process.env.NODE_TEST_CONTEXT || process.env.VITEST) {
+    return
+  }
+  const file = path.join(os.homedir(), '.cache', 'aster', 'harness')
+  try {
+    if ((await readFile(file, 'utf8').catch(() => '')).trim() !== harness) {
+      await mkdir(path.dirname(file), { recursive: true })
+      await writeFile(file, `${harness}\n`)
+    }
+  } catch {
+    // Why ignored: a read-only home only loses the shortcut; ASTER_HARNESS still works.
+  }
+}
+
 /** Runs a figure script with node, the kit taken from `harness`; its output and exit code. */
 export function runFigureScript(project, script, { harness }) {
+  void rememberHarness(harness)
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [path.join(project, script)], {
       cwd: project,

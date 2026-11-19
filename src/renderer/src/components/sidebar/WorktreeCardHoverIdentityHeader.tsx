@@ -40,7 +40,7 @@ export function WorktreeCardHoverIdentityHeader({
           editingPresentation="field"
           wrapTitle
           className={cn(
-            'cursor-text text-[13px] font-semibold leading-snug text-foreground',
+            'cursor-text text-[13px] font-medium leading-snug text-foreground',
             identityOrder === 'branch-first' && 'mt-1'
           )}
           editingClassName={cn(
@@ -53,7 +53,7 @@ export function WorktreeCardHoverIdentityHeader({
       ) : (
         <div
           className={cn(
-            'break-words text-[13px] font-semibold leading-snug text-foreground',
+            'break-words text-[13px] font-medium leading-snug text-foreground',
             identityOrder === 'branch-first' && 'mt-1'
           )}
         >

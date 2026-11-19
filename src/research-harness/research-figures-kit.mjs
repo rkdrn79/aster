@@ -28,40 +28,55 @@ import { FIGURE_PARTS, buildFigurePart } from './research-figures-parts.mjs'
 import {
   placeLibraryPart,
   readLibraryFolder,
-  userLibraryDirectory,
-  writeLibraryPart
+  userLibraryDirectory
 } from './research-figures-library.mjs'
 import { figureLibraryFolders } from './research-figures-folders.mjs'
-import { TEMPLATES, relabelTemplate } from './research-figures-templates.mjs'
-import { oneOf } from './research-figures-options.mjs'
+import { savedPartMethods } from './research-figures-kit-saved.mjs'
+import { warnKit } from './research-figures-cards.mjs'
 import { elementBounds } from './research-figures-geometry.mjs'
 import { lintFigureScene, areaNeighbours } from './research-figures-lint.mjs'
 import { hasInlineMath, labelLines, needsTex } from './research-figures-type.mjs'
 import { makeBox, makeLines, makeMath, makeText } from './research-figures-draw.mjs'
 import { absolutePoints, clearOfHeads, headLength } from './research-figures-labels.mjs'
 import { alignJunction, junctionPoint } from './research-figures-route.mjs'
-import {
-  FIGURE_ACCENTS,
-  FIGURE_STYLES,
-  figureStyle,
-  styleColor,
-  stylePalette
-} from './research-figures-style.mjs'
-import { PRESET_ALIASES, accentFor } from './research-figures-palette.mjs'
+import { figureStyle, styleColor, stylePalette } from './research-figures-style.mjs'
 import { layoutMethods } from './research-figures-kit-layout.mjs'
+import { structureMethods } from './research-figures-kit-structure.mjs'
+import { wiringMethods } from './research-figures-kit-wiring.mjs'
 import { figureFileStore } from './research-figures-kit-files.mjs'
 import { loadTexRenderer } from './research-figures-tex.mjs'
 import { stopGradMethod } from './research-figures-kit-stopgrad.mjs'
 import { glyphMethods } from './research-figures-kit-glyphs.mjs'
 import { illustrateMethods } from './research-figures-kit-illustrate.mjs'
+import { illustrationMethods } from './research-figures-kit-illustration.mjs'
 import { genreMethods } from './research-figures-kit-genres.mjs'
 import { lossMethods } from './research-figures-kit-loss.mjs'
 import { linkMethods } from './research-figures-kit-links.mjs'
 import { measureMethods } from './research-figures-kit-measure.mjs'
 import { allowMethods, clearAllowances } from './research-figures-kit-allow.mjs'
-import { assertFiniteItems, trackKitCalls } from './research-figures-kit-validate.mjs'
+import {
+  assertFiniteItems,
+  settleKitCalls,
+  trackKitCalls
+} from './research-figures-kit-validate.mjs'
 import { arrowMethods } from './research-figures-kit-arrow.mjs'
 import { legendMethods } from './research-figures-kit-legend.mjs'
+import { scienceMethods } from './research-figures-kit-science.mjs'
+import { plotMethods } from './research-figures-kit-plots.mjs'
+import { artMethods } from './research-figures-kit-art.mjs'
+import { perspectiveMethods } from './research-figures-kit-perspective.mjs'
+import { opsMethods } from './research-figures-kit-ops.mjs'
+import {
+  manuscriptFace,
+  openedLook,
+  paperMethods,
+  styleChoice
+} from './research-figures-kit-paper.mjs'
+import { paperFinish } from './research-figures-paper.mjs'
+import { designMethods, designSave } from './research-figures-kit-design.mjs'
+import { drawnMethods } from './research-figures-kit-drawn.mjs'
+import { drawnSystemMethods } from './research-figures-kit-drawn-systems.mjs'
+import { drawnVoxelMethods } from './research-figures-kit-drawn-voxels.mjs'
 
 export {
   TEXT_BASELINE,
@@ -103,12 +118,14 @@ export async function openFigure(file) {
   const tex = await loadTexRenderer()
   const renderTex = tex?.renderTex ?? null
   /** The style; the kit adds TeX rendering to it once MathJax is loaded. */
-  const styleFor = (name, accent, panels) => ({
-    ...figureStyle(name, accent, { panels }),
+  const styleFor = (name, accent, panels, look = {}) => ({
+    ...figureStyle(name, accent, { panels, look: look.look, font: look.font }),
     renderTex
   })
+  const project = await resolveProjectRoot(undefined, path.dirname(target))
   const opened = figurePage(elements)
-  let style = styleFor(opened?.style, opened?.accent, opened?.panels)
+  const face = () => manuscriptFace(project)
+  let style = styleFor(opened?.style, opened?.accent, opened?.panels, openedLook(opened, face))
   const styled = (spec) => ({ ...spec, style })
   const find = (id) => elements.find((element) => element.id === id && !element.isDeleted)
   const ownerOf = (element) => element.customData?.asterKit ?? element.id
@@ -185,6 +202,7 @@ export async function openFigure(file) {
   }
   // Why: the kit call running now, named when an item it drew holds NaN.
   let currentCall = () => null
+  let settlePending = async () => {}
   /** Takes `owner` for this run, dropping what an earlier run drew under it or with these ids. */
   const claim = (owner, items) => {
     for (const item of items) {
@@ -246,7 +264,6 @@ export async function openFigure(file) {
     insert(result.elements)
     return result
   }
-  const project = await resolveProjectRoot(undefined, path.dirname(target))
   const files = figureFileStore(scene, project)
   let reference = null
   const loadReference = async () => {
@@ -350,22 +367,9 @@ export async function openFigure(file) {
      * The figure's colour preset for what is drawn next and on later runs (`figures kit
      * colors`); `accent` is a swatch or #hex, `panels` the illustrative style's panel tints.
      */
-    style(name, { accent, panels } = {}) {
-      const key = PRESET_ALIASES[name] ?? name
-      if (name !== undefined && !Object.hasOwn(FIGURE_STYLES, key)) {
-        throw new Error(`Unknown style "${name}". Styles: ${Object.keys(FIGURE_STYLES).join(', ')}`)
-      }
-      if (accent !== undefined && !accentFor(accent)) {
-        throw new Error(
-          `Unknown accent "${accent}". Accents: ${Object.keys(FIGURE_ACCENTS).join(', ')}, or any #hex (figures kit colors)`
-        )
-      }
-      const same = !key || key === style.name
-      style = styleFor(
-        key ?? style.name,
-        accent ?? (same ? style.accentName : undefined),
-        panels ?? (same ? style.panels.map((panel) => panel.name) : undefined)
-      )
+    style(name, options = {}) {
+      const choice = styleChoice(name, options, style, figurePage(elements), face)
+      style = styleFor(choice.key, choice.accent, choice.panels, choice)
       const page = find(PAGE_FRAME_ID)
       if (page) {
         const current = page.customData?.asterPage ?? {}
@@ -376,7 +380,9 @@ export async function openFigure(file) {
             style: style.name,
             agentStyle: style.name,
             accent: style.accentName,
-            ...(style.panels.length ? { panels: style.panels.map((panel) => panel.name) } : {})
+            ...(style.panels.length ? { panels: style.panels.map((panel) => panel.name) } : {}),
+            look: choice.stored,
+            paperFont: style.paperFont ?? null
           }
         }
       }
@@ -426,7 +432,6 @@ export async function openFigure(file) {
     rounded: (spec) => add(makeRoundedEnd(styled(spec)), spec.id),
     stack: (spec) => add(makeStack(styled(spec)), spec.id),
     node: (spec) => add(makeNode(styled(spec)), spec.id),
-    /** A library part (`figures parts` lists them) with the kit's `w`/`h`/`frame` names. */
     /** A library part: built in (`figures parts`) or saved (`figures kit library`), with fresh ids. */
     part(name, spec) {
       if (!spec?.id) {
@@ -460,13 +465,24 @@ export async function openFigure(file) {
     },
     ...glyphs,
     ...illustrateMethods(core),
+    ...illustrationMethods(core),
     ...genreMethods(core, () => fig),
     ...lossMethods(core, () => fig),
     ...linkMethods(core, () => fig),
     ...allowMethods(core),
     ...legendMethods(core, () => fig),
+    ...scienceMethods(core, () => fig),
+    ...plotMethods(core, () => ({ project, target })),
+    ...artMethods(core, () => ({ project, target, fig })),
+    ...perspectiveMethods(core, () => ({ project, fig })),
+    ...drawnMethods(core, () => ({ project, fig })),
+    ...drawnSystemMethods(core, () => ({ project, fig })),
+    ...drawnVoxelMethods(core),
     measure: measures.measure,
-    ...layoutMethods(core),
+    ...layoutMethods(core, () => fig),
+    ...structureMethods(core, () => fig),
+    ...wiringMethods(core, () => fig),
+    ...opsMethods(core, () => fig),
     /**
      * A photo: with `crop` (reference pixels) cut from the reference, with `src` an image from
      * the project, otherwise a generated thumbnail (`kind`, default landscape).
@@ -498,6 +514,13 @@ export async function openFigure(file) {
       const nextReference = referencePath ?? current.reference
       const width = widthIn ?? current.widthIn ?? page.width / FIGURE_UNITS_PER_INCH
       let height = heightIn ?? current.heightIn ?? page.height / FIGURE_UNITS_PER_INCH
+      const before = figurePage(elements)
+      // Why loud: a page the person (or Aster) sized is theirs; content that does not fit is cut.
+      if (before?.sizeBy === 'person' && (width !== before.widthIn || height !== before.heightIn)) {
+        warnKit([
+          `setPage changes the ${before.widthIn} × ${before.heightIn} in page the person set; keep it unless they asked: merge or drop parts instead (figures check notes page-overfull when the content does not fit)`
+        ])
+      }
       page.customData = {
         ...page.customData,
         asterPage: { ...current, widthIn: width, heightIn: height, reference: nextReference }
@@ -515,7 +538,8 @@ export async function openFigure(file) {
       style = styleFor(
         style.name,
         style.accentName,
-        style.panels.map((panel) => panel.name)
+        style.panels.map((panel) => panel.name),
+        { look: style.look, font: style.paperFont }
       )
       return figurePage(elements)
     },
@@ -534,6 +558,7 @@ export async function openFigure(file) {
     areas: () => figureAreas(elements),
     /** Writes the scene and returns the lint; `dryRun: true` writes nothing and adds `bounds`. */
     async save({ dryRun = false } = {}) {
+      await settlePending()
       if (dryRun) {
         return { ...lintFigureScene(scene), bounds: measures.allBounds() }
       }
@@ -541,48 +566,32 @@ export async function openFigure(file) {
       for (const element of elements) {
         assertFiniteItems([element], { owner: ownerOf(element) })
       }
+      paperFinish(elements, style)
+      designSave(elements, style)
       files.prune(elements)
       await writeFile(target, `${JSON.stringify(scene, null, 2)}\n`)
       return lintFigureScene(scene)
     }
   }
-  /** Saves items (with their labels) as a reusable part: in the project, or `scope: 'user'`. */
-  fig.savePart = async (name, ids, { scope = 'project' } = {}) => {
-    oneOf('scope', scope, ['project', 'user'])
-    const chosen = new Set(ids.flatMap((id) => owned(id)).map((element) => element.id))
-    for (const id of chosen) {
-      for (const bound of find(id)?.boundElements ?? []) {
-        if (bound.type === 'text') {
-          chosen.add(bound.id)
-        }
-      }
-    }
-    const parts = structuredClone(elements.filter((element) => chosen.has(element.id)))
-    const folder =
-      scope === 'user' ? userLibraryDirectory() : path.join(path.dirname(target), 'library')
-    const file = await writeLibraryPart(folder, name, parts)
-    library.unshift({ name, scope, file, elements: parts })
-    return file
-  }
-  /** A module template (`figures kit templates`): its parts' ids and where data enters and leaves. */
-  fig.template = (name, spec) => {
-    const entry = TEMPLATES[name]
-    if (!entry) {
-      throw new Error(`Unknown template "${name}". Templates: ${Object.keys(TEMPLATES).join(', ')}`)
-    }
-    if (!spec?.id) {
-      throw new Error('template(name, { id, x, y }) needs an id')
-    }
-    // Why: a rerun with fewer parts must not leave the old ones behind.
-    keep(
-      (element) =>
-        claimed.has(element.customData?.asterKit) ||
-        !String(element.customData?.asterKit ?? '').startsWith(`${spec.id}-`)
-    )
-    settleBindings()
-    return relabelTemplate(fig, { id: spec.id, ...entry[0](fig, spec) }, spec.labels)
-  }
-  currentCall = trackKitCalls(fig)
+  Object.assign(
+    fig,
+    savedPartMethods({
+      fig,
+      find,
+      owned,
+      elements,
+      target,
+      library,
+      keep,
+      claimed,
+      settleBindings
+    }),
+    paperMethods(core, fig),
+    designMethods(core)
+  )
+  const pending = new Set()
+  settlePending = () => settleKitCalls(pending)
+  currentCall = trackKitCalls(fig, pending)
   return fig
 }
 

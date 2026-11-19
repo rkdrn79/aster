@@ -8,8 +8,7 @@ import type { MissingMilestone, SubmissionPrompt } from './research-deadline-pro
 // Why: tracking a whole topic can surface many just-closed calls; past this, fold them into one line.
 const PROMPTS_SHOWN_OPEN = 2
 
-const ROW =
-  'flex items-center gap-3 rounded-md border border-dashed border-border px-3 py-2 text-sm'
+const ROW = 'flex items-center gap-3 rounded-xl bg-muted/60 px-4 py-3 text-sm dark:bg-muted/45'
 
 type Props = {
   prompts: SubmissionPrompt[]
@@ -80,7 +79,7 @@ export function ResearchDeadlineNextSteps({
               </span>
               <ChevronRight
                 className={cn(
-                  'size-4 shrink-0 text-muted-foreground transition-transform',
+                  'size-4 shrink-0 text-muted-foreground transition-transform duration-(--duration-base) ease-out-quint motion-reduce:transition-none',
                   promptsOpen && 'rotate-90'
                 )}
                 aria-hidden

@@ -62,7 +62,7 @@ export function ResearchFigureSavePartDialog(props: Props): React.JSX.Element {
           </DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={(event) => void submit(event)}>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="figure-part-name">Name</Label>
             <Input
               id="figure-part-name"

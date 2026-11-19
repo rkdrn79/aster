@@ -261,7 +261,7 @@ describe('DeleteWorktreeDialog lineage copy', () => {
     expect(markup).toContain('Child workspace')
     expect(markup).toContain('from git and delete their workspace folders.')
     expect(markup).not.toContain('from git and delete its workspace folder.')
-    expect(markup).toContain('Delete 2 Workspaces')
+    expect(markup).toContain('Delete 2 workspaces')
     expect(markup).not.toContain('Delete Parent Only')
     expect(markup).not.toContain('Don&apos;t ask again')
 
@@ -270,7 +270,7 @@ describe('DeleteWorktreeDialog lineage copy', () => {
       buttonText(props).includes('Delete Parent Only')
     )
 
-    expect(destructiveButton ? buttonText(destructiveButton) : '').toContain('Delete 2 Workspaces')
+    expect(destructiveButton ? buttonText(destructiveButton) : '').toContain('Delete 2 workspaces')
     expect(parentOnlyButton).toBeUndefined()
 
     const deleteAllButton = destructiveButton as { onClick?: () => void } | undefined
@@ -423,7 +423,7 @@ describe('DeleteWorktreeDialog lineage copy', () => {
     const markup = renderToStaticMarkup(<DeleteWorktreeDialog />)
 
     expect(markup).toContain('Worktree is locked by Git. Lock reason: active agent session.')
-    expect(markup).not.toContain('Force Delete')
+    expect(markup).not.toContain('Force delete')
     expect(markup).toContain('1 uncommitted or untracked change')
     expect(mocks.state.removeWorktree).not.toHaveBeenCalled()
   })

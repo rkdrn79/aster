@@ -16,7 +16,7 @@ export function BrowserSearchEngineSetting({
 }: BrowserSearchEngineSettingProps): React.JSX.Element {
   return (
     <SearchableSetting
-      title={translate('auto.components.settings.BrowserPane.0d9c987f21', 'Default Search Engine')}
+      title={translate('auto.components.settings.BrowserPane.0d9c987f21', 'Default search engine')}
       description={translate(
         'auto.components.settings.BrowserPane.7b225c78f5',
         'Search engine used when typing non-URL text in the address bar.'
@@ -38,7 +38,7 @@ export function BrowserSearchEngineSetting({
     >
       <div className="space-y-0.5">
         <Label>
-          {translate('auto.components.settings.BrowserPane.0d9c987f21', 'Default Search Engine')}
+          {translate('auto.components.settings.BrowserPane.0d9c987f21', 'Default search engine')}
         </Label>
         <p className="text-xs text-muted-foreground">
           {translate(

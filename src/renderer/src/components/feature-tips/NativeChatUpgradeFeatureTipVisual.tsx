@@ -24,7 +24,7 @@ function getSceneMenus(): DemoMenuItem[][] {
     icon: Copy,
     label: translate(
       'auto.components.right.sidebar.AiVaultSessionRow.copyResumeCommand',
-      'Copy Resume Command'
+      'Copy resume command'
     )
   }
   return [
@@ -33,14 +33,14 @@ function getSceneMenus(): DemoMenuItem[][] {
         icon: LocateFixed,
         label: translate(
           'auto.components.right.sidebar.AiVaultSessionRow.jumpToOriginalPane',
-          'Jump to Original Pane'
+          'Jump to original pane'
         )
       },
       {
         icon: SquareTerminal,
         label: translate(
           'auto.components.right.sidebar.AiVaultSessionRow.resumeInNewCli',
-          'Resume in New Terminal'
+          'Resume in new terminal'
         ),
         highlighted: true
       },
@@ -52,7 +52,7 @@ function getSceneMenus(): DemoMenuItem[][] {
         icon: MessagesSquare,
         label: translate(
           'auto.components.right.sidebar.AiVaultSessionRow.resumeInNewNativeChat',
-          'Resume in New Chat'
+          'Resume in new chat'
         ),
         highlighted: true
       },
@@ -77,13 +77,13 @@ function DemoActionMenu({
       {/* Why: the second row sits low in the panel, so its menu flips above like the real one. */}
       <div
         data-opens-up={opensUp}
-        className="absolute right-2 top-9 z-10 min-w-[12.5rem] rounded-[11px] border border-foreground/20 bg-popover p-1 text-popover-foreground shadow-floating animate-in fade-in-0 zoom-in-[0.98] duration-150 data-[opens-up=true]:top-auto data-[opens-up=true]:bottom-[calc(100%-0.25rem)] motion-reduce:animate-none dark:border-foreground/25 dark:bg-[color-mix(in_srgb,var(--foreground)_10%,var(--popover))]"
+        className="absolute right-2 top-9 z-10 min-w-[12.5rem] rounded-xl border border-foreground/20 bg-popover p-1 text-popover-foreground shadow-floating animate-in fade-in-0 zoom-in-[0.98] duration-150 data-[opens-up=true]:top-auto data-[opens-up=true]:bottom-[calc(100%-0.25rem)] motion-reduce:animate-none dark:border-foreground/25 dark:bg-[color-mix(in_srgb,var(--foreground)_10%,var(--popover))]"
       >
         {items.map(({ icon: Icon, label, highlighted = false }) => (
           <div
             key={label}
             data-highlighted={highlighted}
-            className="flex items-center gap-2 whitespace-nowrap rounded-md px-2 py-[4px] text-[12px] font-[450] leading-[17px] text-muted-foreground data-[highlighted=true]:bg-[color-mix(in_srgb,var(--foreground)_10%,var(--popover))] data-[highlighted=true]:font-medium data-[highlighted=true]:text-foreground data-[highlighted=true]:ring-1 data-[highlighted=true]:ring-inset data-[highlighted=true]:ring-foreground/25 dark:data-[highlighted=true]:bg-[color-mix(in_srgb,var(--foreground)_22%,var(--popover))] dark:data-[highlighted=true]:ring-foreground/35"
+            className="flex items-center gap-2 whitespace-nowrap rounded-md px-2 py-1 text-[12px] leading-[17px] text-muted-foreground data-[highlighted=true]:bg-[color-mix(in_srgb,var(--foreground)_10%,var(--popover))] data-[highlighted=true]:font-medium data-[highlighted=true]:text-foreground data-[highlighted=true]:ring-1 data-[highlighted=true]:ring-inset data-[highlighted=true]:ring-foreground/25 dark:data-[highlighted=true]:bg-[color-mix(in_srgb,var(--foreground)_22%,var(--popover))] dark:data-[highlighted=true]:ring-foreground/35"
           >
             <Icon className="size-3.5 shrink-0" />
             {label}

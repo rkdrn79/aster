@@ -61,7 +61,7 @@ function ImageNumberBadge({ number }: { number?: number }): React.JSX.Element | 
   return (
     <span
       aria-hidden
-      className="pointer-events-none absolute bottom-0.5 left-0.5 rounded-full bg-background/85 px-1 text-3xs font-medium text-foreground tabular-nums"
+      className="pointer-events-none absolute bottom-0.5 left-0.5 rounded-sm bg-background/85 px-1 text-3xs font-medium text-foreground tabular-nums"
     >
       #{number}
     </span>
@@ -87,7 +87,7 @@ function RemoveAttachmentButton({ onRemove }: { onRemove: () => void }): React.J
         'components.native-chat.composer.removeAttachment',
         'Remove attachment'
       )}
-      className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full border border-border bg-chat-canvas text-muted-foreground shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="press-scale absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-sm bg-popover text-muted-foreground shadow-raised hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <X className="size-3" />
     </button>
@@ -128,7 +128,7 @@ function NativeChatUnavailableImageChip({
         role="img"
         aria-label={numberedLabel(number, explanation)}
         title={explanation}
-        className="flex h-full items-center gap-2 rounded-md border border-dashed border-border bg-background px-2"
+        className="flex h-full items-center gap-2 rounded-lg border border-dashed border-border bg-background px-2"
       >
         <ImageOff className="size-4 shrink-0 text-muted-foreground" />
         <div className="flex min-w-0 flex-col text-xs">
@@ -230,7 +230,7 @@ function NativeChatImageThumbnail({
           title={label}
           data-native-chat-copy-image-src={copySrc}
           onClick={() => setIsOpen(true)}
-          className="flex size-full items-center justify-center overflow-hidden rounded-md border border-border bg-chat-canvas transition-colors hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex size-full items-center justify-center overflow-hidden rounded-lg border border-border bg-chat-canvas shadow-xs transition-colors duration-(--duration-fast) hover:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {thumbnailSrc ? (
             <img
@@ -253,8 +253,8 @@ function NativeChatImageThumbnail({
           )}
         </button>
         {isPending && thumbnailSrc ? (
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center rounded-b-md bg-chat-canvas/90 py-0.5">
-            <LoadingSpinner className="size-3 text-muted-foreground" />
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center rounded-b-lg bg-chat-canvas/90 py-0.5">
+            <LoadingSpinner className="size-4 text-muted-foreground" />
           </span>
         ) : null}
         <ImageNumberBadge number={number} />

@@ -38,7 +38,7 @@ const STATE_DOT_CLASS: Record<NativeChatSubagentState, string> = {
 function SubagentGlyph(): React.JSX.Element {
   return (
     <span className="flex size-4 shrink-0 items-center justify-center text-chat-foreground-faint">
-      <Bot aria-hidden="true" className="size-3.5" />
+      <Bot aria-hidden="true" className="size-4" />
     </span>
   )
 }
@@ -117,19 +117,19 @@ export function NativeChatSubagentEntries({
         return (
           <li key={agent.id}>
             {sectionOpen === undefined ? (
-              <div className="flex items-center gap-1.5 py-0.5">{entry}</div>
+              <div className="flex items-center gap-2 py-0.5">{entry}</div>
             ) : (
               <button
                 type="button"
                 onClick={() => onSetSectionOpen?.(agent.id, !sectionOpen)}
                 aria-expanded={sectionOpen}
-                className="group/subagent-entry flex w-full items-center gap-1.5 rounded-md py-0.5 text-left hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                className="group/subagent-entry flex w-full items-center gap-2 rounded-md py-0.5 text-left hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
               >
                 {entry}
                 <ChevronRight
                   aria-hidden
                   className={cn(
-                    'size-3.5 shrink-0 text-chat-foreground-faint transition-all motion-reduce:transition-none',
+                    'size-4 shrink-0 text-chat-foreground-faint transition-[opacity,rotate] motion-reduce:transition-none',
                     sectionOpen
                       ? 'rotate-90 opacity-100'
                       : 'opacity-0 group-hover/subagent-entry:opacity-100'
@@ -189,7 +189,7 @@ export function NativeChatSubagentRun({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="group/subagent-run flex min-h-6 w-full items-center gap-1.5 rounded-md py-0.5 text-left font-sans text-sm leading-relaxed text-chat-foreground-faint hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+        className="group/subagent-run flex min-h-7 w-full items-center gap-2 rounded-md py-0.5 text-left font-sans text-sm leading-relaxed text-chat-foreground-faint hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         aria-expanded={open}
         aria-live="polite"
       >
@@ -218,7 +218,7 @@ export function NativeChatSubagentRun({
         </span>
         <ChevronRight
           className={cn(
-            'size-3.5 shrink-0 text-chat-foreground-faint transition-all motion-reduce:transition-none',
+            'size-4 shrink-0 text-chat-foreground-faint transition-[opacity,rotate] motion-reduce:transition-none',
             open ? 'rotate-90 opacity-100' : 'opacity-0 group-hover/subagent-run:opacity-100'
           )}
         />

@@ -116,6 +116,7 @@ test('illustrations: nn named above, cycles bulge outward either way, bubbles ho
 test('links: per-branch roles, opposite lanes, a zoom, an arrow from a glyph label', async () => {
   await withFigure(async (file) => {
     const fig = await openFigure(file)
+    fig.style(undefined, { look: 'preset' })
     fig.box({ id: 'src', label: 'x', x: 40, y: 100, w: 48, h: 40, exact: true })
     fig.box({ id: 'a', label: 'a', x: 200, y: 40, w: 48, h: 40, exact: true })
     fig.box({ id: 'b', label: 'b', x: 200, y: 160, w: 48, h: 40, exact: true })

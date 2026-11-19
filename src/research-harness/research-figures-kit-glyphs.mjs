@@ -24,6 +24,12 @@ import {
   promptPoints
 } from './research-figures-glyphs-crop.mjs'
 import { labelLines, makeLines, texLabel } from './research-figures-type.mjs'
+import {
+  placeSource,
+  showSource,
+  sourcePatchSpec,
+  trimWarning
+} from './research-figures-kit-source.mjs'
 
 /**
  * The route a loss link takes by geometry: straight when the two share a row or a column,
@@ -300,56 +306,68 @@ export function glyphMethods(core) {
       const look = spec.variant === 'emoji' ? {} : { badge: color }
       return core.add([iconImage(name, { ...look, ...spec, id, cx: px + dx, cy: py + dy })], id)
     }
+  /** Draws an image (see image below) at once and returns its element. */
+  const placeImage = (input) => {
+    // Why: a patch cut from a patches() grid shows the same crop as that cell.
+    const patched =
+      input.patch && input.of
+        ? input.of.src
+          ? sourcePatchSpec(input, files.sourceSync(input.of.src).size)
+          : { ...input, ...patchPicture(input.of, input.patch) }
+        : input
+    // Why: tint names the colour of a photo's noise, or lays a wash over a plain photo.
+    const washed = Boolean(patched.tint && !patched.noise && photoKind(patched.kind))
+    const spec = washed ? { ...patched, predicted: true } : patched
+    let size = null
+    let result = null
+    if (spec.src) {
+      const source = files.sourceSync(spec.src)
+      size = source.size
+      const place = placeSource(spec, size)
+      ;(core.warn ?? warnKit)(trimWarning(spec, place))
+      const { x, y, w, h } = place
+      result = makePicture(styled({ ...spec, x, y, w, h, view: undefined, kind: 'cat' }))
+      showSource(result.elements[0], source, place, spec.src)
+    } else {
+      result = makePicture(styled(spec))
+    }
+    const image = result.elements[0]
+    if (spec.mask !== undefined || spec.prompt !== undefined) {
+      const kind = image.customData?.asterPhotoKind
+      if (!kind && !spec.src) {
+        throw new Error(
+          `image ${spec.id}: a mask or prompt needs a photo kind or src, not ${spec.kind}`
+        )
+      }
+      placePhotos([image])
+      // Why the placed crop's size: the image may have taken the HD copy of the photo.
+      const natural = image.crop && {
+        width: image.crop.naturalWidth,
+        height: image.crop.naturalHeight
+      }
+      if (spec.mask !== undefined) {
+        result.elements.push(...maskElements(spec, image, size ?? natural))
+      }
+      if (spec.prompt !== undefined) {
+        result.elements.push(...promptElements(spec, image, size ?? natural))
+      }
+    }
+    return placeGlyph(spec.id, decorate(spec, result)).elements[0]
+  }
   return {
     /**
      * A thumbnail: a `kind` picture (cat, landscape, arm, noise, gradient; `t` moves its
      * subject, `noise` 0–1 adds diffusion noise, `seed`, `view` crops) or `src`, an image from
-     * the project. Prefer the project's own images when it has them.
+     * the project shown through `view` (0–1) or `crop` (pixels), `fit` 'cover' | 'contain'.
+     * Prefer the project's own images when it has them. Placed at once, so a missing await still
+     * draws it; an error rejects the promise (unawaited, it stops the script).
      */
-    async image(input) {
-      // Why: a patch cut from a patches() grid shows the same crop as that cell.
-      const patched =
-        input.patch && input.of ? { ...input, ...patchPicture(input.of, input.patch) } : input
-      // Why: tint names the colour of a photo's noise, or lays a wash over a plain photo.
-      const washed = Boolean(patched.tint && !patched.noise && photoKind(patched.kind))
-      const spec = washed ? { ...patched, predicted: true } : patched
-      let size = null
-      let result = null
-      if (spec.src) {
-        const source = await files.source(spec.src)
-        size = source.size
-        const w = spec.w ?? (spec.h ? (spec.h * size.width) / size.height : 64)
-        const h = spec.h ?? (w * size.height) / size.width
-        result = makePicture(styled({ ...spec, w, h, kind: 'cat' }))
-        Object.assign(result.elements[0], {
-          fileId: source.fileId,
-          customData: { asterPhoto: true }
-        })
-      } else {
-        result = makePicture(styled(spec))
+    image(input) {
+      try {
+        return Object.assign(Promise.resolve(placeImage(input)), { asterPlaced: true })
+      } catch (error) {
+        return Promise.reject(error)
       }
-      const image = result.elements[0]
-      if (spec.mask !== undefined || spec.prompt !== undefined) {
-        const kind = image.customData?.asterPhotoKind
-        if (!kind && !spec.src) {
-          throw new Error(
-            `image ${spec.id}: a mask or prompt needs a photo kind or src, not ${spec.kind}`
-          )
-        }
-        placePhotos([image])
-        // Why the placed crop's size: the image may have taken the HD copy of the photo.
-        const natural = image.crop && {
-          width: image.crop.naturalWidth,
-          height: image.crop.naturalHeight
-        }
-        if (spec.mask !== undefined) {
-          result.elements.push(...maskElements(spec, image, size ?? natural))
-        }
-        if (spec.prompt !== undefined) {
-          result.elements.push(...promptElements(spec, image, size ?? natural))
-        }
-      }
-      return placeGlyph(spec.id, decorate(spec, result)).elements[0]
     },
     /** A token strip; returns `{ cells: [{ id, x, y, w, h }], width, height }`. */
     tokens: (spec) => {
@@ -385,8 +403,21 @@ export function glyphMethods(core) {
     frames: (spec) => placeGlyph(spec.id, decorate(spec, makeFrames(styled(spec)))),
     /** A patch grid over a picture (or plain cells), `masked` patches greyed out. */
     // Why its own wash: makePatches lays it under the masked cells, which it does not predict.
-    patches: (spec) =>
-      placeGlyph(spec.id, decorate({ ...spec, predicted: false }, makePatches(styled(spec)))),
+    patches: (spec) => {
+      if (!spec.src) {
+        return placeGlyph(
+          spec.id,
+          decorate({ ...spec, predicted: false }, makePatches(styled(spec)))
+        )
+      }
+      // Why the picture's own crop: the cells and image({ patch, of }) cut the same pixels.
+      const source = files.sourceSync(spec.src)
+      const place = placeSource({ ...spec, fit: 'cover' }, source.size)
+      const result = makePatches(styled({ ...spec, w: place.w, h: place.h, kind: 'cat' }))
+      const picture = result.elements.find((element) => element.id === `${spec.id}-image`)
+      showSource(picture, source, place, spec.src)
+      return placeGlyph(spec.id, decorate({ ...spec, predicted: false }, result))
+    },
     /** An N × D grid of shades of one colour (features, latents). */
     features: (spec) => placeGlyph(spec.id, decorate(spec, makeFeatures(styled(spec)))),
     /** An attention mask with labelled groups of positions. */

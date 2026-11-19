@@ -69,7 +69,7 @@ export function WorkbenchTerminalSplitMenu(props: {
         <span className="whitespace-nowrap leading-none">
           {translate(
             'auto.components.feature.wall.WorkbenchAnimatedVisual.e370fa8c2b',
-            'Split Terminal Right'
+            'Split terminal right'
           )}
         </span>
         <span className="font-mono text-[11px] text-muted-foreground">
@@ -83,7 +83,7 @@ export function WorkbenchTerminalSplitMenu(props: {
         <span className="whitespace-nowrap leading-none">
           {translate(
             'auto.components.feature.wall.WorkbenchAnimatedVisual.ca2cfbf188',
-            'Split Terminal Down'
+            'Split terminal down'
           )}
         </span>
         <span className="font-mono text-[11px] text-muted-foreground">

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { FigureElementDiff } from './research-figure-diff'
 import { useFigureEditorHandle } from './research-figure-editor-handle'
 import { snapshotFigure } from './research-figure-history'
+import { snapshotPlot } from './research-plot-history'
 import type { FiguresAgentScope } from './research-figures-agent-session'
 import type { FigureTarget } from './research-figures-export'
 import { projectOwnerKey } from './research-project-files'
@@ -23,6 +24,8 @@ export type FigureTurn = {
   sessionId: string | null
   /** The figure the request is about. */
   target: FigureTarget
+  /** The target is a plot: its History keeps its files rather than a scene. */
+  plot?: boolean
   /** What the person asked, as the turn bar names it. */
   request: string
   /** The prompt Retry sends again. */
@@ -117,12 +120,13 @@ export function updateFigureTurn(id: number, patch: Partial<FigureTurn>): void {
 }
 
 /**
- * Starts tracking a request on its figure: keeps the figure's "before send" version in its History
- * and shows `Sending…` on that figure. Without a figure (a plot) nothing is tracked. Returns the
- * turn id.
+ * Starts tracking a request on its figure or plot: keeps the "before send" version in its History
+ * and shows `Sending…` on it. Without a target nothing is tracked. Returns the turn id.
  */
 export function beginFigureTurn(input: {
   target: FigureTarget | null
+  /** The target is an open plot (`snapshotPlot` keeps its files as they are now). */
+  plot?: boolean
   request: string
   prompt: string
   scope: FiguresAgentScope
@@ -146,6 +150,7 @@ export function beginFigureTurn(input: {
           id,
           sessionId: input.sessionId ?? null,
           target,
+          ...(input.plot ? { plot: true } : {}),
           request: input.request.replace(/\s+/g, ' ').trim(),
           prompt: input.prompt,
           scope: input.scope,
@@ -165,7 +170,11 @@ export function beginFigureTurn(input: {
       }
     }
   }))
-  if (input.beforeText) {
+  if (input.plot) {
+    void snapshotPlot(target, { kind: 'before-send', what: input.request }).then(
+      (entry) => entry && updateFigureTurn(id, { beforeId: entry.id })
+    )
+  } else if (input.beforeText) {
     void snapshotFigure(target, {
       kind: 'before-send',
       what: input.request,
@@ -307,7 +316,10 @@ export function figureTurnPhaseText(turn: FigureTurn): string {
     case 'drawing':
       return `Drawing · round ${Math.max(1, turn.round)}`
     case 'checking':
-      return `Checking the preview · round ${Math.max(1, turn.checks)}/${FIGURE_TURN_MAX_CHECKS}`
+      // Why no "of 3" past three: careful drawing's art director rounds check the preview more.
+      return turn.checks > FIGURE_TURN_MAX_CHECKS
+        ? `Checking the preview · round ${turn.checks}`
+        : `Checking the preview · round ${Math.max(1, turn.checks)}/${FIGURE_TURN_MAX_CHECKS}`
     case 'waiting':
       return 'Waiting for you in the chat'
     case 'done':

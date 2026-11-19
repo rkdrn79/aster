@@ -17,7 +17,7 @@ import {
 } from '../../../../shared/native-chat-edit-model'
 
 function VerbIcon({ kind }: { kind: NativeChatEditFile['changeKind'] }): React.JSX.Element {
-  const className = 'size-3.5 shrink-0 text-chat-foreground-faint'
+  const className = 'size-4 shrink-0 text-chat-foreground-faint'
   if (kind === 'added') {
     return <FilePlus2 className={className} />
   }
@@ -62,7 +62,7 @@ function DiffRow({ line, gutterWidth }: { line: NativeChatEditLine; gutterWidth:
           // Why: the gutter carries its own ground so the number column stays
           // legible against a tinted row instead of dissolving into it.
           className={cn(
-            'shrink-0 select-none pr-1.5 text-right tabular-nums text-chat-foreground-faint',
+            'shrink-0 select-none pr-2 text-right tabular-nums text-chat-foreground-faint',
             line.kind === 'add' && 'bg-[var(--diff-added-gutter)]',
             line.kind === 'del' && 'bg-[var(--diff-removed-gutter)]',
             line.kind === 'context' && 'bg-chat-code-surface'
@@ -166,7 +166,7 @@ export function NativeChatDiffCard({
           type="button"
           onClick={() => hasBody && setExpanded(!expanded)}
           className={cn(
-            'flex min-h-6.5 min-w-0 flex-1 items-center gap-2 rounded-md text-left font-sans text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+            'flex min-h-7 min-w-0 flex-1 items-center gap-2 rounded-md text-left font-sans text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
             hasBody ? 'cursor-pointer hover:bg-accent/20' : 'cursor-default'
           )}
           aria-expanded={hasBody ? expanded : undefined}
@@ -206,7 +206,7 @@ export function NativeChatDiffCard({
           {hasBody ? (
             <ChevronRight
               className={cn(
-                'size-3.5 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
+                'size-4 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
                 expanded && 'rotate-90'
               )}
             />

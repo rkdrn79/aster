@@ -218,7 +218,7 @@ export function ProviderUsageRow({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
-            <h5 className="truncate text-sm font-semibold text-foreground">{provider.label}</h5>
+            <h5 className="truncate text-sm font-medium text-foreground">{provider.label}</h5>
             <Badge variant={statusVariant}>{status}</Badge>
           </div>
           <p className="mt-1 truncate text-xs text-muted-foreground">

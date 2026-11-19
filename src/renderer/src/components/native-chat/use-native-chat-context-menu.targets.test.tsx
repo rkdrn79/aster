@@ -145,7 +145,7 @@ describe('native chat right-click targets', () => {
     )
 
     await rightClick('app file')
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Copy Path' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Copy path' }))
     expect(mocks.writeClipboardText).toHaveBeenCalledWith('/repo/src/app.ts')
   })
 
@@ -209,15 +209,15 @@ describe('native chat right-click targets', () => {
       <Chat actions={{ onCopyAgentSessionContext, onClearPaneTitle, canClearPaneTitle: false }} />
     )
     await rightClick('Empty area')
-    expect(menuItemNames()).not.toContain('Clear Pane Title')
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Copy Context' }))
+    expect(menuItemNames()).not.toContain('Clear pane title')
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Copy context' }))
     expect(onCopyAgentSessionContext).toHaveBeenCalledOnce()
 
     view.rerender(
       <Chat actions={{ onCopyAgentSessionContext, onClearPaneTitle, canClearPaneTitle: true }} />
     )
     await rightClick('Empty area')
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Clear Pane Title' }))
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Clear pane title' }))
     expect(onClearPaneTitle).toHaveBeenCalledOnce()
   })
 })

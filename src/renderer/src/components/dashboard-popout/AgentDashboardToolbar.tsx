@@ -92,7 +92,7 @@ export function AgentDashboardToolbar({
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder={translate(
               'dashboardPopout.search.placeholder',
-              'Search worktree, project, or agent…'
+              'Search worktree, project, or agent'
             )}
             aria-label={translate('dashboardPopout.search.label', 'Search agents')}
             className="h-7 bg-muted/55 pr-16 pl-7 text-xs"
@@ -138,7 +138,7 @@ export function AgentDashboardToolbar({
                 <Filter className="size-3" />
                 {translate('dashboardPopout.filters.label', 'Filter')}
                 {activeCount > 0 ? (
-                  <span className="rounded-full bg-foreground px-1.5 py-px text-[10px] leading-none text-background">
+                  <span className="text-[11px] tabular-nums leading-none text-muted-foreground">
                     {activeCount}
                   </span>
                 ) : null}

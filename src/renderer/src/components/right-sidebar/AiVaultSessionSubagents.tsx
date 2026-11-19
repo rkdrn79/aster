@@ -71,7 +71,7 @@ function SubagentsBranch({
   const subagents = useSubagentSessions(session)
   return (
     <section className="space-y-1.5" aria-busy={subagents.status === 'loading'}>
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
         <Bot className="size-3" />
         <span>
           {translate(
@@ -103,7 +103,7 @@ function SubagentsBranch({
       ) : null}
       {subagents.status === 'loaded' && subagents.sessions.length === 0 ? (
         <p className="text-xs text-muted-foreground">
-          {translate('aiVault.subagents.empty', 'No subagents found.')}
+          {translate('aiVault.subagents.empty', 'No subagents found')}
         </p>
       ) : null}
       <div className="space-y-1.5">
@@ -246,7 +246,7 @@ function SubagentSessionLine({
             draggable={false}
             title={translate(
               'auto.components.right.sidebar.AiVaultSessionSubagents.viewLog',
-              'View Log'
+              'View log'
             )}
             onClick={(event) => {
               event.stopPropagation()

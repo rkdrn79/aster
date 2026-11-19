@@ -58,7 +58,8 @@ export function historyTimeText(at: string, now = Date.now()): string {
     : `${when.toLocaleDateString([], { month: 'short', day: 'numeric' })}, ${time}`
 }
 
-function Thumbnail({
+/** A version's picture, small in the list and large in its preview. */
+export function FigureHistoryThumbnail({
   target,
   entry,
   large
@@ -71,8 +72,8 @@ function Thumbnail({
   return (
     <span
       className={cn(
-        'flex shrink-0 items-center justify-center overflow-hidden rounded-sm border border-border bg-white',
-        large ? 'h-48 w-full' : 'h-12 w-16'
+        'flex shrink-0 items-center justify-center overflow-hidden border border-border bg-white',
+        large ? 'h-48 w-full rounded-xl' : 'h-12 w-16 rounded-lg'
       )}
     >
       {url ? (
@@ -124,7 +125,7 @@ export function ResearchFigureHistoryPanel(): React.JSX.Element {
     }
   }, [target, key, revision])
   if (!target) {
-    return <p className="p-4 text-xs text-muted-foreground">Open a figure to see its history.</p>
+    return <p className="p-4 text-xs text-muted-foreground">Open a figure to see its history</p>
   }
   const entries = loaded?.key === key ? loaded.entries : []
   const open = entries.find((entry) => entry.id === openId) ?? null
@@ -167,13 +168,18 @@ export function ResearchFigureHistoryPanel(): React.JSX.Element {
     return (
       <section
         aria-label="Version preview"
-        className="scrollbar-sleek flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3 text-xs"
+        className="research-pane-in scrollbar-sleek flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3 text-xs"
       >
-        <Button size="xs" variant="ghost" className="self-start" onClick={() => setOpenId(null)}>
+        <Button
+          size="xs"
+          variant="ghost"
+          className="h-7 self-start"
+          onClick={() => setOpenId(null)}
+        >
           <ArrowLeft aria-hidden /> All versions
         </Button>
-        <Thumbnail target={target} entry={open} large />
-        <p className="font-medium">
+        <FigureHistoryThumbnail target={target} entry={open} large />
+        <p className="pt-1 text-[13px] font-medium">
           {FIGURE_CHECKPOINT_LABELS[open.kind]} · {historyTimeText(open.at)}
         </p>
         <p className="text-muted-foreground">{open.what}</p>
@@ -183,13 +189,14 @@ export function ResearchFigureHistoryPanel(): React.JSX.Element {
         <p className="text-2xs text-muted-foreground">
           Read-only preview. Restoring keeps the current version in History.
         </p>
-        <div className="flex flex-wrap gap-1.5">
-          <Button size="xs" disabled={working} onClick={() => void restore(open)}>
+        <div className="flex flex-wrap gap-2 pt-1">
+          <Button size="xs" className="h-7" disabled={working} onClick={() => void restore(open)}>
             <RotateCcw aria-hidden /> Restore
           </Button>
           <Button
             size="xs"
             variant="outline"
+            className="h-7"
             disabled={working}
             onClick={() => void duplicate(open)}
           >
@@ -202,12 +209,13 @@ export function ResearchFigureHistoryPanel(): React.JSX.Element {
 
   return (
     <section aria-label="Figure history" className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-1.5 text-xs">
-        <History className="size-3.5 text-muted-foreground" aria-hidden />
-        <span className="min-w-0 flex-1 truncate font-medium">{target.slug}</span>
+      <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3 text-xs">
+        <History className="size-4 text-muted-foreground" aria-hidden />
+        <span className="min-w-0 flex-1 truncate text-[13px] font-medium">{target.slug}</span>
         <Button
           size="xs"
           variant="outline"
+          className="h-7"
           disabled={pickedEntries.length !== 2}
           title={
             pickedEntries.length === 2
@@ -222,15 +230,18 @@ export function ResearchFigureHistoryPanel(): React.JSX.Element {
       </div>
       {entries.length === 0 ? (
         <p className="p-4 text-xs text-muted-foreground">
-          No history yet — ask the agent or save to start one.
+          No history yet — ask the agent or save to start one
         </p>
       ) : (
         <ul
-          className="scrollbar-sleek min-h-0 flex-1 space-y-0.5 overflow-y-auto p-1.5"
+          className="research-pane-in scrollbar-sleek min-h-0 flex-1 space-y-0.5 overflow-y-auto p-2"
           aria-label="Versions"
         >
           {entries.map((entry) => (
-            <li key={entry.id} className="flex items-center gap-2 rounded-md p-1 hover:bg-accent">
+            <li
+              key={entry.id}
+              className="flex items-center gap-2 rounded-lg p-2 pl-2 transition-colors duration-(--duration-fast) hover:bg-accent/70 has-[[data-state=checked]]:bg-accent"
+            >
               <Checkbox
                 aria-label={`Pick the version from ${historyTimeText(entry.at)} to compare`}
                 checked={picked.includes(entry.id)}
@@ -244,19 +255,19 @@ export function ResearchFigureHistoryPanel(): React.JSX.Element {
               />
               <button
                 type="button"
-                className="flex min-w-0 flex-1 items-center gap-2 rounded-sm text-left focus-visible:outline-2 focus-visible:outline-ring"
+                className="flex min-w-0 flex-1 items-center gap-2 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-ring"
                 aria-label={`Preview: ${FIGURE_CHECKPOINT_LABELS[entry.kind]}, ${entry.what}, ${historyTimeText(entry.at)}`}
                 onClick={() => setOpenId(entry.id)}
               >
-                <Thumbnail target={target} entry={entry} />
+                <FigureHistoryThumbnail target={target} entry={entry} />
                 <span className="min-w-0 flex-1 text-xs">
-                  <span className="block truncate font-medium">
+                  <span className="block truncate text-[13px] leading-snug font-medium">
                     {FIGURE_CHECKPOINT_LABELS[entry.kind]}
                   </span>
                   <span className="block truncate text-muted-foreground" title={entry.what}>
                     {entry.what}
                   </span>
-                  <span className="flex gap-2 text-2xs text-muted-foreground">
+                  <span className="mt-0.5 flex gap-2 text-2xs text-muted-foreground">
                     <span>{historyTimeText(entry.at)}</span>
                     <Deltas entry={entry} />
                   </span>

@@ -47,7 +47,7 @@ export function UpdateDownloadingContent({
           </h3>
         ) : (
           <h3 className="text-sm font-semibold">
-            {translate('auto.components.UpdateCard.558842597d', 'Downloading Update')}
+            {translate('auto.components.UpdateCard.558842597d', 'Downloading update')}
           </h3>
         )}
         <Button
@@ -131,7 +131,7 @@ export function UpdateReadyToInstallContent({
     <div className="flex flex-col gap-3 p-4">
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-sm font-semibold">
-          {translate('auto.components.UpdateCard.17412483da', 'Ready to Install')}
+          {translate('auto.components.UpdateCard.17412483da', 'Ready to install')}
         </h3>
         <Button
           variant="ghost"
@@ -157,7 +157,7 @@ export function UpdateReadyToInstallContent({
             )}
       </p>
       <Button variant="default" size="sm" onClick={onRestart} className="w-full">
-        {translate('auto.components.UpdateCard.68b235d264', 'Restart to Update')}
+        {translate('auto.components.UpdateCard.68b235d264', 'Restart to update')}
       </Button>
     </div>
   )

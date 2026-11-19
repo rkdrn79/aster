@@ -5,7 +5,7 @@ import { translateSearchKeyword } from './settings-search-keywords'
 
 export const getAccentColorEntries = createLocalizedCatalog((): SettingsSearchEntry[] => [
   {
-    title: translate('settings.appearance.accentColor.title', 'Accent Color'),
+    title: translate('settings.appearance.accentColor.title', 'Accent color'),
     description: translate(
       'settings.appearance.accentColor.description',
       'Colors primary actions, selection and the current page.'

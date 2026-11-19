@@ -133,9 +133,9 @@ it('keeps explicit remote refresh and true hide/reopen reads', async () => {
   }
   const view = render(<GeneralPane {...props} />)
   await act(async () => {})
-  fireEvent.click(screen.getByRole('button', { name: 'Check for Server Updates' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Check for server updates' }))
   expect(fake.refresh).toHaveBeenCalledTimes(2)
-  fake.query = 'Tab Order'
+  fake.query = 'Tab order'
   await act(async () => view.rerender(<GeneralPane {...props} />))
   expect(screen.queryByText('Updates', { exact: true })).toBeNull()
   fake.query = 'update'
@@ -158,7 +158,7 @@ it('preserves an autosave draft until external settings change or the section hi
   await act(async () => view.rerender(<GeneralPane {...changedProps} />))
   expect(screen.getByRole('spinbutton').getAttribute('value')).toBe('3000')
   fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '3500' } })
-  fake.query = 'Tab Order'
+  fake.query = 'Tab order'
   await act(async () => view.rerender(<GeneralPane {...changedProps} />))
   expect(screen.queryByRole('spinbutton')).toBeNull()
   fake.query = 'Auto Save'
@@ -179,7 +179,7 @@ it('retains the revealed release picker only while Updates remains visible', asy
   fake.query = 'update'
   await act(async () => view.rerender(<GeneralPane {...props} />))
   expect(screen.getByText('Release picker open')).toBeTruthy()
-  fake.query = 'Tab Order'
+  fake.query = 'Tab order'
   await act(async () => view.rerender(<GeneralPane {...props} />))
   fake.query = 'update'
   await act(async () => view.rerender(<GeneralPane {...props} />))
@@ -200,7 +200,7 @@ it('does not publish a version result from a genuinely unmounted section', async
   }
   const view = render(<GeneralPane {...props} />)
   await act(async () => {})
-  fake.query = 'Tab Order'
+  fake.query = 'Tab order'
   await act(async () => view.rerender(<GeneralPane {...props} />))
   fake.query = 'update'
   await act(async () => view.rerender(<GeneralPane {...props} />))

@@ -91,7 +91,7 @@ export async function fixBrokenPullRequestChecks(args: {
   }
   if (args.failedChecks.length === 0) {
     toast.message(
-      translate('auto.components.PullRequestPage.51c65c0265', 'No broken checks to fix.')
+      translate('auto.components.PullRequestPage.51c65c0265', 'No broken checks to fix')
     )
     return
   }

@@ -101,7 +101,7 @@ export function PullRequestPageTabs({
           <ListChecks className="size-3.5" />
           {translate('auto.components.PullRequestPage.94d95cf1f7', 'Checks')}
           {checks.length > 0 && (
-            <span className="ml-1 rounded-full bg-muted px-1.5 text-[10px] text-muted-foreground">
+            <span className="ml-1 text-[10px] tabular-nums text-muted-foreground">
               {checks.length}
             </span>
           )}
@@ -110,7 +110,7 @@ export function PullRequestPageTabs({
           <FileText className="size-3.5" />
           {translate('auto.components.PullRequestPage.4d18310d55', 'Files changed')}
           {files.length > 0 && (
-            <span className="ml-1 rounded-full bg-muted px-1.5 text-[10px] text-muted-foreground">
+            <span className="ml-1 text-[10px] tabular-nums text-muted-foreground">
               {files.length}
             </span>
           )}
@@ -199,7 +199,7 @@ export function PullRequestPageTabs({
             </div>
           ) : files.length === 0 ? (
             <div className="px-4 py-10 text-center text-[12px] text-muted-foreground">
-              {translate('auto.components.PullRequestPage.6ad2c1ab9c', 'No files changed.')}
+              {translate('auto.components.PullRequestPage.6ad2c1ab9c', 'No files changed')}
             </div>
           ) : (
             <PRFilesCombinedDiffViewer

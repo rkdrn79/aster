@@ -149,7 +149,7 @@ export function UpdateAvailableSimpleContent({
     <div className="flex flex-col gap-2.5 p-3.5">
       <div className="flex items-start justify-between gap-2">
         <h3 className="text-sm font-semibold">
-          {translate('auto.components.UpdateCard.9abc59f814', 'Update Available')}
+          {translate('auto.components.UpdateCard.9abc59f814', 'Update available')}
         </h3>
         <Button
           variant="ghost"

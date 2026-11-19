@@ -17,7 +17,7 @@ describe('CommentMarkdown', () => {
     expect(markup).toContain('role="heading"')
     expect(markup).toContain('aria-level="2"')
     // Weight-only styling stays the compact default; block flow is opt-in.
-    expect(markup).toContain('font-bold')
+    expect(markup).toContain('font-semibold')
   })
 
   it('marks adjacent compact paragraphs inside disclosure content', () => {

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef } from 'react'
-import { CaptureUpdateAction, newElementWith } from '@excalidraw/excalidraw'
+import { CaptureUpdateAction } from '@excalidraw/excalidraw'
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types'
 import type { AppState, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import {
   FIGURE_UNITS_PER_POINT,
   PAGE_FRAME_ID
 } from '../../../../research-harness/research-figures-model.mjs'
+import { translate } from './research-figure-geometry-edit'
 import { settleFigure, type SettleOptions } from './research-figure-settle'
 import {
   baselineSettled,
@@ -76,7 +77,11 @@ export function useFigureAttachments(apiRef: React.RefObject<ExcalidrawImperativ
         baselineSettled(memory, elements)
         return
       }
-      const updates = settleFigure(elements, memory, optionsOf(appState))
+      const gesture = pointerDownRef.current || editUnderWay(appState)
+      const updates = settleFigure(elements, memory, {
+        ...optionsOf(appState),
+        gesture: gesture && !recordsNext
+      })
       if (!updates.size) {
         commitSettled(memory, elements)
         return
@@ -87,7 +92,7 @@ export function useFigureAttachments(apiRef: React.RefObject<ExcalidrawImperativ
       // both land in one undo step. Why NEVER after one (an undo, a key, an Inspector edit):
       // Excalidraw leaves an EVENTUALLY change pending until its own next record, and until then
       // drops these elements from every undo step `updateScene` records (a style, a role).
-      const during = recordsNext || pointerDownRef.current || editUnderWay(appState)
+      const during = recordsNext || gesture
       api.updateScene({
         elements: next,
         captureUpdate: during ? CaptureUpdateAction.EVENTUALLY : CaptureUpdateAction.NEVER
@@ -164,14 +169,9 @@ export function useFigureAttachments(apiRef: React.RefObject<ExcalidrawImperativ
       }
       const unit = (event.shiftKey ? 8 : 1) * FIGURE_UNITS_PER_POINT
       const ids = new Set(selected.map((element) => element.id))
-      const moved = elements.map((element) =>
-        ids.has(element.id)
-          ? newElementWith(element, {
-              x: element.x + step[0] * unit,
-              y: element.y + step[1] * unit
-            })
-          : element
-      )
+      // Why translate: a label a person typed into a box is Excalidraw's bound text, which is
+      // not in the selection but has to move with its box.
+      const moved = translate(elements, ids, step[0] * unit, step[1] * unit)
       api.updateScene({
         elements: settleEdit(moved, ids),
         captureUpdate: CaptureUpdateAction.IMMEDIATELY

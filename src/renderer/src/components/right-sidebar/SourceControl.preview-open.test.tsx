@@ -726,7 +726,7 @@ describe('SourceControl preview row opens', () => {
     expect(row?.querySelector<HTMLButtonElement>('button[aria-label="Stage"]')).toBeNull()
   })
 
-  it('does not render a commit-area Stage All primary for submodule worktree-only rows', () => {
+  it('does not render a commit-area Stage all primary for submodule worktree-only rows', () => {
     resetState({
       gitStatusByWorktree: {
         [mocks.activeWorktree.id]: [
@@ -745,7 +745,7 @@ describe('SourceControl preview row opens', () => {
     expect(row?.textContent).toContain('Stage inside submodule')
 
     const stageAllButton = [...container.querySelectorAll<HTMLButtonElement>('button')].find(
-      (button) => button.textContent?.trim() === 'Stage All'
+      (button) => button.textContent?.trim() === 'Stage all'
     )
     expect(stageAllButton).toBeUndefined()
 
@@ -761,7 +761,7 @@ describe('SourceControl preview row opens', () => {
     expect(mocks.calls.bulkStageRuntimeGitPaths).not.toHaveBeenCalled()
   })
 
-  it('keeps the commit-area Stage All primary for changed submodule gitlinks', async () => {
+  it('keeps the commit-area Stage all primary for changed submodule gitlinks', async () => {
     resetState({
       gitStatusByWorktree: {
         [mocks.activeWorktree.id]: [
@@ -775,7 +775,7 @@ describe('SourceControl preview row opens', () => {
     renderSourceControl()
 
     const stageAllButton = [...container.querySelectorAll<HTMLButtonElement>('button')].find(
-      (button) => button.textContent?.trim() === 'Stage All'
+      (button) => button.textContent?.trim() === 'Stage all'
     )
     expect(stageAllButton).toBeDefined()
     expect(stageAllButton?.disabled).toBe(false)

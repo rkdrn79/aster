@@ -8,6 +8,8 @@ import { imageSize } from './research-figures-image.mjs'
 import { pngIsBlank } from './research-figures-png.mjs'
 import { manuscriptHeadings, readText } from './research-figures-manuscript.mjs'
 import { lintFigureScene } from './research-figures-lint.mjs'
+import { critiqueScene } from './research-figures-design-report.mjs'
+import { stalePlotFindings } from './research-figures-plot-embed.mjs'
 import { FIGURE_STYLES } from './research-figures-style.mjs'
 import { PRESET_ALIASES } from './research-figures-palette.mjs'
 import { readLibraryFolder, userLibraryDirectory } from './research-figures-library.mjs'
@@ -73,6 +75,9 @@ export async function createFigure(project, { name, slug, size, style }) {
   }
   const folder = workFiguresFolder(project)
   const files = figureFilePaths(folder, chosen)
+  if ((await listFigures(project)).plots.some((plot) => plot.slug === chosen)) {
+    throw new HarnessError('exists', `A plot named ${chosen} already exists`)
+  }
   // Why both folders: an older figure beside the manuscript has this name too.
   const paper = figureFilePaths(await figuresFolder(project), chosen).scene
   if (
@@ -132,11 +137,16 @@ export async function runFigure(project, slug) {
 }
 
 async function resolveFigure(project, slug) {
-  const { folder, figures } = await listFigures(project)
+  const { folder, figures, plots } = await listFigures(project)
   if (slug) {
     const figure = figures.find((entry) => entry.slug === slug)
     if (!figure) {
-      throw new HarnessError('not_found', `No figure ${slug} in ${folder}`)
+      throw new HarnessError(
+        'not_found',
+        plots.some((plot) => plot.slug === slug)
+          ? `${slug} is a plot: use figures plot run / check / preview --figure ${slug}`
+          : `No figure ${slug} in ${folder}`
+      )
     }
     return figure
   }
@@ -225,7 +235,12 @@ export async function checkFigures(project, slug, area) {
   for (const figure of chosen) {
     let report
     try {
-      report = lintFigureScene(await readScene(project, figure), { area })
+      const scene = await readScene(project, figure)
+      report = lintFigureScene(scene, { area })
+      // Why here: a plot rendered again since the diagram embedded it is only seen on disk.
+      report.warnings.push(
+        ...(await stalePlotFindings(project, path.dirname(path.join(project, figure.scene)), scene))
+      )
     } catch (error) {
       report = {
         errors: [{ code: 'invalid', id: null, message: error.message }],
@@ -234,6 +249,21 @@ export async function checkFigures(project, slug, area) {
       }
     }
     results.push({ slug: figure.slug, scene: figure.scene, ...report })
+  }
+  return { figures: results }
+}
+
+/**
+ * The design pass (`figures critique`): for each figure, the computed design report (focus,
+ * colours and their meanings, repeats, size and spacing, box styles, text sizes) and the cuts.
+ */
+export async function critiqueFigures(project, slug) {
+  const { figures } = await listFigures(project)
+  const chosen = slug ? [await resolveFigure(project, slug)] : figures
+  const results = []
+  for (const figure of chosen) {
+    const scene = await readScene(project, figure)
+    results.push({ slug: figure.slug, scene: figure.scene, ...critiqueScene(scene) })
   }
   return { figures: results }
 }

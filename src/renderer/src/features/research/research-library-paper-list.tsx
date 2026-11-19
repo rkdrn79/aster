@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+import { ResearchSegmentedTrack, researchSegmentClass } from './research-segmented-track'
 import type { LibraryPaper, PaperReadingStatus } from '../../../../shared/research/research-library'
 
 type StatusFilter = 'all' | PaperReadingStatus
@@ -12,6 +13,10 @@ const FILTERS: { id: StatusFilter; label: string }[] = [
   { id: 'reading', label: 'Reading' },
   { id: 'read', label: 'Read' }
 ]
+
+/** A paper's status and facts, as small quiet tags under its title (lifted on the open row). */
+const PAPER_TAG =
+  'inline-flex h-5 items-center rounded-sm bg-muted px-2 group-data-[current=true]/paper:bg-background'
 
 export const STATUS_LABELS: Record<PaperReadingStatus, string> = {
   unread: 'Unread',
@@ -70,7 +75,7 @@ export function ResearchLibraryPaperList({
 
   return (
     <aside className="flex min-h-0 min-w-0 flex-1 flex-col" aria-label="Saved papers">
-      <div className="space-y-2 border-b border-border p-3">
+      <div className="space-y-3 border-b border-border p-3">
         <label className="flex items-center gap-2">
           <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           <Input
@@ -81,22 +86,20 @@ export function ResearchLibraryPaperList({
             className="h-8"
           />
         </label>
-        <div className="flex gap-1" role="group" aria-label="Reading status filter">
+        <ResearchSegmentedTrack role="group" aria-label="Reading status filter" className="w-full">
           {FILTERS.map((entry) => (
             <button
               key={entry.id}
               type="button"
               aria-pressed={filter === entry.id}
-              className={cn(
-                'rounded-md px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring',
-                filter === entry.id && 'bg-accent text-foreground'
-              )}
+              data-state={filter === entry.id ? 'active' : 'inactive'}
+              className={researchSegmentClass(filter === entry.id, 'flex-1 px-2')}
               onClick={() => setFilter(entry.id)}
             >
               {entry.label}
             </button>
           ))}
-        </div>
+        </ResearchSegmentedTrack>
       </div>
       <div className="scrollbar-sleek min-h-0 flex-1 overflow-auto p-2">
         {visiblePapers.length ? (
@@ -109,19 +112,16 @@ export function ResearchLibraryPaperList({
                 key={paper.id}
                 data-current={current}
                 className={cn(
-                  'mb-1 block w-full rounded-md px-3 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring',
-                  current && 'bg-accent'
+                  'group/paper mb-0.5 block w-full rounded-lg px-3 py-3 text-left transition-colors duration-(--duration-fast) hover:bg-accent/70 focus-visible:outline-2 focus-visible:outline-ring',
+                  current && 'bg-accent hover:bg-accent'
                 )}
                 onClick={() => onSelect(paper.id)}
               >
                 <span className="flex items-start gap-2">
                   {paper.status === 'unread' ? (
-                    <span
-                      className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary"
-                      aria-hidden
-                    />
+                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
                   ) : null}
-                  <span className="line-clamp-2 text-sm font-medium leading-snug">
+                  <span className="line-clamp-2 text-[13px] leading-snug font-medium">
                     {paper.title}
                   </span>
                 </span>
@@ -129,12 +129,12 @@ export function ResearchLibraryPaperList({
                   {[leadAuthor(paper.authors), paper.year].filter(Boolean).join(' · ') ||
                     'Citation details missing'}
                 </span>
-                <span className="mt-1 flex gap-2 text-2xs text-muted-foreground">
-                  <span>{STATUS_LABELS[paper.status]}</span>
-                  {paper.arxivId ? <span>arXiv</span> : null}
-                  {paper.pdfPath ? null : <span>No PDF</span>}
+                <span className="mt-2 flex flex-wrap gap-1 text-2xs leading-none text-muted-foreground">
+                  <span className={PAPER_TAG}>{STATUS_LABELS[paper.status]}</span>
+                  {paper.arxivId ? <span className={PAPER_TAG}>arXiv</span> : null}
+                  {paper.pdfPath ? null : <span className={PAPER_TAG}>No PDF</span>}
                   {highlightCount ? (
-                    <span>
+                    <span className={PAPER_TAG}>
                       {highlightCount} highlight{highlightCount === 1 ? '' : 's'}
                     </span>
                   ) : null}

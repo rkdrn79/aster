@@ -32,7 +32,7 @@ export function ConflictBadge({ entry }: { entry: GitStatusEntry }): React.JSX.E
             )
       }
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold',
+        'inline-flex shrink-0 items-center gap-1 rounded-sm px-2 py-0.5 text-[10px] font-medium',
         isUnresolvedConflict
           ? 'bg-destructive/12 text-destructive'
           : 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-400'

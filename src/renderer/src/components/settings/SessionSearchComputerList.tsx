@@ -28,13 +28,13 @@ export function SessionSearchComputerList({
   return (
     <div>
       {showSubheads ? (
-        <p className="pt-4 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+        <p className="pt-4 text-[11px] font-medium text-muted-foreground">
           {translate('sessionHistory.settings.thisComputer', 'This computer')}
         </p>
       ) : null}
       {local}
       {showSubheads ? (
-        <p className="pt-4 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+        <p className="pt-4 text-[11px] font-medium text-muted-foreground">
           {translate('sessionHistory.settings.remoteServers', 'Aster remote servers')}
         </p>
       ) : null}

@@ -298,11 +298,11 @@ describe('EditorFileTabContextMenu close-all shortcut', () => {
       vi.stubGlobal('window', { api: { ui: { writeClipboardText } } })
       const tree = expandNode(await renderMenu({ unifiedTabId, onActivate }))
       const item = findElementsByType(tree, 'DropdownMenuItem').find(
-        (candidate) => extractText(candidate.props.children) === 'Copy Tab ID'
+        (candidate) => extractText(candidate.props.children) === 'Copy tab ID'
       )
       const onSelect = item?.props.onSelect
       if (typeof onSelect !== 'function') {
-        throw new Error('Missing Copy Tab ID action')
+        throw new Error('Missing Copy tab ID action')
       }
       onSelect()
       expect(writeClipboardText).toHaveBeenCalledExactlyOnceWith(`orcaTabId: ${unifiedTabId}`)
@@ -331,14 +331,14 @@ describe('EditorFileTabContextMenu close-all shortcut', () => {
     expect(onOpenRenameInput).toHaveBeenCalledTimes(1)
   })
 
-  it('renders assigned shortcuts next to Rename, Close, and Close All Editor Tabs', async () => {
+  it('renders assigned shortcuts next to Rename, Close, and Close all editor tabs', async () => {
     const tree = expandNode(await renderMenu())
     const menuItems = findElementsByType(tree, 'DropdownMenuItem')
 
     const renameItem = menuItems.find((item) => extractText(item.props.children).includes('Rename'))
     const closeItem = menuItems.find((item) => extractText(item.props.children) === 'Close⌘W')
     const closeAllItem = menuItems.find((item) =>
-      extractText(item.props.children).includes('Close All Editor Tabs')
+      extractText(item.props.children).includes('Close all editor tabs')
     )
 
     expect(renameItem).toBeTruthy()
@@ -360,13 +360,13 @@ describe('EditorFileTabContextMenu close-all shortcut', () => {
     expect(findElementsByType(tree, 'DropdownMenuShortcut')).toHaveLength(3)
   })
 
-  it('keeps Close Others without directional close items', async () => {
+  it('keeps Close others without directional close items', async () => {
     const tree = expandNode(await renderMenu())
     const labels = findElementsByType(tree, 'DropdownMenuItem').map((item) =>
       extractText(item.props.children)
     )
 
-    expect(labels).toContain('Close Others')
+    expect(labels).toContain('Close others')
     expect(labels.some((label) => label.includes('Close All Tabs To The Right'))).toBe(false)
     expect(labels.some((label) => label.includes('Close All Tabs To The Left'))).toBe(false)
   })
@@ -377,7 +377,7 @@ describe('EditorFileTabContextMenu close-all shortcut', () => {
     const tree = expandNode(await renderMenu())
 
     const closeAllItem = findElementsByType(tree, 'DropdownMenuItem').find((item) =>
-      extractText(item.props.children).includes('Close All Editor Tabs')
+      extractText(item.props.children).includes('Close all editor tabs')
     )
 
     expect(closeAllItem).toBeTruthy()

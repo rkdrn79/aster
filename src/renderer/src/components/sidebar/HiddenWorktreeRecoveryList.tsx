@@ -86,7 +86,7 @@ export default function HiddenWorktreeRecoveryList({
               )}
               placeholder={translate(
                 'auto.components.sidebar.WorktreeVisibilityDialog.searchPlaceholder',
-                'Search {{value0}} worktrees…',
+                'Search {{value0}} worktrees',
                 { value0: hidden.length }
               )}
               onChange={(event) => setQuery(event.target.value)}

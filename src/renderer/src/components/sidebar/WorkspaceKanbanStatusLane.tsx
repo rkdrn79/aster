@@ -162,10 +162,10 @@ function WorkspaceKanbanStatusLane({
       <div className="flex h-9 shrink-0 items-center gap-2 border-b border-border/70 py-0 pl-3 pr-2">
         <div className="flex min-w-0 flex-1 items-center gap-1.5">
           <meta.icon className={cn('size-3.5 shrink-0', meta.tone)} />
-          <div className="min-w-0 truncate text-[12px] font-semibold text-foreground">
+          <div className="min-w-0 truncate text-[12px] font-medium text-foreground">
             {status.label}
           </div>
-          <div className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium leading-none text-muted-foreground">
+          <div className="shrink-0 text-[11px] leading-none text-muted-foreground tabular-nums">
             {isFiltered ? `${items.length} / ${laneTotalCount}` : items.length}
           </div>
         </div>

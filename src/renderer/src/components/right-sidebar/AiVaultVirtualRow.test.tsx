@@ -124,21 +124,21 @@ describe('AiVaultVirtualRow resume command actions', () => {
     expect(buildResumeStartup).not.toHaveBeenCalled()
   })
 
-  it('keeps Copy Resume Command in overflow and context actions for CLI sessions', async () => {
+  it('keeps Copy resume command in overflow and context actions for CLI sessions', async () => {
     const { buildResumeStartup, onCopyResume } = renderSession(cliSession)
     const user = userEvent.setup()
 
     await user.click(screen.getByTestId('ai-vault-session-more-actions'))
-    await user.click(await screen.findByRole('menuitem', { name: 'Copy Resume Command' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Copy resume command' }))
     expect(onCopyResume).toHaveBeenCalledExactlyOnceWith(cliSession, 'worktree-1')
 
     fireEvent.contextMenu(screen.getByText('CLI session'))
-    await user.click(await screen.findByRole('menuitem', { name: 'Copy Resume Command' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Copy resume command' }))
     expect(onCopyResume).toHaveBeenCalledTimes(2)
     expect(buildResumeStartup).toHaveBeenCalledTimes(2)
   })
 
-  it('omits Copy Resume Command and legacy command preparation for native sessions', async () => {
+  it('omits Copy resume command and legacy command preparation for native sessions', async () => {
     const nativeSession: AiVaultSession = {
       ...cliSession,
       id: 'local:codex:session-native:/tmp/session-native.jsonl',
@@ -150,11 +150,11 @@ describe('AiVaultVirtualRow resume command actions', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByTestId('ai-vault-session-more-actions'))
-    expect(screen.queryByRole('menuitem', { name: 'Copy Resume Command' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'Copy resume command' })).toBeNull()
     await user.keyboard('{Escape}')
 
     fireEvent.contextMenu(screen.getByText('Native session'))
-    expect(screen.queryByRole('menuitem', { name: 'Copy Resume Command' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'Copy resume command' })).toBeNull()
     expect(onCopyResume).not.toHaveBeenCalled()
     expect(buildResumeStartup).not.toHaveBeenCalled()
   })
@@ -187,12 +187,12 @@ describe('AiVaultVirtualRow resume command actions', () => {
     const user = userEvent.setup()
 
     fireEvent.contextMenu(screen.getByText('Paired native chat'))
-    await user.click(await screen.findByRole('menuitem', { name: 'Resume in New Tab' }))
+    await user.click(await screen.findByRole('menuitem', { name: 'Resume in new tab' }))
     expect(onResume).toHaveBeenCalledExactlyOnceWith(session, 'worktree-1')
   })
 })
 
-describe('AiVaultVirtualRow Resume in New Terminal', () => {
+describe('AiVaultVirtualRow Resume in new terminal', () => {
   const owner = { sessionId: 'chat-1', workspaceId: 'worktree-1' }
 
   it.each(['claude', 'codex'] as const)(
@@ -203,11 +203,11 @@ describe('AiVaultVirtualRow Resume in New Terminal', () => {
       const user = userEvent.setup()
 
       await user.click(screen.getByTestId('ai-vault-session-more-actions'))
-      await user.click(await screen.findByRole('menuitem', { name: 'Resume in New Terminal' }))
+      await user.click(await screen.findByRole('menuitem', { name: 'Resume in new terminal' }))
       expect(onResumeInNewCli).toHaveBeenCalledExactlyOnceWith(session, 'worktree-1')
 
       fireEvent.contextMenu(screen.getByText('CLI session'))
-      await user.click(await screen.findByRole('menuitem', { name: 'Resume in New Terminal' }))
+      await user.click(await screen.findByRole('menuitem', { name: 'Resume in new terminal' }))
       expect(onResumeInNewCli).toHaveBeenCalledTimes(2)
       expect(onResume).not.toHaveBeenCalled()
     }
@@ -225,6 +225,6 @@ describe('AiVaultVirtualRow Resume in New Terminal', () => {
 
     await user.click(screen.getByTestId('ai-vault-session-more-actions'))
     await screen.findByRole('menu')
-    expect(screen.queryByRole('menuitem', { name: 'Resume in New Terminal' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'Resume in new terminal' })).toBeNull()
   })
 })

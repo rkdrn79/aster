@@ -4,6 +4,7 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Switch } from '../ui/switch'
+import { SegmentIndicator, useSegmentIndicator } from '../ui/segment-indicator'
 import { SettingsDisabledControlTooltip } from './SettingsDisabledControlTooltip'
 import { normalizeColor } from '@/lib/terminal-theme'
 import { cn } from '@/lib/utils'
@@ -145,16 +146,20 @@ export function SettingsSegmentedControl<T extends string | number>({
   equalWidth = false,
   wrap = false
 }: SettingsSegmentedControlProps<T>): React.JSX.Element {
+  // Why not when wrapping: a highlight sliding between rows would cross the other options.
+  const setRoot = useSegmentIndicator<HTMLDivElement>('[aria-checked="true"]', !wrap)
   return (
     <div
+      ref={setRoot}
       role="radiogroup"
       aria-label={ariaLabel}
       className={cn(
-        'inline-flex items-center rounded-md border border-border bg-background/50 p-0.5',
+        'group/segments relative inline-flex items-center gap-0.5 rounded-full bg-muted p-0.5',
         equalWidth && 'w-full',
-        wrap && 'flex-wrap'
+        wrap && 'flex-wrap rounded-2xl'
       )}
     >
+      {wrap ? null : <SegmentIndicator />}
       {options.map((opt) => {
         const active = opt.value === value
         const button = (
@@ -174,11 +179,12 @@ export function SettingsSegmentedControl<T extends string | number>({
               }
             }}
             className={cn(
-              'rounded-sm text-center outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50',
-              size === 'sm' ? 'px-2.5 py-0.5 text-xs' : 'px-3 py-1 text-sm',
+              'relative rounded-full text-center whitespace-nowrap outline-none transition-colors duration-150 focus-visible:ring-[3px] focus-visible:ring-ring/50',
+              size === 'sm' ? 'h-6 px-2.5 text-xs' : 'h-7 px-3 text-[13px]',
               equalWidth && 'flex-1',
               active
-                ? 'bg-accent font-medium text-accent-foreground'
+                ? // Before the sliding highlight is measured, the chosen option paints its own.
+                  'bg-raised font-medium text-foreground shadow-raised group-data-[segment-indicator]/segments:bg-transparent group-data-[segment-indicator]/segments:shadow-none'
                 : opt.disabled
                   ? 'cursor-not-allowed text-muted-foreground/50'
                   : 'text-muted-foreground hover:text-foreground'

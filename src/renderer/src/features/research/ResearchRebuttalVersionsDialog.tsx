@@ -94,13 +94,13 @@ export function ResearchRebuttalVersionsDialog({
                 <button
                   type="button"
                   aria-pressed={version.id === selected?.id}
-                  className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left text-xs hover:bg-accent aria-pressed:bg-accent"
+                  className="flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left text-xs transition-colors duration-(--duration-fast) hover:bg-highlight aria-pressed:bg-raised aria-pressed:shadow-raised"
                   onClick={() => setSelectedId(version.id)}
                 >
                   {version.by === 'agent' ? (
-                    <Bot className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                    <Bot className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
                   ) : (
-                    <User className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                    <User className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
                   )}
                   <span className="min-w-0">
                     <span className="block truncate font-medium">{version.what}</span>
@@ -112,18 +112,18 @@ export function ResearchRebuttalVersionsDialog({
               </li>
             ))}
             {versions?.length === 0 ? (
-              <li className="px-2 py-1 text-xs text-muted-foreground">No versions yet.</li>
+              <li className="px-2 py-1 text-xs text-muted-foreground">No versions yet</li>
             ) : null}
           </ul>
           <section aria-label="Version preview" className="min-w-0 space-y-2">
             {selected ? (
               <>
-                <div className="scrollbar-sleek max-h-[50vh] overflow-y-auto rounded-md border border-border p-2.5">
+                <div className="scrollbar-sleek max-h-[50vh] overflow-y-auto rounded-lg bg-muted/60 px-3 py-3 dark:bg-muted/45">
                   <RebuttalDiff before={current} after={selected.text} />
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-muted-foreground">
-                    Compared with the reply as it is now.
+                    Compared with the reply as it is now
                   </span>
                   <Button size="sm" disabled={busy} onClick={() => void restore(selected)}>
                     <RotateCcw aria-hidden /> Restore this version

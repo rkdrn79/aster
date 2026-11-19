@@ -154,7 +154,7 @@ export function SourceControlAiActionRecipeDefaults({
       toast.error(
         translate(
           'auto.components.settings.SourceControlAiActionRecipeDefaults.b5f46664d3',
-          'Failed to save Source Control AI action default: {{value0}}',
+          'Failed to save source control AI action default: {{value0}}',
           { value0: error instanceof Error ? error.message : 'Unknown error' }
         )
       )

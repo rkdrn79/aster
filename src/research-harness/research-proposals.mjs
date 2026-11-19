@@ -128,6 +128,16 @@ async function linkedRuns(project, references) {
   return [...new Set(resolved)]
 }
 
+function isPlanLink(value) {
+  return (
+    Boolean(value) &&
+    typeof value === 'object' &&
+    typeof value.id === 'string' &&
+    typeof value.cell === 'string' &&
+    Number.isInteger(value.revision)
+  )
+}
+
 /** Folds the ledger into one row per proposal with its current state. */
 function deriveProposals(slug, entries) {
   const proposals = new Map()
@@ -150,7 +160,8 @@ function deriveProposals(slug, entries) {
         launchedRun: null,
         launchedAt: null,
         needsCode: entry.needsCode === true,
-        handoff: null
+        handoff: null,
+        plan: isPlanLink(entry.plan) ? entry.plan : null
       })
       continue
     }
@@ -184,6 +195,8 @@ function deriveProposals(slug, entries) {
 /**
  * Records an agent's rerun proposal; nothing runs until the user approves it. `needsCode` marks a
  * Run that needs code changes, which a Workbench chat implements after the user hands it over.
+ * An approved experiment plan proposes its cells with `plan` ({id, revision, cell}) and the
+ * plan's agent, so the decision reaches the agent that wrote the plan.
  */
 export async function addProposal(projectPath, input) {
   const project = await realpath(projectPath)
@@ -196,7 +209,8 @@ export async function addProposal(projectPath, input) {
   const findings = await linkedFindings(project, slug, input.findings)
   const runs = await linkedRuns(project, input.runs)
   const target = proposalsLedger(project, slug)
-  const agent = agentIdentityFromEnvironment()
+  const agent = input.agent === undefined ? agentIdentityFromEnvironment() : input.agent
+  const plan = isPlanLink(input.plan) ? input.plan : null
   const proposal = await withFileLock(`${target}.lock`, async () => {
     const entries = await readLedgerEntries(target)
     const created = {
@@ -212,7 +226,8 @@ export async function addProposal(projectPath, input) {
       findings,
       runs,
       needsCode: input.needsCode === true,
-      agent
+      agent,
+      ...(plan ? { plan } : {})
     }
     await appendLedgerEntry(target, created)
     return deriveProposals(slug, [...entries, created]).find((item) => item.id === created.id)

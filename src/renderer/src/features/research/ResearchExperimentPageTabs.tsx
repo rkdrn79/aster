@@ -19,7 +19,7 @@ export function ResearchExperimentPageTabs(): React.JSX.Element {
         </TabsList>
       </TooltipTrigger>
       <TooltipContent side="bottom" sideOffset={4}>
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-2">
           Switch notebook and details
           {shortcut.keys.length > 0 ? (
             <ShortcutKeyCombo

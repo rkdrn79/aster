@@ -126,7 +126,7 @@ export function SidebarSettingsHelpMenu(): React.JSX.Element {
             <Keyboard className="size-3.5" />
             {translate(
               'auto.components.sidebar.SidebarSettingsHelpMenu.e565171a7c',
-              'Keyboard Shortcuts'
+              'Keyboard shortcuts'
             )}
           </DropdownMenuItem>
           <DropdownMenuItem

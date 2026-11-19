@@ -182,7 +182,7 @@ export function WindowsTerminalStep({
           <h2 className="text-sm font-semibold text-foreground">
             {translate(
               'auto.components.onboarding.WindowsTerminalStep.defaultShell',
-              'Default Shell'
+              'Default shell'
             )}
           </h2>
           <p className="text-[13px] leading-relaxed text-muted-foreground">
@@ -214,7 +214,7 @@ export function WindowsTerminalStep({
                 <div className="text-sm font-medium text-foreground">
                   {translate(
                     'auto.components.onboarding.WindowsTerminalStep.wslDistribution',
-                    'WSL Distribution'
+                    'WSL distribution'
                   )}
                 </div>
                 <p className="text-[13px] leading-relaxed text-muted-foreground">
@@ -237,7 +237,7 @@ export function WindowsTerminalStep({
                   size="sm"
                   aria-label={translate(
                     'auto.components.onboarding.WindowsTerminalStep.wslDistribution',
-                    'WSL Distribution'
+                    'WSL distribution'
                   )}
                   className="w-full sm:w-52"
                 >
@@ -338,7 +338,7 @@ function PreferenceCard({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        'group relative min-h-28 rounded-xl border p-4 text-left outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60',
+        'group relative min-h-28 rounded-xl border p-4 text-left outline-none transition-[background-color,border-color,box-shadow] focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-60',
         selected
           ? 'border-foreground/55 bg-foreground/[0.06] ring-2 ring-ring/35'
           : 'border-border bg-muted/25 hover:bg-muted/45'

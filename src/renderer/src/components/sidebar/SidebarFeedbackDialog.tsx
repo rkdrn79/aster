@@ -232,7 +232,7 @@ export function SidebarFeedbackDialog({
         toast.error(
           translate(
             'auto.components.sidebar.SidebarFeedbackDialog.60b721e857',
-            'Failed to submit feedback. Please try again.'
+            'Failed to submit feedback. Try again.'
           )
         )
       }
@@ -280,7 +280,7 @@ export function SidebarFeedbackDialog({
       >
         <DialogHeader>
           <DialogTitle className="text-sm">
-            {translate('auto.components.sidebar.SidebarFeedbackDialog.0eb643f07f', 'Send Feedback')}
+            {translate('auto.components.sidebar.SidebarFeedbackDialog.0eb643f07f', 'Send feedback')}
           </DialogTitle>
           <DialogDescription className="text-xs">
             {translate(

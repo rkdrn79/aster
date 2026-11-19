@@ -3,6 +3,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useRef, useState, type RefObject } from 'react'
 import { Check, Pencil, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import '@/components/ai/ai-motion.css'
 import { translate } from '@/i18n/i18n'
 import type { AskAnswerSelection, AskPrompt } from './native-chat-interactive-prompt'
 import { NativeChatPromptCollapseToggle } from './NativeChatPromptCollapse'
@@ -256,19 +257,17 @@ export function NativeChatQuestionCard({
                       value0: i + 1
                     })}
                 </span>
-                {answerFor(i).length > 0 ? (
-                  <Check className="size-3 text-primary" strokeWidth={3} />
-                ) : null}
+                {answerFor(i).length > 0 ? <Check className="size-4 text-primary" /> : null}
               </button>
             ))}
           </div>
         ) : null}
 
-        <div className="overflow-hidden rounded-lg border border-input bg-card shadow-xs">
-          <div className="flex items-start gap-2 px-3.5 py-2.5">
+        <div className="overflow-hidden ai-rise rounded-xl bg-card shadow-floating">
+          <div className="flex items-start gap-2 px-4 py-3">
             <p
               data-testid="native-chat-question-card-title"
-              className="min-w-0 flex-1 break-words text-sm font-semibold text-foreground"
+              className="min-w-0 flex-1 break-words text-sm font-medium text-foreground"
             >
               {q.question}
             </p>
@@ -305,7 +304,7 @@ export function NativeChatQuestionCard({
                 onSelect={() => pickOption(i)}
               />
             ))}
-            <div className="flex items-center gap-3 px-3.5 py-2.5">
+            <div className="flex items-center gap-3 px-4 py-2">
               {questionAllowsOther ? (
                 <>
                   <span
@@ -317,9 +316,9 @@ export function NativeChatQuestionCard({
                     )}
                   >
                     {currentTypedAnswerChosen ? (
-                      <Check className="size-3.5" strokeWidth={3} />
+                      <Check className="size-4" />
                     ) : (
-                      <Pencil className="size-3.5" />
+                      <Pencil className="size-4" />
                     )}
                   </span>
                   {/* No `/` or `@` picker here — that autocomplete belongs to the composer,
@@ -376,7 +375,7 @@ export function NativeChatQuestionCard({
                 disabled={isSubmitting}
                 onClick={() => confirm()}
                 className={cn(
-                  'shrink-0 whitespace-nowrap rounded-md px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default disabled:opacity-50',
+                  'shrink-0 whitespace-nowrap rounded-md px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default disabled:opacity-50',
                   currentAnswered
                     ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
@@ -395,7 +394,7 @@ export function NativeChatQuestionCard({
         </div>
 
         {total > 1 ? (
-          <p className="mt-2 text-right text-xs text-muted-foreground">
+          <p className="mt-2 text-right text-xs tabular-nums text-muted-foreground">
             {index + 1}/{total}
           </p>
         ) : null}
@@ -431,7 +430,7 @@ function OptionRow({
       aria-pressed={selected}
       data-native-chat-prompt-card-focus-target={initialFocus || undefined}
       className={cn(
-        'flex w-full items-start gap-3 px-3.5 py-2.5 text-left transition-colors focus:bg-accent focus:outline-none disabled:pointer-events-none',
+        'flex w-full items-start gap-3 px-4 py-2 text-left transition-colors focus:bg-accent focus:outline-none disabled:pointer-events-none',
         selected ? 'bg-accent' : 'hover:bg-accent'
       )}
     >
@@ -441,7 +440,7 @@ function OptionRow({
           selected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
         )}
       >
-        {selected ? <Check className="size-3.5" strokeWidth={3} /> : badge}
+        {selected ? <Check className="size-4" /> : badge}
       </span>
       <span className="min-w-0">
         <span className="block break-words text-sm text-foreground">{label}</span>

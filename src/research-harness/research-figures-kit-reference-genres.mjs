@@ -62,7 +62,7 @@ export const GENRE_REFERENCE = [
     topic: 'genres',
     name: 'subcaption',
     call: "fig.subcaption({ id, under: id, label: '(a)', text, gap: 6, cx, w | x, y, cx, size, color })",
-    does: 'A sub-caption under a panel or items: "(a) prior work: one global caption", centred (cx moves it), at the small size, wrapped to the width of what it is under (w: another width; a word too wide prints a warning); text takes runs; color: accent-ink for ours.'
+    does: 'A sub-caption under a panel or items: "(a) prior work: one global caption", centred (cx moves it), at the small size, wrapped to the width of what it is under (w: another width; a word too wide prints a warning); text takes runs; color: accent-ink for ours. under gives the centre and the width to wrap to, its top gap below what it is under; y (and cx) given with under win, so captions of panels of different heights share one baseline.'
   },
   ...LINK_REFERENCE,
   ...GROUP_REFERENCE

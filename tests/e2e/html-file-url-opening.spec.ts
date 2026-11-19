@@ -32,7 +32,7 @@ test('opens HTML from Explorer as a preview and lets the user edit its source', 
     state?.setRightSidebarOpen(true)
     state?.setRightSidebarTab('explorer')
   })
-  await orcaPage.getByRole('button', { name: 'Refresh Explorer', exact: true }).click()
+  await orcaPage.getByRole('button', { name: 'Refresh explorer', exact: true }).click()
   const row = orcaPage.locator('[data-file-explorer-row]').filter({
     has: orcaPage.locator('[data-file-explorer-row-name]').getByText(name, { exact: true })
   })

@@ -76,7 +76,7 @@ export function buildRemoteDropdownItems(ctx: DropdownActionContext): RemoteDrop
 
   const forcePush: DropdownItem = {
     kind: 'force_push',
-    label: formatCountLabel('Force Push', pushLabelCount),
+    label: formatCountLabel('Force push', pushLabelCount),
     title: publishBlockedByDetachedHead
       ? 'Check out a branch before force pushing commits'
       : pushBlockedByOpenHostedReviewTarget
@@ -152,7 +152,7 @@ export function buildRemoteDropdownItems(ctx: DropdownActionContext): RemoteDrop
             : !hasUpstream
               ? 'Publish the branch first to sync commits'
               : shouldForcePushWithLease
-                ? 'Use Force Push — remote only has older copies of local commits'
+                ? 'Use force push — remote only has older copies of local commits'
                 : ahead === 0 && behind === 0
                   ? 'Branch is up to date'
                   : describeSyncCounts(ahead, behind),
@@ -168,7 +168,7 @@ export function buildRemoteDropdownItems(ctx: DropdownActionContext): RemoteDrop
   const hasRemoteBaseRef = rebaseBaseLabel?.includes('/') === true
   const rebase: DropdownItem = {
     kind: 'rebase_base',
-    label: rebaseBaseLabel ? `Rebase from ${rebaseBaseLabel}` : 'Rebase from Base',
+    label: rebaseBaseLabel ? `Rebase from ${rebaseBaseLabel}` : 'Rebase from base',
     title: ((): string => {
       if (!rebaseBaseLabel || !hasRemoteBaseRef) {
         return 'Choose a remote base branch to rebase from'
@@ -198,12 +198,12 @@ export function buildRemoteDropdownItems(ctx: DropdownActionContext): RemoteDrop
     kind: 'publish',
     label:
       publishBlockedByMergedPR || publishBlockedByPRLoading
-        ? 'PR Status'
+        ? 'PR status'
         : publishBlockedByOpenHostedReview
-          ? 'Linked Review'
+          ? 'Linked review'
           : publishBlockedByDetachedHead
-            ? 'No Branch'
-            : 'Publish Branch',
+            ? 'No branch'
+            : 'Publish branch',
     title: upstreamLoading
       ? 'Checking branch status…'
       : publishBlockedByPRLoading

@@ -13,7 +13,7 @@ test('typing @ in the chat composer lists workspace files and inserts the chosen
   await showActivePaneAsNativeChat(orcaPage, 'claude', 'Claude')
 
   const composer = orcaPage.getByRole('textbox', {
-    name: 'Ask anything, @ to mention files, / for commands',
+    name: 'Message the agent, @ for files, / for commands',
     exact: true
   })
   await expect(composer).toBeVisible()

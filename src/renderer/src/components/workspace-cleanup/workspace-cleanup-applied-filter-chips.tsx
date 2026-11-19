@@ -40,13 +40,12 @@ export function WorkspaceCleanupAppliedFilterChips({
         <span
           key={filter.id}
           role="listitem"
-          className="inline-flex items-center gap-1 rounded-full border border-border bg-background py-0.5 pl-2 pr-1 text-[11px] text-muted-foreground"
+          className="inline-flex items-center gap-1 rounded-md border border-border bg-background py-0.5 pl-2 pr-1 text-[11px] text-muted-foreground"
         >
           {filter.label}
           <Button
             variant="ghost"
             size="icon-xs"
-            className="rounded-full"
             aria-label={translate(
               'components.workspace.cleanup.browse.removeFilter',
               'Remove filter {{value0}}',

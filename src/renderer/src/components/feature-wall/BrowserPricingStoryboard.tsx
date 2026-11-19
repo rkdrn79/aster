@@ -11,7 +11,7 @@ export function BrowserPricingStoryboard(props: {
 }): JSX.Element {
   return (
     <>
-      <div className="text-[15px] font-bold leading-tight">
+      <div className="text-[15px] font-semibold leading-tight">
         {translate('auto.components.feature.wall.BrowserAnimatedVisual.9e0f530390', 'Pricing')}
       </div>
       <div className="h-2 w-4/5 rounded bg-foreground/10" />
@@ -65,17 +65,17 @@ function PricingCard(props: {
           )}
         />
       ) : null}
-      <span className="text-[11.5px] font-semibold">{props.label}</span>
+      <span className="text-[11.5px] font-medium">{props.label}</span>
       <div className="h-1.5 w-3/5 rounded bg-foreground/10" />
       <div className="h-1.5 w-4/5 rounded bg-foreground/10" />
       <span
         ref={props.ctaRef}
         className={cn(
-          'mt-1 inline-flex w-fit items-center rounded-md px-2 py-1 text-[11px] font-semibold transition-[background-color,color,box-shadow,transform] duration-300',
+          'mt-1 inline-flex w-fit items-center rounded-md px-2 py-1 text-[11px] font-medium transition-[background-color,color,box-shadow,transform] duration-300',
           props.highlighted
             ? 'bg-foreground text-background'
             : ctaIsBranded
-              ? 'bg-blue-600 text-white shadow-[0_6px_16px_rgba(37,99,235,0.35)]'
+              ? 'bg-primary text-primary-foreground'
               : 'bg-foreground/[0.07] text-foreground',
           props.ctaPressing ? 'scale-[0.96]' : null
         )}

@@ -6,7 +6,8 @@ import {
   CircleX,
   LoaderCircle,
   RefreshCw,
-  Sparkles
+  Wrench,
+  GitMerge
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { PRCheckDetail } from '../../../../../shared/github/check-types'
@@ -93,7 +94,7 @@ export function PRTriageStrip({
             {isFixingChecksWithAI ? (
               <RefreshCw className="size-3 animate-spin" />
             ) : (
-              <Sparkles className="size-3" />
+              <Wrench className="size-3" />
             )}
             {translate('auto.components.right.sidebar.checks.panel.content.b45db92d0e', 'Fix')}
           </Button>
@@ -224,7 +225,7 @@ export function ConflictTriageStrip({
           {isResolvingConflictsWithAI ? (
             <RefreshCw className="size-3 animate-spin" />
           ) : (
-            <Sparkles className="size-3" />
+            <GitMerge className="size-3" />
           )}
           {translate('auto.components.right.sidebar.checks.panel.content.0c96cd25e5', 'Resolve')}
         </Button>

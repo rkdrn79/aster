@@ -105,7 +105,7 @@ describe('resolvePrimaryAction', () => {
       })
     )
     expect(result.kind).toBe('publish')
-    expect(result.label).toBe('Publish Branch')
+    expect(result.label).toBe('Publish branch')
     expect(result.title).toBe('Remote operation in progress…')
     expect(result.disabled).toBe(true)
   })
@@ -130,7 +130,7 @@ describe('resolvePrimaryAction', () => {
     })
   })
 
-  it('mirrors an in-flight Force Push on the push primary slot', () => {
+  it('mirrors an in-flight Force push on the push primary slot', () => {
     const result = resolvePrimaryAction(
       inputs({
         isRemoteOperationActive: true,
@@ -140,8 +140,8 @@ describe('resolvePrimaryAction', () => {
     )
     expect(result).toEqual({
       kind: 'push',
-      label: 'Force Push',
-      title: 'Force Push in progress…',
+      label: 'Force push',
+      title: 'Force push in progress…',
       disabled: true
     })
   })
@@ -192,13 +192,13 @@ describe('resolvePrimaryAction', () => {
     })
   })
 
-  it('returns Publish Branch on a clean tree when no upstream exists', () => {
+  it('returns Publish branch on a clean tree when no upstream exists', () => {
     const result = resolvePrimaryAction(
       inputs({ upstreamStatus: { hasUpstream: false, ahead: 0, behind: 0 }, branchCommitsAhead: 1 })
     )
     expect(result).toEqual({
       kind: 'publish',
-      label: 'Publish Branch',
+      label: 'Publish branch',
       title: 'Publish this branch to origin',
       disabled: false
     })
@@ -237,7 +237,7 @@ describe('resolvePrimaryAction', () => {
     })
   })
 
-  it('does not offer Publish Branch when HEAD is detached', () => {
+  it('does not offer Publish branch when HEAD is detached', () => {
     const result = resolvePrimaryAction(
       inputs({
         upstreamStatus: { hasUpstream: false, ahead: 0, behind: 0 },
@@ -253,13 +253,13 @@ describe('resolvePrimaryAction', () => {
     })
   })
 
-  it('offers Publish Branch when an unpublished branch has no commits ahead', () => {
+  it('offers Publish branch when an unpublished branch has no commits ahead', () => {
     const result = resolvePrimaryAction(
       inputs({ upstreamStatus: { hasUpstream: false, ahead: 0, behind: 0 }, branchCommitsAhead: 0 })
     )
     expect(result).toEqual({
       kind: 'publish',
-      label: 'Publish Branch',
+      label: 'Publish branch',
       title: 'Publish this branch to origin',
       disabled: false
     })
@@ -268,7 +268,7 @@ describe('resolvePrimaryAction', () => {
   it.each([
     [{ prState: 'merged' as const }, 'Nothing to commit. PR is already merged.'],
     [{ isPRStateLoading: true }, 'Checking PR status…']
-  ])('does not offer Publish Branch when linked PR state blocks it', (overrides, title) => {
+  ])('does not offer Publish branch when linked PR state blocks it', (overrides, title) => {
     const result = resolvePrimaryAction(
       inputs({ upstreamStatus: { hasUpstream: false, ahead: 0, behind: 0 }, ...overrides })
     )
@@ -287,7 +287,7 @@ describe('resolvePrimaryAction', () => {
     })
   })
 
-  it('returns Force Push when remote-only commits are patch-equivalent after a rebase', () => {
+  it('returns Force push when remote-only commits are patch-equivalent after a rebase', () => {
     const result = resolvePrimaryAction(
       inputs({
         branchCommitsAhead: 4,
@@ -302,7 +302,7 @@ describe('resolvePrimaryAction', () => {
     )
     expect(result).toEqual({
       kind: 'push',
-      label: 'Force Push',
+      label: 'Force push',
       title:
         'Remote only has older copies of local commits. Force push 4 branch commits with lease to update origin/feature.',
       disabled: false
@@ -348,11 +348,11 @@ describe('resolvePrimaryAction', () => {
   })
 
   // Why: dirty trees (no staged, has unstaged/untracked) must surface a
-  // 'Stage All' primary regardless of upstream state. Pulling/syncing on
+  // 'Stage all' primary regardless of upstream state. Pulling/syncing on
   // a dirty tree fails ("Please commit or stash them"), and pushing skips
   // the immediate user need (prepare a commit), so the staging rung
   // intercepts before any remote rung fires.
-  it('returns Stage All on a dirty tree that is behind upstream', () => {
+  it('returns Stage all on a dirty tree that is behind upstream', () => {
     const result = resolvePrimaryAction(
       inputs({
         hasUnstagedChanges: true,
@@ -362,13 +362,13 @@ describe('resolvePrimaryAction', () => {
     )
     expect(result).toEqual({
       kind: 'stage',
-      label: 'Stage All',
+      label: 'Stage all',
       title: 'Stage all changes',
       disabled: false
     })
   })
 
-  it('returns Stage All on a dirty tree that is ahead of upstream', () => {
+  it('returns Stage all on a dirty tree that is ahead of upstream', () => {
     const result = resolvePrimaryAction(
       inputs({
         hasUnstagedChanges: true,
@@ -377,11 +377,11 @@ describe('resolvePrimaryAction', () => {
       })
     )
     expect(result.kind).toBe('stage')
-    expect(result.label).toBe('Stage All')
+    expect(result.label).toBe('Stage all')
     expect(result.disabled).toBe(false)
   })
 
-  it('returns Stage All on a dirty tree with no upstream branch', () => {
+  it('returns Stage all on a dirty tree with no upstream branch', () => {
     const result = resolvePrimaryAction(
       inputs({
         hasUnstagedChanges: true,
@@ -392,7 +392,7 @@ describe('resolvePrimaryAction', () => {
     expect(result.kind).toBe('stage')
   })
 
-  it('returns Stage All on a dirty tree while upstream status is still loading', () => {
+  it('returns Stage all on a dirty tree while upstream status is still loading', () => {
     const result = resolvePrimaryAction(
       inputs({ hasUnstagedChanges: true, hasStageableChanges: true, upstreamStatus: undefined })
     )
@@ -416,7 +416,7 @@ describe('resolvePrimaryAction', () => {
     expect(result.disabled).toBe(false)
   })
 
-  it('keeps Stage All available in the commit area when Create PR intent is additive', () => {
+  it('keeps Stage all available in the commit area when Create PR intent is additive', () => {
     const input = inputs({
       stagedCount: 0,
       hasUnstagedChanges: true,
@@ -437,7 +437,7 @@ describe('resolvePrimaryAction', () => {
     expect(resolvePrimaryAction(input).kind).toBe('create_pr_intent')
     expect(resolveCommitAreaPrimaryAction(input)).toEqual({
       kind: 'stage',
-      label: 'Stage All',
+      label: 'Stage all',
       title: 'Stage all changes',
       disabled: false
     })
@@ -484,7 +484,7 @@ describe('resolvePrimaryAction', () => {
     expect(result.disabled).toBe(false)
   })
 
-  it('does not return Stage All when dirty rows cannot be staged from the parent repo', () => {
+  it('does not return Stage all when dirty rows cannot be staged from the parent repo', () => {
     const result = resolvePrimaryAction(
       inputs({
         hasUnstagedChanges: true,
@@ -509,7 +509,7 @@ describe('resolvePrimaryAction', () => {
     expect(result.title).toBe('Enter a commit message to commit')
   })
 
-  it('returns Stage All when unstaged changes exist on an in-sync branch', () => {
+  it('returns Stage all when unstaged changes exist on an in-sync branch', () => {
     const result = resolvePrimaryAction(
       inputs({
         hasUnstagedChanges: true,
@@ -519,7 +519,7 @@ describe('resolvePrimaryAction', () => {
     )
     expect(result).toEqual({
       kind: 'stage',
-      label: 'Stage All',
+      label: 'Stage all',
       title: 'Stage all changes',
       disabled: false
     })

@@ -68,7 +68,7 @@ export function ReviewerPickerRow({
       />
       <span className="min-w-0 flex-1">
         <span className="block truncate">
-          <span className="font-semibold text-foreground">{reviewer.login}</span>
+          <span className="font-medium text-foreground">{reviewer.login}</span>
           {reviewer.name ? (
             <span className="ml-1 font-normal text-muted-foreground">{reviewer.name}</span>
           ) : null}

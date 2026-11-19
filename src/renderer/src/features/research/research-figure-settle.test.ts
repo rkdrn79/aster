@@ -264,6 +264,34 @@ describe('settleFigure', () => {
     expect(byId(next, 'ctx-trainable')).toMatchObject({ width: 18, x: 120 + 144 - 2 - 9 })
   })
 
+  it('keeps a label at the size an undo restores when the box it grew shrinks back', () => {
+    const { memory, scene } = start()
+    // A text-size edit: the label goes from 8 to 12 pt and its box grows around its centre.
+    const bigger = settle(
+      memory,
+      apply(
+        scene,
+        new Map([
+          ['ctx-label-0-0', { fontSize: 24, width: 77.4, height: 30, x: 129.3, y: 37.5 }],
+          ['ctx', { x: 110, width: 116 }]
+        ])
+      )
+    )
+    expect(byId(bigger, 'ctx-label-0-0').fontSize).toBe(24)
+    // The undo puts both back at once; that is not a group resize to keep the type through.
+    const undone = settle(
+      memory,
+      apply(
+        bigger,
+        new Map([
+          ['ctx-label-0-0', { fontSize: 16, width: 51.6, height: 20, x: 142.2, y: 42.5 }],
+          ['ctx', { x: 120, width: 96 }]
+        ])
+      )
+    )
+    expect(byId(undone, 'ctx-label-0-0')).toMatchObject({ fontSize: 16, x: 142.2, y: 42.5 })
+  })
+
   it('widens a box around its centre when its edited label no longer fits', () => {
     const { memory, scene } = start()
     const typed = apply(

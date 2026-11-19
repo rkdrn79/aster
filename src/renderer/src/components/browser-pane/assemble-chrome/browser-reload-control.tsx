@@ -87,7 +87,7 @@ export function BrowserReloadControl({
           <DropdownMenuShortcut>{reloadShortcut}</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={onHardReload}>
-          {translate('auto.components.browser.pane.BrowserPane.a1f3c2e4b5', 'Hard Reload')}
+          {translate('auto.components.browser.pane.BrowserPane.a1f3c2e4b5', 'Hard reload')}
           <DropdownMenuShortcut>{hardReloadShortcut}</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>

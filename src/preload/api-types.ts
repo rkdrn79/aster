@@ -87,6 +87,7 @@ import type { ConferenceDeadlinesApi } from './api/conference-deadlines-bridge'
 import type { ResearchLibraryApi } from './api/research-library-bridge'
 import type { ResearchOpenReviewApi } from './api/research-openreview-bridge'
 import type { ResearchFiguresApi } from './api/research-figures-bridge'
+import type { ResearchPlansApi } from './api/research-plans-bridge'
 import type { ResearchWindowApi } from './api/research-window-bridge'
 import type { ResearchSlackApi } from './api/research-slack-bridge'
 
@@ -208,6 +209,8 @@ export type PreloadApi = {
   researchOpenReview?: ResearchOpenReviewApi
   /** Added with the Figures page; older preloads lack it, so renderers feature-detect it. */
   researchFigures?: ResearchFiguresApi
+  /** Added with the Plan view; older preloads lack it, so renderers feature-detect it. */
+  researchPlans?: ResearchPlansApi
   researchWindow: ResearchWindowApi
   researchSlack: ResearchSlackApi
   speech: SpeechApi

@@ -71,13 +71,13 @@ describe('EditorPanelActionsMenu', () => {
         onExportMarkdownToPdf={vi.fn()}
       />
     )
-    expect(checkboxItems.list.map(({ label }) => label)).toEqual(['Word Wrap', 'Front Matter'])
+    expect(checkboxItems.list.map(({ label }) => label)).toEqual(['Word wrap', 'Front matter'])
     expect(checkboxItems.list[1]?.checked).toBe(true)
     checkboxItems.list[1]?.onCheckedChange?.(false)
     expect(onToggleMarkdownFrontmatter).toHaveBeenCalledOnce()
   })
 
-  it('shows Word Wrap for normal file tabs using editorWordWrap (#9974)', () => {
+  it('shows Word wrap for normal file tabs using editorWordWrap (#9974)', () => {
     const onToggleDiffWordWrap = vi.fn()
     const onToggleEditorWordWrap = vi.fn()
     renderToStaticMarkup(
@@ -99,13 +99,13 @@ describe('EditorPanelActionsMenu', () => {
     )
 
     expect(checkboxItems.list).toHaveLength(1)
-    expect(checkboxItems.list[0]).toMatchObject({ checked: true, label: 'Word Wrap' })
+    expect(checkboxItems.list[0]).toMatchObject({ checked: true, label: 'Word wrap' })
     checkboxItems.list[0]?.onCheckedChange?.(false)
     expect(onToggleEditorWordWrap).toHaveBeenCalledOnce()
     expect(onToggleDiffWordWrap).not.toHaveBeenCalled()
   })
 
-  it('binds Word Wrap to diffWordWrap on diff surfaces', () => {
+  it('binds Word wrap to diffWordWrap on diff surfaces', () => {
     const onToggleDiffWordWrap = vi.fn()
     const onToggleEditorWordWrap = vi.fn()
     renderToStaticMarkup(
@@ -127,13 +127,13 @@ describe('EditorPanelActionsMenu', () => {
     )
 
     expect(checkboxItems.list).toHaveLength(2)
-    expect(checkboxItems.list[0]).toMatchObject({ checked: true, label: 'Word Wrap' })
+    expect(checkboxItems.list[0]).toMatchObject({ checked: true, label: 'Word wrap' })
     checkboxItems.list[0]?.onCheckedChange?.(false)
     expect(onToggleDiffWordWrap).toHaveBeenCalledOnce()
     expect(onToggleEditorWordWrap).not.toHaveBeenCalled()
   })
 
-  it('shows and binds Show Whitespace on diff surfaces', () => {
+  it('shows and binds Show whitespace on diff surfaces', () => {
     const onToggleDiffWhitespace = vi.fn()
     renderToStaticMarkup(
       React.createElement(EditorPanelActionsMenu, {
@@ -156,7 +156,7 @@ describe('EditorPanelActionsMenu', () => {
     expect(checkboxItems.list).toHaveLength(2)
     expect(checkboxItems.list[1]).toMatchObject({
       checked: true,
-      label: 'Show Whitespace'
+      label: 'Show whitespace'
     })
     checkboxItems.list[1]?.onCheckedChange?.(false)
     expect(onToggleDiffWhitespace).toHaveBeenCalledOnce()

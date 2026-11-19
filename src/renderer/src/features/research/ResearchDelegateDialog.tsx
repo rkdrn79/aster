@@ -186,7 +186,7 @@ function DelegateBody({
                 </SelectContent>
               </Select>
               {menu.state === 'settled' && !available.length ? (
-                <p className="text-muted-foreground">No agent is available on this computer.</p>
+                <p className="text-muted-foreground">No agent is available on this computer</p>
               ) : null}
             </div>
             <label className="block space-y-1 font-medium">
@@ -194,7 +194,7 @@ function DelegateBody({
               <Textarea
                 value={task}
                 onChange={(event) => setTask(event.target.value)}
-                placeholder="Describe the work and the expected result."
+                placeholder="Describe the work and the expected result"
                 className="mt-1 min-h-28"
                 maxLength={20_000}
               />

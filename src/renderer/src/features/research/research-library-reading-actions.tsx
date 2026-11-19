@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils'
 import type { ReadingRequest } from './research-library-reading-agent'
 import { READING_LANGUAGES, type ReadingLanguageId } from './research-reading-language'
+import { ResearchChip } from './research-chip'
 
 type QuickRequest = 'summarize' | 'relate' | 'critique'
 
@@ -48,24 +49,22 @@ export function ResearchLibraryReadingActions({
   }
 
   return (
-    <div className="shrink-0 space-y-1.5 border-b border-border px-3 py-2">
+    <div className="shrink-0 space-y-2 border-b border-border px-3 py-3">
       <div
         role="group"
         aria-label="Ask the reading agent"
-        className="@container flex items-center gap-1.5 overflow-hidden"
+        className="@container flex items-center gap-2 overflow-hidden"
       >
         {QUICK_REQUESTS.map(({ kind, label, Icon }, index) => (
-          <Button
+          <ResearchChip
             key={kind}
-            size="xs"
-            variant="outline"
             disabled={quickBusy}
-            className={cn('shrink-0', index >= INLINE_QUICK_REQUESTS && 'hidden @md:inline-flex')}
+            className={cn(index >= INLINE_QUICK_REQUESTS && 'hidden @md:inline-flex')}
             onClick={() => void quick(kind)}
           >
             <Icon aria-hidden />
             {label}
-          </Button>
+          </ResearchChip>
         ))}
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
@@ -74,7 +73,7 @@ export function ResearchLibraryReadingActions({
               variant="ghost"
               disabled={quickBusy}
               aria-label="More requests"
-              className="shrink-0 @md:hidden"
+              className="size-7 shrink-0 @md:hidden"
             >
               <Ellipsis aria-hidden />
             </Button>
@@ -90,7 +89,7 @@ export function ResearchLibraryReadingActions({
         </DropdownMenu>
         <select
           aria-label="Answer language"
-          className="ml-auto rounded border border-border bg-background px-1.5 py-0.5 text-xs"
+          className="ml-auto h-7 rounded-lg border border-border bg-background px-3 text-xs"
           value={language}
           onChange={(event) => {
             const next = READING_LANGUAGES.find((entry) => entry.id === event.target.value)

@@ -70,7 +70,7 @@ export function buildInterfaceSettingsSections({
       : []),
     {
       id: 'input',
-      title: translate('auto.hooks.useSettingsNavigationMetadata.0c6ee88a5f', 'Input & Editing'),
+      title: translate('auto.hooks.useSettingsNavigationMetadata.0c6ee88a5f', 'Input and editing'),
       description: translate(
         'auto.hooks.useSettingsNavigationMetadata.1f452cbd4c',
         'Selection and editing behavior.'
@@ -113,7 +113,7 @@ export function buildInterfaceSettingsSections({
     },
     {
       id: 'stats',
-      title: translate('auto.hooks.useSettingsNavigationMetadata.d72a58b5b9', 'Stats & Usage'),
+      title: translate('auto.hooks.useSettingsNavigationMetadata.d72a58b5b9', 'Stats and usage'),
       description: translate(
         'auto.hooks.useSettingsNavigationMetadata.b351014180',
         'Aster stats plus Claude, Codex, OpenCode, Muse token analytics and Grok subscription usage.'

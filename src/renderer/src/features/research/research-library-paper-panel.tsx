@@ -3,7 +3,6 @@ import { toast } from 'sonner'
 import { Copy, ExternalLink, Pencil } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
 import {
   libraryScopeKey,
   type LibraryPaper,
@@ -26,6 +25,8 @@ import {
 } from './research-library-reading-agent'
 import type { ReadingLanguageId } from './research-reading-language'
 import { useResearchLibrary } from './research-library-store'
+import { ResearchSegmentedTrack, researchSegmentClass } from './research-segmented-track'
+import { ResearchChip } from './research-chip'
 
 export type PaperPanelTab = 'overview' | 'highlights' | 'agent'
 
@@ -79,8 +80,8 @@ function PaperNotes({ paper }: { paper: LibraryPaper }): React.JSX.Element {
 
   return (
     <section aria-label="Reading notes">
-      <div className="mb-1.5 flex items-baseline justify-between">
-        <h3 className="text-xs font-semibold">Notes</h3>
+      <div className="mb-2 flex items-baseline justify-between">
+        <h3 className="text-xs font-medium">Notes</h3>
         <span className="text-2xs text-muted-foreground" role="status">
           {status === 'pending' ? 'Saving…' : status === 'error' ? 'Not saved' : ''}
         </span>
@@ -133,49 +134,42 @@ function PaperOverview({
   }
 
   return (
-    <div className="scrollbar-sleek min-h-0 flex-1 space-y-5 overflow-auto p-4">
+    <div className="research-pane-in scrollbar-sleek min-h-0 flex-1 space-y-5 overflow-auto p-4">
       <ResearchLibraryPaperHeader paper={paper} />
-      <div className="flex gap-1" role="group" aria-label="Reading status">
+      <ResearchSegmentedTrack role="group" aria-label="Reading status" className="w-fit">
         {(['unread', 'reading', 'read'] as const).map((status) => (
-          <Button
+          <button
             key={status}
-            size="xs"
-            variant={paper.status === status ? 'secondary' : 'ghost'}
+            type="button"
             aria-pressed={paper.status === status}
+            data-state={paper.status === status ? 'active' : 'inactive'}
+            className={researchSegmentClass(paper.status === status)}
             onClick={() => void setStatus(status)}
           >
             {STATUS_LABELS[status]}
-          </Button>
+          </button>
         ))}
-      </div>
-      <div className="flex flex-wrap gap-1.5">
-        <Button
-          size="xs"
-          variant="outline"
-          onClick={() => void copy(paperCitationText(paper), 'Citation')}
-        >
+      </ResearchSegmentedTrack>
+      <div className="flex flex-wrap gap-2">
+        <ResearchChip onClick={() => void copy(paperCitationText(paper), 'Citation')}>
           <Copy aria-hidden /> Citation
-        </Button>
-        <Button size="xs" variant="outline" onClick={() => void copy(paperBibtex(paper), 'BibTeX')}>
+        </ResearchChip>
+        <ResearchChip onClick={() => void copy(paperBibtex(paper), 'BibTeX')}>
           <Copy aria-hidden /> BibTeX
-        </Button>
+        </ResearchChip>
         {sourceUrl ? (
-          <Button
-            size="xs"
-            variant="outline"
-            onClick={() => void window.api.shell.openUrl(sourceUrl)}
-          >
+          <ResearchChip onClick={() => void window.api.shell.openUrl(sourceUrl)}>
             <ExternalLink aria-hidden /> Source
-          </Button>
+          </ResearchChip>
         ) : null}
-        <Button size="xs" variant="ghost" onClick={onEdit}>
+        <ResearchChip tone="quiet" onClick={onEdit}>
           <Pencil aria-hidden /> Edit
-        </Button>
+        </ResearchChip>
       </div>
       {paper.abstract ? (
         <details open={abstractInitiallyOpen}>
-          <summary className="cursor-pointer text-xs font-semibold">Abstract</summary>
-          <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed">{paper.abstract}</p>
+          <summary className="cursor-pointer text-xs font-medium">Abstract</summary>
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{paper.abstract}</p>
         </details>
       ) : null}
       <PaperNotes key={paper.id} paper={paper} />
@@ -241,28 +235,25 @@ export function ResearchLibraryPaperPanel({
 
   return (
     <aside aria-label="Paper details" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div
-        className="flex h-10 shrink-0 items-center gap-1 border-b border-border px-2"
-        role="tablist"
-      >
-        {TABS.map((entry) => (
-          <button
-            key={entry.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === entry.id}
-            className={cn(
-              'rounded-md px-2 py-1 text-xs whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring',
-              tab === entry.id && 'bg-accent text-foreground'
-            )}
-            onClick={() => onTabChange(entry.id)}
-          >
-            {entry.label}
-            {entry.id === 'highlights' && highlights.length ? (
-              <span className="ml-1 tabular-nums text-muted-foreground">{highlights.length}</span>
-            ) : null}
-          </button>
-        ))}
+      <div className="flex h-10 shrink-0 items-center border-b border-border px-3">
+        <ResearchSegmentedTrack role="tablist" className="w-full">
+          {TABS.map((entry) => (
+            <button
+              key={entry.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === entry.id}
+              data-state={tab === entry.id ? 'active' : 'inactive'}
+              className={researchSegmentClass(tab === entry.id, 'flex-1 px-2')}
+              onClick={() => onTabChange(entry.id)}
+            >
+              {entry.label}
+              {entry.id === 'highlights' && highlights.length ? (
+                <span className="tabular-nums text-muted-foreground">{highlights.length}</span>
+              ) : null}
+            </button>
+          ))}
+        </ResearchSegmentedTrack>
       </div>
       {tab === 'overview' ? (
         <PaperOverview key={paper.id} paper={paper} onEdit={onEdit} onRemoved={onRemoved} />
@@ -293,7 +284,7 @@ export function ResearchLibraryPaperPanel({
         sessionLabel="Reading agent chat"
         emptyHint="Start a reading chat, or select text in the PDF and choose Explain."
         visible={tab === 'agent'}
-        className="flex-1"
+        className="research-pane-in flex-1"
         onBind={(sessionId) => bindReadingSession(scope, sessionId)}
         onLaunch={(agent: TuiAgent) => launchReadingChat(scope, agent)}
         toolbar={

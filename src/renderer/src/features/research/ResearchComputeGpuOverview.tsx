@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { RAISED_CARD } from './research-surface-classes'
 import type { ResearchGpuHostBudget } from '../../../../shared/research/research-gpu-budget'
 import type { ResearchGpuPolicy } from '../../../../shared/research/research-gpu-policy'
 import type { ResearchComputeHostInput } from './research-compute-usage'
@@ -72,7 +73,7 @@ function BudgetRow({
   onEdit: () => void
 }): React.JSX.Element {
   return (
-    <div className="flex items-center gap-3 rounded-md bg-muted/40 px-3 py-1.5 text-xs">
+    <div className="flex items-center gap-3 rounded-lg bg-muted/60 px-3 py-2 text-xs dark:bg-muted/45">
       {budget ? (
         <>
           <span className="shrink-0 font-medium">Your budget</span>
@@ -117,15 +118,10 @@ export function ResearchComputeGpuOverview({
   }
   return (
     <section className="space-y-2" aria-label="GPU allocation">
-      <h2 className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
-        GPU allocation
-      </h2>
+      <h2 className="text-[15px] font-medium">GPU allocation</h2>
       <div className="grid items-start gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => (
-          <article
-            key={card.targetId}
-            className="space-y-2 rounded-lg border border-border bg-card p-4"
-          >
+          <article key={card.targetId} className={cn(RAISED_CARD, 'space-y-3 p-4')}>
             <div className="flex items-baseline justify-between gap-2">
               <h3 className="truncate text-sm font-medium">{card.hostLabel}</h3>
               <span className="shrink-0 text-xs text-muted-foreground">{card.source}</span>
@@ -155,7 +151,7 @@ export function ResearchComputeGpuOverview({
             ))}
             {card.nodes.length ? (
               <ul
-                className="grid grid-cols-2 gap-x-4 gap-y-1 border-t border-border pt-2 text-2xs"
+                className="grid grid-cols-2 gap-x-4 gap-y-1 pt-1 text-2xs"
                 aria-label={`${card.hostLabel} nodes`}
               >
                 {card.nodes.map((node) => (

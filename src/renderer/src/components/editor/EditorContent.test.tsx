@@ -124,7 +124,7 @@ describe('EditorContent', () => {
 
     expect(html).toContain('role="alert"')
     expect(html).toContain('changed on disk')
-    expect(html).toContain('Reload from Disk')
+    expect(html).toContain('Reload from disk')
   })
 
   it('shows the changed-on-disk banner above a dirty unstaged diff without collapsing it', () => {

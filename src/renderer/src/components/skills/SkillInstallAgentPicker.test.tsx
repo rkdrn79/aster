@@ -45,7 +45,7 @@ describe('SkillInstallAgentPicker', () => {
     const trigger = screen.getByRole('button', { name: /Installing for:/ })
     fireEvent.click(trigger)
 
-    expect(screen.getByText('Additional Agent Directories')).toBeTruthy()
+    expect(screen.getByText('Additional agent directories')).toBeTruthy()
     const cursorCheckbox = screen.getByRole('checkbox', { name: 'Cursor' })
     expect(cursorCheckbox).toBeTruthy()
     fireEvent.click(cursorCheckbox)
@@ -91,7 +91,7 @@ describe('SkillInstallAgentPicker', () => {
     )
 
     fireEvent.click(screen.getByRole('button', { name: /Installing for:/ }))
-    expect(screen.getByText('Standard Agents (Always Included)')).toBeTruthy()
+    expect(screen.getByText('Standard agents (always included)')).toBeTruthy()
     expect(screen.getByText('Codex')).toBeTruthy()
     expect(screen.getByText('Cursor')).toBeTruthy()
     expect(screen.getByText('Gemini CLI')).toBeTruthy()

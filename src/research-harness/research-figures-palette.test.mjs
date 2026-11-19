@@ -9,11 +9,12 @@ import { makeBox } from './research-figures-draw.mjs'
 const all = (report) => [...report.errors, ...report.warnings].map((entry) => entry.code)
 
 test('any picked colour becomes the colour study’s tint, strong, shade and solid', () => {
-  // The study's worked examples (palettes.json derived_examples).
+  // The study's worked examples (palettes.json derived_examples), the tint at the corpus median
+  // for its hue: no longer darkened to stand apart from gray blocks in grayscale.
   const expected = {
     '#2563eb': ['#cadaf8', '#8caae2', '#375da9', '#4f7cd9'],
-    '#16a34a': ['#c4e6c9', '#79be86', '#0c7131', '#29984b'],
-    '#ea580c': ['#f8d3c6', '#df997f', '#9e441f', '#c85b30']
+    '#16a34a': ['#c7e9cc', '#7dc289', '#0f7232', '#29984b'],
+    '#ea580c': ['#fcd6c9', '#e29c82', '#a14722', '#c85b30']
   }
   for (const [pick, colors] of Object.entries(expected)) {
     const accent = deriveAccent(pick)
@@ -40,7 +41,7 @@ test('presets: old names map, accents by swatch or hex, roles for every accent',
   assert.deepEqual([graphite.line, graphite.accentColor.fill], ['#333333', '#c5def8'])
   assert.equal(figureStyle('slate').accentName, 'amber', 'slate takes a warm accent')
   const teal = figureStyle('graphite', '#0d9488')
-  assert.equal(styleColor(teal, 'accent').fill, '#bae3dd')
+  assert.equal(styleColor(teal, 'accent').fill, '#c1eae4')
   assert.equal(styleColor(teal, 'accent-ink').ink, deriveAccent('#0d9488').shade)
   const pair = figureStyle('blue-amber')
   assert.equal(styleColor(pair, 'secondary').fill, '#fedfa6')

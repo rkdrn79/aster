@@ -64,7 +64,7 @@ export function AdvancedPane({ settings, updateSettings }: AdvancedPaneProps): R
                 <Label id="advanced-http1-compatibility-label">
                   {translate(
                     'auto.components.settings.AdvancedPane.e9506d3377',
-                    'HTTP/1.1 Compatibility'
+                    'HTTP/1.1 compatibility'
                   )}
                 </Label>
                 <TooltipProvider delayDuration={250}>

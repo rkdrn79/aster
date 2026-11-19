@@ -103,7 +103,7 @@ const SidebarRepositoryFilterSection = React.memo(function SidebarRepositoryFilt
         data-workspace-board-preserve-open={preserveWorkspaceBoardOpen ? '' : undefined}
       >
         <div className="flex items-center justify-between px-2 py-1">
-          <span className="text-[11px] font-semibold text-muted-foreground">
+          <span className="text-[11px] font-medium text-muted-foreground">
             {translate(
               'auto.components.sidebar.SidebarRepositoryFilterSection.7679f0c268',
               'Projects'
@@ -115,7 +115,7 @@ const SidebarRepositoryFilterSection = React.memo(function SidebarRepositoryFilt
           <button
             type="button"
             onClick={clearRepos}
-            className="rounded-full px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:hover:bg-transparent"
+            className="rounded-md px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40 disabled:hover:bg-transparent"
             disabled={!hasRepoFilter}
           >
             {translate(

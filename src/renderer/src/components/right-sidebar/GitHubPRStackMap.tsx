@@ -87,7 +87,7 @@ export function GitHubPRStackMap({
           }
         >
           <GitPullRequest className="size-3.5 shrink-0 text-muted-foreground" />
-          <span className="font-semibold text-foreground">
+          <span className="font-medium text-foreground">
             {translate(
               'auto.components.right.sidebar.GitHubPRStackMap.e3ee2daa32',
               'Stack #{{value0}}',

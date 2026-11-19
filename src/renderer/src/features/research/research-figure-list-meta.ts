@@ -6,6 +6,7 @@ import {
 } from '../../../../research-harness/research-figures-model.mjs'
 import { sceneSha256 } from './research-figure-document'
 import { figureSceneMeta, type FigureSceneMeta } from './research-figure-list-model'
+import { registerPaperFonts } from './research-figure-paper-fonts'
 import { readProjectText, type ProjectFileOwner } from './research-project-files'
 
 export type FigureListMeta = FigureSceneMeta & {
@@ -21,7 +22,8 @@ const FRAME_RENDERING = { enabled: true, clip: true, name: false, outline: false
 
 /** The figure drawn small from its scene, so it shows before it was ever opened or exported. */
 async function sceneThumbnail(sceneText: string): Promise<string | null> {
-  const { exportToSvg } = await import('@excalidraw/excalidraw')
+  const { FONT_FAMILY, exportToSvg } = await import('@excalidraw/excalidraw')
+  registerPaperFonts(FONT_FAMILY)
   // Why JSON.parse's any: Excalidraw restores whatever the file holds, as the editor does.
   const scene = JSON.parse(sceneText)
   const all: { id: string; type: string; isDeleted?: boolean; frameId?: string | null }[] =

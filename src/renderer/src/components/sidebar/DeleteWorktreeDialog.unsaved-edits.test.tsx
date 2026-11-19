@@ -184,7 +184,7 @@ describe('DeleteWorktreeDialog unsaved edits', () => {
     mocks.state.openFiles = [dirty('a.ts', '/workspaces/wt/a.ts')]
     render(<DeleteWorktreeDialog />)
     await screen.findByText('Unsaved edits in 1 file will be discarded:')
-    fireEvent.click(screen.getByRole('button', { name: /Delete Workspace/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Delete workspace/ }))
     expect(runWorktreeDeletesInParallel).toHaveBeenCalledWith([workspace], expect.anything())
   })
 })

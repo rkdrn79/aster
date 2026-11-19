@@ -15,6 +15,7 @@ import {
   parsePublicationRecord
 } from './research-figures-locations.mjs'
 import { figureFilePaths, figuresFolderFor, listFigureFolder } from './research-figures-model.mjs'
+import { plotFilePaths } from './research-figures-plot-files.mjs'
 
 const DEFAULT_MANUSCRIPT = 'paper/main.tex'
 
@@ -77,12 +78,13 @@ export function sha256(bytes) {
   return createHash('sha256').update(bytes).digest('hex')
 }
 
-async function paperState(project, figure, manuscript) {
+/** How the paper's copy stands; a plot's source is its script, a diagram's its scene. */
+async function paperState(project, figure, manuscript, source = figure.scene) {
   const record = await readPublication(project, figure.slug)
   const expectedPdf = paperCopyPath(manuscript, figure.slug)
   const [copy, scene] = await Promise.all([
     readFile(path.join(project, expectedPdf)).catch(() => null),
-    readFile(path.join(project, figure.scene)).catch(() => null)
+    readFile(path.join(project, source)).catch(() => null)
   ])
   return {
     published: record,
@@ -102,13 +104,14 @@ export async function listFigures(project) {
   const manuscript = await catalogManuscript(project)
   const workFolder = workFiguresFolder(project)
   const paperFolder = figuresFolderFor(manuscript)
-  const [workEntries, paperEntries] = await Promise.all([
+  const [workEntries, sourceEntries, paperEntries] = await Promise.all([
     folderEntries(path.join(project, workFolder)),
+    folderEntries(path.join(project, workFolder, 'src')),
     folderEntries(path.join(project, paperFolder))
   ])
   const merged = mergeFigureListings({
     workFolder,
-    work: listFigureFolder(workEntries),
+    work: listFigureFolder(workEntries, sourceEntries),
     paperFolder,
     paper: listFigureFolder(paperEntries)
   })
@@ -118,10 +121,18 @@ export async function listFigures(project) {
       return { ...located, ...(await paperState(project, located, manuscript)) }
     })
   )
+  const plots = await Promise.all(
+    merged.plots.map(async (plot) => {
+      const files = plotFilePaths(plot.folder, plot.slug)
+      const located = { ...plot, location: 'work', script: plot.script ? files.script : null }
+      return { ...located, ...(await paperState(project, located, manuscript, files.script)) }
+    })
+  )
   return {
     folder: workFolder,
     paperFolder,
     figures,
+    plots,
     others: merged.others.map((entry) => ({ ...entry, path: `${entry.folder}/${entry.name}` })),
     shadowed: merged.shadowed.map((entry) => ({
       ...entry,

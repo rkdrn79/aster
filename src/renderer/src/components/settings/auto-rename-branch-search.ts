@@ -7,7 +7,7 @@ export const getAutoRenameBranchParentSearchEntry = createLocalizedCatalog(
   (): SettingsSearchEntry => ({
     title: translate(
       'auto.components.settings.auto.rename.branch.search.427f2cd1eb',
-      'Auto-rename branch & worktree'
+      'Auto-rename branch and worktree'
     ),
     description: translate(
       'auto.components.settings.auto.rename.branch.search.ea94b9da8a',

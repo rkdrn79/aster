@@ -181,7 +181,7 @@ export function TerminalAppearanceSection({
             className="items-center"
             title={translate(
               'auto.components.settings.TerminalAppearanceSection.048aac8a64',
-              'Terminal Typography'
+              'Terminal typography'
             )}
             action={
               showGhosttyImport ? (
@@ -211,7 +211,7 @@ export function TerminalAppearanceSection({
             <SearchableSetting
               title={translate(
                 'auto.components.settings.TerminalAppearanceSection.a408266e67',
-                'Font Family'
+                'Font family'
               )}
               description={terminalTypographyEntries[1]?.description}
               keywords={
@@ -222,7 +222,7 @@ export function TerminalAppearanceSection({
               <SettingsRow
                 label={translate(
                   'auto.components.settings.TerminalAppearanceSection.a408266e67',
-                  'Font Family'
+                  'Font family'
                 )}
                 control={
                   <FontAutocomplete

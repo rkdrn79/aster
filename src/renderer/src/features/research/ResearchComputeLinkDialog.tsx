@@ -150,7 +150,7 @@ function LinkDialogBody({
               </SelectContent>
             </Select>
           ) : (
-            <p className="text-muted-foreground">Open a project first.</p>
+            <p className="text-muted-foreground">Open a project first</p>
           )}
         </div>
         {error ? (

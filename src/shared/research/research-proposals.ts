@@ -34,7 +34,13 @@ export const researchProposalSchema = z.object({
   /** The Run needs code changes, so it is implemented in a Workbench chat (ADR-003). */
   needsCode: z.boolean().catch(false),
   /** Set when the user handed the approved proposal to a Workbench chat. */
-  handoff: z.object({ at: z.string(), sessionId: nullableText }).nullable().catch(null)
+  handoff: z.object({ at: z.string(), sessionId: nullableText }).nullable().catch(null),
+  /** Set when an approved experiment plan proposed this Run for one of its cells. */
+  plan: z
+    .object({ id: z.string(), revision: z.number().int(), cell: z.string() })
+    .nullable()
+    .optional()
+    .catch(null)
 })
 export type ResearchProposal = z.infer<typeof researchProposalSchema>
 

@@ -12,6 +12,7 @@ import type { NativeChatBranchNavigation } from '@/components/native-chat/native
 import { cn } from '@/lib/utils'
 import type { ResearchChatScope } from './research-chat-branches'
 import { useResearchChatBranchLineage } from './use-research-chat-branch-lineage'
+import { ResearchChatStatusBadge } from './ResearchChatStatusBadge'
 
 const INDENT = ['', 'pl-3', 'pl-6'] as const
 
@@ -52,12 +53,12 @@ export function ResearchChatBranchSwitcher({
           aria-label={`Branches of this chat (${family.length})`}
           title="Switch to another branch of this chat"
         >
-          <GitBranch className="size-3.5" aria-hidden />
+          <GitBranch className="size-4" aria-hidden />
           <span className="tabular-nums">{family.length}</span>
-          <ChevronDown className="size-3" aria-hidden />
+          <ChevronDown className="size-4" aria-hidden />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 max-w-72">
+      <DropdownMenuContent align="end" className="w-72">
         <DropdownMenuLabel>Branches</DropdownMenuLabel>
         {family.map((entry) => (
           <DropdownMenuItem key={entry.sessionId} onSelect={() => onSwitch(entry.sessionId)}>
@@ -67,7 +68,10 @@ export function ResearchChatBranchSwitcher({
             >
               {entry.shortLabel}
             </span>
-            {entry.sessionId === sessionId ? <Check className="size-3" aria-hidden /> : null}
+            {entry.kind === 'fork' && scope ? (
+              <ResearchChatStatusBadge sessionId={entry.sessionId} hostId={scope.hostId} />
+            ) : null}
+            {entry.sessionId === sessionId ? <Check className="size-4" aria-hidden /> : null}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

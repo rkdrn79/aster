@@ -135,6 +135,7 @@ export function NativeChatSelectionQuote({
       <PopoverAnchor virtualRef={virtualRef} />
       {request ? (
         <PopoverContent
+          data-native-chat-surface=""
           ref={contentRef}
           align="start"
           side="top"
@@ -156,7 +157,7 @@ export function NativeChatSelectionQuote({
                 setRequest(null)
               }}
             >
-              <Quote />
+              <Quote className="size-4" />
               {translate('components.native-chat.addSelectionToChat', 'Add to chat')}
             </Button>
           </div>

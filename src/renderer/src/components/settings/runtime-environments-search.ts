@@ -8,7 +8,7 @@ export const getRuntimeEnvironmentsSearchEntry = createLocalizedCatalog(
   (): SettingsSearchEntry => ({
     title: translate(
       'auto.components.settings.runtime.environments.search.3517fb2ec0',
-      'Remote Aster Servers'
+      'Remote Aster servers'
     ),
     description: translate(
       'auto.components.settings.runtime.environments.search.addShareDefault',
@@ -104,7 +104,7 @@ export const getWebRuntimeEnvironmentsSearchEntry = createLocalizedCatalog(
   (): SettingsSearchEntry => ({
     title: translate(
       'auto.components.settings.runtime.environments.search.3517fb2ec0',
-      'Remote Aster Servers'
+      'Remote Aster servers'
     ),
     description: translate(
       'auto.components.settings.runtime.environments.search.baec27aa8f',

@@ -103,7 +103,7 @@ function ExampleTemplateCard({
 }): React.JSX.Element {
   return (
     <div className="space-y-2">
-      <p className="text-[10px] tracking-[0.18em] text-muted-foreground">
+      <p className="text-[11px] text-muted-foreground">
         {translate('auto.components.settings.RepositoryHooksSection.175daba180', 'Example')}{' '}
         <code className="rounded bg-muted px-1 py-0.5">
           {translate('auto.components.settings.RepositoryHooksSection.39da2ae12f', 'orca.yaml')}

@@ -158,7 +158,7 @@ export function PluginSettingsRow({
       disabled={busy}
       onClick={() => onReview(plugin.pluginKey)}
     >
-      {translate('auto.components.settings.PluginSettingsRow.reviewAndEnable', 'Review & enable')}
+      {translate('auto.components.settings.PluginSettingsRow.reviewAndEnable', 'Review and enable')}
     </Button>
   ) : null
   const footerAction = reviewAction

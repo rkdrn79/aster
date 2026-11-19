@@ -18,7 +18,7 @@ export function NativeChatToolName({
 }): React.JSX.Element {
   const identity = mcpToolIdentity(name, mcpIdentity)
   return identity ? (
-    <span title={name} className="inline-flex min-w-0 items-center gap-1.5">
+    <span title={name} className="inline-flex min-w-0 items-center gap-2">
       <span className="truncate">{identity.server}</span>
       <span className="font-normal text-chat-foreground-faint">/</span>
       <span className="truncate font-normal">{identity.tool}</span>
@@ -41,7 +41,7 @@ export function NativeChatCommandMetadata({
     return null
   }
   return (
-    <span className="ml-auto flex shrink-0 gap-1.5 font-sans text-xs tabular-nums text-chat-foreground-faint">
+    <span className="ml-auto flex shrink-0 gap-2 font-sans text-xs tabular-nums text-chat-foreground-faint">
       {exitCode !== undefined ? (
         <span className={cn(exitCode !== 0 && 'text-destructive')}>
           {translate('components.native-chat.tool.exitCode', 'exit {{value0}}', {
@@ -88,7 +88,7 @@ export function NativeChatSearchResults({
           >
             {hit.title}
             {hit.title !== hit.url ? (
-              <span className="ml-1.5 text-xs text-chat-foreground-faint">{hit.url}</span>
+              <span className="ml-2 text-xs text-chat-foreground-faint">{hit.url}</span>
             ) : null}
           </a>
         </li>

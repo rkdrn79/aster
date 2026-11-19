@@ -68,8 +68,8 @@ export function GHEditSectionStatusPopover({
           disabled={isPending}
           className={cn(
             isSidebar
-              ? 'inline-flex w-full items-center justify-between gap-2 rounded-md border px-2.5 py-1.5 text-[12px] font-medium transition hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50'
-              : 'group/status inline-flex items-center gap-0.5 rounded-full border px-2 py-0.5 text-[11px] font-medium transition hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50',
+              ? 'inline-flex w-full items-center justify-between gap-2 rounded-md border px-2.5 py-1.5 text-[12px] font-medium transition-[color,background-color,filter,box-shadow] hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50'
+              : 'group/status inline-flex items-center gap-0.5 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-[color,background-color,filter,box-shadow] hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50',
             localState === 'closed'
               ? getStateTone({ ...item, state: localState })
               : 'border-border/60 bg-muted/20 text-foreground hover:bg-accent/60'
@@ -103,7 +103,7 @@ export function GHEditSectionStatusPopover({
               >
                 <ChevronLeft className="size-4" />
               </Button>
-              <span className="min-w-0 truncate text-[12px] font-semibold">
+              <span className="min-w-0 truncate text-[12px] font-medium">
                 {duplicatePickerTitle}
               </span>
             </div>
@@ -168,7 +168,7 @@ export function GHEditSectionStatusPopover({
                 <p className="px-2 py-3 text-[12px] text-muted-foreground">
                   {translate(
                     'auto.components.TaskPage.noMatchingIssuesLoaded',
-                    'No matching issues loaded.'
+                    'No matching issues loaded'
                   )}
                 </p>
               ) : null}

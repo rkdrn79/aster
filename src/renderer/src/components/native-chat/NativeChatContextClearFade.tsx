@@ -12,7 +12,7 @@ export function NativeChatContextClearFade({
   return (
     <div
       data-clearing={clearing}
-      className="relative flex min-h-0 flex-1 flex-col transition-opacity duration-150 ease-out data-[clearing=true]:opacity-0"
+      className="relative flex min-h-0 flex-1 flex-col transition-opacity duration-150 ease-out-quint data-[clearing=true]:opacity-0"
     >
       {children}
     </div>

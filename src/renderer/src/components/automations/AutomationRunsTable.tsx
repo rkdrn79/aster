@@ -57,7 +57,7 @@ export function AutomationRunsTable({
           }
         }}
       >
-        <div className="sticky top-0 z-10 grid shrink-0 grid-cols-[minmax(11rem,1.4fr)_minmax(10rem,1fr)_minmax(5rem,.55fr)_minmax(8rem,.8fr)_minmax(7rem,auto)] gap-3 border-b border-border/60 bg-card px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+        <div className="sticky top-0 z-10 grid shrink-0 grid-cols-[minmax(11rem,1.4fr)_minmax(10rem,1fr)_minmax(5rem,.55fr)_minmax(8rem,.8fr)_minmax(7rem,auto)] gap-3 border-b border-border/60 bg-card px-4 py-2 text-[11px] font-medium text-muted-foreground">
           <div>
             {translate(
               'auto.components.automations.AutomationRunsDashboard.automation',

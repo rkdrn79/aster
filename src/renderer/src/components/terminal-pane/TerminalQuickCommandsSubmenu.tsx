@@ -74,7 +74,7 @@ export function TerminalQuickCommandsSubmenu({
         <Play fill="currentColor" strokeWidth={0} />
         {translate(
           'auto.components.terminal.pane.TerminalContextMenu.ec85df5914',
-          'Quick Commands'
+          'Quick commands'
         )}
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent className="w-60">
@@ -146,7 +146,7 @@ export function TerminalQuickCommandsSubmenu({
               {hosts.length === 1
                 ? translate(
                     'auto.components.terminal.pane.TerminalContextMenu.0a82b0608c',
-                    'Add Quick Command…'
+                    'Add quick command…'
                   )
                 : translate(
                     'auto.components.terminal.pane.TerminalContextMenu.15dd899676',

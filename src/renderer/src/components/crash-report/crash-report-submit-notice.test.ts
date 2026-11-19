@@ -31,7 +31,7 @@ describe('crash report submit notices', () => {
       title: "Crash report wasn't sent",
       description:
         'status 413. Uncheck "Attach recent diagnostic logs" and try again, or copy the details.',
-      actionLabel: 'Copy Details'
+      actionLabel: 'Copy details'
     })
   })
 

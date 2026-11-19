@@ -69,10 +69,7 @@ export function useChecksPanelCheckAndReviewActions(model: ChecksPanelCheckAndRe
     const broken = getBrokenChecks(checks)
     if (broken.length === 0) {
       toast.message(
-        translate(
-          'auto.components.right.sidebar.ChecksPanel.5594400d73',
-          'No broken checks to fix.'
-        )
+        translate('auto.components.right.sidebar.ChecksPanel.5594400d73', 'No broken checks to fix')
       )
       return
     }

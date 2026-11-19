@@ -1,13 +1,19 @@
 import { useCallback, useEffect, type ReactNode } from 'react'
-import { CaptureUpdateAction, Excalidraw } from '@excalidraw/excalidraw'
+import { CaptureUpdateAction, Excalidraw, FONT_FAMILY } from '@excalidraw/excalidraw'
 import type { ExcalidrawImperativeAPI, ExcalidrawProps } from '@excalidraw/excalidraw/types'
 import { PanelRight, Shapes, Sigma, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { fitFigureInView, fitShortcut } from './research-figure-editor-config'
+import { registerPaperFonts } from './research-figure-paper-fonts'
 import type { ProjectFileOwner } from './research-project-files'
 import { viewportBox, type CanvasViewport } from './ResearchFigureCanvasOverlays'
 import { ResearchFigureInsertPanel } from './ResearchFigureInsertPanel'
 import { ResearchFigureInspector } from './ResearchFigureInspector'
+import { ResearchFigurePainterPill } from './ResearchFigureInspectorPaint'
+import { ResearchFigureLabelBar, runLabelMath } from './ResearchFigureLabelBar'
+import { ResearchFigureLockMark, useFigureLockHover } from './ResearchFigureLockMarks'
+import { ResearchFigureSegmentHandles } from './ResearchFigureSegmentHandles'
+import { ResearchFigureSpacingOverlay } from './ResearchFigureSpacingOverlay'
 import { ResearchFigureMainMenu } from './ResearchFigureMainMenu'
 import { ResearchFigureMathPopover } from './ResearchFigureMathPopover'
 import { ResearchFigurePageWarning } from './ResearchFigurePageWarning'
@@ -21,12 +27,22 @@ import { isTypingTarget, type useFigureAttachments } from './use-figure-attachme
 import { useFigureAutoFit, useViewAdjustmentTracking } from './use-figure-auto-fit'
 import type { Inspected, MathCandidate, PageCheck } from './use-figure-canvas-observer'
 import { useFigureImageDrop } from './use-figure-image-drop'
+import { useFigureDuplicate } from './use-figure-duplicate'
+import { useFigureEditKeys } from './use-figure-edit-keys'
 import { useFigureInsert } from './use-figure-insert'
 import { useFigureInspector } from './use-figure-inspector'
 import { useFigureMathEditing } from './use-figure-math-editing'
+import { useFigurePainterPointer } from './use-figure-painter'
+import { useFigurePanelMarquee } from './use-figure-panel-marquee'
 import { FIGURE_MOD_KEY, registerFigureCanvasShortcut } from './research-figure-shortcuts'
 
+// Why before any canvas draws: Excalidraw names a text's font from this table on every paint.
+registerPaperFonts(FONT_FAMILY)
+
 const INSPECTOR_CHORD = FIGURE_MOD_KEY === 'Cmd' ? '⌘I' : 'Ctrl+I'
+/** A tool on the floating island beside Excalidraw's palette (research-figure-canvas.css). */
+const CANVAS_TOOL =
+  'research-canvas-tool flex size-7 items-center justify-center rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/40 [&_svg]:size-4'
 
 // Why at import: the `?` help lists the keys the stage adds, beside the page's own chords.
 for (const entry of [
@@ -89,6 +105,16 @@ export function ResearchFigureCanvasStage(props: Props): React.JSX.Element {
   )
   const drop = useFigureImageDrop(apiRef, inspector.context.commit)
   const insert = useFigureInsert(apiRef, settling.settleEdit, inspector.context.style)
+  const duplicate = useFigureDuplicate(apiRef)
+  const editKey = useFigureEditKeys(
+    apiRef,
+    settling.settleEdit,
+    inspector.context.style,
+    duplicate.prepare
+  )
+  const paintOnClick = useFigurePainterPointer(apiRef, settling.settleEdit)
+  const marquee = useFigurePanelMarquee(apiRef, focusCanvas)
+  const lockHover = useFigureLockHover(apiRef)
   useFigureAutoFit(apiRef, containerRef)
   const tracking = useViewAdjustmentTracking(apiRef)
   const vision = useFigureVision((state) => state.vision)
@@ -98,7 +124,7 @@ export function ResearchFigureCanvasStage(props: Props): React.JSX.Element {
   const onKey = (event: React.KeyboardEvent): void => {
     onUserInput()
     tracking.onKeyDown(event)
-    if (settling.nudge(event) || math.onKey(event) || insert.onKey(event)) {
+    if (settling.nudge(event) || math.onKey(event) || insert.onKey(event) || editKey(event)) {
       return
     }
     const typing = isTypingTarget(event.target)
@@ -140,9 +166,15 @@ export function ResearchFigureCanvasStage(props: Props): React.JSX.Element {
           onUserInput()
           tracking.onPointerDown(event)
           inspector.noteInteraction()
+          marquee.onPointerDownCapture(event)
         }}
         onWheelCapture={tracking.onWheel}
-        onPointerUpCapture={inspector.noteInteraction}
+        onPointerUpCapture={() => {
+          inspector.noteInteraction()
+          paintOnClick()
+        }}
+        onPointerMove={lockHover.onPointerMove}
+        onPointerLeave={lockHover.onPointerLeave}
         onKeyUpCapture={inspector.noteInteraction}
         // Why: Excalidraw caches where its canvas sits; panes and banners move it without a resize.
         onPointerEnter={() => apiRef.current?.refresh()}
@@ -165,6 +197,7 @@ export function ResearchFigureCanvasStage(props: Props): React.JSX.Element {
       >
         <Excalidraw
           {...props.excalidraw}
+          onDuplicate={duplicate.onDuplicate}
           // Why light: a paper figure prints on white; dark mode would invert its colours.
           theme="light"
         >
@@ -175,49 +208,70 @@ export function ResearchFigureCanvasStage(props: Props): React.JSX.Element {
           />
         </Excalidraw>
         {props.children}
+        <ResearchFigureSpacingOverlay api={apiRef.current} settleEdit={settling.settleEdit} />
+        <ResearchFigureSegmentHandles api={apiRef.current} settleEdit={settling.settleEdit} />
+        {marquee.box ? (
+          <div
+            className="research-figure-marquee pointer-events-none absolute z-[4]"
+            style={{
+              left: marquee.box.x,
+              top: marquee.box.y,
+              width: marquee.box.width,
+              height: marquee.box.height
+            }}
+          />
+        ) : null}
+        <ResearchFigureLockMark hover={lockHover} viewport={viewport} api={() => apiRef.current} />
+        <ResearchFigureLabelBar
+          api={apiRef.current}
+          settleEdit={settling.settleEdit}
+          hidden={Boolean(math.open)}
+          onMath={(targets) => runLabelMath(apiRef.current, targets, math)}
+        />
+        <ResearchFigurePainterPill />
         <ResearchFigureVisionPreview />
         <div
           role="toolbar"
           aria-label="Figure insert tools"
           aria-orientation="vertical"
-          className="absolute top-[60px] left-4 z-[4] flex flex-col gap-1"
+          // Why light in either theme: it floats on the paper beside Excalidraw's own palette.
+          className="research-canvas-island absolute top-[60px] left-4 z-[4] flex flex-col gap-0.5 rounded-xl p-1"
         >
-          <Button
-            size="icon-xs"
-            // Why secondary: a solid chip reads on the always-light canvas in either app theme.
-            variant="secondary"
+          <button
+            type="button"
+            className={CANVAS_TOOL}
             aria-label="New math label (M)"
             title="New math label (M)"
             onClick={() => void math.newMath()}
           >
             <Sigma aria-hidden />
-          </Button>
-          <Button
-            size="icon-xs"
-            variant={insert.open ? 'default' : 'secondary'}
+          </button>
+          <button
+            type="button"
+            className={CANVAS_TOOL}
             aria-label="Insert a part (I)"
             aria-expanded={insert.open}
             title="Insert a part (I)"
             onClick={() => insert.setOpen(!insert.open)}
           >
             <Shapes aria-hidden />
-          </Button>
-          <Button
-            size="icon-xs"
-            variant={inspector.visible ? 'default' : 'secondary'}
+          </button>
+          <button
+            type="button"
+            className={CANVAS_TOOL}
             aria-label={`Inspector (${INSPECTOR_CHORD})`}
             aria-pressed={inspector.visible}
             title={`Inspector: role, badge, place and size (${INSPECTOR_CHORD})`}
             onClick={inspector.toggle}
           >
             <PanelRight aria-hidden />
-          </Button>
+          </button>
         </div>
         {insert.open ? (
           <div
             role="dialog"
             aria-label="Insert"
-            className="absolute top-[60px] left-12 z-20 flex h-[min(440px,calc(100%-80px))] w-[316px] flex-col rounded-md border border-border bg-popover text-popover-foreground shadow-md"
+            className="research-panel-in-left surface-floating absolute top-[60px] left-[60px] z-20 flex h-[min(440px,calc(100%-80px))] w-[316px] flex-col overflow-hidden rounded-2xl"
             onKeyDown={(event) => {
               if (event.key === 'Escape') {
                 event.stopPropagation()
@@ -226,7 +280,7 @@ export function ResearchFigureCanvasStage(props: Props): React.JSX.Element {
               }
             }}
           >
-            <div className="flex h-8 shrink-0 items-center border-b border-border pr-1 pl-2.5 text-xs font-medium">
+            <div className="flex h-10 shrink-0 items-center pr-2 pl-3 text-[13px] font-medium">
               <span className="flex-1">Insert</span>
               <Button
                 size="icon-xs"
@@ -265,10 +319,9 @@ export function ResearchFigureCanvasStage(props: Props): React.JSX.Element {
           }
         />
         {mathCandidate && !math.open ? (
-          <Button
-            size="xs"
-            variant="outline"
-            className="absolute z-10"
+          <button
+            type="button"
+            className="research-canvas-island research-canvas-tool research-pop-in absolute z-10 inline-flex h-7 items-center gap-2 rounded-lg px-3 text-xs font-medium [&_svg]:size-4"
             style={{
               left: viewportBox(mathCandidate, viewport).x,
               top: viewportBox(mathCandidate, viewport).y + mathCandidate.height * viewport.zoom + 6
@@ -276,7 +329,7 @@ export function ResearchFigureCanvasStage(props: Props): React.JSX.Element {
             onClick={() => void math.typesetSelectedText()}
           >
             <Sigma aria-hidden /> Typeset as math
-          </Button>
+          </button>
         ) : null}
         {math.open ? (
           <ResearchFigureMathPopover

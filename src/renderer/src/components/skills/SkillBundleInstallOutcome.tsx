@@ -38,7 +38,7 @@ export function SkillBundleInstallOutcome({
         role="status"
         aria-live="polite"
       >
-        <div className="flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+        <div className="flex shrink-0 text-muted-foreground">
           {incomplete ? <AlertTriangle className="size-4" /> : <Check className="size-4" />}
         </div>
         <div>
@@ -65,7 +65,7 @@ export function SkillBundleInstallOutcome({
       <div className="space-y-2">
         {retrySkills.length ? (
           <section className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+            <p className="text-[11px] font-medium text-muted-foreground tabular-nums">
               {translate(
                 'auto.components.skills.SkillBundleInstallOutcome.01c5a12e10',
                 'Needs retry'
@@ -86,7 +86,7 @@ export function SkillBundleInstallOutcome({
           )
           return skills.length ? (
             <section key={status} className="space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+              <p className="text-[11px] font-medium text-muted-foreground tabular-nums">
                 {resultGroupLabel(status)} · {skills.length}
               </p>
               {skills.map((skill) => (

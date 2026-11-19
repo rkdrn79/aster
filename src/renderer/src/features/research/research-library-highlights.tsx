@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { Highlighter, LocateFixed, Sparkles, Trash2 } from 'lucide-react'
+import { Highlighter, Lightbulb, LocateFixed, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import type { PaperHighlight } from '../../../../shared/research/research-library'
@@ -25,7 +25,7 @@ function HighlightNote({ highlight }: { highlight: PaperHighlight }): React.JSX.
 
   if (editing) {
     return (
-      <div className="mt-2 space-y-1.5">
+      <div className="mt-2 space-y-2">
         <Textarea
           autoFocus
           rows={3}
@@ -90,7 +90,7 @@ export function ResearchLibraryHighlights({
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
         <Highlighter className="size-6 text-muted-foreground" aria-hidden />
         <p className="max-w-xs text-sm text-muted-foreground">
-          Select text in the PDF and pick a color to keep a highlight here.
+          Select text in the PDF and pick a color to keep a highlight here
         </p>
       </div>
     )
@@ -128,7 +128,7 @@ export function ResearchLibraryHighlights({
                   })
                 }
               >
-                <Sparkles aria-hidden />
+                <Lightbulb aria-hidden />
               </Button>
               <Button
                 size="icon-xs"
@@ -145,7 +145,7 @@ export function ResearchLibraryHighlights({
             </span>
           </div>
           <blockquote
-            className="mt-1.5 line-clamp-5 border-l-2 pl-2 text-xs leading-relaxed"
+            className="mt-2 line-clamp-5 border-l-2 pl-2 text-xs leading-relaxed"
             style={{ borderColor: HIGHLIGHT_STYLES[highlight.color].swatch }}
           >
             {highlight.text}

@@ -8,11 +8,14 @@ import {
   paperCopyPath,
   type FigureListing,
   type FigurePublication,
-  type ListedFigure
+  type ListedFigure,
+  type ListedPlot
 } from '../../../../research-harness/research-figures-locations.mjs'
 import { figureFilePaths } from '../../../../research-harness/research-figures-model.mjs'
+import { plotFilePaths } from '../../../../research-harness/research-figures-plot-files.mjs'
 import { ResearchFigureDeleteDialog, ResearchFigureRenameDialog } from './ResearchFigureListDialogs'
 import { FigureThumbnailImage, ResearchFigureListItem } from './ResearchFigureListItem'
+import { ResearchPlotListItem } from './ResearchPlotListItem'
 import { useFigureListMeta, useManuscriptText } from './research-figure-list-meta'
 import {
   FIGURE_SEARCH_FROM,
@@ -23,6 +26,7 @@ import {
 import { figureUsageLines } from './research-figure-paper-block'
 import { setFiguresListMode } from './research-figures-layout-mode'
 import type { FigureSelection } from './research-figures-store'
+import { plotPaperState, usePlotPublish, usePlotState } from './research-plot-files'
 import { readProjectFile, type ProjectFileOwner } from './research-project-files'
 import { useFigureListActions } from './use-figure-list-actions'
 
@@ -148,15 +152,56 @@ function FigureEntry({
   )
 }
 
+/** One plot: its preview and run hints, read again whenever its script or run changes. */
+function PlotEntry({
+  props,
+  plot,
+  manuscriptText,
+  publisher
+}: {
+  props: Props
+  plot: ListedPlot
+  manuscriptText: string | null
+  publisher: ReturnType<typeof usePlotPublish>
+}): React.JSX.Element {
+  const { owner, signatures, selected, manuscript, publications } = props
+  const { slug } = plot
+  const state = usePlotState(owner, plot, signatures)
+  return (
+    <ResearchPlotListItem
+      owner={owner}
+      slug={slug}
+      state={state}
+      active={selected?.kind === 'plot' && selected.slug === slug}
+      usages={manuscriptText ? figureUsageLines(manuscriptText, slug) : []}
+      paperState={plotPaperState({
+        slug,
+        manuscript,
+        signatures,
+        publications,
+        scriptSha256: state?.scriptSha256 ?? null
+      })}
+      updatingPaper={publisher.publishing === slug}
+      onSelect={() => props.onSelect({ kind: 'plot', slug })}
+      onUpdatePaper={() => void publisher.publish(plot)}
+    />
+  )
+}
+
 /** Every figure of the project, with its menus and badges, and search once there are many. */
 export function ResearchFiguresList(props: Props): React.JSX.Element {
   const { owner, folder, manuscript, listing, signatures, selected, onSelect } = props
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<FigureSort>('recent')
   const text = useManuscriptText(owner, manuscript, props.manuscriptSignature)
-  const taken = useMemo(() => new Set(listing.figures.map((figure) => figure.slug)), [listing])
+  // Why plots too: a plot and a diagram never share a name.
+  const taken = useMemo(
+    () => new Set([...listing.figures, ...listing.plots].map((figure) => figure.slug)),
+    [listing]
+  )
   const actions = useFigureListActions({ owner, folder, manuscript, taken })
-  const searchable = listing.figures.length >= FIGURE_SEARCH_FROM
+  const publisher = usePlotPublish(owner, manuscript)
+  const searchable = listing.figures.length + listing.plots.length >= FIGURE_SEARCH_FROM
   const entries = listing.figures.map((figure) => ({
     figure,
     slug: figure.slug,
@@ -164,9 +209,16 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
     modified: mtime(signatures[figureFilePaths(figure.folder, figure.slug).scene])
   }))
   const shown = searchable ? filterFigures(entries, '', sort) : entries
+  const plotEntries = listing.plots.map((plot) => ({
+    plot,
+    slug: plot.slug,
+    title: null,
+    modified: mtime(signatures[plotFilePaths(plot.folder, plot.slug).script])
+  }))
+  const shownPlots = searchable ? filterFigures(plotEntries, query, sort) : plotEntries
   return (
     <nav aria-label="Figures" className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 items-center gap-1 p-2 pb-1">
+      <div className="flex shrink-0 items-center gap-1 px-3 pt-3 pb-2">
         <Button
           size="sm"
           variant="outline"
@@ -187,7 +239,7 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
         </Button>
       </div>
       {searchable ? (
-        <div className="flex shrink-0 items-center gap-1 px-2 pb-1">
+        <div className="flex shrink-0 items-center gap-1 px-3 pb-2">
           <Input
             aria-label="Search figures"
             placeholder="Search figures"
@@ -198,7 +250,7 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
           <select
             aria-label="Sort figures"
             value={sort}
-            className="h-7 rounded-md border border-border bg-background px-1 text-xs"
+            className="h-7 rounded-lg border border-border bg-background px-2 text-xs"
             onChange={(event) => setSort(event.target.value === 'name' ? 'name' : 'recent')}
           >
             <option value="recent">Recent</option>
@@ -206,7 +258,7 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
           </select>
         </div>
       ) : null}
-      <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-2 pt-1">
+      <div className="scrollbar-sleek flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pt-1 pb-3">
         {shown.map((entry) => (
           <FigureEntry
             key={entry.slug}
@@ -217,8 +269,17 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
             actions={actions}
           />
         ))}
+        {shownPlots.map((entry) => (
+          <PlotEntry
+            key={entry.slug}
+            props={props}
+            plot={entry.plot}
+            manuscriptText={text}
+            publisher={publisher}
+          />
+        ))}
         {listing.others.length ? (
-          <p className="mt-2 px-1.5 text-2xs font-medium tracking-wide text-muted-foreground uppercase">
+          <p className="mt-3 px-2 text-2xs font-medium text-muted-foreground">
             Other figures · read-only
           </p>
         ) : null}
@@ -231,13 +292,13 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
               aria-current={active ? 'true' : undefined}
               aria-label={`Open ${entry.name}`}
               className={cn(
-                'flex flex-col gap-1 rounded-md p-1.5 text-left text-xs hover:bg-accent',
-                active && 'bg-accent'
+                'flex flex-col gap-2 rounded-lg p-2 text-left text-xs transition-colors duration-(--duration-fast) hover:bg-accent/70',
+                active && 'bg-accent hover:bg-accent'
               )}
               onClick={() => onSelect({ kind: 'file', name: entry.name })}
             >
               {entry.kind === 'pdf' ? (
-                <span className="flex h-16 w-full items-center justify-center rounded-sm border border-border">
+                <span className="flex h-16 w-full items-center justify-center rounded-lg border border-border">
                   <FileText className="size-5 text-muted-foreground" aria-hidden />
                 </span>
               ) : (
@@ -252,13 +313,13 @@ export function ResearchFiguresList(props: Props): React.JSX.Element {
           )
         })}
         {listing.shadowed.map((entry) => (
-          <p key={entry.slug} className="px-1.5 py-1 text-2xs text-muted-foreground">
+          <p key={entry.slug} className="px-2 py-1 text-2xs text-muted-foreground">
             {entry.folder}/{entry.slug}.excalidraw is left as it is:{' '}
             {folder ?? 'the figures folder'} has a figure with the same name.
           </p>
         ))}
-        {!listing.figures.length && !listing.others.length ? (
-          <p className="px-1.5 py-2 text-xs text-muted-foreground">
+        {!listing.figures.length && !listing.plots.length && !listing.others.length ? (
+          <p className="px-2 py-2 text-xs text-muted-foreground">
             No figures in {folder ?? 'the figures folder'} yet.
           </p>
         ) : null}

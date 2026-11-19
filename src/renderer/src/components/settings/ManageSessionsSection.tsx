@@ -223,7 +223,7 @@ export function ManageSessionsSection(): React.JSX.Element {
         <h3 className="text-sm font-semibold">
           {translate(
             'auto.components.settings.ManageSessionsSection.d1b80fd5cd',
-            'Manage Sessions'
+            'Manage sessions'
           )}
         </h3>
         <p className="text-xs text-muted-foreground">

@@ -55,7 +55,7 @@ function statusLabel(status: ComputerUsePermissionStatus | undefined): string {
 
 function statusClass(status: ComputerUsePermissionStatus | undefined): string {
   if (status === 'granted') {
-    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+    return 'border-status-success-border bg-status-success-background text-status-success'
   }
   return 'border-border bg-muted text-muted-foreground'
 }
@@ -87,17 +87,17 @@ export function ComputerUsePane(): React.JSX.Element {
   const summaryTitle = checking
     ? translate(
         'auto.components.settings.computerUseSummary.checkingTitle',
-        'Checking Computer Use access.'
+        'Checking computer use access.'
       )
     : setupUnavailable
       ? translate(
           'auto.components.settings.computerUseSummary.unavailableTitle',
-          'Computer Use is unavailable.'
+          'Computer use is unavailable.'
         )
       : allGranted
         ? translate(
             'auto.components.settings.computerUseSummary.readyTitle',
-            'Computer Use is ready.'
+            'Computer use is ready.'
           )
         : translate(
             'auto.components.settings.computerUseSummary.permissionsTitle',
@@ -107,12 +107,12 @@ export function ComputerUsePane(): React.JSX.Element {
   const summaryDescription = checking
     ? translate(
         'auto.components.settings.computerUseSummary.checkingDescription',
-        'Aster is checking macOS privacy permissions for the Computer Use helper.'
+        'Aster is checking macOS privacy permissions for the computer use helper.'
       )
     : setupUnavailable
       ? translate(
           'auto.components.settings.computerUseSummary.unavailableDescription',
-          'Computer Use permissions are unavailable because {{value0}}.',
+          'Computer use permissions are unavailable because {{value0}}.',
           { value0: helperUnavailableReason }
         )
       : allGranted
@@ -166,7 +166,7 @@ export function ComputerUsePane(): React.JSX.Element {
           ? error.message
           : translate(
               'auto.components.settings.ComputerUsePane.2168fa5ab0',
-              'Could not load Computer Use permissions'
+              'Could not load computer use permissions'
             )
       )
     } finally {
@@ -210,11 +210,11 @@ export function ComputerUsePane(): React.JSX.Element {
           result.platform === 'darwin'
             ? translate(
                 'auto.components.settings.ComputerUsePane.740766c291',
-                'Computer Use setup is already complete'
+                'Computer use setup is already complete'
               )
             : translate(
                 'auto.components.settings.ComputerUsePane.7801ac08ec',
-                'Computer Use permissions are only required on macOS'
+                'Computer use permissions are only required on macOS'
               )
         )
       }
@@ -225,7 +225,7 @@ export function ComputerUsePane(): React.JSX.Element {
             ? error.message
             : translate(
                 'auto.components.settings.ComputerUsePane.5c45349665',
-                'Could not open Computer Use permissions'
+                'Could not open computer use permissions'
               )
         )
       }
@@ -258,7 +258,7 @@ export function ComputerUsePane(): React.JSX.Element {
       toast.message(
         translate(
           'auto.components.settings.ComputerUsePane.f189f448a3',
-          'Reset Computer Use access'
+          'Reset computer use access'
         )
       )
     } catch (error) {
@@ -270,7 +270,7 @@ export function ComputerUsePane(): React.JSX.Element {
           ? error.message
           : translate(
               'auto.components.settings.ComputerUsePane.3383ea1aab',
-              'Could not reset Computer Use permissions'
+              'Could not reset computer use permissions'
             )
       )
     } finally {
@@ -335,7 +335,7 @@ export function ComputerUsePane(): React.JSX.Element {
                             {translate(permission.labelKey, permission.labelDefault)}
                           </span>
                           <span
-                            className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${statusClass(
+                            className={`rounded border px-1.5 py-0.5 text-[11px] font-medium ${statusClass(
                               status
                             )}`}
                           >

@@ -96,6 +96,6 @@ describe('ChangesModeView', () => {
 
     await vi.waitFor(() => expect(diffViewerMock.latestProps).not.toBeNull())
     expect(diffViewerMock.latestProps?.largeDiffRenderLimit).toBe(largeDiffRenderLimit)
-    expect(container.textContent).not.toContain('No uncommitted changes.')
+    expect(container.textContent).not.toContain('No uncommitted changes')
   })
 })

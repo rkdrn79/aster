@@ -343,7 +343,7 @@ describe('TabBar context menu wiring', () => {
   })
 
   it('counts every tab kind for SortableTab.tabCount', async () => {
-    // Why: Close Others used to pass tabCount=tabs.length, where tabs is just the
+    // Why: Close others used to pass tabCount=tabs.length, where tabs is just the
     // terminal list. With one terminal + any number of editor/browser tabs, the
     // menu item rendered as disabled even though closeOthers can close the
     // non-terminal siblings.
@@ -522,8 +522,8 @@ describe('TabBar context menu wiring', () => {
 
     expect(menuLabels[0]).toContain('New Markdown')
     expect(menuLabels[1]).toContain('Open Markdown...')
-    expect(menuLabels[2]).toContain('New Terminal')
-    expect(menuLabels[3]).toContain('New Browser Tab')
+    expect(menuLabels[2]).toContain('New terminal')
+    expect(menuLabels[3]).toContain('New browser tab')
   })
 
   it('omits impossible paired-web actions while keeping terminal and markdown', async () => {
@@ -539,14 +539,14 @@ describe('TabBar context menu wiring', () => {
       extractText(item.props.children)
     )
 
-    expect(menuLabels.some((label) => label.includes('New Terminal'))).toBe(true)
+    expect(menuLabels.some((label) => label.includes('New terminal'))).toBe(true)
     expect(menuLabels.some((label) => label.includes('New Markdown'))).toBe(true)
     expect(menuLabels.some((label) => label.includes('Open Markdown...'))).toBe(true)
     expect(menuLabels.some((label) => label.includes('Browser'))).toBe(false)
     expect(menuLabels.some((label) => label.includes('Mobile Emulator'))).toBe(false)
   })
 
-  it('turns New Mobile Emulator into a go-to action when the workspace already has one', async () => {
+  it('turns New mobile emulator into a go-to action when the workspace already has one', async () => {
     const onNewSimulatorTab = vi.fn()
     appStoreSnapshot.unifiedTabsByWorktree = {
       'wt-1': [
@@ -572,11 +572,11 @@ describe('TabBar context menu wiring', () => {
     })
 
     const emulatorItem = findChildrenByType(element, 'DropdownMenuItem').find((item) =>
-      extractText(item.props.children).includes('Go to Mobile Emulator')
+      extractText(item.props.children).includes('Go to mobile emulator')
     )
     expect(emulatorItem).toBeTruthy()
     if (!emulatorItem) {
-      throw new Error('Go to Mobile Emulator menu item not rendered')
+      throw new Error('Go to mobile emulator menu item not rendered')
     }
     expect(emulatorItem.props.disabled).toBeUndefined()
     expect(emulatorItem.props.onSelect).toBeTypeOf('function')

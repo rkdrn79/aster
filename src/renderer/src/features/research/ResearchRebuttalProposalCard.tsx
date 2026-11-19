@@ -9,6 +9,7 @@ import {
 } from '../../../../research-harness/research-rebuttal-records.mjs'
 import { historyTimeText } from './research-rebuttal-view'
 import { RebuttalTranslationBlock } from './ResearchRebuttalTranslation'
+import { NOTICE_CARD, REVEAL } from './research-surface-classes'
 
 /** A word-level diff, removed words struck through and added words underlined. */
 export function RebuttalDiff({
@@ -67,10 +68,10 @@ export function ResearchRebuttalProposalCard({
   return (
     <section
       aria-label="Suggested change from the agent"
-      className="space-y-2 rounded-md border border-border bg-muted/40 p-2.5"
+      className={cn(NOTICE_CARD, REVEAL, 'space-y-2 p-3')}
     >
       <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-        <Bot className="size-3.5 text-muted-foreground" aria-hidden />
+        <Bot className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         <span className="font-medium">Suggested change</span>
         <span className="text-muted-foreground">
           {proposal.heldWhileTyping
@@ -105,13 +106,12 @@ export function ResearchRebuttalProposalCard({
         </p>
       ) : null}
       {readOnly ? null : (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex items-center justify-end gap-2">
           <Button size="xs" variant="ghost" disabled={busy} onClick={() => void run(onDiscard)}>
             <X aria-hidden /> Discard
           </Button>
           <Button
             size="xs"
-            variant="outline"
             disabled={busy || outcome.mode === 'conflict'}
             onClick={() => void run(onAccept)}
           >

@@ -14,7 +14,11 @@ const toggleVariants = cva(
           'border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground',
         // Why not bg-accent: on a light popover it is nearly the surface colour (STYLEGUIDE, list rows).
         segmented:
-          'bg-transparent text-muted-foreground transition-[color,background-color,box-shadow] hover:bg-foreground/6 hover:text-foreground data-[state=on]:bg-foreground/12 data-[state=on]:text-foreground dark:hover:bg-accent/50 dark:data-[state=on]:bg-accent'
+          'bg-transparent text-muted-foreground transition-[color,background-color,box-shadow] hover:bg-foreground/6 hover:text-foreground data-[state=on]:bg-foreground/12 data-[state=on]:text-foreground dark:hover:bg-accent/50 dark:data-[state=on]:bg-accent',
+        // An item on a single-choice ToggleGroup's pill track; the group's sliding highlight marks
+        // the choice once measured, the item paints its own until then.
+        segment:
+          'relative rounded-full bg-transparent text-muted-foreground transition-colors duration-150 hover:bg-transparent hover:text-foreground data-[state=on]:bg-raised data-[state=on]:text-foreground data-[state=on]:shadow-raised group-data-[segment-indicator]/toggle-group:data-[state=on]:bg-transparent group-data-[segment-indicator]/toggle-group:data-[state=on]:shadow-none'
       },
       size: {
         default: 'h-9 min-w-9 px-2',

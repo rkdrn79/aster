@@ -90,7 +90,7 @@ function StatusSection({
             type="button"
             onClick={() => onSelect({ state: s.key })}
             className={cn(
-              'flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition hover:bg-muted/50',
+              'flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition-colors hover:bg-muted/50',
               active && 'bg-muted/40 font-medium'
             )}
           >
@@ -122,7 +122,7 @@ function DraftToggle({
         type="button"
         onClick={() => onSelect({ draft: !parsed.draft })}
         className={cn(
-          'flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition hover:bg-muted/50',
+          'flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition-colors hover:bg-muted/50',
           parsed.draft && 'bg-muted/40 font-medium'
         )}
       >
@@ -207,7 +207,7 @@ export function SectionMenu({
   const subject = kind === 'prs' ? 'pull requests' : 'issues'
   return (
     <div className="py-1 text-xs">
-      <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+      <div className="px-3 py-1.5 text-[10px] font-medium text-muted-foreground">
         {translate('auto.components.github.PRFilterSections.8177eda37e', 'Filter')}{' '}
         <span>{subject}</span>
       </div>
@@ -216,7 +216,7 @@ export function SectionMenu({
           key={row.key}
           type="button"
           onClick={() => onPick(row.key)}
-          className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition hover:bg-muted/50"
+          className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left transition-colors hover:bg-muted/50"
         >
           <span>{row.label}</span>
           <span className="flex items-center gap-1 text-muted-foreground">
@@ -231,7 +231,7 @@ export function SectionMenu({
           <button
             type="button"
             onClick={onClearAll}
-            className="w-full px-3 py-1.5 text-left text-muted-foreground transition hover:bg-muted/50 hover:text-foreground"
+            className="w-full px-3 py-1.5 text-left text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
           >
             {translate('auto.components.github.PRFilterSections.30ebb6ca44', 'Clear all filters')}
           </button>
@@ -277,7 +277,7 @@ export function SectionDetail({
       <button
         type="button"
         onClick={onBack}
-        className="flex w-full items-center gap-1 border-b border-border px-3 py-1.5 text-[11px] text-muted-foreground transition hover:bg-muted/50 hover:text-foreground"
+        className="flex w-full items-center gap-1 border-b border-border px-3 py-1.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
       >
         <ChevronRight className="size-3 rotate-180" />
         {translate('auto.components.github.PRFilterSections.b69fa4fa20', 'Back')}
@@ -291,7 +291,7 @@ export function SectionDetail({
           activeValue={parsed.author}
           loading={false}
           error={null}
-          searchPlaceholder="Filter or type a login..."
+          searchPlaceholder="Filter or type a login"
           emptyText={translate('auto.components.github.PRFilterSections.458ea3602b', 'No authors')}
           allowCustomValue
           renderOption={(opt) => <UserOptionRow option={opt} />}
@@ -304,7 +304,7 @@ export function SectionDetail({
           activeValue={parsed.assignee}
           loading={usersLoading}
           error={usersError}
-          searchPlaceholder="Filter or type a login..."
+          searchPlaceholder="Filter or type a login"
           emptyText={translate('auto.components.github.PRFilterSections.a00830d3f7', 'No users')}
           allowCustomValue
           renderOption={(opt) => <UserOptionRow option={opt} />}
@@ -317,7 +317,7 @@ export function SectionDetail({
           selected={parsed.labels}
           loading={labelsLoading}
           error={labelsError}
-          searchPlaceholder="Filter labels..."
+          searchPlaceholder="Filter labels"
           emptyText={translate('auto.components.github.PRFilterSections.de26e2eb06', 'No labels')}
           onChange={(next) => onSelect({ labels: next })}
         />
@@ -329,7 +329,7 @@ export function SectionDetail({
               type="button"
               onClick={() => setReviewerMode('requested')}
               className={cn(
-                'flex-1 rounded px-2 py-1 transition',
+                'flex-1 rounded px-2 py-1 transition-colors',
                 reviewerMode === 'requested'
                   ? 'bg-foreground/90 text-background'
                   : 'text-muted-foreground hover:bg-muted/50'
@@ -341,7 +341,7 @@ export function SectionDetail({
               type="button"
               onClick={() => setReviewerMode('reviewed-by')}
               className={cn(
-                'flex-1 rounded px-2 py-1 transition',
+                'flex-1 rounded px-2 py-1 transition-colors',
                 reviewerMode === 'reviewed-by'
                   ? 'bg-foreground/90 text-background'
                   : 'text-muted-foreground hover:bg-muted/50'
@@ -355,7 +355,7 @@ export function SectionDetail({
             activeValue={reviewerMode === 'requested' ? parsed.reviewRequested : parsed.reviewedBy}
             loading={usersLoading}
             error={usersError}
-            searchPlaceholder="Filter or type a login..."
+            searchPlaceholder="Filter or type a login"
             emptyText={translate('auto.components.github.PRFilterSections.a00830d3f7', 'No users')}
             allowCustomValue
             renderOption={(opt) => <UserOptionRow option={opt} />}

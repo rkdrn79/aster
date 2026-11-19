@@ -15,8 +15,8 @@ import type { NativeChatTranscriptSlot } from './native-chat-transcript-slots'
 
 /** Ticks up to this count sit at the roomy pitch; past it they pack tight. */
 export const NATIVE_CHAT_RAIL_ROOMY_TICKS = 20
-/** The tight pitch as the rail draws it: a 3px tick inside `py-0.5`. */
-const RAIL_TIGHT_PITCH_PX = 7
+/** The tight pitch as the rail draws it: a 2px tick inside `py-0.5`. */
+const RAIL_TIGHT_PITCH_PX = 6
 const RAIL_VIEWPORT_SHARE = 0.7
 
 /** How many ticks the rail may draw. A tick is the only way to its message, so

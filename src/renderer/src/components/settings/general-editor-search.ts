@@ -4,7 +4,7 @@ import { createLocalizedCatalog } from '@/i18n/localized-catalog'
 
 export const getGeneralEditorSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.general.search.ae21e806ce', 'Auto Save Files'),
+    title: translate('auto.components.settings.general.search.ae21e806ce', 'Auto save files'),
     description: translate(
       'auto.components.settings.general.search.e9d948d3c3',
       'Save editor and editable diff changes automatically after a short pause.'
@@ -15,7 +15,7 @@ export const getGeneralEditorSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.general.search.14e46c745b', 'Auto Save Delay'),
+    title: translate('auto.components.settings.general.search.14e46c745b', 'Auto save delay'),
     description: translate(
       'auto.components.settings.general.search.8ea61ad55c',
       'How long Aster waits after your last edit before saving automatically.'
@@ -32,7 +32,7 @@ export const getGeneralEditorSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.general.search.editorFontFamily',
-      'Editor Font Family'
+      'Editor font family'
     ),
     description: translate(
       'auto.components.settings.general.search.editorFontFamilyDesc',
@@ -45,7 +45,7 @@ export const getGeneralEditorSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.general.search.e61157e926', 'Editor Word Wrap'),
+    title: translate('auto.components.settings.general.search.e61157e926', 'Editor word wrap'),
     description: translate(
       'auto.components.settings.general.search.005be5c699',
       'Wrap long lines in file editors instead of requiring horizontal scrolling.'
@@ -58,7 +58,7 @@ export const getGeneralEditorSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.general.search.collapseUnchanged',
-      'Collapse Unchanged Regions'
+      'Collapse unchanged regions'
     ),
     description: translate(
       'auto.components.settings.general.search.collapseUnchangedDesc',
@@ -78,7 +78,7 @@ export const getGeneralEditorSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.general.search.2760c9933f', 'Default Diff View'),
+    title: translate('auto.components.settings.general.search.2760c9933f', 'Default diff view'),
     description: translate(
       'auto.components.settings.general.search.ecb9415c80',
       'Preferred presentation format for showing git diffs by default.'
@@ -97,7 +97,7 @@ export const getGeneralEditorSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.general.search.adec13f2ef',
-      'Default Diff File Tree'
+      'Default diff file tree'
     ),
     description: translate(
       'auto.components.settings.general.search.dec71988f0',
@@ -130,7 +130,7 @@ export const getGeneralEditorSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.general.search.d2d2d929c0',
-      'Rich Markdown Spellcheck'
+      'Rich Markdown spellcheck'
     ),
     description: translate(
       'auto.components.settings.general.search.4497e2e2bb',
@@ -151,7 +151,7 @@ export const getGeneralEditorSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.general.search.128bc09325', 'Markdown Review Notes'),
+    title: translate('auto.components.settings.general.search.128bc09325', 'Markdown review notes'),
     description: translate(
       'auto.components.settings.general.search.694613d47f',
       'Show local markdown review note controls in rich editor mode.'

@@ -202,7 +202,7 @@ function NativeChatQueueHeader({
   return (
     <div
       className={cn(
-        'flex items-center gap-1 rounded-t-md py-1 pr-1 pl-2.5 text-xs text-muted-foreground',
+        'flex items-center gap-1 rounded-t-md py-1 pr-1 pl-3 text-xs text-muted-foreground',
         pause && 'bg-muted',
         !expanded && 'rounded-b-md'
       )}
@@ -218,7 +218,7 @@ function NativeChatQueueHeader({
       </span>
       {attentionCaption ? (
         <span className="flex min-w-0 flex-1 items-center gap-1 text-destructive">
-          <AlertCircle className="size-3.5 shrink-0" aria-hidden />
+          <AlertCircle className="size-4 shrink-0" aria-hidden />
           <span className="truncate">{attentionCaption}</span>
         </span>
       ) : null}
@@ -232,8 +232,8 @@ function NativeChatQueueHeader({
             disabled={!clearCapable || queuePending !== null}
             onClick={onClearAll}
           >
-            <NativeChatPendingIcon pending={queuePending === 'clear'} className="size-3">
-              <Trash2 className="size-3" />
+            <NativeChatPendingIcon pending={queuePending === 'clear'} className="size-4">
+              <Trash2 className="size-4" />
             </NativeChatPendingIcon>
             {translate('components.native-chat.queuedMessages.clearAll', 'Clear all')}
           </Button>
@@ -244,8 +244,8 @@ function NativeChatQueueHeader({
             disabled={queuePending !== null}
             onClick={onResume}
           >
-            <NativeChatPendingIcon pending={queuePending === 'resume'} className="size-3">
-              <Play className="size-3" />
+            <NativeChatPendingIcon pending={queuePending === 'resume'} className="size-4">
+              <Play className="size-4" />
             </NativeChatPendingIcon>
             {translate('components.native-chat.queuedMessages.resume', 'Resume')}
           </Button>
@@ -265,7 +265,7 @@ function NativeChatQueueHeader({
             aria-controls={listId}
             onClick={onToggle}
           >
-            {expanded ? <ChevronDown /> : <ChevronRight />}
+            {expanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
           </Button>
         </TooltipTrigger>
         <TooltipContent side="top" sideOffset={4}>

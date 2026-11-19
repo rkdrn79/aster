@@ -17,9 +17,11 @@ import { registerResearchSynctexIpcHandlers } from '../research/research-synctex
 import { registerResearchProjectLayoutIpcHandlers } from '../research/research-project-layout-ipc'
 import { registerResearchHarnessIpcHandlers } from '../research/research-harness-ipc'
 import { registerResearchLoopStartIpcHandler } from '../research/research-harness-loop-ipc'
+import { registerResearchWritingIpcHandlers } from '../research/research-writing-ipc'
 import { registerResearchBriefIpcHandlers } from '../research/research-brief-ipc'
 import { registerResearchFindingsIpcHandlers } from '../research/research-findings-ipc'
 import { registerResearchProposalsIpcHandlers } from '../research/research-proposals-ipc'
+import { registerResearchPlansIpcHandlers } from '../research/research-plans-ipc'
 import { registerResearchRatingsIpcHandlers } from '../research/research-ratings-ipc'
 import { registerResearchOrganizeIpcHandlers } from '../research/research-organize-ipc'
 import { registerResearchMediaIpcHandlers } from '../research/research-media-ipc'
@@ -28,6 +30,7 @@ import { registerConferenceDeadlinesIpcHandlers } from '../research/conference-d
 import { registerResearchLibraryIpcHandlers } from '../research/research-library-ipc'
 import { registerResearchOpenReviewIpcHandlers } from '../research/research-openreview-ipc'
 import { registerResearchFiguresIpcHandlers } from '../research/research-figures-ipc'
+import { registerFigureReferenceIpcHandlers } from '../research/research-figure-references-ipc'
 import { registerResearchSlackIpcHandlers } from '../research/research-slack-ipc'
 import { registerPhoneRelaySetupIpcHandlers } from '../research/phone-relay-setup-ipc'
 
@@ -39,9 +42,11 @@ export function registerMainProcessIpcHandlers(): void {
   registerResearchProjectLayoutIpcHandlers()
   registerResearchHarnessIpcHandlers()
   registerResearchLoopStartIpcHandler()
+  registerResearchWritingIpcHandlers()
   registerResearchBriefIpcHandlers()
   registerResearchFindingsIpcHandlers()
   registerResearchProposalsIpcHandlers()
+  registerResearchPlansIpcHandlers()
   registerResearchRatingsIpcHandlers()
   registerResearchOrganizeIpcHandlers()
   registerResearchMediaIpcHandlers()
@@ -50,6 +55,7 @@ export function registerMainProcessIpcHandlers(): void {
   registerResearchLibraryIpcHandlers()
   registerResearchOpenReviewIpcHandlers()
   registerResearchFiguresIpcHandlers()
+  registerFigureReferenceIpcHandlers()
   registerResearchSlackIpcHandlers()
   registerPhoneRelaySetupIpcHandlers()
   ipcMain.handle('app:awaitFirstWindowStartupServices', async () => {

@@ -7,7 +7,6 @@ import {
   MoreHorizontal,
   LoaderCircle,
   Pencil,
-  Sparkles,
   Trash
 } from 'lucide-react'
 import {
@@ -212,7 +211,7 @@ export function CommentMoreMenu({
       <DropdownMenuContent align="end" sideOffset={4}>
         {hasQueue ? (
           <DropdownMenuItem onSelect={() => onQueueForAgent?.()}>
-            <Sparkles />
+            <Bot />
             {translate(
               'auto.components.right.sidebar.checks.panel.content.f8a2c91d04',
               'Queue for agent'
@@ -307,7 +306,7 @@ export function QueueForAgentButton({
         onQueueForAgent()
       }}
     >
-      <Sparkles className="size-3 shrink-0" />
+      <Bot className="size-3 shrink-0" />
       {translate('auto.components.right.sidebar.checks.panel.content.a7f0c7e8d1', 'Queue')}
     </button>
   )

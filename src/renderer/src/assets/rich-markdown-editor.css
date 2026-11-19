@@ -222,7 +222,7 @@
 }
 
 .rich-markdown-annotation-selection-active {
-  animation: rich-markdown-source-attention 900ms ease-out;
+  animation: rich-markdown-source-attention 900ms var(--ease-out-quint);
 }
 
 @keyframes rich-markdown-source-attention {
@@ -317,7 +317,7 @@
 }
 
 .rich-markdown-review-note-card.is-attention > .orca-diff-comment-card {
-  animation: rich-markdown-note-attention 900ms ease-out;
+  animation: rich-markdown-note-attention 900ms var(--ease-out-quint);
 }
 
 @keyframes rich-markdown-note-attention {
@@ -538,7 +538,7 @@
 
 .rich-markdown-editor h1 {
   font-size: 1.85em;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.02em;
 }
 
@@ -740,7 +740,7 @@
   content: '\203A';
   font-size: 1.25em;
   line-height: 1;
-  transition: transform 120ms ease;
+  transition: transform 120ms var(--ease-out-quint);
 }
 
 .rich-markdown-editor .orca-details[data-type='details'].is-open > button::before {
@@ -755,7 +755,7 @@
 .rich-markdown-editor details.orca-details[data-orca-toggle='heading-1'] > summary,
 .rich-markdown-editor .orca-details[data-type='details'][data-orca-toggle='heading-1'] summary {
   font-size: 1.85em;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0;
   line-height: 1.3;
 }
@@ -875,7 +875,7 @@
   position: absolute;
   content: '';
   background: color-mix(in srgb, var(--foreground) 18%, transparent);
-  transition: background-color 120ms ease;
+  transition: background-color 120ms var(--ease-out-quint);
 }
 
 .rich-markdown-table-axis-control[data-axis='column'] {
@@ -900,7 +900,7 @@
 
 .rich-markdown-table-axis-control svg {
   opacity: 0;
-  transition: opacity 120ms ease;
+  transition: opacity 120ms var(--ease-out-quint);
 }
 
 .rich-markdown-table-axis-control:hover,
@@ -981,7 +981,7 @@
   right: 115px;
   z-index: 1;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s var(--ease-out-quint);
   background: none;
   border: 1px solid transparent;
   border-radius: 4px;
@@ -1212,9 +1212,9 @@
   background: transparent;
   color: var(--foreground);
   transition:
-    border-color 120ms ease,
-    background-color 120ms ease,
-    box-shadow 120ms ease;
+    border-color 120ms var(--ease-out-quint),
+    background-color 120ms var(--ease-out-quint),
+    box-shadow 120ms var(--ease-out-quint);
 }
 
 .linear-issue-markdown-editor-page {
@@ -1317,7 +1317,7 @@
 
 .linear-issue-markdown-save-hint {
   opacity: 0;
-  transition: opacity 120ms ease;
+  transition: opacity 120ms var(--ease-out-quint);
 }
 
 .linear-issue-markdown-editor:focus-within .linear-issue-markdown-save-hint {

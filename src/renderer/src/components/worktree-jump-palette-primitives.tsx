@@ -135,7 +135,7 @@ export function PaletteOpenTabPrimaryLine({
       <span
         data-slot="palette-open-tab-title"
         className={cn(
-          'truncate text-[14px] font-semibold tracking-[-0.01em] text-foreground',
+          'truncate text-[14px] font-medium text-foreground',
           showSecondary ? 'max-w-[62%] shrink-0' : 'min-w-0'
         )}
       >
@@ -227,7 +227,7 @@ export function PaletteLocationChip({
     <span
       data-slot="palette-location-chip"
       className={cn(
-        'inline-flex min-w-0 max-w-[260px] items-center gap-1.5 overflow-hidden rounded-md border border-border bg-muted px-2 py-1 text-[11px] font-semibold leading-none text-foreground',
+        'inline-flex min-w-0 max-w-[260px] items-center gap-1.5 overflow-hidden rounded-md border border-border bg-muted px-2 py-1 text-[11px] font-medium leading-none text-foreground',
         className
       )}
     >
@@ -284,7 +284,7 @@ export function PaletteState({
 
 export function FooterKey({ children }: { children: React.ReactNode }): React.JSX.Element {
   return (
-    <span className="rounded-full border border-border/60 bg-muted/35 px-2 py-0.5 text-[10px] font-medium text-foreground/85">
+    <span className="rounded border border-border/60 bg-muted/35 px-1.5 py-0.5 text-[10px] font-medium text-foreground/85">
       {children}
     </span>
   )

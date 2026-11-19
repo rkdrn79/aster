@@ -121,8 +121,26 @@ function floating(elements, add) {
       !linked.has(element.id)
     )
   })
+  const panels = elements
+    .filter((element) => element.customData?.asterPanel && SHAPES.has(element.type))
+    .map(elementBounds)
+  // Why: a panel's heading ("(d) Rendering Loss") names the panel, not a loss to link.
+  const heading = (box) =>
+    panels.some(
+      (panel) =>
+        box.x >= panel.x - 4 &&
+        box.right <= panel.right + 4 &&
+        box.bottom >= panel.y - 36 &&
+        box.y <= panel.y + 36
+    )
   for (const element of candidates) {
     const box = element.type === 'text' ? glyphBounds(element) : elementBounds(element)
+    if (
+      element.customData?.asterRole !== 'loss' &&
+      (heading(box) || /^\(?[a-h]\)\s/i.test(String(element.text ?? '')))
+    ) {
+      continue
+    }
     const own = ownerOf(element)
     const nearShape = shapes.some(
       (shape) =>

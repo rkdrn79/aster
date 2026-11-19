@@ -78,7 +78,7 @@ export default function AiVaultSessionHistoryDialog(): React.JSX.Element | null 
         <DialogTitle className="sr-only">
           {translate(
             'auto.components.right.sidebar.AiVaultPanel.sessionHistory',
-            'Agent Session History'
+            'Agent session history'
           )}
         </DialogTitle>
         <div className="min-h-0 flex-1">

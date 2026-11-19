@@ -207,7 +207,7 @@ export function BaseRefPicker({
         </div>
         {onUsePrimary && (
           <Button variant="outline" size="sm" onClick={onUsePrimary} disabled={!currentBaseRef}>
-            {translate('auto.components.settings.BaseRefPicker.773a5687a3', 'Use Primary')}
+            {translate('auto.components.settings.BaseRefPicker.773a5687a3', 'Use primary')}
           </Button>
         )}
       </div>
@@ -256,7 +256,7 @@ export function BaseRefPicker({
                 >
                   <span className="truncate">{ref}</span>
                   {effectiveBaseRef === ref ? (
-                    <span className="text-[10px] uppercase tracking-[0.18em]">
+                    <span className="text-[11px]">
                       {translate('auto.components.settings.BaseRefPicker.d166ff883d', 'Current')}
                     </span>
                   ) : null}

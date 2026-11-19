@@ -26,6 +26,20 @@ export function svgHasEmbeddedFonts(svg: string): boolean {
   return /@font-face/.test(svg)
 }
 
+/**
+ * The families an SVG already carries an `@font-face` for: Excalidraw's own, or the paper look's
+ * LaTeX faces the renderer puts in, so only the missing ones are added.
+ */
+export function svgEmbeddedFamilies(svg: string): Set<string> {
+  const families = new Set<string>()
+  for (const match of svg.matchAll(
+    /@font-face\s*\{[^}]*?font-family:\s*["']?([^;"'}]+?)["']?\s*;/g
+  )) {
+    families.add(match[1].trim())
+  }
+  return families
+}
+
 /** Adds `@font-face` rules right after the opening `<svg …>` tag. */
 export function embedSvgFonts(
   svg: string,

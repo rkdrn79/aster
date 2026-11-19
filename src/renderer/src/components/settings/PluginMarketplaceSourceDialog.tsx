@@ -214,7 +214,7 @@ export function PluginMarketplaceSourceDialog({
           </div>
         </div>
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+          <p className="text-[11px] font-medium text-muted-foreground">
             {translate(
               'auto.components.settings.PluginMarketplaceSourceDialog.configured',
               'Configured sources'

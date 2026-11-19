@@ -99,7 +99,7 @@ describe('AgentCombobox surface rows', () => {
     expect(onPick).toHaveBeenLastCalledWith('codex', 'terminal')
 
     fireEvent.click(screen.getByRole('combobox'))
-    const search = screen.getByPlaceholderText('Search agents...')
+    const search = screen.getByPlaceholderText('Search agents')
     fireEvent.keyDown(search, { key: 'ArrowRight' })
     fireEvent.keyDown(search, { key: 'Enter' })
     expect(onPick).toHaveBeenLastCalledWith('claude', 'terminal')
@@ -108,7 +108,7 @@ describe('AgentCombobox surface rows', () => {
     // A mouse commit and a dismissed interaction both cancel a transient terminal arm.
     for (const dismiss of [false, true]) {
       fireEvent.click(screen.getByRole('combobox'))
-      const input = screen.getByPlaceholderText('Search agents...')
+      const input = screen.getByPlaceholderText('Search agents')
       fireEvent.keyDown(input, { key: 'ArrowRight' })
       if (dismiss) {
         fireEvent.keyDown(input, { key: 'Escape' })
@@ -116,11 +116,11 @@ describe('AgentCombobox surface rows', () => {
         fireEvent.click(option('Claude'))
       }
       fireEvent.click(screen.getByRole('combobox'))
-      fireEvent.keyDown(screen.getByPlaceholderText('Search agents...'), { key: 'Enter' })
+      fireEvent.keyDown(screen.getByPlaceholderText('Search agents'), { key: 'Enter' })
       expect(onPick).toHaveBeenLastCalledWith('claude', 'chat')
     }
     fireEvent.click(screen.getByRole('combobox'))
-    const input = screen.getByPlaceholderText('Search agents...')
+    const input = screen.getByPlaceholderText('Search agents')
     fireEvent.keyDown(input, { key: 'ArrowRight' })
     fireEvent.pointerMove(option('Codex'))
     fireEvent.pointerMove(option('Claude'))
@@ -167,7 +167,7 @@ it('keeps exact-agent search ahead of the default agent', () => {
     'openclaude'
   )
   fireEvent.click(screen.getByRole('combobox'))
-  const input = screen.getByPlaceholderText('Search agents...')
+  const input = screen.getByPlaceholderText('Search agents')
   fireEvent.change(input, { target: { value: 'claude' } })
   fireEvent.keyDown(input, { key: 'Enter' })
   expect(onPick).toHaveBeenCalledExactlyOnceWith('claude', 'terminal')

@@ -112,7 +112,7 @@ function UsageMetric({
     <span data-usage-window={section.label} className="flex shrink-0 items-center gap-1.5">
       <span className="text-[10px] text-muted-foreground">{label}</span>
       {showBar ? (
-        <span data-usage-bar className="h-[5px] w-7 overflow-hidden rounded-full bg-muted">
+        <span data-usage-bar className="h-1.5 w-7 overflow-hidden rounded-full bg-muted">
           <span
             className={`block h-full rounded-full ${barColor(used)}`}
             style={{ width: `${shown}%` }}
@@ -148,7 +148,7 @@ export function UsageRow({
 
   return (
     <div data-usage-mode={mode} className="flex min-w-0 flex-1 flex-col gap-1">
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-3">
         <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-border bg-secondary">
           <ProviderIcon provider={p.provider} />
         </span>
@@ -181,10 +181,10 @@ export function UsageRow({
         ) : null}
       </div>
       {state.detail ? (
-        <span className="pl-[30px] text-[11px] text-muted-foreground">{state.detail}</span>
+        <span className="pl-8 text-[11px] text-muted-foreground">{state.detail}</span>
       ) : null}
       {hasUsage && mode === 'verbose' ? (
-        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 pl-[30px]">
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 pl-8">
           {sections.map((section) => (
             <UsageMetric
               key={section.label}
@@ -248,7 +248,7 @@ export function UsageRosterPanel({
   return (
     <div className="w-[360px] text-xs">
       <div className="flex items-center justify-between px-3.5 pb-2 pt-3">
-        <span className="text-[13px] font-semibold text-foreground">
+        <span className="text-[13px] font-medium text-foreground">
           {translate('auto.components.status.bar.UsageRosterPanel.title', 'Usage')}
         </span>
         <div className="flex items-center gap-2 text-muted-foreground">
@@ -348,7 +348,7 @@ export function UsageRosterPanel({
       >
         {translate(
           'auto.components.status.bar.UsageRosterPanel.usageDetails',
-          'Usage details & history'
+          'Usage details and history'
         )}
         <ChevronRight size={14} className="text-muted-foreground" />
       </DropdownMenuItem>
@@ -356,7 +356,7 @@ export function UsageRosterPanel({
         onSelect={onManageAccounts}
         className="w-full cursor-pointer justify-between rounded-none px-3.5 py-2.5 text-[13px] text-foreground"
       >
-        {translate('auto.components.status.bar.StatusBar.75ded02687', 'Manage Accounts…')}
+        {translate('auto.components.status.bar.StatusBar.75ded02687', 'Manage accounts…')}
         <ChevronRight size={14} className="text-muted-foreground" />
       </DropdownMenuItem>
     </div>

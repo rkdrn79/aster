@@ -48,7 +48,7 @@ export function NativeChatCodeBlock({
       className="group/code relative my-3 min-w-0 max-w-full overflow-hidden rounded-lg border border-chat-code-border bg-chat-code-surface"
     >
       {language ? (
-        <div className="flex h-7.5 items-center justify-between px-3">
+        <div className="flex h-8 items-center justify-between px-3">
           <span
             data-code-language={language}
             className="min-w-0 font-sans text-xs text-chat-foreground-faint"
@@ -63,7 +63,7 @@ export function NativeChatCodeBlock({
         className={cn(
           'scrollbar-sleek m-0 max-w-full font-mono text-chat-code text-chat-code-foreground',
           wrapped ? 'whitespace-pre-wrap [overflow-wrap:anywhere]' : 'overflow-x-auto',
-          language ? 'px-3.5 pt-0.5 pb-3' : 'p-3 pr-16'
+          language ? 'px-3 pt-0 pb-3' : 'p-3 pr-16'
         )}
       >
         {language && code && !plain ? (
@@ -103,7 +103,7 @@ function NativeChatCodeWrapButton({
       title={label}
       className="flex size-6 shrink-0 items-center justify-center rounded-md text-chat-foreground-faint transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring aria-pressed:bg-accent aria-pressed:text-accent-foreground"
     >
-      <WrapText className="size-3.5" />
+      <WrapText className="size-4" />
     </button>
   )
 }

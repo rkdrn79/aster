@@ -122,7 +122,7 @@ export const getWorkspaceStatusColorOptions = createLocalizedCatalog(() => [
   },
   {
     id: 'conductor-done',
-    label: translate('auto.components.sidebar.workspace.status.895f381714', 'Conductor Done'),
+    label: translate('auto.components.sidebar.workspace.status.895f381714', 'Conductor done'),
     tone: 'text-[#c7a594]',
     swatch: 'bg-[#c7a594]',
     border: 'border-t-[#c7a594]/70',
@@ -130,7 +130,7 @@ export const getWorkspaceStatusColorOptions = createLocalizedCatalog(() => [
   },
   {
     id: 'conductor-review',
-    label: translate('auto.components.sidebar.workspace.status.caebe3c10f', 'Conductor Review'),
+    label: translate('auto.components.sidebar.workspace.status.caebe3c10f', 'Conductor review'),
     tone: 'text-[#16a34a]',
     swatch: 'bg-[#16a34a]',
     border: 'border-t-[#16a34a]/70',
@@ -138,7 +138,7 @@ export const getWorkspaceStatusColorOptions = createLocalizedCatalog(() => [
   },
   {
     id: 'conductor-progress',
-    label: translate('auto.components.sidebar.workspace.status.1a9383112b', 'Conductor Progress'),
+    label: translate('auto.components.sidebar.workspace.status.1a9383112b', 'Conductor progress'),
     tone: 'text-[#d4a300]',
     swatch: 'bg-[#d4a300]',
     border: 'border-t-[#d4a300]/70',

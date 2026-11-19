@@ -226,7 +226,7 @@ export const CandidateRow = React.memo(function CandidateRow({
             {gitEvidencePending ? (
               <span
                 role="status"
-                className="inline-flex h-5 shrink-0 items-center gap-1 rounded-full border border-border bg-background px-1.5 text-[11px] font-medium text-muted-foreground"
+                className="inline-flex h-5 shrink-0 items-center gap-1 rounded-sm border border-border bg-background px-1.5 text-[11px] font-medium text-muted-foreground"
                 aria-label={translate(
                   'components.workspace.cleanup.browse.checkingGitRow',
                   'Checking git status'

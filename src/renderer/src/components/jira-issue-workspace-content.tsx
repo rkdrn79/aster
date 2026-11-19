@@ -188,7 +188,7 @@ export function JiraIssueWorkspaceContent({
                         className="size-5 shrink-0 rounded-full"
                       />
                     ) : null}
-                    <span className="truncate text-[13px] font-semibold text-foreground">
+                    <span className="truncate text-[13px] font-medium text-foreground">
                       {comment.user?.displayName ??
                         translate('auto.components.JiraIssueWorkspace.666cfdd835', 'Unknown')}
                     </span>
@@ -230,7 +230,7 @@ export function JiraIssueWorkspaceContent({
                   <button
                     type="button"
                     onClick={item.action}
-                    className="flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
+                    className="flex min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                   >
                     <Icon className="size-3.5 shrink-0" />
                     <span className="truncate">{item.label}</span>
@@ -269,7 +269,7 @@ export function JiraIssueCommentComposer({
           onChange={(event) => setCommentDraft(event.target.value)}
           placeholder={translate(
             'auto.components.JiraIssueWorkspace.a585fd204e',
-            'Add a Jira comment...'
+            'Add a Jira comment'
           )}
           rows={2}
           disabled={commentSubmitting}

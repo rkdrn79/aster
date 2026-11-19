@@ -19,6 +19,9 @@ export function renderAppearanceSettingsSection(context: SettingsRenderContext):
         'Theme, zoom, app and terminal appearance, sidebars, and status bar.'
       )}
       searchEntries={navigation.getSectionSearchEntries('appearance')}
+      // Why bare: Appearance groups its rows into its own collapsible cards; a card around them
+      // would read as a card in a card.
+      bodyClassName="rounded-none border-0 bg-transparent p-0"
     >
       {view.isSectionMounted('appearance') ? (
         <AppearancePane
@@ -74,7 +77,7 @@ export function renderInputSettingsSection(context: SettingsRenderContext): Reac
   return (
     <SettingsSection
       id="input"
-      title={translate('auto.components.settings.Settings.d7a3e635b6', 'Input & Editing')}
+      title={translate('auto.components.settings.Settings.d7a3e635b6', 'Input and editing')}
       description={translate(
         'auto.components.settings.Settings.d0b7021d64',
         'Selection and editing behavior.'
@@ -133,7 +136,7 @@ export function renderStatsSettingsSection(context: SettingsRenderContext): Reac
   return (
     <SettingsSection
       id="stats"
-      title={translate('auto.components.settings.Settings.954a8f5aef', 'Stats & Usage')}
+      title={translate('auto.components.settings.Settings.954a8f5aef', 'Stats and usage')}
       description={translate(
         'auto.components.settings.Settings.8acf3f22e0',
         'Aster stats plus Claude, Codex, OpenCode, Muse token analytics and Grok subscription usage.'

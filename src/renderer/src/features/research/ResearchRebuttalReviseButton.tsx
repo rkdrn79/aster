@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { WandSparkles } from 'lucide-react'
+import { PenLine } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Textarea } from '@/components/ui/textarea'
@@ -62,7 +62,7 @@ export function ResearchRebuttalReviseButton({
     >
       <PopoverTrigger asChild>
         <Button size="xs" variant="ghost" disabled={disabled}>
-          <WandSparkles aria-hidden />
+          <PenLine aria-hidden />
           {passage ? 'Revise selection' : 'Revise'}
         </Button>
       </PopoverTrigger>
@@ -110,7 +110,7 @@ export function ResearchRebuttalReviseButton({
           ) : null}
           <div className="flex items-center justify-between gap-2">
             <span className="text-2xs text-muted-foreground">
-              The agent never invents numbers or citations.
+              The agent never invents numbers or citations
             </span>
             <Button
               size="xs"

@@ -25,7 +25,7 @@ export function KeepAwakeCard(props: {
         <div className="min-w-0 shrink space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <div className="text-[15px] font-semibold leading-tight text-foreground">{title}</div>
-            <span className="rounded-full border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+            <span className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
               {translate('auto.components.feature.wall.KeepAwakeCard.209713d3c7', 'Optional')}
             </span>
           </div>

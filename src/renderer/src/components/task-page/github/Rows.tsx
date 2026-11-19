@@ -187,7 +187,7 @@ export function TaskPageGitHubRows({
                   {item.labels.slice(0, 3).map((label) => (
                     <span
                       key={label}
-                      className="rounded-full border border-border/40 bg-muted/30 px-1.5 py-0 text-[10px] text-muted-foreground"
+                      className="rounded-sm border border-border/40 bg-muted/30 px-1.5 py-0 text-[10px] text-muted-foreground"
                     >
                       {label}
                     </span>
@@ -270,7 +270,7 @@ export function TaskPageGitHubRows({
                           handleOpenOrUseGitHubWorkItem(item)
                         }}
                         className={cn(
-                          'min-w-[72px] gap-1 font-semibold',
+                          'min-w-[72px]',
                           attachedWorkspace ? 'shadow-xs' : 'bg-background/80'
                         )}
                         aria-label={
@@ -331,7 +331,7 @@ export function TaskPageGitHubRows({
                       handleOpenOrUseGitHubWorkItem(item)
                     }}
                     className={cn(
-                      'min-w-[72px] gap-1 font-semibold',
+                      'min-w-[72px]',
                       attachedWorkspace ? 'shadow-xs' : 'bg-background/80'
                     )}
                     aria-label={
@@ -358,7 +358,7 @@ export function TaskPageGitHubRows({
                       <button
                         type="button"
                         onClick={(e) => e.stopPropagation()}
-                        className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+                        className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
                         aria-label={translate(
                           'auto.components.TaskPage.66ae7330f6',
                           'More actions'

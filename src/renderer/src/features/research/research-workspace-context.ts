@@ -29,3 +29,16 @@ export function selectResearchWorkspaceContext(state: AppState) {
     hostLabel: hostId ? selectExecutionHostDisplayLabel(state, hostId) : null
   }
 }
+
+/** The Library scope of a workspace by ID, as the Library page builds it for the open one. */
+export function selectLibraryScopeKeyParts(
+  state: AppState,
+  workspaceId: string | null | undefined
+): { hostId: string; workspacePath: string } | null {
+  const hostId = workspaceId ? getResolvedExecutionHostIdForWorktree(state, workspaceId) : null
+  const workspace =
+    workspaceId && hostId
+      ? selectWorkspaceByHostTarget(state, hostWorktreeTarget({ id: workspaceId, hostId }))
+      : undefined
+  return hostId && workspace?.path ? { hostId, workspacePath: workspace.path } : null
+}

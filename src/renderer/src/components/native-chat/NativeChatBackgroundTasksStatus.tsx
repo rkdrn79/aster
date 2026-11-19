@@ -69,8 +69,11 @@ export const KIND_ICONS = {
  *  match it or the two stop reading as the same thing. The other four are plain
  *  kind markers and stay neutral. `dimmed` is the running-turn treatment. */
 function kindIconTone(kind: AgentSessionBackgroundTask['kind'], dimmed: boolean): string {
-  const tone = kind === 'monitor' ? 'text-yellow-500' : 'text-muted-foreground'
-  return dimmed ? `${tone}/40` : tone
+  // Whole class names, so Tailwind sees each one.
+  if (kind === 'monitor') {
+    return dimmed ? 'text-status-warning/40' : 'text-status-warning'
+  }
+  return dimmed ? 'text-muted-foreground/40' : 'text-muted-foreground'
 }
 
 function BackgroundTaskRow(props: {
@@ -87,7 +90,7 @@ function BackgroundTaskRow(props: {
   return (
     <>
       <li className="flex h-6 min-w-0 items-center gap-2 text-foreground">
-        <Icon aria-hidden="true" className={`size-3.5 shrink-0 ${kindIconTone(row.kind, false)}`} />
+        <Icon aria-hidden="true" className={`size-4 shrink-0 ${kindIconTone(row.kind, false)}`} />
         {/* Every attention state states its reason on the row; `unverifiable` is never dropped. */}
         <AgentChildRowContent
           row={row}
@@ -191,16 +194,16 @@ export function NativeChatBackgroundTasksStatus(props: {
           ref={stripRef}
           className="overflow-hidden rounded-lg border border-border bg-muted/50 text-xs text-muted-foreground shadow-xs [[data-native-chat-background-tasks]:has(+[data-native-chat-thread-goal])_&]:rounded-b-none [[data-native-chat-background-tasks]:has(+[data-native-chat-thread-goal])_&]:shadow-none"
         >
-          <div className="flex h-8 items-center px-1.5">
+          <div className="flex h-8 items-center px-1">
             <button
               type="button"
-              className="flex h-6 min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md px-1.5 text-left outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex h-6 min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md px-2 text-left outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring"
               aria-expanded={expanded}
               aria-controls={taskListId}
               aria-label={headerText}
               onClick={() => props.onExpandedChange(!expanded)}
             >
-              <span className="min-w-0 truncate">
+              <span className="min-w-0 truncate tabular-nums">
                 {header.segments.map((segment, index) => {
                   // A collapsed total spans kinds, so no single icon can stand for it.
                   const kind = segment.kind
@@ -214,7 +217,7 @@ export function NativeChatBackgroundTasksStatus(props: {
                         <Icon
                           aria-hidden="true"
                           // The turn owns the voice: same icons, dimmed until it ends.
-                          className={`mr-1 inline size-3 align-[-0.125em] ${kindIconTone(
+                          className={`mr-1 inline size-4 align-[-0.25em] ${kindIconTone(
                             kind,
                             !props.indicatorActive
                           )}`}
@@ -233,7 +236,7 @@ export function NativeChatBackgroundTasksStatus(props: {
               </span>
               <ChevronDown
                 aria-hidden="true"
-                className={`size-3 transition-transform motion-reduce:transition-none ${expanded ? 'rotate-180' : ''}`}
+                className={`size-4 transition-transform motion-reduce:transition-none ${expanded ? 'rotate-180' : ''}`}
               />
             </button>
           </div>
@@ -246,9 +249,9 @@ export function NativeChatBackgroundTasksStatus(props: {
                 groups.map((group, index) => (
                   <div
                     key={group.kind}
-                    className={index > 0 ? 'mt-1.5 border-t border-border/60 pt-1.5' : ''}
+                    className={index > 0 ? 'mt-2 border-t border-border pt-2' : ''}
                   >
-                    <p className="px-0.5 pb-1 font-mono text-3xs uppercase tracking-wider text-muted-foreground">
+                    <p className="px-0.5 pb-1 text-2xs font-medium text-muted-foreground">
                       {backgroundTaskGroupLabel(group.kind)}
                     </p>
                     <ul
@@ -273,7 +276,7 @@ export function NativeChatBackgroundTasksStatus(props: {
                 <p>{say('detailsUnavailable')}</p>
               )}
               {props.incomplete && groups.length > 0 ? (
-                <p className="mt-1.5">{say('detailsUnavailable')}</p>
+                <p className="mt-2">{say('detailsUnavailable')}</p>
               ) : null}
               {props.offersStopAll ? (
                 <div className={groups.length > 0 ? 'mt-2 border-t border-border pt-2' : 'mt-2'}>

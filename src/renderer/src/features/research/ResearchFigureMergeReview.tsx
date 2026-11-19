@@ -59,7 +59,7 @@ export function ResearchFigureMergeReview({
           {conflicts.map((conflict) => (
             <li
               key={conflict.id}
-              className="flex items-center gap-3 rounded-md border border-border px-2.5 py-1.5 text-xs"
+              className="flex items-center gap-3 rounded-md border border-border px-3 py-2 text-xs"
             >
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium" title={conflict.id}>

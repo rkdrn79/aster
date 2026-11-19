@@ -24,7 +24,7 @@ export function TerminalCursorAppearanceSection({
       <SettingsSubsectionHeader
         title={translate(
           'auto.components.settings.TerminalAppearanceSection.abcb4dd019',
-          'Terminal Cursor'
+          'Terminal cursor'
         )}
       />
 
@@ -32,7 +32,7 @@ export function TerminalCursorAppearanceSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalAppearanceSection.db270cc9a9',
-            'Cursor Shape'
+            'Cursor shape'
           )}
           description={translate(
             'auto.components.settings.TerminalAppearanceSection.d455f2ef4f',
@@ -44,13 +44,13 @@ export function TerminalCursorAppearanceSection({
           <SettingsRow
             label={translate(
               'auto.components.settings.TerminalAppearanceSection.db270cc9a9',
-              'Cursor Shape'
+              'Cursor shape'
             )}
             control={
               <SettingsSegmentedControl
                 ariaLabel={translate(
                   'auto.components.settings.TerminalAppearanceSection.db270cc9a9',
-                  'Cursor Shape'
+                  'Cursor shape'
                 )}
                 value={settings.terminalCursorStyle}
                 onChange={(option) => updateSettings({ terminalCursorStyle: option })}
@@ -85,7 +85,7 @@ export function TerminalCursorAppearanceSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalAppearanceSection.74736cc9b1',
-            'Blinking Cursor'
+            'Blinking cursor'
           )}
           description={translate(
             'auto.components.settings.TerminalAppearanceSection.2de6b5a699',
@@ -96,7 +96,7 @@ export function TerminalCursorAppearanceSection({
           <SettingsSwitchRow
             label={translate(
               'auto.components.settings.TerminalAppearanceSection.74736cc9b1',
-              'Blinking Cursor'
+              'Blinking cursor'
             )}
             checked={settings.terminalCursorBlink}
             onChange={() => updateSettings({ terminalCursorBlink: !settings.terminalCursorBlink })}
@@ -106,7 +106,7 @@ export function TerminalCursorAppearanceSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalAppearanceSection.b9f1804422',
-            'Cursor Opacity'
+            'Cursor opacity'
           )}
           description={translate(
             'auto.components.settings.TerminalAppearanceSection.04cdf85dec',
@@ -117,7 +117,7 @@ export function TerminalCursorAppearanceSection({
           <NumberField
             label={translate(
               'auto.components.settings.TerminalAppearanceSection.b9f1804422',
-              'Cursor Opacity'
+              'Cursor opacity'
             )}
             description=""
             value={settings.terminalCursorOpacity ?? 1}

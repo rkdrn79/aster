@@ -38,16 +38,16 @@ export function ResearchFigureAgentStatus({
       aria-live="polite"
       aria-label="Figure agent status"
       className={cn(
-        'absolute top-16 left-1/2 z-20 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-1.5 rounded-full border border-border bg-background/95 py-0.5 pr-1 pl-2.5 text-xs shadow-sm',
-        turn.phase === 'failed' && 'border-destructive/40'
+        'surface-floating absolute top-16 left-1/2 z-20 flex h-8 max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-lg pr-1 pl-3 text-xs',
+        turn.phase === 'failed' && 'ring-1 ring-destructive/40'
       )}
     >
       {active ? (
-        <Loader2 className="size-3 shrink-0 animate-spin text-muted-foreground" aria-hidden />
+        <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" aria-hidden />
       ) : turn.phase === 'done' ? (
-        <Check className="size-3 shrink-0 text-status-success" aria-hidden />
+        <Check className="size-4 shrink-0 text-status-success" aria-hidden />
       ) : null}
-      <span className="min-w-0 truncate">
+      <span className={cn('min-w-0 truncate', active && 'text-shimmer')}>
         {figureTurnPhaseText(turn)}
         {turn.phase === 'done'
           ? changes === null

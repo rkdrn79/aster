@@ -148,13 +148,14 @@ describe('NativeChatMessageList turn indicator', () => {
     )
 
     const toolLabel = screen.getByText('Running 1 command')
-    expect(toolLabel).toHaveClass('animate-pulse')
+    expect(toolLabel).not.toHaveClass('text-shimmer')
     expect(screen.getAllByText('Running 1 command')).toHaveLength(1)
     expect(screen.getByText('pnpm test')).toBeInTheDocument()
     const activity = screen.getByText('Working…')
     expect(activity.textContent).not.toBe(toolLabel.textContent)
     expect(activity).not.toHaveTextContent('shell')
     expect(activity).not.toHaveTextContent('pnpm test')
+    expect(activity).toHaveClass('text-shimmer')
     const spinner = activity.closest('[data-native-chat-turn-activity]')?.querySelector('svg')
     expect(activity).not.toHaveClass('animate-pulse', 'animate-spin')
     expect(spinner).toHaveClass('animate-spin', 'motion-reduce:hidden')
@@ -193,7 +194,7 @@ describe('NativeChatMessageList turn indicator', () => {
     expect(container.querySelector('[data-native-chat-turn-activity]')).toBeNull()
     expect(screen.queryByText(/Working for/)).toBeNull()
     expect(screen.queryByText('Thinking')).toBeNull()
-    expect(screen.getByText('Running 1 command')).toHaveClass('animate-pulse')
+    expect(screen.getByText('Running 1 command')).not.toHaveClass('text-shimmer')
   })
 
   // A terminal-backed pane can learn its agent is waiting without being handed
@@ -263,10 +264,11 @@ describe('NativeChatMessageList turn indicator', () => {
 
     const liveRun = screen.getByText('Running 1 command').closest('button')
     expect(liveRun).toHaveTextContent('pnpm test')
-    expect(liveRun?.querySelector('.animate-pulse')).toBeInTheDocument()
+    expect(liveRun?.querySelector('.text-shimmer')).toBeNull()
     expect(liveRun?.querySelector('.animate-spin')).toBeNull()
     expect(liveRun?.querySelector('.lucide-check')).toBeNull()
     const activity = screen.getByText('Preparing the answer')
+    expect(activity).toHaveClass('text-shimmer')
     expect(activity).not.toHaveClass('animate-pulse', 'animate-spin')
     expect(activity.closest('[data-native-chat-turn-activity]')?.querySelector('svg')).toHaveClass(
       'animate-spin'
@@ -282,13 +284,13 @@ describe('NativeChatMessageList turn indicator', () => {
     )
 
     expect(container.querySelector('[data-native-chat-turn-activity]')).toBeNull()
-    expect(container.querySelector('.animate-pulse')).toBeNull()
+    expect(container.querySelector('.text-shimmer')).toBeNull()
     expect(container.querySelector('.animate-spin')).toBeNull()
     // Same element, now settled: the lone command names it, marked done.
     expect(liveRun).toBeInTheDocument()
     expect(liveRun).toHaveTextContent('pnpm test')
     expect(liveRun).not.toHaveTextContent('Running')
-    expect(liveRun?.querySelector('.lucide-check')).toBeInTheDocument()
+    expect(liveRun?.querySelector('[data-native-chat-tool-run-done] svg')).toBeInTheDocument()
   })
 
   it('replaces a bridge ask row and settles it from the FIFO tool result', () => {

@@ -181,7 +181,7 @@ export function CodexSwitcherMenu({
         </>
       ) : null}
       <DropdownMenuLabel>
-        {translate('auto.components.status.bar.StatusBar.7657e3db9c', 'Codex Account')}
+        {translate('auto.components.status.bar.StatusBar.7657e3db9c', 'Codex account')}
       </DropdownMenuLabel>
       <DropdownMenuItem
         onSelect={(event) => {
@@ -293,7 +293,7 @@ export function CodexSwitcherMenu({
           openSettingsPage()
         }}
       >
-        {translate('auto.components.status.bar.StatusBar.75ded02687', 'Manage Accounts…')}
+        {translate('auto.components.status.bar.StatusBar.75ded02687', 'Manage accounts…')}
       </DropdownMenuItem>
     </ProviderDetailsMenu>
   )

@@ -227,7 +227,7 @@ export function renderLinearItemDrawerSheet({
                               className="size-5 shrink-0 rounded-full"
                             />
                           )}
-                          <span className="text-[13px] font-semibold text-foreground">
+                          <span className="text-[13px] font-medium text-foreground">
                             {comment.user?.displayName ??
                               translate('auto.components.LinearItemDrawer.48e17e8cbd', 'Unknown')}
                           </span>

@@ -107,7 +107,7 @@ export function GitLabDescriptionTab({ item, state, detailsEditing, reviewAction
               currentReviewers.map((reviewer) => (
                 <span
                   key={gitLabUserKey(reviewer)}
-                  className="inline-flex h-6 items-center gap-1 rounded-full border border-border/50 bg-background px-2 text-[11px] text-foreground"
+                  className="inline-flex h-6 items-center gap-1 rounded-md border border-border/50 bg-background px-2 text-[11px] text-foreground"
                 >
                   {reviewer.username}
                   <button
@@ -120,7 +120,7 @@ export function GitLabDescriptionTab({ item, state, detailsEditing, reviewAction
                         )
                       )
                     }
-                    className="rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
+                    className="rounded-sm p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
                     aria-label={translate(
                       'auto.components.GitLabItemDialog.1b19cdc510',
                       'Remove reviewer {{value0}}',
@@ -238,7 +238,7 @@ export function GitLabDescriptionTab({ item, state, detailsEditing, reviewAction
             {labelOptionsLoading || labelSuggestionOptions.length > 0 ? (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {labelOptionsLoading ? (
-                  <span className="inline-flex h-6 items-center gap-1 rounded-full border border-border/50 px-2 text-[11px] text-muted-foreground">
+                  <span className="inline-flex h-6 items-center gap-1 rounded-md border border-border/50 px-2 text-[11px] text-muted-foreground">
                     <LoaderCircle className="size-3 animate-spin" />
                     {translate('auto.components.GitLabItemDialog.717b706849', 'Loading labels')}
                   </span>
@@ -254,7 +254,7 @@ export function GitLabDescriptionTab({ item, state, detailsEditing, reviewAction
                       disabled={detailsSaving}
                       onClick={() => setLabelDraft(toggleGitLabLabelDraft(labelDraft, label))}
                       className={cn(
-                        'inline-flex h-6 items-center gap-1 rounded-full border px-2 text-[11px] transition-colors',
+                        'inline-flex h-6 items-center gap-1 rounded-md border px-2 text-[11px] transition-colors',
                         selected
                           ? 'border-primary/40 bg-primary/10 text-primary'
                           : 'border-border/50 bg-muted/30 text-muted-foreground hover:bg-muted/60'

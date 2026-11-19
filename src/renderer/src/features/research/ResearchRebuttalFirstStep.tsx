@@ -29,7 +29,7 @@ export function ResearchRebuttalFirstStep({
       <section aria-label="Import reviews" className="w-full max-w-2xl space-y-4 py-4">
         <div>
           <MessageSquareReply className="mb-2 size-5 text-muted-foreground" aria-hidden />
-          <h2 className="text-lg font-semibold">Bring in your reviews</h2>
+          <h2 className="text-lg font-medium">Bring in your reviews</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             You do this once. Reviewers then get their own page, with their concerns next to your
             replies. Later comments from a reviewer come in as new rounds on that reviewer.
@@ -51,11 +51,11 @@ export function ResearchRebuttalFirstStep({
           <ToggleGroupItem value="paste">Paste or load a file</ToggleGroupItem>
         </ToggleGroup>
         <div
-          className={`flex flex-col rounded-lg border border-border bg-card p-4 ${source === 'paste' ? 'min-h-96' : ''}`}
+          className={`flex flex-col rounded-xl bg-card p-5 shadow-raised ${source === 'paste' ? 'min-h-96' : ''}`}
         >
           {readOnly ? (
             <p className="text-sm text-muted-foreground">
-              These files need fixing before reviews can be added.
+              These files need fixing before reviews can be added
             </p>
           ) : source === 'openreview' ? (
             <ResearchRebuttalOpenReviewForm snapshot={snapshot} onImported={onImported} />

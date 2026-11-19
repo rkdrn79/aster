@@ -121,7 +121,7 @@ export function DeleteWorktreeDirtyChangeHint({
                 {preview.files.map((file) => (
                   <li key={file.path} className="flex min-w-0 items-baseline gap-2">
                     <span
-                      className="w-3 shrink-0 font-semibold"
+                      className="w-3 shrink-0 font-medium"
                       style={{ color: STATUS_COLORS[file.status] }}
                       aria-label={file.status}
                     >

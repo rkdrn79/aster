@@ -142,8 +142,8 @@ export function EditorFileTabContextMenu({
         <DropdownMenuItem onSelect={onTogglePin}>
           {isPinned ? <PinOff className="size-3.5" /> : <Pin className="size-3.5" />}
           {isPinned
-            ? translate('auto.components.tab.bar.EditorFileTabContextMenu.8e9d603a09', 'Unpin Tab')
-            : translate('auto.components.tab.bar.EditorFileTabContextMenu.fdd29eb669', 'Pin Tab')}
+            ? translate('auto.components.tab.bar.EditorFileTabContextMenu.8e9d603a09', 'Unpin tab')
+            : translate('auto.components.tab.bar.EditorFileTabContextMenu.fdd29eb669', 'Pin tab')}
         </DropdownMenuItem>
         <CopyTabIdMenuItem unifiedTabId={unifiedTabId} />
         <DropdownMenuSeparator />
@@ -154,13 +154,13 @@ export function EditorFileTabContextMenu({
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onCloseOthers} disabled={tabCount <= 1}>
           <CopyX className="size-3.5" />
-          {translate('components.tab.bar.EditorFileTabContextMenu.closeOthers', 'Close Others')}
+          {translate('components.tab.bar.EditorFileTabContextMenu.closeOthers', 'Close others')}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onCloseAll}>
           <ListX className="size-3.5" />
           {translate(
             'auto.components.tab.bar.EditorFileTabContextMenu.ba1369dd24',
-            'Close All Editor Tabs'
+            'Close all editor tabs'
           )}
           {closeAllShortcut ? (
             <DropdownMenuShortcut>{closeAllShortcut}</DropdownMenuShortcut>
@@ -188,7 +188,7 @@ export function EditorFileTabContextMenu({
               <Eye className="size-3.5" />
               {translate(
                 'auto.components.tab.bar.EditorFileTabContextMenu.bfd5797ef4',
-                'Open Markdown Preview'
+                'Open Markdown preview'
               )}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -205,7 +205,7 @@ export function EditorFileTabContextMenu({
               <Copy className="size-3.5" />
               {translate(
                 'auto.components.tab.bar.EditorFileTabContextMenu.5b85754786',
-                'Copy Path'
+                'Copy path'
               )}
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -216,7 +216,7 @@ export function EditorFileTabContextMenu({
               <Copy className="size-3.5" />
               {translate(
                 'auto.components.tab.bar.EditorFileTabContextMenu.52ce4f4605',
-                'Copy Relative Path'
+                'Copy relative path'
               )}
             </DropdownMenuItem>
             <DropdownMenuSeparator />

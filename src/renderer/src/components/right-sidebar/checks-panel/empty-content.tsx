@@ -293,7 +293,7 @@ export function ChecksPanelEmptyContent({
                 title: shouldPushBeforeCreateReview
                   ? translate(
                       'auto.components.right.sidebar.ChecksPanel.98f4c37b33',
-                      'Push & Create {{value0}}',
+                      'Push & create {{value0}}',
                       { value0: emptyReviewShortLabel }
                     )
                   : translate(
@@ -320,7 +320,7 @@ export function ChecksPanelEmptyContent({
                   ? translate('auto.components.right.sidebar.ChecksPanel.fdb27637f2', 'Publishing…')
                   : translate(
                       'auto.components.right.sidebar.ChecksPanel.6633c7a1fb',
-                      'Publish Branch'
+                      'Publish branch'
                     )}
               </Button>
             )}
@@ -334,7 +334,7 @@ export function ChecksPanelEmptyContent({
                   ? translate('auto.components.right.sidebar.ChecksPanel.sync.pending', 'Syncing…')
                   : translate(
                       'auto.components.right.sidebar.ChecksPanel.sync.branch',
-                      'Sync Branch'
+                      'Sync branch'
                     )}
               </Button>
             )}
@@ -354,7 +354,7 @@ export function ChecksPanelEmptyContent({
               >
                 {translate(
                   'auto.components.right.sidebar.ChecksPanel.review.open_review',
-                  'Open Review'
+                  'Open review'
                 )}
               </Button>
             ) : null}

@@ -33,7 +33,7 @@ export function ArtifactListSearchField({
         )}
         placeholder={translate(
           'auto.components.artifacts.ArtifactListSearchField.placeholder',
-          'Search...'
+          'Search'
         )}
         // Why: the page-level Escape handler blurs inputs; this opts out so the
         // first Escape clears the query without also losing focus.

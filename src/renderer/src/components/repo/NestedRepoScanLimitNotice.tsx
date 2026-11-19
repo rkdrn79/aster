@@ -52,7 +52,7 @@ export function NestedRepoScanLimitNotice({ scan }: { scan: NestedRepoScanResult
             )}
             aria-expanded={detailsOpen}
             title={detailsText}
-            className="inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+            className="inline-flex size-4 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             onClick={(event) => {
               event.stopPropagation()
               setDetailsOpen(true)

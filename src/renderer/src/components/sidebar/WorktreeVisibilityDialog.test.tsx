@@ -247,7 +247,7 @@ describe('WorktreeVisibilityDialog', () => {
   it('links directly to the global visibility defaults', async () => {
     await renderDialog()
 
-    const manageGlobalSettings = buttonWithText('Manage in Global Settings')
+    const manageGlobalSettings = buttonWithText('Manage in global settings')
     expect(manageGlobalSettings.querySelector('.lucide-settings')).not.toBeNull()
     await click(manageGlobalSettings)
 
@@ -651,7 +651,7 @@ describe('WorktreeVisibilityDialog', () => {
     expect(
       [...(intro?.nextElementSibling?.querySelectorAll('li') ?? [])].map((item) => item.textContent)
     ).toEqual(['Claude CodeShow', 'GSDHide', 'Other locationsHide'])
-    expect(buttonWithText('Manage in Global Settings')).not.toBeNull()
+    expect(buttonWithText('Manage in global settings')).not.toBeNull()
   })
 
   it('names the global value an override is ignoring and reverts on the same control', async () => {

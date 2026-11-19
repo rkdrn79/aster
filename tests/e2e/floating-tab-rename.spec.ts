@@ -251,7 +251,7 @@ test('floating workspace Markdown renames survive an app restart', async (// oxl
       exact: true
     })
     await blurInput.fill(seeded.renamedName)
-    await panel.getByRole('radio', { name: 'Rich Editor' }).click()
+    await panel.getByRole('radio', { name: 'Rich editor' }).click()
     await expect(tab).toContainText(seeded.renamedName)
     await expect
       .poll(() =>

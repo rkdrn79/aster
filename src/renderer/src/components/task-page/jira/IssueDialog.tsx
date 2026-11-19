@@ -159,14 +159,14 @@ export function TaskPageJiraIssueDialog({
                       ref={newJiraIssueProjectSearchInputRef}
                       placeholder={translate(
                         'auto.components.TaskPage.cfb56a7868',
-                        'Search projects...'
+                        'Search projects'
                       )}
                       value={newJiraIssueProjectQuery}
                       onValueChange={setNewJiraIssueProjectQuery}
                     />
                     <CommandList className="max-h-56">
                       <CommandEmpty>
-                        {translate('auto.components.TaskPage.93c57f15e5', 'No projects found.')}
+                        {translate('auto.components.TaskPage.93c57f15e5', 'No projects found')}
                       </CommandEmpty>
                       {filteredNewJiraIssueProjects.map((project) => {
                         const selectionKey = getJiraProjectSelectionKey(project)

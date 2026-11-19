@@ -191,7 +191,7 @@ function QuickCommandsEmptyState({
         <p className="text-xs text-muted-foreground/80">
           {translate(
             'auto.components.settings.QuickCommandsPane.c36912efd5',
-            'Run them from the Quick Commands button in the tab bar, or right-click inside any terminal.'
+            'Run them from the Quick commands button in the tab bar, or right-click inside any terminal.'
           )}
         </p>
       </div>

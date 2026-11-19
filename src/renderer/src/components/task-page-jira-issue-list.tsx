@@ -142,7 +142,7 @@ function JiraIssueRow({
           }
         }}
         className={cn(
-          'group/row grid min-h-12 cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 text-left transition hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring @3xl:grid-cols-(--jira-cols-md) @3xl:min-w-(--jira-min-md) @5xl:grid-cols-(--jira-cols-lg) @5xl:min-w-(--jira-min-lg) @7xl:grid-cols-(--jira-cols-xl) @7xl:min-w-(--jira-min-xl)',
+          'group/row grid min-h-12 cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring @3xl:grid-cols-(--jira-cols-md) @3xl:min-w-(--jira-min-md) @5xl:grid-cols-(--jira-cols-lg) @5xl:min-w-(--jira-min-lg) @7xl:grid-cols-(--jira-cols-xl) @7xl:min-w-(--jira-min-xl)',
           selected && 'bg-accent'
         )}
       >
@@ -162,7 +162,7 @@ function JiraIssueRow({
           <div className="mt-1 flex min-w-0 items-center gap-1.5 @3xl:!hidden">
             <span
               className={cn(
-                'inline-flex min-w-0 items-center rounded-full border px-1.5 py-0.5 text-[11px] font-medium',
+                'inline-flex min-w-0 items-center rounded-sm border px-1.5 py-0.5 text-[11px] font-medium',
                 getStatusTone(issue.status.categoryKey)
               )}
             >
@@ -180,7 +180,7 @@ function JiraIssueRow({
             {labels.map((label) => (
               <span
                 key={label}
-                className="max-w-[140px] truncate rounded-full border border-border/50 bg-muted/35 px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                className="max-w-[140px] truncate rounded-sm border border-border/50 bg-muted/35 px-1.5 py-0.5 text-[10px] text-muted-foreground"
               >
                 {label}
               </span>

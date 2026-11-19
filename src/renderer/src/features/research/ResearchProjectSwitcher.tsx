@@ -193,12 +193,12 @@ export function ResearchProjectSwitcherButton({
     <button
       type="button"
       aria-label={`${project.name}, switch project`}
-      className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md px-2 text-left text-worktree-sidebar-foreground transition-colors outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-accent"
+      className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-lg px-2 text-left text-worktree-sidebar-foreground transition-colors duration-(--duration-fast) outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-accent"
       {...props}
     >
       <ResearchComputeProjectDot color={project.badgeColor} />
-      <span className="min-w-0 flex-1 truncate text-base font-semibold">{project.name}</span>
-      <ChevronsUpDown className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+      <span className="min-w-0 flex-1 truncate text-[15px] font-medium">{project.name}</span>
+      <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden />
     </button>
   )
 }

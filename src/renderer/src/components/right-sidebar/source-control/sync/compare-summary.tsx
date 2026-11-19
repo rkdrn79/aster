@@ -227,7 +227,7 @@ export function CompareUnavailable({
             onClick={onChangeBaseRef}
           >
             <Settings2 className="size-3.5" />
-            {translate('auto.components.right.sidebar.SourceControl.476b77745b', 'Change Base Ref')}
+            {translate('auto.components.right.sidebar.SourceControl.476b77745b', 'Change base ref')}
           </Button>
         )}
         <Button type="button" variant="ghost" size="sm" className="h-7 text-xs" onClick={onRetry}>

@@ -59,7 +59,7 @@ export function buildCommitDropdownItems(ctx: DropdownActionContext): CommitDrop
                     : 'Commit staged changes and push'))
   const commitPush: DropdownItem = {
     kind: 'commit_push',
-    label: shouldForcePushWithLease ? 'Commit & Force Push' : 'Commit & Push',
+    label: shouldForcePushWithLease ? 'Commit & force push' : 'Commit & push',
     title: commitPushTitle,
     // Why: match explicit Push — only an open linked review with a known head can commit+push without a git upstream.
     disabled:
@@ -92,7 +92,7 @@ export function buildCommitDropdownItems(ctx: DropdownActionContext): CommitDrop
     if (shouldForcePushWithLease) {
       return (
         commitDisabledReason ??
-        'Use Commit & Force Push — remote only has older copies of local commits'
+        'Use Commit & force push — remote only has older copies of local commits'
       )
     }
     return commitDisabledReason ?? 'Commit, then pull and push'
@@ -101,7 +101,7 @@ export function buildCommitDropdownItems(ctx: DropdownActionContext): CommitDrop
     kind: 'commit_sync',
     label: translate(
       'auto.components.right.sidebar.source.control.dropdown.items.323bb614aa',
-      'Commit & Sync'
+      'Commit & sync'
     ),
     title: commitSyncTitle,
     disabled:

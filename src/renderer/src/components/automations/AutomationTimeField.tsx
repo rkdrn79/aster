@@ -163,7 +163,7 @@ function TimeDigitInput({
           event.currentTarget.blur()
         }
       }}
-      className="h-7 w-9 rounded-sm border-0 bg-transparent p-0 text-center text-sm tabular-nums tracking-wide text-foreground outline-none selection:bg-primary/20 focus-visible:bg-accent/50"
+      className="h-7 w-9 rounded-sm border-0 bg-transparent p-0 text-center text-sm tabular-nums text-foreground outline-none selection:bg-primary/20 focus-visible:bg-accent/50"
     />
   )
 }

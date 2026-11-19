@@ -183,7 +183,7 @@ export function WorktreeRow({
           <span className="text-xs font-medium truncate">{rowLabel}</span>
           {/* Why: gate the chip on SSH connectionId, not missing data — warm-reattached local PTYs land here with hasLocalSamples=false. */}
           {worktree.isRemote && (
-            <span className="shrink-0 text-[9px] uppercase tracking-wide text-muted-foreground/70">
+            <span className="shrink-0 text-[10px] text-muted-foreground/70">
               {worktree.hostLabel
                 ? `· ${worktree.hostLabel}`
                 : translate(

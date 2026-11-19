@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import { ChevronDown, ImagePlus, LayoutTemplate, ScrollText } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ChevronDown, ImagePlus, Layers, LayoutTemplate, ScrollText } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +8,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useResearchRecords } from './research-records-store'
 import { ResearchAgentChatPane } from './ResearchAgentChatPane'
+import { ResearchChip } from './research-chip'
 import { ResearchFigureAgentWatcher } from './ResearchFigureAgentWatcher'
 import { ResearchFigureChatScope } from './ResearchFigureChatScope'
+import { ResearchFigureCarefulCard } from './ResearchFigureCarefulCard'
+import { ResearchFigureModesBar } from './ResearchFigureModesBar'
+import { useEffectiveFigureModes } from './research-figure-reference-library'
+import type { ProjectFileOwner } from './research-project-files'
+import { useCarefulState, useFigureCriticWatcher } from './use-figure-careful'
 import { ResearchFigureOverwriteDialog } from './ResearchFigureOverwriteDialog'
 import { noteTypedFigureMessage } from './research-figure-agent-actions'
 import { useFigureHistoryShortcut } from './research-figure-history-tab'
@@ -49,6 +54,11 @@ type Props = {
   canvas: FigureCanvasState
   /** The open figure, whose chat this shows; null is the project's chat for no open figure. */
   figureKey: string | null
+  owner: ProjectFileOwner
+  /** The figures working folder, and the open diagram's own folder (null for a plot or none). */
+  folders: { work: string | null; figure: string | null }
+  /** Sends what the person chose (a sketch to use) to the open figure's chat. */
+  onSendText: ((text: string) => Promise<string | null>) | null
 }
 
 function StarterCard({
@@ -70,17 +80,19 @@ function StarterCard({
       aria-label={title}
       aria-disabled={disabledReason ? true : undefined}
       title={disabledReason ?? detail}
-      className="flex w-full items-start gap-2 rounded-md border border-border bg-background px-2.5 py-2 text-left hover:bg-accent aria-disabled:cursor-not-allowed aria-disabled:opacity-55"
+      className="press-scale flex w-full items-center gap-3 rounded-lg border border-border bg-card px-3 py-3 text-left hover:bg-accent focus-visible:outline-none aria-disabled:cursor-not-allowed aria-disabled:opacity-55"
       onClick={() => {
         if (!disabledReason) {
           onClick()
         }
       }}
     >
-      <Icon className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" aria-hidden />
-      <span className="flex min-w-0 flex-col">
-        <span className="text-xs font-medium text-foreground">{title}</span>
-        <span className="text-2xs text-muted-foreground">{disabledReason ?? detail}</span>
+      <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+      <span className="flex min-w-0 flex-col gap-0.5">
+        <span className="text-[13px] leading-tight font-medium text-foreground">{title}</span>
+        <span className="text-xs leading-snug text-muted-foreground">
+          {disabledReason ?? detail}
+        </span>
       </span>
     </button>
   )
@@ -104,7 +116,10 @@ export function ResearchFigureAgentPane({
   onTemplate,
   messageContext,
   canvas,
-  figureKey
+  figureKey,
+  owner,
+  folders,
+  onSendText
 }: Props): React.JSX.Element {
   const boundSessionId = useResearchRecords((state) =>
     figureAgentSessionId(state.document, scope, figureKey)
@@ -115,6 +130,18 @@ export function ResearchFigureAgentPane({
   const [error, setError] = useState<{ figure: string | null; text: string } | null>(null)
   const [escArmed, setEscArmed] = useState(false)
   const variants = useFigureVariantsMode((state) => state.on)
+  const modes = useEffectiveFigureModes(scope)
+  const carefulTarget =
+    folders.figure !== null && figureKey !== null
+      ? { folder: folders.figure, slug: figureKey }
+      : null
+  const careful = useCarefulState(owner, carefulTarget, modes.careful)
+  useFigureCriticWatcher(
+    scope,
+    owner,
+    [...new Set([folders.work, folders.figure].filter((entry) => entry !== null))],
+    modes.careful
+  )
   const escAtRef = useRef(0)
   useFigureHistoryShortcut()
   const decorateMessage = useCallback(
@@ -147,17 +174,15 @@ export function ResearchFigureAgentPane({
   }
 
   const button = (action: FigureQuickAction): React.JSX.Element => (
-    <Button
+    <ResearchChip
       key={action.id}
-      size="xs"
-      variant="outline"
       aria-label={action.label}
       title={action.disabledReason ?? undefined}
       disabled={sending !== null || action.disabledReason !== null}
       onClick={() => void run(action.id)}
     >
       {sending === action.id ? 'Sending…' : action.label}
-    </Button>
+    </ResearchChip>
   )
 
   const shownError = error && error.figure === figureKey ? error.text : null
@@ -203,7 +228,7 @@ export function ResearchFigureAgentPane({
         emptyHint={
           <div className="flex w-full max-w-xs flex-col items-stretch gap-2">
             <p className="text-sm text-muted-foreground">{FIGURE_COMPOSER_PLACEHOLDER}</p>
-            <div role="group" aria-label="Start a figure" className="flex flex-col gap-1.5">
+            <div role="group" aria-label="Start a figure" className="flex flex-col gap-2">
               <StarterCard
                 icon={ScrollText}
                 title="Draw from Method"
@@ -240,56 +265,73 @@ export function ResearchFigureAgentPane({
         decorateMessage={decorateMessage}
         toolbar={
           <>
-            {onRequest && boundSessionId ? (
-              <div className="shrink-0 border-b border-border px-3 py-2">
-                <div className="flex flex-wrap gap-1" role="group" aria-label="Figure requests">
-                  {actions.primary.map(button)}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        size="xs"
-                        variant="ghost"
-                        aria-label="More figure requests"
-                        disabled={sending !== null}
-                      >
-                        More <ChevronDown aria-hidden />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="min-w-56">
-                      {actions.more.map((action) => (
-                        <DropdownMenuItem
-                          key={action.id}
-                          disabled={action.disabledReason !== null}
-                          onSelect={() => void run(action.id)}
+            {onRequest ? (
+              <div className="flex shrink-0 flex-col gap-2 px-3 pt-3 pb-0.5">
+                {boundSessionId ? (
+                  <div className="flex flex-wrap gap-2" role="group" aria-label="Figure requests">
+                    {actions.primary.map(button)}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <ResearchChip
+                          tone="quiet"
+                          className="gap-1 px-3"
+                          aria-label="More figure requests"
+                          disabled={sending !== null}
                         >
-                          <span className="flex min-w-0 flex-col">
-                            <span>{action.label}</span>
-                            {action.disabledReason ? (
-                              <span className="text-2xs text-muted-foreground">
-                                {action.disabledReason}
-                              </span>
-                            ) : null}
-                          </span>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Button
-                    size="xs"
-                    variant={variants ? 'secondary' : 'ghost'}
-                    aria-pressed={variants}
-                    title="Quick actions draw three variants beside the figure; you preview and adopt one"
-                    onClick={() => setFigureVariantsMode(!variants)}
-                  >
-                    Variants ×3
-                  </Button>
-                </div>
-                {shownError ? (
-                  <p role="alert" className="mt-1.5 text-xs text-destructive">
+                          More <ChevronDown aria-hidden />
+                        </ResearchChip>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="min-w-56">
+                        {actions.more.map((action) => (
+                          <DropdownMenuItem
+                            key={action.id}
+                            disabled={action.disabledReason !== null}
+                            onSelect={() => void run(action.id)}
+                          >
+                            <span className="flex min-w-0 flex-col">
+                              <span>{action.label}</span>
+                              {action.disabledReason ? (
+                                <span className="text-2xs text-muted-foreground">
+                                  {action.disabledReason}
+                                </span>
+                              ) : null}
+                            </span>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <ResearchChip
+                      tone="quiet"
+                      className="px-3"
+                      aria-pressed={variants}
+                      title="Quick actions draw three variants beside the figure; you preview and adopt one"
+                      onClick={() => setFigureVariantsMode(!variants)}
+                    >
+                      <Layers aria-hidden /> Variants ×3
+                    </ResearchChip>
+                  </div>
+                ) : null}
+                <ResearchFigureModesBar scope={scope} />
+                {shownError && boundSessionId ? (
+                  <p role="alert" className="text-xs text-destructive">
                     {shownError}
                   </p>
                 ) : null}
               </div>
+            ) : null}
+            {modes.careful ? (
+              <ResearchFigureCarefulCard
+                state={careful}
+                pick={modes.pick}
+                onPick={
+                  onSendText
+                    ? (name) =>
+                        onSendText(
+                          `Use sketch ${name}: I picked it in the panel. Record it with \`figures careful --chose ${name} --by person\`, draw it in full and go on with the art director rounds.`
+                        )
+                    : null
+                }
+              />
             ) : null}
             <ResearchFigureChatScope scope={scope} escArmed={escArmed} />
           </>

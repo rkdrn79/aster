@@ -16,7 +16,7 @@ export type ToolbarSlot = (typeof TOOLBAR_PRIORITY)[number]
 /**
  * Rendered widths in px at 12 px text, measured in the e2e walk (Generate 80, Ask 46, Use in
  * paper 100, Export 75, the page chip 85), with a little room for longer states. Save is
- * `ResearchFigureSaveButton`, fixed at 144 px so "Saved ✓ · 2s ago" never moves its neighbours.
+ * `ResearchFigureSaveButton`, fixed at 144 px so "Saved · 2s ago" never moves its neighbours.
  */
 export const TOOLBAR_WIDTHS: Readonly<Record<ToolbarSlot, number>> = {
   save: 146,

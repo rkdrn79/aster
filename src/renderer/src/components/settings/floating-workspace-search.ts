@@ -7,7 +7,7 @@ function buildFloatingWorkspaceSearchEntries(includeBrowser: boolean) {
     {
       title: translate(
         'auto.components.settings.floating.workspace.search.b2b60e7163',
-        'Floating Workspace'
+        'Floating workspace'
       ),
       description: translate(
         'auto.components.settings.floating.workspace.search.b96b5ee6cf',

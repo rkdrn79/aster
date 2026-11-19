@@ -19,7 +19,7 @@ export function TaskPageLinearProjectList({
   } = model
   return (
     <div className="flex min-h-0 max-h-full flex-col overflow-hidden rounded-md rounded-t-none border border-t-0 border-border/50 bg-background shadow-sm">
-      <div className="grid h-8 flex-none items-center gap-3 border-b border-border/50 bg-muted/25 px-3 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground grid-cols-[minmax(180px,1.5fr)_110px_100px_90px_120px_110px_80px_70px]">
+      <div className="grid h-8 flex-none items-center gap-3 border-b border-border/50 bg-muted/25 px-3 text-[11px] font-medium text-muted-foreground grid-cols-[minmax(180px,1.5fr)_110px_100px_90px_120px_110px_80px_70px]">
         <span>{translate('auto.components.TaskPage.00022ec0ba', 'Project')}</span>
         <span>{translate('auto.components.TaskPage.154b0fa623', 'Status')}</span>
         <span>{translate('auto.components.TaskPage.8a07f21e76', 'Health')}</span>

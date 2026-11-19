@@ -135,7 +135,7 @@ describe('terminal file link actions', () => {
 
     const actionRequest = request.mock.calls[0][0]
     expect(actionRequest.primary.label).toBe('Open file')
-    expect(actionRequest.alternate.label).toBe('Download & open with default app')
+    expect(actionRequest.alternate.label).toBe('Download and open with default app')
 
     actionRequest.alternate.run()
     // The open flow downloads a host file and opens a path the host disowns on this computer.

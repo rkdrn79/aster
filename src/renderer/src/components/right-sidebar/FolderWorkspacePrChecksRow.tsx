@@ -152,7 +152,7 @@ function PrChecksRowHeader({ row }: { row: ParentPrChecksRow }): React.JSX.Eleme
       {row.reviewState ? (
         <span
           className={cn(
-            'shrink-0 rounded border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide',
+            'shrink-0 rounded border px-1.5 py-0.5 text-[9px] font-medium capitalize',
             prStateColor(row.reviewState)
           )}
         >

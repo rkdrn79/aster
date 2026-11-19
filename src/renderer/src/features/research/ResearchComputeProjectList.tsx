@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import type { ResearchComputeProjectUsage } from './research-compute-usage'
 import { ResearchComputeProjectDot } from './ResearchComputeProjectDot'
+import { cn } from '@/lib/utils'
+import { RAISED_CARD } from './research-surface-classes'
 import { ResearchGpuProcessTable } from './ResearchGpuProcessTable'
 import { ResearchSlurmJobTable, type ResearchSlurmJobActions } from './ResearchSlurmJobTable'
 
@@ -49,8 +51,8 @@ export function ResearchComputeProjectList({
   return (
     <div className="space-y-4">
       {visible.some((usage) => usage.projectKey !== null) ? null : (
-        <p className="rounded-xl border border-dashed border-border p-8 text-sm text-muted-foreground">
-          No jobs or GPU processes in your open projects.
+        <p className="rounded-xl bg-muted/60 px-5 py-4 text-sm text-muted-foreground dark:bg-muted/45">
+          No jobs or GPU processes in your open projects
         </p>
       )}
       {otherCount ? (
@@ -65,10 +67,10 @@ export function ResearchComputeProjectList({
       {visible.map((usage) => (
         <section
           key={usage.projectKey ?? 'unmatched'}
-          className="overflow-hidden rounded-lg border border-border bg-card"
+          className={cn(RAISED_CARD, 'overflow-hidden')}
           aria-label={usage.projectName ?? 'Work outside your open projects'}
         >
-          <header className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-4 py-3">
+          <header className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 pt-4 pb-2">
             <div className="flex min-w-0 items-center gap-2">
               <ResearchComputeProjectDot color={usage.badgeColor} />
               <h2 className="truncate text-sm font-medium">
@@ -92,9 +94,9 @@ export function ResearchComputeProjectList({
             <ResearchSlurmJobTable entries={usage.jobs} actions={jobActions} />
           ) : null}
           {usage.processes.length ? (
-            <div className={usage.jobs.length ? 'border-t border-border' : undefined}>
+            <div className={usage.jobs.length ? 'pt-2' : undefined}>
               {usage.jobs.length ? (
-                <p className="px-4 pt-3 text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="px-4 pt-3 text-xs font-medium text-muted-foreground">
                   GPU processes (nvidia-smi)
                 </p>
               ) : null}

@@ -16,7 +16,7 @@ export function RecentTabOrderControl({
 }): React.JSX.Element {
   return (
     <SearchableSetting
-      title={translate('auto.components.settings.RecentTabOrderControl.7a546f2309', 'Tab Order')}
+      title={translate('auto.components.settings.RecentTabOrderControl.7a546f2309', 'Tab order')}
       description={translate(
         'auto.components.settings.RecentTabOrderControl.a867a0889f',
         'Recent or tab strip.'
@@ -25,7 +25,7 @@ export function RecentTabOrderControl({
       className="max-w-none"
     >
       <SettingsRow
-        label={translate('auto.components.settings.RecentTabOrderControl.7a546f2309', 'Tab Order')}
+        label={translate('auto.components.settings.RecentTabOrderControl.7a546f2309', 'Tab order')}
         control={
           <Select
             value={ctrlTabOrderMode}

@@ -106,40 +106,62 @@ function FigureMenuItems({
 
 export function FigureThumbnailImage({
   url,
-  className
+  className,
+  icon: Placeholder = Shapes
 }: {
   url: string | null | undefined
   className?: string
+  /** Shown while there is no picture (a plot not run yet shows a chart). */
+  icon?: typeof Shapes
 }): React.JSX.Element {
   return (
     <span
       className={cn(
-        'flex items-center justify-center overflow-hidden rounded-sm border border-border bg-white',
+        'flex items-center justify-center overflow-hidden rounded-lg border border-border bg-white transition-[border-color,box-shadow] duration-(--duration-fast)',
         className
       )}
     >
       {url ? (
         <img src={url} alt="" className="max-h-full max-w-full object-contain" />
       ) : (
-        <Shapes className="size-4 text-muted-foreground/60" aria-hidden />
+        <Placeholder className="size-4 text-muted-foreground/60" aria-hidden />
       )}
     </span>
   )
 }
 
-function Badge({ tone, children }: { tone: 'ok' | 'busy' | 'warn'; children: ReactNode }) {
+/** A list entry's quiet status line item; `warn` adds a small dot. */
+export function FigureListBadge({
+  tone,
+  children
+}: {
+  tone: 'ok' | 'busy' | 'warn'
+  children: ReactNode
+}): React.JSX.Element {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-0.5 rounded px-1 py-px text-2xs font-medium leading-tight',
-        tone === 'ok' && 'bg-muted text-foreground',
-        tone === 'busy' && 'bg-primary/10 text-foreground',
-        tone === 'warn' && 'bg-status-warning/15 text-status-warning'
+        'inline-flex h-4 items-center gap-1 text-2xs leading-none',
+        tone === 'ok' && 'text-muted-foreground',
+        tone === 'busy' && 'text-foreground',
+        tone === 'warn' && 'text-muted-foreground'
       )}
     >
+      {tone === 'warn' ? (
+        <span className="size-1.5 shrink-0 rounded-full bg-status-warning" aria-hidden />
+      ) : null}
       {children}
     </span>
   )
+}
+
+/** The badge for a paper copy that needs an update; null when it is fine. */
+export function figurePaperIssue(paperState: FigurePaperState): string | null {
+  return paperState === 'outdated'
+    ? 'Paper copy outdated'
+    : paperState === 'missing'
+      ? 'Paper copy missing'
+      : null
 }
 
 /** One editable figure: thumbnail, human title over its file name, badges, and its menus. */
@@ -175,12 +197,7 @@ export function ResearchFigureListItem({
   const renameBlocked = useFigureRenameBlocked(owner, slug)
   const [hasScript, setHasScript] = useState<boolean | null>(null)
   const title = meta?.title ?? slug
-  const paperIssue =
-    paperState === 'outdated'
-      ? 'Paper copy outdated'
-      : paperState === 'missing'
-        ? 'Paper copy missing'
-        : null
+  const paperIssue = figurePaperIssue(paperState)
   const checkScript = (open: boolean): void => {
     if (open && folder) {
       void figureScriptExists(owner, { folder, slug }).then(setHasScript)
@@ -191,49 +208,56 @@ export function ResearchFigureListItem({
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            'group relative flex flex-col gap-1 rounded-md p-1.5 text-xs hover:bg-accent',
-            active && 'bg-accent'
+            'group relative flex flex-col gap-2 rounded-lg p-2 text-xs transition-colors duration-(--duration-fast) hover:bg-accent/70',
+            active && 'bg-accent hover:bg-accent'
           )}
         >
           <button
             type="button"
             aria-current={active ? 'true' : undefined}
             aria-label={`Open figure ${title}`}
-            className="flex flex-col gap-1 rounded-sm text-left outline-none"
+            className="flex flex-col gap-2 rounded-lg text-left outline-none"
             onClick={onSelect}
           >
-            <FigureThumbnailImage url={meta?.thumbnail} className="h-16 w-full" />
-            <span className="flex min-w-0 flex-col">
-              <span className="truncate font-medium" title={title}>
+            <FigureThumbnailImage
+              url={meta?.thumbnail}
+              className={cn('h-16 w-full', active && 'border-foreground/25 shadow-raised')}
+            />
+            <span className="flex min-w-0 flex-col px-0.5">
+              <span className="truncate text-[13px] leading-snug font-medium" title={title}>
                 {title}
               </span>
               {meta?.title ? (
-                <span className="truncate text-2xs text-muted-foreground">{slug}</span>
+                <span className="truncate text-xs text-muted-foreground">{slug}</span>
               ) : null}
             </span>
           </button>
           {usages.length || editing || exportState !== 'fresh' || paperIssue ? (
-            <span className="flex flex-wrap gap-1">
+            <span className="flex flex-wrap gap-1 px-0.5">
               {usages.length ? (
-                <Badge tone="ok">
-                  In paper <Check className="size-2.5" aria-hidden />
-                </Badge>
+                <FigureListBadge tone="ok">
+                  <Check className="size-4" aria-hidden /> In paper
+                </FigureListBadge>
               ) : null}
               {editing ? (
-                <Badge tone="busy">
-                  <Loader2 className="size-2.5 animate-spin" aria-hidden /> Agent editing
-                </Badge>
+                <FigureListBadge tone="busy">
+                  <Loader2 className="size-4 animate-spin" aria-hidden /> Agent editing
+                </FigureListBadge>
               ) : null}
-              {exportState === 'outdated' ? <Badge tone="warn">Export outdated</Badge> : null}
-              {exportState === 'missing' ? <Badge tone="warn">Not exported</Badge> : null}
-              {paperIssue ? <Badge tone="warn">{paperIssue}</Badge> : null}
+              {exportState === 'outdated' ? (
+                <FigureListBadge tone="warn">Export outdated</FigureListBadge>
+              ) : null}
+              {exportState === 'missing' ? (
+                <FigureListBadge tone="warn">Not exported</FigureListBadge>
+              ) : null}
+              {paperIssue ? <FigureListBadge tone="warn">{paperIssue}</FigureListBadge> : null}
             </span>
           ) : null}
           {paperIssue ? (
             <Button
               size="xs"
               variant="outline"
-              className="self-start"
+              className="ml-0.5 self-start"
               aria-label={`Update ${title} in paper`}
               disabled={updatingPaper}
               onClick={onUpdatePaper}
@@ -241,7 +265,7 @@ export function ResearchFigureListItem({
               {updatingPaper ? 'Updating…' : 'Update in paper'}
             </Button>
           ) : null}
-          <span className="absolute top-2.5 right-2.5 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 has-[[data-state=open]]:opacity-100">
+          <span className="absolute top-3 right-3 opacity-0 transition-opacity duration-(--duration-fast) group-focus-within:opacity-100 group-hover:opacity-100 has-[[data-state=open]]:opacity-100">
             <DropdownMenu onOpenChange={checkScript}>
               <DropdownMenuTrigger asChild>
                 <Button

@@ -101,7 +101,7 @@ export function ProjectGroupNameDialog({
               {fieldLabel ??
                 translate(
                   'auto.components.sidebar.ProjectGroupNameDialog.83dfbc5313',
-                  'Group Name'
+                  'Group name'
                 )}
             </Label>
             <Input

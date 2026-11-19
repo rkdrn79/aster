@@ -81,7 +81,7 @@ export function SourceControlBranchSection({
       <SectionHeader
         label={translate(
           'auto.components.right.sidebar.SourceControl.d7ae61269b',
-          'Committed on Branch'
+          'Committed on branch'
         )}
         count={fileCount}
         countTitle={countTitle}

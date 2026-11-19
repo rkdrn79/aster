@@ -105,7 +105,7 @@ export function ResearchWindowPalette({
     >
       <CommandInput placeholder="Go to a section or Experiment…" />
       <CommandList>
-        <CommandEmpty>Nothing matches.</CommandEmpty>
+        <CommandEmpty>Nothing matches</CommandEmpty>
         <CommandGroup heading="Sections">
           {RESEARCH_WINDOW_PAGES.map((page) => (
             <CommandItem

@@ -133,10 +133,7 @@ export function LinearIssueCommentFooter({
             autoGrow()
           }}
           onKeyDown={handleKeyDown}
-          placeholder={translate(
-            'auto.components.LinearItemDrawer.2820f0f0f0',
-            'Leave a comment...'
-          )}
+          placeholder={translate('auto.components.LinearItemDrawer.2820f0f0f0', 'Leave a comment')}
           rows={3}
           className="scrollbar-sleek min-h-24 max-h-40 w-full resize-none overflow-y-auto rounded-t-xl bg-transparent px-5 py-4 text-sm placeholder:text-muted-foreground focus-visible:outline-none"
         />
@@ -178,7 +175,7 @@ export function LinearIssueCommentFooter({
           autoGrow()
         }}
         onKeyDown={handleKeyDown}
-        placeholder={translate('auto.components.LinearItemDrawer.2fcff829a8', 'Add a comment…')}
+        placeholder={translate('auto.components.LinearItemDrawer.2fcff829a8', 'Add a comment')}
         rows={1}
         className="scrollbar-sleek min-h-[32px] max-h-[96px] flex-1 resize-none overflow-y-auto rounded-md border border-input bg-transparent px-3 py-2 text-[13px] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
       />

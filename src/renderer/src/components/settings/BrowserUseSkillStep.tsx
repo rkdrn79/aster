@@ -31,7 +31,7 @@ export function BrowserUseSkillStep({
       variant="inline"
       title={translate(
         'auto.components.settings.BrowserUseSkillStep.459e24eebc',
-        'Browser Use skill'
+        'Browser use skill'
       )}
       description={translate(
         'auto.components.settings.BrowserUseSkillStep.0871b6998d',

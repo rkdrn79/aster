@@ -55,10 +55,10 @@ export function CodexRestartStatusPrompt(): React.JSX.Element | null {
           className="mt-2 inline-flex w-full items-center justify-center rounded-md border border-border/70 px-2.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent/60"
         >
           {staleCodexStatus.staleSessionCount === 1
-            ? translate('auto.components.status.bar.StatusBar.6cd6650b4c', 'Restart Session')
+            ? translate('auto.components.status.bar.StatusBar.6cd6650b4c', 'Restart session')
             : translate(
                 'auto.components.status.bar.StatusBar.cd9d7b40ff',
-                'Restart {{value0}} Sessions',
+                'Restart {{value0}} sessions',
                 { value0: staleCodexStatus.staleSessionCount }
               )}
         </button>

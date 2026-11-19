@@ -84,7 +84,7 @@
   position: absolute;
   border-radius: 1px;
   background: var(--orca-terminal-divider-color, transparent);
-  transition: background 100ms ease;
+  transition: background 120ms var(--ease-out-quint);
 }
 
 .pane-divider.is-vertical::after {
@@ -127,7 +127,7 @@
   z-index: 10;
   cursor: grab;
   opacity: 0;
-  transition: opacity 150ms ease;
+  transition: opacity 150ms var(--ease-out-quint);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,7 +172,7 @@
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--terminal-pane-locate) 34%, transparent),
     0 0 18px color-mix(in srgb, var(--terminal-pane-locate) 36%, transparent);
-  animation: pane-focus-rim-flash 1.5s ease-out forwards;
+  animation: pane-focus-rim-flash 1.5s var(--ease-out-quint) forwards;
 }
 
 .pane[data-terminal-attention] .xterm-container {
@@ -306,7 +306,7 @@
   opacity: 0;
   background: color-mix(in srgb, var(--orca-pane-title-fg) 36%, transparent);
   transform: translateX(-50%);
-  transition: opacity 150ms ease;
+  transition: opacity 150ms var(--ease-out-quint);
 }
 
 .pane-title-drag-handle::after {
@@ -420,8 +420,8 @@
   background: transparent;
   opacity: 0;
   transition:
-    opacity 120ms ease,
-    color 120ms ease;
+    opacity 120ms var(--ease-out-quint),
+    color 120ms var(--ease-out-quint);
 }
 
 .pane-title-actions {
@@ -432,7 +432,7 @@
 .pane-title-split-trigger {
   color: var(--orca-pane-title-button-fg, rgb(255 255 255 / 0.3));
   opacity: 0;
-  transition: opacity 120ms ease;
+  transition: opacity 120ms var(--ease-out-quint);
 }
 
 .pane-title-bar[data-chromeless] .pane-title-split-trigger svg,
@@ -466,6 +466,31 @@
 .pane-title-split-trigger[data-state='instant-open'] {
   background: transparent;
   color: var(--orca-pane-title-button-hover-fg, rgb(255 255 255 / 0.8));
+}
+
+/* The hovered control's backing turns into a soft solid chip in the terminal's own colours, so it
+   reads as a button under the pointer without a toolbar fill across the row. */
+.pane-title-bar[data-chromeless] .pane-title-split-trigger::before,
+.pane-title-bar[data-chromeless] .pane-title-close::before {
+  transition-property: background, width, height, border-radius;
+  transition-duration: var(--duration-fast, 140ms);
+  transition-timing-function: var(--ease-out-quint, var(--ease-out-quint));
+}
+
+.pane-title-bar[data-chromeless] .pane-title-split-trigger:hover::before,
+.pane-title-bar[data-chromeless] .pane-title-split-trigger[data-state='delayed-open']::before,
+.pane-title-bar[data-chromeless] .pane-title-split-trigger[data-state='instant-open']::before,
+.pane-title-bar[data-chromeless] .pane-title-close:hover::before,
+.pane-title-bar[data-chromeless] .pane-title-close[data-state='delayed-open']::before,
+.pane-title-bar[data-chromeless] .pane-title-close[data-state='instant-open']::before {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: color-mix(
+    in srgb,
+    var(--orca-pane-title-button-hover-fg, rgb(255 255 255 / 0.8)) 14%,
+    var(--orca-pane-title-bg, var(--background))
+  );
 }
 
 /* Inline edit input — matches the title text styling exactly to prevent

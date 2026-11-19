@@ -11,18 +11,15 @@ import {
 } from './research-figure-turn'
 import { sendFigurePrompt, type FiguresAgentScope } from './research-figures-agent-session'
 import type { FigureTarget } from './research-figures-export'
+import { openPlotTarget } from './research-figures-store'
 
-/** The open figure's scene text, without loading the editor's chunk here. */
-async function openFigureText(): Promise<{
+/** The open figure and its scene text now; the editor registers the reader with its handle. */
+function openFigureText(): {
   text: string | null
   handle: ReturnType<typeof useFigureEditorHandle.getState>['handle']
-}> {
+} {
   const handle = useFigureEditorHandle.getState().handle
-  if (!handle) {
-    return { text: null, handle: null }
-  }
-  const { figureSceneText } = await import('./research-figures-export')
-  return { text: figureSceneText(handle.api), handle }
+  return { text: handle ? handle.sceneText() : null, handle }
 }
 
 /** A message typed in a figure's chat is a request too: keep "before send" and track the turn. */
@@ -34,16 +31,20 @@ export function noteTypedFigureMessage(
   if (!text.trim() || text.startsWith('/')) {
     return
   }
-  void openFigureText().then(({ text: before, handle }) =>
-    beginFigureTurn({
-      target: handle?.target ?? null,
-      request: text,
-      prompt: text,
-      scope,
-      beforeText: before,
-      sessionId
-    })
-  )
+  // Why at once: the message goes out right after this returns. A turn begun a tick later can
+  // miss a quick agent's whole working spell, and would then wait on "Sending…" for good.
+  const { text: before, handle } = openFigureText()
+  // Why the open plot: it has no editor, and its History keeps its files around the turn too.
+  const plot = handle ? null : openPlotTarget(scope)
+  beginFigureTurn({
+    target: handle?.target ?? plot,
+    plot: plot !== null,
+    request: text,
+    prompt: text,
+    scope,
+    beforeText: before,
+    sessionId
+  })
 }
 
 /**
@@ -55,7 +56,7 @@ export function stopFigureAgent(): boolean {
     '[data-figure-agent-pane] [data-native-chat-critical-action="stop"]'
   )
   if (!stop || stop.disabled) {
-    toast.message('Open the Figure chat to stop the agent.')
+    toast.message('Open the Figure chat to stop the agent')
     return false
   }
   stop.click()
@@ -68,9 +69,10 @@ export async function retryFigureTurn(target: FigureTarget): Promise<void> {
   if (!turn) {
     return
   }
-  const { text, handle } = await openFigureText()
+  const { text, handle } = openFigureText()
   const id = beginFigureTurn({
     target: turn.target,
+    plot: turn.plot ?? false,
     request: turn.request,
     prompt: turn.prompt,
     scope: turn.scope,
@@ -100,7 +102,7 @@ export async function undoFigureTurn(target: FigureTarget): Promise<void> {
     return
   }
   dismissFigureTurnBar(turn.target)
-  toast.success('Undid the agent turn.', {
+  toast.success('Undid the agent turn', {
     description: "The agent's version is still in History."
   })
 }

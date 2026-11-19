@@ -55,7 +55,7 @@ export function getLinearGuideNotes(): LinearGuideNote[] {
       ),
       body: translate(
         'auto.components.settings.LinearAgentSkillGuide.noteVisibilityBody',
-        'Hiding Linear in Task Sources only removes it from the picker. It does not remove your key or skill.'
+        'Hiding Linear in Task sources only removes it from the picker. It does not remove your key or skill.'
       )
     }
   ]

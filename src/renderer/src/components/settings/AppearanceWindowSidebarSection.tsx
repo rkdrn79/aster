@@ -86,7 +86,7 @@ export function AppearanceWindowSidebarSection({
   const followSymlinkEntry = getFollowSymlinkedDirectoriesEntry()
   const statusBarTitle = translate(
     'auto.components.settings.AppearancePane.3e4175e5c6',
-    'Status Bar'
+    'Status bar'
   )
   const statusBarDescription = translate(
     'auto.components.settings.AppearancePane.statusBarDescription',
@@ -249,7 +249,7 @@ export function AppearanceWindowSidebarSection({
                   <SearchableSetting
                     title={translate(
                       'auto.components.settings.AppearancePane.cf81907069',
-                      'Show Tasks Button'
+                      'Show Tasks button'
                     )}
                     description={sidebarEntries[0]?.description}
                     keywords={sidebarEntries[0]?.keywords ?? ['tasks', 'sidebar', 'button']}
@@ -257,7 +257,7 @@ export function AppearanceWindowSidebarSection({
                     <SettingsSwitchRow
                       label={translate(
                         'auto.components.settings.AppearancePane.cf81907069',
-                        'Show Tasks Button'
+                        'Show Tasks button'
                       )}
                       checked={settings.showTasksButton !== false}
                       onChange={() =>
@@ -269,7 +269,7 @@ export function AppearanceWindowSidebarSection({
                   <SearchableSetting
                     title={translate(
                       'auto.components.settings.AppearancePane.511f270ebb',
-                      'Show Automations Button'
+                      'Show Automations button'
                     )}
                     description={sidebarEntries[1]?.description}
                     keywords={
@@ -279,7 +279,7 @@ export function AppearanceWindowSidebarSection({
                     <SettingsSwitchRow
                       label={translate(
                         'auto.components.settings.AppearancePane.511f270ebb',
-                        'Show Automations Button'
+                        'Show Automations button'
                       )}
                       checked={settings.showAutomationsButton !== false}
                       onChange={() =>
@@ -294,7 +294,7 @@ export function AppearanceWindowSidebarSection({
                     <SearchableSetting
                       title={translate(
                         'auto.components.settings.AppearancePane.9da1020447',
-                        'Show Aster Mobile Button'
+                        'Show Aster Mobile button'
                       )}
                       description={sidebarEntries[2]?.description}
                       keywords={sidebarEntries[2]?.keywords ?? ['mobile', 'phone', 'sidebar']}
@@ -302,7 +302,7 @@ export function AppearanceWindowSidebarSection({
                       <SettingsSwitchRow
                         label={translate(
                           'auto.components.settings.AppearancePane.9da1020447',
-                          'Show Aster Mobile Button'
+                          'Show Aster Mobile button'
                         )}
                         // Why: clarify where the shortcut still lives after hiding it, so users
                         // don't think the feature is gone.
@@ -364,7 +364,7 @@ export function AppearanceWindowSidebarSection({
                       layoutEntries[0]?.title ??
                       translate(
                         'auto.components.settings.AppearancePane.0fafabcf35',
-                        'Show Git-Ignored Files'
+                        'Show Git-ignored files'
                       )
                     }
                     description={layoutEntries[0]?.description}
@@ -373,7 +373,7 @@ export function AppearanceWindowSidebarSection({
                     <SettingsSwitchRow
                       label={translate(
                         'auto.components.settings.AppearancePane.0fafabcf35',
-                        'Show Git-Ignored Files'
+                        'Show Git-ignored files'
                       )}
                       // Why: define what "git-ignored" matches; the location (file explorer)
                       // is obvious from the section header.

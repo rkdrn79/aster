@@ -203,7 +203,7 @@ export function GitHubItemDialogPRTabs({
                 </div>
               ) : files.length === 0 ? (
                 <div className="px-4 py-10 text-center text-[12px] text-muted-foreground">
-                  {translate('auto.components.GitHubItemDialog.3cd5ae5b7b', 'No files changed.')}
+                  {translate('auto.components.GitHubItemDialog.3cd5ae5b7b', 'No files changed')}
                 </div>
               ) : (
                 <PRFilesCombinedDiffViewer

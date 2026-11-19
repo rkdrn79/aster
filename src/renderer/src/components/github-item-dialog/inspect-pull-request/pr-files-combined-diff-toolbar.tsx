@@ -59,8 +59,8 @@ export function PRFilesCombinedDiffToolbar({
           onClick={onToggleAllCollapsed}
         >
           {allSectionsCollapsed
-            ? translate('auto.components.GitHubItemDialog.3c19ec3069', 'Expand All')
-            : translate('auto.components.GitHubItemDialog.d00a0a7f8f', 'Collapse All')}
+            ? translate('auto.components.GitHubItemDialog.3c19ec3069', 'Expand all')
+            : translate('auto.components.GitHubItemDialog.d00a0a7f8f', 'Collapse all')}
         </button>
         <button
           type="button"
@@ -69,7 +69,7 @@ export function PRFilesCombinedDiffToolbar({
         >
           {sideBySide
             ? translate('auto.components.GitHubItemDialog.6e43a16435', 'Inline')
-            : translate('auto.components.GitHubItemDialog.31770bef03', 'Side by Side')}
+            : translate('auto.components.GitHubItemDialog.31770bef03', 'Side by side')}
         </button>
       </div>
     </div>

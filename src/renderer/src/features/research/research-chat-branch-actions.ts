@@ -14,7 +14,8 @@ import {
   branchResearchChat,
   openResearchChatHere,
   type ResearchChatBranchRequest,
-  type ResearchChatBranchSource
+  type ResearchChatBranchSource,
+  type ResearchChatCopyRequest
 } from './research-chat-branch-run'
 import { researchChatBranchAgentBlock } from './research-chat-branch-copy'
 
@@ -50,32 +51,49 @@ export function researchChatBranchSourceForTab(tab: Tab): ResearchChatBranchSour
     : null
 }
 
-/** Makes the branch, then opens it with `open` (by default where chats open here). Failures are
- *  said in a toast; nothing is changed by one. */
+/** Makes the copy and, for a branch, opens it with `open` (by default where chats open here). A
+ *  fork stays in the background with a quiet notice that opens it; a subtask shows in its chat.
+ *  Failures are said in a toast; nothing is changed by one. */
 export async function runResearchChatBranch(
   source: ResearchChatBranchSource,
   request: ResearchChatBranchRequest,
-  open?: (sessionId: string) => void
+  open?: (sessionId: string) => void,
+  copy: ResearchChatCopyRequest = { kind: 'branch' }
 ): Promise<string | null> {
-  const outcome = await branchResearchChat(source, request)
+  const outcome = await branchResearchChat(source, request, copy)
   if ('error' in outcome) {
     toast.error(outcome.error)
     return null
   }
+  const openCopy = (): void => {
+    if (open) {
+      open(outcome.sessionId)
+    } else {
+      openResearchChatHere(source, outcome.sessionId)
+    }
+  }
+  if (copy.kind === 'subtask') {
+    return outcome.sessionId
+  }
   await waitForChatTab(source.workspaceId, outcome.sessionId, BRANCH_TAB_WAIT_MS)
-  if (open) {
-    open(outcome.sessionId)
+  if (copy.kind === 'fork') {
+    toast(`Forked to ${outcome.name}`, { action: { label: 'Open', onClick: openCopy } })
   } else {
-    openResearchChatHere(source, outcome.sessionId)
+    openCopy()
   }
   return outcome.sessionId
 }
 
-/** Branch chat for a tab a list shows: the whole conversation, from its latest finished message. */
-export function branchResearchChatTab(tab: Tab, open?: (sessionId: string) => void): void {
+/** Branch chat or Fork to background for a tab a list shows: the whole conversation, from its
+ *  latest finished message. */
+export function branchResearchChatTab(
+  tab: Tab,
+  open?: (sessionId: string) => void,
+  copy: ResearchChatCopyRequest = { kind: 'branch' }
+): void {
   const source = researchChatBranchSourceForTab(tab)
   if (!source) {
-    toast.error("This chat can't branch here.")
+    toast.error("This chat can't be copied here.")
     return
   }
   const blocked = researchChatBranchAgentBlock(source.agent)
@@ -83,5 +101,5 @@ export function branchResearchChatTab(tab: Tab, open?: (sessionId: string) => vo
     toast.error(blocked)
     return
   }
-  void runResearchChatBranch(source, { at: 'through', beforeItemId: null }, open)
+  void runResearchChatBranch(source, { at: 'through', beforeItemId: null }, open, copy)
 }

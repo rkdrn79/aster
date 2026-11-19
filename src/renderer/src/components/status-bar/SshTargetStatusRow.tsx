@@ -88,7 +88,7 @@ export function SshTargetStatusRow({
         <div className="truncate text-[12px] font-medium">{label}</div>
         <div className="flex min-w-0 items-center gap-1.5 text-[10px] text-muted-foreground">
           <span>
-            {translate('auto.components.status.bar.SshTargetStatusRow.sshHost', 'SSH Host')}
+            {translate('auto.components.status.bar.SshTargetStatusRow.sshHost', 'SSH host')}
           </span>
           <span aria-hidden="true">·</span>
           <span>{STATUS_LABELS[status]}</span>

@@ -110,14 +110,14 @@ describe('TabBar PowerShell launch wiring', () => {
 
     const powerShellItem = findDropdownMenuItemByText(
       expandNode(element),
-      'New Terminal: PowerShell'
+      'New terminal: PowerShell'
     )
     expect(powerShellItem).not.toBeNull()
     expect(
-      findDropdownMenuItemByText(expandNode(element), 'New Terminal: CMD Prompt')
+      findDropdownMenuItemByText(expandNode(element), 'New terminal: CMD Prompt')
     ).not.toBeNull()
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: Git Bash')).not.toBeNull()
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: WSL')).not.toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: Git Bash')).not.toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: WSL')).not.toBeNull()
 
     const onSelect = powerShellItem?.props.onSelect as (() => void) | undefined
     onSelect?.()
@@ -178,10 +178,10 @@ describe('TabBar PowerShell launch wiring', () => {
       onTogglePaneExpand: () => {}
     })
 
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: PowerShell')).toBeNull()
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: CMD Prompt')).toBeNull()
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: Git Bash')).toBeNull()
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: WSL')).toBeNull()
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal')).not.toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: PowerShell')).toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: CMD Prompt')).toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: Git Bash')).toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: WSL')).toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal')).not.toBeNull()
   })
 })

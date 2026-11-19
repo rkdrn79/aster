@@ -43,7 +43,7 @@ it('consumes an actual Git toggle failure and lets the following Chat write succ
   const model = settingsModel()
   persist.mockRejectedValueOnce(new Error('Settings disk is unavailable'))
   render(<GitPersistenceHarness model={model} />)
-  const toggle = screen.getByRole('switch', { name: 'Show Source Control AI actions' })
+  const toggle = screen.getByRole('switch', { name: 'Show source control AI actions' })
   fireEvent.click(toggle)
   await waitFor(() =>
     expect(console.error).toHaveBeenCalledWith('Failed to update settings:', expect.any(Error))

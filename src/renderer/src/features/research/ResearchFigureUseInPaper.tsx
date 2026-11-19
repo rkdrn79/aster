@@ -173,10 +173,10 @@ function UseInPaperForm({
     <DialogContent className="sm:max-w-lg">
       <DialogHeader>
         <DialogTitle>Use in paper</DialogTitle>
-        <DialogDescription>Put this figure in the manuscript, or copy its LaTeX.</DialogDescription>
+        <DialogDescription>Put this figure in the manuscript, or copy its LaTeX</DialogDescription>
         <div
           role="status"
-          className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
+          className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
         >
           {status === null ? (
             'Checking the PDF…'
@@ -212,7 +212,7 @@ function UseInPaperForm({
           <div
             role="status"
             aria-label="Paper copy"
-            className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground"
+            className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
           >
             {copyState === 'outdated'
               ? 'Paper copy outdated'
@@ -237,7 +237,7 @@ function UseInPaperForm({
       </DialogHeader>
       <div className="space-y-3">
         {usages.length && manuscript ? (
-          <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+          <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             Used at line {usages.join(', ')} of {manuscript.split('/').pop()}
             <Button
               size="xs"
@@ -252,18 +252,18 @@ function UseInPaperForm({
             </Button>
           </p>
         ) : null}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="figure-caption">Caption</Label>
           <Textarea
             id="figure-caption"
             rows={3}
             value={caption}
-            placeholder="What the reader should take from the figure."
+            placeholder="What the reader should take from the figure"
             onChange={(event) => setCaption(event.target.value)}
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="figure-label">Label</Label>
             <Input
               id="figure-label"
@@ -271,7 +271,7 @@ function UseInPaperForm({
               onChange={(event) => setLabel(event.target.value)}
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="figure-position">Insert after</Label>
             <select
               id="figure-position"
@@ -289,7 +289,7 @@ function UseInPaperForm({
             </select>
           </div>
         </div>
-        <pre className="scrollbar-sleek max-h-32 overflow-auto rounded-md bg-muted px-2 py-1.5 font-mono text-2xs text-muted-foreground">
+        <pre className="scrollbar-sleek max-h-32 overflow-auto rounded-md bg-muted px-2 py-2 font-mono text-2xs text-muted-foreground">
           {block}
         </pre>
       </div>

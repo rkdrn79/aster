@@ -131,7 +131,7 @@ export function ThemePicker({
                     isImported && highlightImported && 'bg-accent/40 ring-1 ring-accent'
                   )}
                 >
-                  <p className="px-3 pt-2 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+                  <p className="px-3 pt-2 text-[11px] font-medium text-muted-foreground">
                     {group.label}
                   </p>
                   {group.themes.map((theme) => (
@@ -183,7 +183,7 @@ export function ThemePicker({
                         </span>
                       ) : null}
                       {selectedTheme === theme.value ? (
-                        <span className="ml-3 shrink-0 text-[11px] uppercase tracking-[0.16em]">
+                        <span className="ml-3 shrink-0 text-[11px]">
                           {translate(
                             'auto.components.settings.SettingsFormControls.9119fb2268',
                             'Current'

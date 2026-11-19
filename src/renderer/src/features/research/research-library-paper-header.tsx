@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Download } from 'lucide-react'
+import { Download, MessageSquare } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import type { ArxivPaperMetadata, LibraryPaper } from '../../../../shared/research/research-library'
 import type { DoiPaperMetadata } from '../../../../shared/research/research-library-doi'
 import { updateLibraryPaper } from './research-library-paper-records'
+import { openResearchChatHere } from './research-chat-branch-run'
 
 type FieldChange = { value: string } | { error: string }
 
@@ -162,6 +163,42 @@ function parseYear(raw: string): FieldChange {
     : { error: 'Enter a four-digit year.' }
 }
 
+const AGENT_NAMES: Record<string, string> = { 'claude-code': 'Claude', codex: 'Codex' }
+
+/** "From chat Baselines" (opens the chat), or which agent asked for the paper and why. */
+function PaperOrigin({ paper }: { paper: LibraryPaper }): React.JSX.Element | null {
+  const origin = paper.origin
+  if (!origin) {
+    return null
+  }
+  const agent = origin.agent ? (AGENT_NAMES[origin.agent] ?? origin.agent) : null
+  const sessionId = origin.sessionId
+  const chatLabel = `From chat ${origin.chatTitle ?? 'conversation'}`
+  return (
+    <p className="flex flex-wrap items-center gap-x-1 text-xs text-muted-foreground">
+      <MessageSquare className="size-3 shrink-0" aria-hidden />
+      {origin.kind === 'chat' && sessionId ? (
+        <button
+          type="button"
+          className="max-w-full truncate rounded-sm text-left hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring"
+          title="Open the chat this paper came from"
+          onClick={() => {
+            if (!openResearchChatHere(paper.scope, sessionId)) {
+              toast.message('That chat is not open in this project anymore')
+            }
+          }}
+        >
+          {chatLabel}
+        </button>
+      ) : (
+        <span>{agent ? `Asked for by ${agent}` : 'Added by an agent'}</span>
+      )}
+      {origin.kind === 'chat' && agent ? <span>· asked by {agent}</span> : null}
+      {origin.note ? <span>· {origin.note}</span> : null}
+    </p>
+  )
+}
+
 export function ResearchLibraryPaperHeader({ paper }: { paper: LibraryPaper }): React.JSX.Element {
   const save = (change: (current: LibraryPaper) => LibraryPaper): Promise<void> =>
     updateLibraryPaper(paper.id, change)
@@ -175,12 +212,12 @@ export function ResearchLibraryPaperHeader({ paper }: { paper: LibraryPaper }): 
         label="Title"
         value={paper.title}
         placeholder="Add a title"
-        className="block w-full text-base font-semibold leading-snug"
+        className="block w-full text-base font-medium leading-snug"
         wrapperClassName="w-full"
         parse={(raw) => (raw ? { value: raw.slice(0, 500) } : { error: 'A paper needs a title.' })}
         onSave={(title) => save((current) => ({ ...current, title }))}
       />
-      <div className="flex min-w-0 items-baseline gap-1.5 text-xs">
+      <div className="flex min-w-0 items-baseline gap-2 text-xs">
         <InlineField
           label="Authors"
           value={paper.authors ?? ''}
@@ -202,6 +239,7 @@ export function ResearchLibraryPaperHeader({ paper }: { paper: LibraryPaper }): 
           }
         />
       </div>
+      <PaperOrigin paper={paper} />
       {paper.tags.length ? (
         <div className="flex flex-wrap gap-1 pt-1">
           {paper.tags.map((tag) => (

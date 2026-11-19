@@ -64,7 +64,7 @@ test('panel consent enables real local transcript search; clearing restores hist
       { timeout: 30_000 }
     )
     .toBeGreaterThan(0)
-  await orcaPage.getByRole('button', { name: 'Refresh Session History', exact: true }).click()
+  await orcaPage.getByRole('button', { name: 'Refresh session history', exact: true }).click()
   await expect(orcaPage.locator('mark').filter({ hasText: 'nebulariver' })).toBeVisible()
   await expect(orcaPage.getByText('Synthetic panel transcript', { exact: true })).toBeVisible()
   await screenshot('results.png')
@@ -83,7 +83,7 @@ test('panel consent enables real local transcript search; clearing restores hist
   expect(JSON.parse(drag)).toMatchObject({ sessionId, sessionExecutionHostId: 'local' })
   await title.click({ button: 'right' })
   await expect(
-    orcaPage.getByRole('menuitem', { name: 'Copy Session ID', exact: true })
+    orcaPage.getByRole('menuitem', { name: 'Copy session ID', exact: true })
   ).toBeVisible()
   await orcaPage.keyboard.press('Escape')
   await expect(orcaPage.locator('[role="menu"]')).toHaveCount(0)

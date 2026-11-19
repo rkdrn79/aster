@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { GripVertical } from 'lucide-react'
-import { Toggle } from '../../components/ui/toggle'
+import { ResearchSegmentedTrack, researchSegmentClass } from './research-segmented-track'
 import {
   DEFAULT_WRITING_PANE_ORDER,
   visibleWritingPaneIndexes,
@@ -13,7 +13,7 @@ const PANE_LABELS = ['Agent', 'TeX', 'PDF'] as const
 const PANES = ['agent', 'source', 'reader'] as const
 const PANE_TAB_LABELS = ['Writing agent', 'TeX source', 'PDF reader'] as const
 
-/** Narrow windows show one Writing pane at a time, picked from these tabs. */
+/** Narrow windows show one Writing pane at a time, picked from this segmented control. */
 export function ResearchWritingPaneTabs({
   wide,
   order,
@@ -27,20 +27,27 @@ export function ResearchWritingPaneTabs({
 }): React.JSX.Element {
   return (
     <nav
-      className="shrink-0 border-b border-border"
+      className="shrink-0 justify-center border-b border-border px-3 py-2"
       style={{ display: wide ? 'none' : 'flex' }}
       aria-label="Writing panes"
     >
-      {order.map((index) => (
-        <button
-          key={PANES[index]}
-          type="button"
-          className={`flex-1 border-b-2 px-3 py-2 text-xs font-medium ${activePane === PANES[index] ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground'}`}
-          onClick={() => onSelect(PANES[index])}
-        >
-          {PANE_TAB_LABELS[index]}
-        </button>
-      ))}
+      <ResearchSegmentedTrack enabled={!wide} className="w-full max-w-md">
+        {order.map((index) => {
+          const active = activePane === PANES[index]
+          return (
+            <button
+              key={PANES[index]}
+              type="button"
+              aria-current={active ? 'page' : undefined}
+              data-state={active ? 'active' : 'inactive'}
+              className={researchSegmentClass(active, 'h-7 flex-1')}
+              onClick={() => onSelect(PANES[index])}
+            >
+              {PANE_TAB_LABELS[index]}
+            </button>
+          )
+        })}
+      </ResearchSegmentedTrack>
     </nav>
   )
 }
@@ -69,7 +76,7 @@ export function ResearchWritingPanelToggles({
 
   return (
     <div
-      className="items-center gap-0.5 rounded-md border border-border p-0.5"
+      className="items-center gap-0.5 rounded-full bg-muted p-0.5"
       style={{ display: wide ? 'flex' : 'none' }}
       role="group"
       aria-label="Writing panels"
@@ -77,16 +84,18 @@ export function ResearchWritingPanelToggles({
       {order.map((index) => (
         <span
           key={index}
-          className={dropTarget === index ? 'rounded-md ring-2 ring-ring' : undefined}
+          className={dropTarget === index ? 'rounded-full ring-2 ring-ring' : undefined}
         >
-          <Toggle
-            size="xs"
-            variant="segmented"
-            pressed={visiblePanes[index]}
+          <button
+            type="button"
+            // Why raised, not a slide: any of the panes can be on at once, so each shown pane lifts.
+            className="group/pane-toggle inline-flex h-7 items-center gap-1 rounded-full pr-3 pl-2 text-xs font-medium whitespace-nowrap text-muted-foreground transition-[color,background-color,box-shadow] duration-(--duration-fast) outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-pressed:bg-raised aria-pressed:text-foreground aria-pressed:shadow-raised"
+            aria-pressed={visiblePanes[index]}
+            data-state={visiblePanes[index] ? 'on' : 'off'}
             aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
             title={`${visiblePanes[index] ? 'Hide' : 'Show'} ${PANE_LABELS[index]}. Drag to reorder.`}
             disabled={visiblePanes[index] && openCount === 1}
-            onPressedChange={() => onToggle(index)}
+            onClick={() => onToggle(index)}
             draggable={wide && Boolean(onReorder)}
             onDragStart={(event) => {
               dragSource.current = index
@@ -121,9 +130,12 @@ export function ResearchWritingPanelToggles({
               }
             }}
           >
-            <GripVertical className="size-3 opacity-60" aria-hidden />
+            <GripVertical
+              className="size-4 opacity-0 transition-opacity duration-(--duration-fast) group-hover/pane-toggle:opacity-50 group-focus-visible/pane-toggle:opacity-50"
+              aria-hidden
+            />
             {PANE_LABELS[index]}
-          </Toggle>
+          </button>
         </span>
       ))}
     </div>

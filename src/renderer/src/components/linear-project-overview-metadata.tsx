@@ -14,7 +14,7 @@ export function LinearProjectPropertyRow({
 }): React.JSX.Element {
   return (
     <div className="rounded-md border border-border/50 bg-muted/20 px-3 py-2">
-      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
         {icon}
         {label}
       </div>
@@ -34,7 +34,7 @@ export function LinearProjectMetadataList({
 }): React.JSX.Element {
   return (
     <div className="rounded-md border border-border/50 bg-muted/20 px-3 py-2">
-      <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.08em] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
         {icon}
         {label}
       </div>

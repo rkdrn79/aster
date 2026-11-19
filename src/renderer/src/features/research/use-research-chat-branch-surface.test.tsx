@@ -65,12 +65,24 @@ const MESSAGES = ['u1', 'a1', 'u2', 'a2'].map((id): NativeChatMessage => ({
   source: 'transcript'
 }))
 
+const rewindRequest = vi.fn()
 function render(agent: AgentType = 'claude', status = 'ready') {
   return renderHook(() =>
     useResearchChatBranchSurface(
       { tabId: 'tab-1', sessionId: 'chat-1', agent, target: { kind: 'local' } },
       'ws-1',
-      { status, isWorking: false, journalItems: ITEMS },
+      {
+        status,
+        isWorking: false,
+        journalItems: ITEMS,
+        rewind: {
+          surface: {
+            disabledReason: null,
+            eligibleItemIds: new Set(['u1', 'u2']),
+            request: rewindRequest
+          }
+        }
+      },
       MESSAGES
     )
   )
@@ -115,6 +127,37 @@ describe('useResearchChatBranchSurface', () => {
         edit: { itemId: 'u2', blocks: [{ type: 'text', text: 'second?' }] }
       }
     ])
+  })
+
+  it('forks the same cuts into the background, and runs a subtask on the whole chat', () => {
+    const { result } = render()
+    result.current.forkFrom('a1')
+    result.current.forkFrom('u2')
+    result.current.forkChat('Try again')
+    result.current.branchChat('Named')
+    result.current.subtask('Check it')
+    expect(mocks.run.mock.calls.map((call) => [call[1], call[3]])).toEqual([
+      [{ at: 'through', beforeItemId: 'u2' }, { kind: 'fork' }],
+      [{ at: 'message', beforeItemId: 'u2', resend: 'second?' }, { kind: 'fork' }],
+      [
+        { at: 'through', beforeItemId: null },
+        { kind: 'fork', prompt: 'Try again' }
+      ],
+      [
+        { at: 'through', beforeItemId: null },
+        { kind: 'branch', name: 'Named' }
+      ],
+      [
+        { at: 'through', beforeItemId: null },
+        { kind: 'subtask', task: 'Check it' }
+      ]
+    ])
+  })
+
+  it('rewinds to the latest message of the person through its own Rewind to here', () => {
+    const confirm = vi.fn()
+    render().result.current.rewindLatest?.(confirm)
+    expect(rewindRequest).toHaveBeenCalledWith('u2', confirm)
   })
 
   it('lets an agent that copies only whole chats branch from its latest reply alone', () => {

@@ -1,15 +1,25 @@
+import path from 'node:path'
 import { colorsText } from './research-figures-kit-topics.mjs'
 import { photoListText } from './research-figures-photos.mjs'
+import { plotKitText } from './research-figures-plot-cli.mjs'
 import { numberOption } from './research-cli-arguments.mjs'
 import { HarnessError } from './research-harness-error.mjs'
 import { FIGURE_PARTS, buildFigurePart } from './research-figures-parts.mjs'
 import { kitIndexText, kitReferenceText } from './research-figures-kit-index.mjs'
+import { resolveKitQuery } from './research-figures-kit-resolve.mjs'
+import { examplePage, examplesForPage } from './research-figures-kit-examples-page.mjs'
+import { measureLabel, measureText } from './research-figures-measure-cli.mjs'
 import { iconListText } from './research-figures-icons.mjs'
+import { illustrationIndexText } from './research-figures-illustration-catalog.mjs'
+import { bundledAssets } from './research-figures-illustration-assets.mjs'
 import { templateListText, templateText } from './research-figures-templates.mjs'
 import { PUBLISH_WAIT_SECONDS, publishFigure } from './research-figures-publish.mjs'
+import { refreshFigures, refreshText } from './research-figures-plot-refresh.mjs'
+import { critiqueText } from './research-figures-design-report.mjs'
 import {
   checkFigures,
   createFigure,
+  critiqueFigures,
   figureContext,
   listFigures,
   libraryListText,
@@ -61,6 +71,10 @@ export const commands = {
     run: ({ project, options }) => checkFigures(project, options['--figure'], options['--area']),
     failed: (result) => result.figures.some((figure) => figure.errors.length > 0)
   },
+  'figures critique': {
+    spec: { values: ['--figure'] },
+    run: ({ project, options }) => critiqueFigures(project, options['--figure'])
+  },
   'figures preview': {
     spec: { values: ['--figure', '--wait'] },
     run: ({ project, options }) =>
@@ -68,9 +82,36 @@ export const commands = {
         waitSeconds: numberOption(options, '--wait') ?? PREVIEW_WAIT_SECONDS
       })
   },
+  'figures measure': {
+    spec: { positionals: 1, values: ['--size', '--figure'], booleans: ['--box'] },
+    run: async ({ project, positionals, options }) => {
+      const slug = options['--figure'] ?? null
+      const { figures } = slug ? await listFigures(project) : { figures: [] }
+      const figure = slug ? figures.find((entry) => entry.slug === slug) : null
+      if (slug && !figure) {
+        throw new HarnessError('not_found', `No figure ${slug}`)
+      }
+      try {
+        return await measureLabel(project, {
+          text: positionals[0],
+          size: numberOption(options, '--size') ?? undefined,
+          box: Boolean(options['--box']),
+          figure: slug,
+          sceneFile: figure ? path.join(project, figure.scene) : null
+        })
+      } catch (error) {
+        throw new HarnessError('invalid_argument', error.message)
+      }
+    }
+  },
   'figures reference': {
     spec: { values: ['--figure'] },
     run: ({ project, options }) => referenceFigure(project, options['--figure'])
+  },
+  'figures refresh': {
+    spec: { values: ['--figure', '--plot'] },
+    run: ({ project, options }) =>
+      refreshFigures(project, { figure: options['--figure'], plot: options['--plot'] })
   },
   'figures publish': {
     spec: {
@@ -94,7 +135,8 @@ export const commands = {
   },
 
   'figures kit': {
-    spec: { positionals: 1, booleans: ['--all'] },
+    // Why up to four: `figures kit illustrations robot arm` searches by the words after it.
+    spec: { positionals: 4, values: ['--search', '--page', '--figure'], booleans: ['--all'] },
     run: async ({ project, positionals, options }) => {
       const topic = positionals[0] ?? null
       // Why an index by default: the whole reference is over 30 KB and gets cut off.
@@ -103,6 +145,34 @@ export const commands = {
       }
       if (topic === 'icons') {
         return { topic, text: iconListText() }
+      }
+      if (topic === 'data') {
+        return { topic, text: plotKitText() }
+      }
+      if (topic === 'illustrations') {
+        const query = options['--search'] ?? (positionals.slice(1).join(' ') || null)
+        return { topic, text: illustrationIndexText(query, bundledAssets()) }
+      }
+      if (topic === 'examples' || topic === 'example') {
+        try {
+          // Why the page: an example drawn for 3.25 × 1.6 in was copied onto a 1.1 in page.
+          const page = await examplePage(project, {
+            page: options['--page'],
+            figure: options['--figure']
+          })
+          return {
+            topic,
+            text: await examplesForPage(positionals.slice(1).join(',') || null, page)
+          }
+        } catch (error) {
+          throw new HarnessError('invalid_argument', error.message)
+        }
+      }
+      if (positionals.length > 1) {
+        throw new HarnessError(
+          'invalid_argument',
+          `figures kit takes one topic or comma-separated names (\`figures kit box,arrow\`), not "${positionals.join(' ')}"`
+        )
       }
       if (topic === 'templates') {
         return { topic, text: templateListText() }
@@ -118,7 +188,7 @@ export const commands = {
         return { topic, text: `${template}\n${await templatePartsText(topic)}` }
       }
       try {
-        const text = kitReferenceText(topic)
+        const text = resolveKitQuery(topic)
         return { topic, text: topic === 'image' ? `${text}\n${photoListText()}` : text }
       } catch (error) {
         throw new HarnessError('invalid_argument', error.message)
@@ -184,12 +254,16 @@ export const textOutput = {
         (figure) =>
           `${figure.slug}  ${figure.scene}${figure.pdf ? '' : ' (not exported yet; open it in Aster Figures)'}${paperNote(figure)}`
       ),
+      ...result.plots.map(
+        (plot) =>
+          `${plot.slug}  ${plot.script ?? `${plot.folder}/${plot.slug}.plot.json`} (plot${plot.script ? '' : ', script missing'}${plot.manifest ? '' : '; not run yet: figures plot run'})${paperNote(plot)}`
+      ),
       ...result.others.map((entry) => `${entry.path}  (${entry.kind}, read-only)`),
       ...result.shadowed.map(
         (entry) =>
           `${entry.scene}  (same name as the figure in ${result.folder}, which is the one used; left untouched)`
       ),
-      result.figures.length || result.others.length ? '' : 'No figures yet.'
+      result.figures.length || result.plots.length || result.others.length ? '' : 'No figures yet.'
     ]
       .filter(Boolean)
       .join('\n'),
@@ -240,6 +314,10 @@ export const textOutput = {
           )
           .join('\n')
       : 'No figures to check.',
+  'figures critique': (result) =>
+    result.figures.length
+      ? result.figures.map((figure) => critiqueText(figure.slug, figure)).join('\n\n')
+      : 'No figures to critique.',
   'figures preview': (result) =>
     [
       ...(result.problem ? [`WARNING ${result.problem}`] : []),
@@ -261,6 +339,7 @@ export const textOutput = {
           ]
         : [])
     ].join('\n'),
+  'figures measure': (result) => measureText(result),
   'figures reference': (result) =>
     [
       `${result.reference} (${result.widthPx} × ${result.heightPx} px; 1 px = ${result.unitsPerPixel} units from the page at x=${result.page.x} y=${result.page.y})`,
@@ -283,6 +362,7 @@ export const textOutput = {
       .join('\n'),
   'figures part': (result) => JSON.stringify(result.elements, null, 2),
   'figures kit': (result) => result.text,
+  'figures refresh': refreshText,
   'figures context': contextText,
   'figures publish': publishText
 }
@@ -366,6 +446,10 @@ the manuscript's figures folder; never copy it there by hand.
                                          Layout lint; exit 1 on errors (warnings do not fail;
                                          notes are what to settle with the person, such as a
                                          page they sized)
+  figures critique [--figure SLUG]       The design pass after the first render: the focus and
+                                         whether it leads, each colour with its meaning, what is
+                                         said twice, unequal peers and gaps, box styles and text
+                                         sizes, then the cuts to make before polishing
   figures preview [--figure SLUG] [--wait SECONDS]
                                          Waits (default 90 s) for Aster's PNG of the current file,
                                          then prints its path, the print-size PNG, the PNG with lint
@@ -376,6 +460,10 @@ the manuscript's figures folder; never copy it there by hand.
                                          (only when the person asks for the figure in the paper).
                                          Refuses a PDF there that did not come from this figure
                                          unless --replace; prints the \\includegraphics line
+  figures refresh [--figure SLUG] [--plot SLUG]
+                                         Diagrams take the plots (fig.plot) rendered since they
+                                         embedded them, keeping where they sit; --plot: every
+                                         diagram that shows that plot
   figures reference [--figure SLUG]      A recreation's reference: size, units per pixel, and its
                                          colour regions (boxes, outlines, lines) in scene units
   figures new --name NAME [--slug SLUG] [--size single|double|WIDTHxHEIGHT] [--style graphite|slate|outline|…]
@@ -386,7 +474,11 @@ the manuscript's figures folder; never copy it there by hand.
                                          line each; a topic or names print the calls with every
                                          option and default and what arrows bind to; --all prints
                                          everything; icons, templates and library list the icons,
-                                         module templates and saved parts
+                                         module templates and saved parts; examples lists worked
+                                         scripts for hard figures (examples NAME prints one)
+  figures measure "TEXT" [--size N] [--box] [--figure SLUG]
+                                         How wide a label prints (math between $…$), in the
+                                         figure's style; --box adds the box a kit box needs
   figures parts                          The ML diagram parts and what arrows bind to
   figures part NAME [--x N] [--y N] [--label TEXT] [--id ID] [--frame FRAME-ID] [--width N]
                [--height N] [--color NAME|#hex] [--scale N] [--side top|bottom|left|right]

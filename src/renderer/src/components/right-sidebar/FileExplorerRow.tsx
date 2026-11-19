@@ -155,7 +155,7 @@ export function FileExplorerRow({
           data-file-explorer-row=""
           data-selected={isSelected ? 'true' : undefined}
           className={cn(
-            'flex w-full items-center gap-1 rounded-sm px-2 py-1 text-left text-xs transition-colors',
+            'flex w-full items-center gap-1 rounded-md px-2 py-1 text-left text-xs transition-colors duration-100',
             !isSelected && 'hover:bg-accent hover:text-foreground',
             isSelected && 'text-accent-foreground',
             isFlashing && 'bg-amber-400/20 ring-1 ring-inset ring-amber-400/70'
@@ -242,11 +242,7 @@ export function FileExplorerRow({
             {...{ [RENAME_HOTSPOT_ATTR]: '' }}
             className={cn(
               'truncate',
-              isSelected && !nodeStatus && !isIgnored && 'text-accent-foreground',
-              // Why: italic glyphs overhang their advance width; truncate's
-              // overflow:hidden clips it, shaving the last char (".md" → ".ma").
-              // pr-0.5 reserves room for the slant so the final letter survives.
-              isIgnored && 'italic pr-0.5'
+              isSelected && !nodeStatus && !isIgnored && 'text-accent-foreground'
             )}
             style={
               nodeStatus
@@ -271,7 +267,7 @@ export function FileExplorerRow({
           ) : null}
           {nodeStatus ? (
             <span
-              className="ml-auto shrink-0 text-[10px] font-semibold tracking-wide mr-2"
+              className="ml-auto shrink-0 text-[10px] font-medium mr-2"
               style={{ color: statusColor ?? undefined }}
             >
               {STATUS_LABELS[nodeStatus]}

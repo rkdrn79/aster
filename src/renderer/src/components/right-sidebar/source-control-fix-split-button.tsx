@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronDown, RefreshCw, SlidersHorizontal, Sparkle } from 'lucide-react'
+import { ChevronDown, RefreshCw, SlidersHorizontal, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -108,7 +108,7 @@ export function SourceControlFixSplitButton({
             {isLaunching ? (
               <RefreshCw className={cn(iconClassName, 'animate-spin')} />
             ) : (
-              <Sparkle className={iconClassName} />
+              <Wrench className={iconClassName} />
             )}
             {label}
           </Button>
@@ -126,7 +126,7 @@ export function SourceControlFixSplitButton({
             </Button>
           </DropdownMenuTrigger>
         </div>
-        <DropdownMenuContent align="end" className="min-w-[210px] p-1">
+        <DropdownMenuContent align="end" className="min-w-52">
           {worktreeId && groupId && prompt && !disabledReason ? (
             <DropdownMenuItem
               onSelect={() => setComposerOpen(true)}

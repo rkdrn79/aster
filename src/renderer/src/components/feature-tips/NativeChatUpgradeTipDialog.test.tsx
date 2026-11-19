@@ -63,18 +63,18 @@ function renderDialog(chatModeOn: boolean): string {
 describe('NativeChatUpgradeTipDialog', () => {
   it('shows the approved copy with one Got It button and the Experimental settings link', () => {
     const text = textOf(renderDialog(true))
-    expect(text).toContain('NEW')
+    expect(text).toContain('New')
     expect(text).toContain('Native chat got an upgrade')
     expect(text).toContain(
-      'New chats with supported agents now open in the upgraded chat view. To move between chat and CLI, open Agent Session History in the right sidebar:'
+      'New chats with supported agents now open in the upgraded chat view. To move between chat and CLI, open Agent session history in the right sidebar:'
     )
-    expect(text).toContain('Resume in New Chat opens a supported CLI conversation in native chat.')
+    expect(text).toContain('Resume in new chat opens a supported CLI conversation in native chat.')
     expect(text).toContain(
-      'Resume in New Terminal copies a Claude or Codex chat into a new CLI session. The original chat stays as it is.'
+      'Resume in new terminal copies a Claude or Codex chat into a new CLI session. The original chat stays as it is.'
     )
-    expect(text).toContain('Manage Chat UI in Settings → Experimental.')
-    expect(text).toContain('Got It')
-    expect(text).not.toContain('Maybe Later')
+    expect(text).toContain('Manage chat UI in Settings → Experimental.')
+    expect(text).toContain('Got it')
+    expect(text).not.toContain('Maybe later')
     expect(text).not.toContain('Turn on chat mode')
     expect(renderDialog(true)).toContain('27rem')
   })
@@ -83,22 +83,22 @@ describe('NativeChatUpgradeTipDialog', () => {
     const html = renderDialog(true)
     const text = textOf(html)
     expect(text).not.toContain('Turn on chat mode')
-    expect(text).not.toContain('Enable Now')
-    expect(text).not.toContain('Leave Off')
+    expect(text).not.toContain('Enable now')
+    expect(text).not.toContain('Leave off')
     expect(html).not.toContain('role="switch"')
   })
 
   it('offers Leave Off and Enable Now when chat mode is off, without a switch', () => {
     const html = renderDialog(false)
     const text = textOf(html)
-    expect(text).toContain('Leave Off')
-    expect(text).toContain('Enable Now')
-    expect(text).not.toContain('Got It')
+    expect(text).toContain('Leave off')
+    expect(text).toContain('Enable now')
+    expect(text).not.toContain('Got it')
     expect(text).not.toContain('Turn on chat mode')
     expect(html).not.toContain('role="switch"')
     expect(html).toContain('27rem')
     // The way back to the terminal stays in the tip.
-    expect(text).toContain('Resume in New Terminal copies a Claude or Codex chat')
+    expect(text).toContain('Resume in new terminal copies a Claude or Codex chat')
   })
 
   it('dismisses with Leave Off and runs the primary action only with Enable Now', () => {
@@ -109,10 +109,10 @@ describe('NativeChatUpgradeTipDialog', () => {
     act(() => root.render(dialog(false, onPrimaryAction, onOpenChange)))
     const buttons = container.querySelectorAll<HTMLButtonElement>('footer button')
     expect(buttons).toHaveLength(2)
-    expect(buttons[0]?.textContent).toBe('Leave Off')
+    expect(buttons[0]?.textContent).toBe('Leave off')
     // Leave Off is plain text, not a Button primitive.
     expect(buttons[0]?.hasAttribute('data-variant')).toBe(false)
-    expect(buttons[1]?.textContent).toBe('Enable Now')
+    expect(buttons[1]?.textContent).toBe('Enable now')
     expect(buttons[1]?.getAttribute('data-variant')).toBe('default')
     // Enable Now takes the row width Leave Off leaves.
     expect(buttons[1]?.classList.contains('flex-1')).toBe(true)
@@ -130,15 +130,15 @@ describe('NativeChatUpgradeTipDialog', () => {
     ).toBe(true)
     act(() => root.render(dialog(true, onPrimaryAction, onOpenChange)))
     expect(container.querySelectorAll('footer button')).toHaveLength(1)
-    expect(container.querySelector('footer button')?.textContent).toBe('Got It')
+    expect(container.querySelector('footer button')?.textContent).toBe('Got it')
     expect(container.querySelector('[role="switch"]')).toBeNull()
     act(() => root.unmount())
   })
 
   it('pictures both real menu actions, one at a time', () => {
     const html = renderToStaticMarkup(<NativeChatUpgradeFeatureTipVisual />)
-    expect(html).toContain('Agent Session History')
-    expect(html).toMatch(/data-highlighted="true"[^>]*>.*Resume in New Terminal/)
-    expect(html).not.toContain('Resume in New Chat')
+    expect(html).toContain('Agent session history')
+    expect(html).toMatch(/data-highlighted="true"[^>]*>.*Resume in new terminal/)
+    expect(html).not.toContain('Resume in new chat')
   })
 })

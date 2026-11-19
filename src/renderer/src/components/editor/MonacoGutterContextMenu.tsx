@@ -49,7 +49,7 @@ export function MonacoGutterContextMenu({
           <Copy className="w-3.5 h-3.5 mr-1.5" />
           {translate(
             'auto.components.editor.MonacoGutterContextMenu.4eaa991bde',
-            'Copy Path to Line'
+            'Copy path to line'
           )}
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -60,7 +60,7 @@ export function MonacoGutterContextMenu({
           <Copy className="w-3.5 h-3.5 mr-1.5" />
           {translate(
             'auto.components.editor.MonacoGutterContextMenu.2e0b1cdc05',
-            'Copy Rel. Path to Line'
+            'Copy rel. path to line'
           )}
         </DropdownMenuItem>
         <DropdownMenuItem
@@ -100,7 +100,7 @@ export function MonacoGutterContextMenu({
           <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
           {translate(
             'auto.components.editor.MonacoGutterContextMenu.7b57b1b468',
-            'Copy Remote URL'
+            'Copy remote URL'
           )}
         </DropdownMenuItem>
       </DropdownMenuContent>

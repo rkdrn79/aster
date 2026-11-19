@@ -45,7 +45,7 @@ const STARTS: readonly { id: FigureStart; label: string; detail: string; icon: t
   { id: 'method', label: 'Method section', detail: 'Drawn from the paper', icon: ScrollText },
   { id: 'template', label: 'Template', detail: 'Transformer, CLIP, U-Net…', icon: LayoutTemplate },
   { id: 'image', label: 'Image', detail: 'Recreate a published figure', icon: ImagePlus },
-  { id: 'plot', label: 'Plot from Runs', detail: 'A matplotlib plot', icon: ChartLine }
+  { id: 'plot', label: 'Plot', detail: 'Runs, distributions, 3D', icon: ChartLine }
 ]
 const HEIGHTS: Record<string, number> = { single: 2, onehalf: 2.5, double: 2.5 }
 const SUBMIT: Record<FigureStart, string> = {
@@ -138,7 +138,7 @@ function NewFigureForm({
         </DialogDescription>
       </DialogHeader>
       <form className="space-y-4" onSubmit={(event) => void submit(event)}>
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <Label htmlFor="figure-name">Name</Label>
           <Input
             id="figure-name"
@@ -151,7 +151,7 @@ function NewFigureForm({
           />
           <div id="figure-name-hint" className="min-h-4 text-xs">
             {duplicate ? (
-              <span role="alert" className="flex flex-wrap items-center gap-1.5 text-destructive">
+              <span role="alert" className="flex flex-wrap items-center gap-2 text-destructive">
                 A figure named {slug} already exists.
                 <Button
                   type="button"
@@ -172,14 +172,15 @@ function NewFigureForm({
               </span>
             ) : named && folder ? (
               <span className="text-muted-foreground">
-                {folder}/{slug}.py and {slug}.pdf; it goes to the paper when you use it there
+                {folder}/src/{slug}.plot.py, drawn as {slug}.pdf; it goes to the paper when you use
+                it there
               </span>
             ) : null}
           </div>
         </div>
-        <fieldset className="space-y-1.5">
-          <legend className="mb-1.5 text-sm font-medium">Start from</legend>
-          <div role="radiogroup" aria-label="Start from" className="grid grid-cols-3 gap-1.5">
+        <fieldset className="space-y-2">
+          <legend className="mb-2 text-sm font-medium">Start from</legend>
+          <div role="radiogroup" aria-label="Start from" className="grid grid-cols-3 gap-2">
             {STARTS.map((entry) => {
               const Icon = entry.icon
               const checked = start === entry.id
@@ -191,43 +192,50 @@ function NewFigureForm({
                   aria-checked={checked}
                   aria-label={entry.label}
                   className={cn(
-                    'flex flex-col items-start gap-0.5 rounded-md border border-border px-2 py-1.5 text-left hover:bg-accent',
-                    checked && 'border-foreground/60 bg-accent'
+                    'press-scale flex flex-col items-start gap-2 rounded-lg border border-border px-3 py-3 text-left hover:bg-accent/60',
+                    checked && 'border-foreground/70 bg-accent/60 hover:bg-accent/60'
                   )}
                   onClick={() => setStart(entry.id)}
                 >
-                  <span className="flex items-center gap-1.5 text-xs font-medium">
-                    <Icon className="size-3.5 text-muted-foreground" aria-hidden />
-                    {entry.label}
-                  </span>
-                  <span className="text-2xs text-muted-foreground">{entry.detail}</span>
+                  <Icon
+                    className={cn('size-4 text-muted-foreground', checked && 'text-foreground')}
+                    aria-hidden
+                  />
+                  <span className="text-[13px] leading-tight font-medium">{entry.label}</span>
+                  <span className="text-xs leading-snug text-muted-foreground">{entry.detail}</span>
                 </button>
               )
             })}
           </div>
         </fieldset>
-        {start === 'describe' ? (
-          <div className="space-y-1.5">
+        {start === 'describe' || start === 'plot' ? (
+          <div className="space-y-2">
             <Label htmlFor="figure-description">What should it show?</Label>
             <Textarea
               id="figure-description"
               rows={3}
               value={description}
-              placeholder="e.g. a student and an EMA teacher meeting at a loss, image patches on the left"
+              placeholder={
+                start === 'plot'
+                  ? 'e.g. ODE vs SDE sample paths from noise to the data, side by side'
+                  : 'e.g. a student and an EMA teacher meeting at a loss, image patches on the left'
+              }
               onChange={(event) => setDescription(event.target.value)}
             />
             <p className="text-xs text-muted-foreground">
-              Leave this empty to start from a blank page without the agent.
+              {start === 'plot'
+                ? 'Leave this empty to plot results from the Runs'
+                : 'Leave this empty to start from a blank page without the agent'}
             </p>
           </div>
         ) : null}
         {start === 'template' ? (
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="figure-template">Template</Label>
             <select
               id="figure-template"
               value={template}
-              className="h-8 w-full rounded-md border border-border bg-background px-2 text-sm"
+              className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm"
               onChange={(event) => setTemplate(event.target.value)}
             >
               {FIGURE_TEMPLATES.map((entry) => (
@@ -238,56 +246,54 @@ function NewFigureForm({
             </select>
           </div>
         ) : null}
-        {start === 'plot' ? null : (
-          <fieldset className="space-y-1.5">
-            <legend className="mb-1.5 text-sm font-medium">Size</legend>
-            <div
-              role="radiogroup"
-              aria-label="Figure size"
-              className="flex flex-wrap items-center gap-1.5"
-            >
-              {[...PAGE_WIDTHS, { id: 'custom', label: 'Custom', widthIn: 0 }].map((entry) => (
-                <button
-                  key={entry.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={width === entry.id}
-                  aria-label={entry.id === 'custom' ? 'Custom size' : `${entry.label} column`}
-                  className={cn(
-                    'rounded-md border border-border px-2 py-1 text-xs hover:bg-accent',
-                    width === entry.id && 'border-foreground/60 bg-accent'
-                  )}
-                  onClick={() => setWidth(entry.id)}
-                >
-                  {entry.label}
-                  {entry.widthIn ? (
-                    <span className="ml-1 text-muted-foreground">
-                      {entry.widthIn} × {HEIGHTS[entry.id]} in
-                    </span>
-                  ) : null}
-                </button>
-              ))}
-              {width === 'custom' ? (
-                <span className="flex items-center gap-1 text-xs">
-                  <Input
-                    aria-label="Width in inches"
-                    className="h-7 w-16"
-                    value={custom.width}
-                    onChange={(event) => setCustom({ ...custom, width: event.target.value })}
-                  />
-                  ×
-                  <Input
-                    aria-label="Height in inches"
-                    className="h-7 w-16"
-                    value={custom.height}
-                    onChange={(event) => setCustom({ ...custom, height: event.target.value })}
-                  />
-                  in
-                </span>
-              ) : null}
-            </div>
-          </fieldset>
-        )}
+        <fieldset className="space-y-2">
+          <legend className="mb-2 text-sm font-medium">Size</legend>
+          <div
+            role="radiogroup"
+            aria-label="Figure size"
+            className="flex flex-wrap items-center gap-2"
+          >
+            {[...PAGE_WIDTHS, { id: 'custom', label: 'Custom', widthIn: 0 }].map((entry) => (
+              <button
+                key={entry.id}
+                type="button"
+                role="radio"
+                aria-checked={width === entry.id}
+                aria-label={entry.id === 'custom' ? 'Custom size' : `${entry.label} column`}
+                className={cn(
+                  'h-7 rounded-lg border border-border px-3 text-xs transition-colors duration-(--duration-fast) hover:bg-accent',
+                  width === entry.id && 'border-foreground/70 bg-accent'
+                )}
+                onClick={() => setWidth(entry.id)}
+              >
+                {entry.label}
+                {entry.widthIn ? (
+                  <span className="ml-1 text-muted-foreground">
+                    {entry.widthIn} × {HEIGHTS[entry.id]} in
+                  </span>
+                ) : null}
+              </button>
+            ))}
+            {width === 'custom' ? (
+              <span className="flex items-center gap-1 text-xs">
+                <Input
+                  aria-label="Width in inches"
+                  className="h-7 w-16"
+                  value={custom.width}
+                  onChange={(event) => setCustom({ ...custom, width: event.target.value })}
+                />
+                ×
+                <Input
+                  aria-label="Height in inches"
+                  className="h-7 w-16"
+                  value={custom.height}
+                  onChange={(event) => setCustom({ ...custom, height: event.target.value })}
+                />
+                in
+              </span>
+            ) : null}
+          </div>
+        </fieldset>
         {error ? (
           <p role="alert" className="text-xs text-destructive">
             {error}

@@ -39,7 +39,7 @@ export const CHECK_COLOR: Record<string, string> = {
 export function prStateColor(state: PRInfo['state']): string {
   switch (state) {
     case 'merged':
-      return 'bg-purple-500/15 text-purple-500 border-purple-500/20'
+      return 'bg-muted text-foreground border-border'
     case 'closed':
       return 'bg-destructive/10 text-destructive border-destructive/20'
     case 'draft':

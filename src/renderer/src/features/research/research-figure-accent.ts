@@ -18,30 +18,21 @@ export function parseAccentHex(input: string): string | null {
 
 export type AccentCheck = DerivedAccent & {
   name: string
-  /** The tint was darkened to stay apart from the preset's gray blocks in grayscale. */
-  darkened: boolean
   /** What the person should know about the pick, in plain words. */
   notes: string[]
 }
 
 /**
- * What the colour study's rule makes of a pick (a swatch name or `#hex`) on a preset's blocks,
- * and what was adjusted: the tint darkened for grayscale, a near-gray pick, a hue too near red.
+ * What the colour study's rule makes of a pick (a swatch name or `#hex`), and what the person
+ * should know: a near-gray pick, a hue too near red.
  */
-export function checkAccent(
-  pick: string,
-  block: string,
-  figureHasRedLoss: boolean
-): AccentCheck | null {
-  const derived = accentFor(pick, block)
-  const plain = accentFor(pick, '#ffffff')
-  if (!derived || !plain) {
+export function checkAccent(pick: string, figureHasRedLoss: boolean): AccentCheck | null {
+  const derived = accentFor(pick)
+  if (!derived) {
     return null
   }
-  const darkened = derived.tint !== plain.tint
   const notes = [
     ...(derived.neutral ? ['Nearly gray, so the figure takes no hue.'] : []),
-    ...(darkened ? ['Tint darkened a little so it stays apart from gray blocks in print.'] : []),
     ...(derived.lossClash
       ? [
           figureHasRedLoss
@@ -50,7 +41,7 @@ export function checkAccent(
         ]
       : [])
   ]
-  return { ...derived, darkened, notes }
+  return { ...derived, notes }
 }
 
 /** The swatches the picker offers, in the colour study's order; violet last, never a default. */

@@ -43,7 +43,7 @@ vi.mock('@/store', () => ({
 }))
 vi.mock('./terminal-input-activity', () => ({ recordTerminalUserInputForLeaf: vi.fn() }))
 vi.mock('./TerminalPaneResumeInChatButton', () => ({
-  TerminalPaneResumeInChatButton: () => <button type="button">Continue in Chat UI</button>
+  TerminalPaneResumeInChatButton: () => <button type="button">Continue in chat UI</button>
 }))
 
 const mounted: { container: HTMLDivElement; root: Root }[] = []
@@ -191,11 +191,11 @@ afterEach(() => {
 })
 
 describe('TerminalPaneHeaderOverlay', () => {
-  it('offers Continue in Chat UI instead of a chat view switch, on the active pane only', () => {
+  it('offers Continue in chat UI instead of a chat view switch, on the active pane only', () => {
     const { container } = renderOverlay({ paneTitles: {}, canResumeInNewNativeChat: true })
 
     const resumeButtons = [...container.querySelectorAll('button')].filter(
-      (button) => button.textContent === 'Continue in Chat UI'
+      (button) => button.textContent === 'Continue in chat UI'
     )
     expect(resumeButtons).toHaveLength(1)
     expect(resumeButtons[0]?.closest('.pane-title-bar')?.hasAttribute('data-active-pane')).toBe(
@@ -212,7 +212,7 @@ describe('TerminalPaneHeaderOverlay', () => {
     })
 
     expect(container.querySelector('button[aria-label="Show terminal"]')).not.toBeNull()
-    expect(container.textContent).not.toContain('Continue in Chat UI')
+    expect(container.textContent).not.toContain('Continue in chat UI')
   })
 
   it('keeps the titled split-pane X as remove-title only', () => {
@@ -225,7 +225,7 @@ describe('TerminalPaneHeaderOverlay', () => {
     )
     expect(removeTitle).not.toBeNull()
     expect(
-      container.querySelector('.pane-title-bar[data-active-pane] button[aria-label="Close Pane"]')
+      container.querySelector('.pane-title-bar[data-active-pane] button[aria-label="Close pane"]')
     ).toBeNull()
 
     act(() => removeTitle?.click())
@@ -255,9 +255,9 @@ describe('TerminalPaneHeaderOverlay', () => {
       paneTitles: { 1: '', 2: '' }
     })
 
-    expect(container.querySelector('button[aria-label="Split Terminal Right"]')).not.toBeNull()
+    expect(container.querySelector('button[aria-label="Split terminal right"]')).not.toBeNull()
     expect(container.querySelector('.pane-title-drag-handle')).toBeNull()
-    const closePane = container.querySelector<HTMLButtonElement>('button[aria-label="Close Pane"]')
+    const closePane = container.querySelector<HTMLButtonElement>('button[aria-label="Close pane"]')
     expect(closePane).not.toBeNull()
 
     act(() => closePane?.click())
@@ -270,7 +270,7 @@ describe('TerminalPaneHeaderOverlay', () => {
 
     const closeTab = container.querySelector<HTMLButtonElement>('button[aria-label="Close tab"]')
     expect(closeTab).not.toBeNull()
-    expect(container.querySelector('button[aria-label="Close Pane"]')).toBeNull()
+    expect(container.querySelector('button[aria-label="Close pane"]')).toBeNull()
 
     act(() => closeTab?.click())
 
@@ -297,7 +297,7 @@ describe('TerminalPaneHeaderOverlay', () => {
       showSplitButton: false
     })
 
-    expect(container.querySelector('button[aria-label="Split Terminal Right"]')).toBeNull()
+    expect(container.querySelector('button[aria-label="Split terminal right"]')).toBeNull()
     expect(container.querySelector('button[aria-label="Close tab"]')).toBeNull()
   })
 
@@ -328,7 +328,7 @@ describe('TerminalPaneHeaderOverlay', () => {
       onContinueAgentSessionInNewSession
     })
     const handoff = container.querySelector<HTMLButtonElement>(
-      'button[aria-label="Hand Off to Another Agent"]'
+      'button[aria-label="Hand off to another agent"]'
     )
 
     expect(handoff).not.toBeNull()

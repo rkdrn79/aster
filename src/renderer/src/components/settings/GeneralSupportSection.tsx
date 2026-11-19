@@ -35,8 +35,8 @@ export function GeneralSupportSection({
   //
   // We start in 'loading' and render a placeholder at the exact same
   // dimensions as the resolved section. When gh resolves to 'hidden', the
-  // placeholder collapses with a grid-rows transition so content above it
-  // doesn't shift; anything below (nothing today, but future-proof) eases up.
+  // placeholder collapses (grid rows to 0fr, fading out) so content above it
+  // doesn't shift; anything below (nothing today, but future-proof) moves up.
   const [starState, setStarState] = useState<SupportState>('loading')
 
   useEffect(() => {
@@ -111,7 +111,7 @@ function SupportSection({
 
   return (
     <section
-      className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
+      className={`grid transition-opacity duration-300 ${
         collapsed ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'
       }`}
       aria-hidden={collapsed}
@@ -214,14 +214,14 @@ function SupportRowThanks(): React.JSX.Element {
   return (
     <div
       className="shrink-0 inline-flex h-8 items-center gap-1.5 px-3 text-sm font-medium
-        text-amber-400/90 animate-in fade-in slide-in-from-right-1 duration-300"
+        text-muted-foreground animate-in fade-in slide-in-from-right-1 duration-300"
       role="status"
       aria-live="polite"
     >
       <Star className="size-3.5 fill-amber-400/80 text-amber-400/80" aria-hidden="true" />
       {translate(
         'auto.components.settings.GeneralSupportSection.af7d9f4396',
-        'Thanks for the support!'
+        'Thanks for the support'
       )}
     </div>
   )

@@ -7,7 +7,7 @@ import {
   referenceRegionsPath
 } from '../../../../research-harness/research-figures-model.mjs'
 import { imageMimeType, imageSize } from '../../../../research-harness/research-figures-image.mjs'
-import { buildFigureRecreatePrompt } from './research-figures-agent-prompts'
+import { buildFigureRecreatePrompt } from './research-figure-recreate-prompt'
 import { confirmRedraw } from './research-figure-overwrite'
 import {
   figureBeforeSend,

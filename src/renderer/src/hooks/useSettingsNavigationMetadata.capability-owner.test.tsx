@@ -54,7 +54,7 @@ function hasAgentRuntimeEntry(): boolean {
   return (
     testState.sections
       ?.find((section) => section.id === 'agents')
-      ?.searchEntries.some((entry) => entry.title === 'Agent Runtime') ?? false
+      ?.searchEntries.some((entry) => entry.title === 'Agent runtime') ?? false
   )
 }
 

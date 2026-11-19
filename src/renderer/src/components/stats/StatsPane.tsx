@@ -161,7 +161,7 @@ export function StatsPane(): React.JSX.Element {
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-sm font-semibold text-foreground">
-            {translate('auto.components.stats.StatsPane.c79f073d4c', 'Usage Analytics')}
+            {translate('auto.components.stats.StatsPane.c79f073d4c', 'Usage analytics')}
           </h3>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -60,7 +60,7 @@ export function DocPreviewOverflowMenu({
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onHardReload}>
           <RotateCcw className="size-3.5" />
-          {translate('auto.components.browser.pane.BrowserPane.a1f3c2e4b5', 'Hard Reload')}
+          {translate('auto.components.browser.pane.BrowserPane.a1f3c2e4b5', 'Hard reload')}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={onOpenSource}>

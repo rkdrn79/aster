@@ -25,8 +25,8 @@ const TONE_RING: Record<ReturnType<typeof deadlineTone>, string> = {
 }
 
 // Why: shape, not colour, tells the two apart, because colour already carries urgency.
-const DEADLINE_MARKER = 'h-5 w-1 rounded-full hover:scale-y-125'
-const AFTER_SUBMISSION_MARKER = 'size-2.5 rounded-full border-2 bg-background hover:scale-125'
+const DEADLINE_MARKER = 'h-5 w-1 rounded-full hover:opacity-70'
+const AFTER_SUBMISSION_MARKER = 'size-2.5 rounded-full border-2 bg-background hover:opacity-70'
 
 type Props = {
   entries: DeadlineEntry[]
@@ -53,18 +53,18 @@ export function ResearchDeadlineStrip({
 
   return (
     <div className="px-6 pt-4" aria-label="Twelve-month deadline overview" role="group">
-      <div className="relative h-9 rounded-md border border-border bg-muted/40">
+      <div className="relative h-10 rounded-xl bg-muted/70 dark:bg-muted/55">
         {starts.slice(1, MONTHS_SHOWN).map((start) => (
           <span
             key={start}
             aria-hidden
-            className="absolute inset-y-0 w-px bg-border"
+            className="absolute inset-y-2 w-px bg-foreground/8"
             style={{ left: `${position(start)}%` }}
           />
         ))}
         <span
           aria-hidden
-          className="absolute inset-y-0 w-0.5 bg-primary"
+          className="absolute inset-y-1 w-0.5 rounded-full bg-primary"
           style={{ left: `${position(now)}%` }}
         />
         {visible.map((entry) => {
@@ -77,7 +77,7 @@ export function ResearchDeadlineStrip({
                   type="button"
                   aria-label={`${entry.title} ${entry.label}`}
                   className={cn(
-                    'absolute top-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                    'absolute top-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-(--duration-fast) ease-out-quint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                     isDeadline
                       ? [DEADLINE_MARKER, TONE_MARKER[tone]]
                       : [AFTER_SUBMISSION_MARKER, TONE_RING[tone]]

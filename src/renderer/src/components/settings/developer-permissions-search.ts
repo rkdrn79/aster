@@ -6,7 +6,7 @@ export const getDeveloperPermissionsPaneSearchEntries = createLocalizedCatalog((
   {
     title: translate(
       'auto.components.settings.developer.permissions.search.e92cb0896d',
-      'Developer Permissions'
+      'Developer permissions'
     ),
     description: translate(
       'auto.components.settings.developer.permissions.search.bc8ac95310',
@@ -38,7 +38,7 @@ export const getDeveloperPermissionsPaneSearchEntries = createLocalizedCatalog((
   {
     title: translate(
       'auto.components.settings.developer.permissions.search.302c0c42f9',
-      'Microphone and Camera'
+      'Microphone and camera'
     ),
     description: translate(
       'auto.components.settings.developer.permissions.search.6eca1636b7',

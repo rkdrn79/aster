@@ -58,8 +58,7 @@ export function ResearchRebuttalLayout({
         defaultWidth={SIDE_LIMITS.defaultWidth}
         hidden={!sideOpen}
         className={cn(
-          overlay &&
-            'absolute inset-y-0 right-0 z-20 border-l border-border bg-background shadow-xl'
+          overlay && 'absolute inset-y-0 right-0 z-20 rounded-l-2xl bg-background shadow-floating'
         )}
         onWidthChange={commit}
       >

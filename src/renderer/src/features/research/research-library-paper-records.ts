@@ -9,6 +9,7 @@ import {
   type PaperHighlight
 } from '../../../../shared/research/research-library'
 import { parseArxivReference } from '../../../../shared/research/research-library-arxiv'
+import type { DoiPaperMetadata } from '../../../../shared/research/research-library-doi'
 import { useResearchLibrary } from './research-library-store'
 import type { PdfPaperMetadata } from './research-library-pdf-metadata'
 import { readManuscriptPdf, resolveManuscriptFile } from './research-writing-source'
@@ -40,16 +41,18 @@ export function findPaperByArxivId(
   )
 }
 
-export function paperFromArxiv(
-  scope: LibraryScope,
-  metadata: ArxivPaperMetadata,
-  pdfPath: string | undefined
-): LibraryPaper {
-  const now = new Date().toISOString()
+/** A paper ready to become a Library record, as the arXiv and BibTeX imports fill one. */
+export type LibraryPaperDraft = Pick<LibraryPaper, 'title' | 'tags'> &
+  Partial<
+    Pick<
+      LibraryPaper,
+      'authors' | 'year' | 'venue' | 'abstract' | 'arxivId' | 'doi' | 'externalUrl'
+    >
+  >
+
+export function libraryDraftFromArxiv(metadata: ArxivPaperMetadata): LibraryPaperDraft {
   const authors = metadata.authors.join(', ').slice(0, 2000)
   return {
-    id: createBrowserUuid(),
-    scope,
     title: metadata.title.slice(0, 500),
     ...(authors ? { authors } : {}),
     ...(metadata.year ? { year: metadata.year } : {}),
@@ -58,8 +61,35 @@ export function paperFromArxiv(
     arxivId: metadata.arxivId,
     ...(metadata.doi ? { doi: metadata.doi } : {}),
     externalUrl: metadata.absUrl,
+    tags: metadata.primaryCategory ? [metadata.primaryCategory] : []
+  }
+}
+
+export function libraryDraftFromDoi(metadata: DoiPaperMetadata): LibraryPaperDraft {
+  const authors = metadata.authors.join(', ').slice(0, 2000)
+  return {
+    title: metadata.title.slice(0, 500),
+    ...(authors ? { authors } : {}),
+    ...(metadata.year ? { year: metadata.year } : {}),
+    ...(metadata.venue ? { venue: metadata.venue.slice(0, 200) } : {}),
+    ...(metadata.abstract ? { abstract: metadata.abstract.slice(0, 20_000) } : {}),
+    doi: metadata.doi,
+    externalUrl: metadata.url ?? `https://doi.org/${metadata.doi}`,
+    tags: []
+  }
+}
+
+export function paperFromArxiv(
+  scope: LibraryScope,
+  metadata: ArxivPaperMetadata,
+  pdfPath: string | undefined
+): LibraryPaper {
+  const now = new Date().toISOString()
+  return {
+    id: createBrowserUuid(),
+    scope,
+    ...libraryDraftFromArxiv(metadata),
     ...(pdfPath ? { pdfPath } : {}),
-    tags: metadata.primaryCategory ? [metadata.primaryCategory] : [],
     status: 'unread',
     createdAt: now,
     updatedAt: now

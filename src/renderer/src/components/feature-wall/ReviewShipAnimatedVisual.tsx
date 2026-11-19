@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { JSX } from 'react'
-import { GitBranch, Sparkles } from 'lucide-react'
+import { GitBranch, PenLine } from 'lucide-react'
 import {
   ArrowUpIcon,
   CheckTinyIcon,
@@ -111,7 +111,7 @@ export function ReviewShipAnimatedVisual(props: { reducedMotion: boolean }): JSX
       cursor.style.transition = ''
     }
 
-    // Why: sweeps the violet tint through the changes list once so the viewer
+    // Why: sweeps the scan tint through the changes list once so the viewer
     // sees the AI "reading" the staged diff before any text appears — the
     // file-row pulse is the read signal (the icons themselves no longer spin).
     async function pulseFileRows(holdLastMs = 0): Promise<void> {
@@ -274,7 +274,7 @@ export function ReviewShipAnimatedVisual(props: { reducedMotion: boolean }): JSX
                   'Generate commit message with AI'
                 )}
               >
-                <Sparkles className="size-3.5" />
+                <PenLine className="size-3.5" />
               </button>
               <span className="ravs-placeholder" data-commit-placeholder>
                 {translate(
@@ -331,7 +331,7 @@ export function ReviewShipAnimatedVisual(props: { reducedMotion: boolean }): JSX
             <div className="ravs-pr-title-text">
               {translate(
                 'auto.components.feature.wall.ReviewShipAnimatedVisual.c30cd930ff',
-                'Create Pull Request'
+                'Create pull request'
               )}
             </div>
             <button
@@ -347,7 +347,7 @@ export function ReviewShipAnimatedVisual(props: { reducedMotion: boolean }): JSX
                 'Generate with AI'
               )}
             >
-              <Sparkles className="size-3.5" />
+              <PenLine className="size-3.5" />
             </button>
           </div>
           <div className="ravs-pr-body">

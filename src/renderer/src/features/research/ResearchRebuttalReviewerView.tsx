@@ -28,6 +28,8 @@ import {
 import { predictionIsStale } from '../../../../research-harness/research-rebuttal-records.mjs'
 import type { RebuttalAnswer } from './research-rebuttal-view'
 import type { RebuttalActions } from './use-research-rebuttal-actions'
+import { cn } from '@/lib/utils'
+import { INSET_WELL, NOTICE_CARD, SECTION_TITLE } from './research-surface-classes'
 
 type Props = {
   snapshot: RebuttalSnapshot
@@ -90,10 +92,10 @@ export function ResearchRebuttalReviewerView({
       aria-label={`Reviewer ${reviewer.id}`}
       className="scrollbar-sleek flex min-h-0 flex-1 flex-col overflow-y-auto"
     >
-      <header className="sticky top-0 z-10 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border bg-background px-4 py-2">
-        <div className="min-w-0 flex-1">
+      <header className="sticky top-0 z-10 flex flex-wrap items-center gap-x-3 gap-y-2 bg-background/90 px-4 pt-2 pb-3 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+        <div className="min-w-0 flex-1 space-y-1">
           <div className="flex min-w-0 items-baseline gap-2">
-            <h2 className="truncate text-sm font-semibold">{reviewerDisplayName(reviewer)}</h2>
+            <h2 className="truncate text-[15px] font-medium">{reviewerDisplayName(reviewer)}</h2>
             <span className="truncate text-xs text-muted-foreground">{facts.join(' · ')}</span>
           </div>
           {!progress.total ? null : (
@@ -114,7 +116,7 @@ export function ResearchRebuttalReviewerView({
             </div>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
           {predictions.length ? (
             <Button size="xs" variant="ghost" onClick={scrollToPredictions}>
               <Lightbulb aria-hidden /> {predictions.length} predicted next
@@ -187,9 +189,9 @@ export function ResearchRebuttalReviewerView({
           </p>
         ) : null}
       </header>
-      <div className="space-y-5 p-4 pb-16">
+      <div className="space-y-5 px-4 pt-2 pb-16">
         {progress.total === 0 && !bundle.points.some((point) => point.reviewer === reviewer.id) ? (
-          <div className="rounded-lg border border-dashed border-border p-5 text-center">
+          <div className={cn(NOTICE_CARD, 'p-6 text-center')}>
             <p className="text-sm font-medium">No concerns split out yet</p>
             <p className="mx-auto mt-1 max-w-md text-xs leading-5 text-muted-foreground">
               Let the agent split this review into concerns and group the ones reviewers share, or
@@ -222,10 +224,10 @@ export function ResearchRebuttalReviewerView({
               : null
           }
           return (
-            <div key={round} className="space-y-2.5">
+            <div key={round} className="space-y-3">
               {round > 1 ? (
-                <div className="space-y-1.5">
-                  <h3 className="text-xs font-semibold">
+                <div className="space-y-2">
+                  <h3 className={SECTION_TITLE}>
                     Round {round}
                     {followUp ? (
                       <span className="ml-2 font-normal text-muted-foreground">
@@ -234,7 +236,12 @@ export function ResearchRebuttalReviewerView({
                     ) : null}
                   </h3>
                   {followUp ? (
-                    <p className="scrollbar-sleek max-h-40 overflow-auto rounded-md bg-muted/50 p-2.5 text-xs leading-5 whitespace-pre-wrap">
+                    <p
+                      className={cn(
+                        INSET_WELL,
+                        'scrollbar-sleek max-h-40 overflow-auto px-3 py-3 text-xs leading-5 whitespace-pre-wrap'
+                      )}
+                    >
                       {followUp.text}
                     </p>
                   ) : null}
@@ -289,14 +296,19 @@ export function ResearchRebuttalReviewerView({
         {followUps
           .filter((entry) => !rounds.includes(entry.round))
           .map((followUp) => (
-            <div key={followUp.round} className="space-y-1.5">
-              <h3 className="text-xs font-semibold">
+            <div key={followUp.round} className="space-y-2">
+              <h3 className={SECTION_TITLE}>
                 Round {followUp.round}
                 <span className="ml-2 font-normal text-muted-foreground">
                   Received {new Date(followUp.receivedAt).toLocaleDateString()}
                 </span>
               </h3>
-              <p className="scrollbar-sleek max-h-40 overflow-auto rounded-md bg-muted/50 p-2.5 text-xs leading-5 whitespace-pre-wrap">
+              <p
+                className={cn(
+                  INSET_WELL,
+                  'scrollbar-sleek max-h-40 overflow-auto px-3 py-3 text-xs leading-5 whitespace-pre-wrap'
+                )}
+              >
                 {followUp.text}
               </p>
               {readOnly ? null : (

@@ -47,6 +47,8 @@ import { NativeChatRewindContext } from './native-chat-rewind-context'
 import { NativeChatBranchContext } from './native-chat-branch-context'
 import { useResearchChatBranchSurface } from '@/features/research/use-research-chat-branch-surface'
 import { ResearchChatBranchBar } from '@/features/research/ResearchChatBranchBar'
+import { ResearchSubtaskStrip } from '@/features/research/ResearchSubtaskStrip'
+import { ResearchChatPaperPrompt } from '@/features/research/ResearchChatPaperPrompt'
 import { NativeChatQueuedMessageList } from './NativeChatQueuedMessageList'
 import { nativeChatStructuredStopControls } from './native-chat-structured-stop-controls'
 import { chatApprovalFromJournal } from './native-chat-interactive-prompt'
@@ -340,6 +342,8 @@ export function NativeChatStructuredSession(
               focusComposer={focusComposer}
               editAttachTo={{ terminalTabId: props.tabId, transport: structuredTransport }}
             />
+            <ResearchSubtaskStrip {...props} workspaceId={ownerWorktreeId} />
+            <ResearchChatPaperPrompt {...props} workspaceId={ownerWorktreeId} session={session} />
             <NativeChatStructuredSessionStatus
               sessionId={props.sessionId}
               paneKey={paneKey}

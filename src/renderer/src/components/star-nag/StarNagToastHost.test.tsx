@@ -123,7 +123,7 @@ describe('StarNagToastHost', () => {
     document.body.appendChild(toastContainer)
     renderToastFromCustomCall(toastContainer)
 
-    expect(toastContainer.textContent).toContain('Onboarding completed!')
+    expect(toastContainer.textContent).toContain('Onboarding completed')
     expect(toastContainer.textContent).toContain(
       'If you’re enjoying Aster so far, a GitHub star helps other developers discover it.'
     )
@@ -139,7 +139,7 @@ describe('StarNagToastHost', () => {
     })
 
     expect(starNag.starOrca).toHaveBeenCalledTimes(1)
-    expect(toastContainer.textContent).toContain('Starred — thank you!')
+    expect(toastContainer.textContent).toContain('Starred — thank you')
   })
 
   it('opens GitHub fallback without calling direct star success path', async () => {

@@ -278,7 +278,7 @@ export function ChecksPanelActiveContent({
         actionId={agentComposerState?.actionId ?? 'fixChecks'}
         title={
           agentComposerState?.title ??
-          translate('auto.components.right.sidebar.ChecksPanel.7fad8509fe', 'Fix With AI')
+          translate('auto.components.right.sidebar.ChecksPanel.7fad8509fe', 'Fix with AI')
         }
         description={agentComposerState?.description ?? ''}
         baseCommandInput={agentComposerState?.prompt ?? ''}

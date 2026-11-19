@@ -1,0 +1,69 @@
+/* ── Inset shell ─────────────────────────────────────────
+   The sidebar, main area and right sidebar are rounded panels floating on the window shell with
+   a small gap. AppWorkspaceShell marks the row with data-inset; the macOS traffic lights sit at
+   the shell gap + 18px (TITLEBAR_CSS_CENTER), centred in the sidebar panel's header strip. */
+
+:root {
+  --shell-gap: 0px;
+  --shell-radius: 0px;
+}
+
+.app-shell-row[data-inset='true'] {
+  --shell-gap: 8px;
+  --shell-radius: 14px;
+  padding: var(--shell-gap);
+  background: var(--shell);
+}
+
+/* Margins, not gap: a closed sidebar keeps a zero-width slot that must not leave a gap. */
+.app-shell-row[data-inset='true'] .app-shell-sidebar[data-sidebar-open='true'],
+.app-shell-row[data-inset='true'] .app-shell-panels > .left-sidebar-tokens {
+  margin-right: var(--shell-gap);
+}
+
+/* The page and the workbench paint their own surfaces; the panel clips them to its corners. */
+.app-shell-row[data-inset='true'] .app-shell-main {
+  border-radius: var(--shell-radius);
+  background: var(--background);
+}
+
+/* Why no overflow clip on the sidebar column: its resize handle sits half outside, in the gap.
+   Each child paints the sidebar surface with its own corners instead, so custom sidebar colors
+   (set as variables on those children) still reach the whole panel. Panels read by surface step
+   alone: the rows above clip, so an outer ring would show on inner edges only. */
+
+.app-shell-row[data-inset='true'] .app-shell-sidebar > .titlebar-left:not(.titlebar-left-floating) {
+  border-radius: var(--shell-radius) var(--shell-radius) 0 0;
+  box-shadow: none;
+}
+
+.app-shell-row[data-inset='true'] .app-shell-sidebar > :last-child > .left-sidebar-tokens,
+.app-shell-row[data-inset='true'] .app-shell-sidebar > :last-child {
+  border-bottom-left-radius: var(--shell-radius);
+  border-bottom-right-radius: var(--shell-radius);
+}
+
+.app-shell-row[data-inset='true'] .app-shell-panels > .left-sidebar-tokens {
+  border-radius: var(--shell-radius);
+}
+
+/* A collapsed sidebar's header floats over the main panel's corner: let the panel show through. */
+.app-shell-row[data-inset='true'] .titlebar-left-floating {
+  background: transparent;
+  border-right-color: transparent;
+  box-shadow: none;
+}
+
+/* The full-width title strip (Settings and other pages without the sidebar) sits on the shell. */
+.app-shell-row[data-inset='true'] .titlebar {
+  border-bottom-color: transparent;
+}
+
+.app-shell-row[data-inset='true'] .right-sidebar-panel {
+  border-left-width: 0;
+  border-radius: var(--shell-radius);
+}
+
+.app-shell-row[data-inset='true'] [data-right-sidebar-open='true'] {
+  margin-left: var(--shell-gap);
+}

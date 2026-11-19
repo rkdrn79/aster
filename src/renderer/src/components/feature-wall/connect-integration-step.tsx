@@ -49,7 +49,7 @@ export function IntegrationStep(props: {
       >
         <span
           className={cn(
-            'flex size-7 shrink-0 items-center justify-center rounded-full border text-[13px] font-semibold leading-none',
+            'flex size-7 shrink-0 items-center justify-center rounded-full border text-[13px] font-medium tabular-nums leading-none',
             done
               ? 'border-foreground bg-foreground text-background'
               : active

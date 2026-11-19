@@ -179,7 +179,7 @@ export function BrowserPageChromeBanners({
                 )}
                 {browserAnnotationsCopied
                   ? translate('auto.components.browser.pane.BrowserPane.6f4ab3592b', 'Copied')
-                  : translate('auto.components.browser.pane.BrowserPane.499b31b84e', 'Copy All')}
+                  : translate('auto.components.browser.pane.BrowserPane.499b31b84e', 'Copy all')}
               </Button>
               <Tooltip>
                 <TooltipTrigger asChild>

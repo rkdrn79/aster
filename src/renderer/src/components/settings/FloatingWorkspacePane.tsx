@@ -84,7 +84,7 @@ export function FloatingWorkspacePane({
       <SearchableSetting
         title={translate(
           'auto.components.settings.FloatingWorkspacePane.1f67f39384',
-          'Floating Workspace'
+          'Floating workspace'
         )}
         description={translate(
           'auto.components.settings.FloatingWorkspacePane.37df688d6f',
@@ -106,7 +106,7 @@ export function FloatingWorkspacePane({
         <SettingsSwitchRow
           label={translate(
             'auto.components.settings.FloatingWorkspacePane.5136813663',
-            'Enable Floating Workspace'
+            'Enable floating workspace'
           )}
           description={translate(
             'auto.components.settings.FloatingWorkspacePane.41eb95f7f0',
@@ -129,7 +129,7 @@ export function FloatingWorkspacePane({
           alignTop
           label={translate(
             'auto.components.settings.FloatingWorkspacePane.12aa09f10c',
-            'Terminal Directory'
+            'Terminal directory'
           )}
           description={translate(
             'auto.components.settings.FloatingWorkspacePane.81afb79785',
@@ -162,7 +162,7 @@ export function FloatingWorkspacePane({
         <SettingsRow
           label={translate(
             'auto.components.settings.FloatingWorkspacePane.5e5a8da236',
-            'Toggle Button Location'
+            'Toggle button location'
           )}
           description={translate(
             'auto.components.settings.FloatingWorkspacePane.3c900e26e5',
@@ -185,13 +185,13 @@ export function FloatingWorkspacePane({
               <ToggleGroupItem value="floating-button">
                 {translate(
                   'auto.components.settings.FloatingWorkspacePane.9fb225f2d7',
-                  'Floating Button'
+                  'Floating button'
                 )}
               </ToggleGroupItem>
               <ToggleGroupItem value="status-bar">
                 {translate(
                   'auto.components.settings.FloatingWorkspacePane.aeaf76fda9',
-                  'Status Bar'
+                  'Status bar'
                 )}
               </ToggleGroupItem>
             </ToggleGroup>

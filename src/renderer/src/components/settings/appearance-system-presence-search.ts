@@ -9,7 +9,7 @@ const getSystemTrayEntryCatalog = createLocalizedCatalog((): SettingsSearchEntry
   {
     title: translate(
       'auto.components.settings.appearance.search.9a115966d3',
-      'Minimize to Tray on Close'
+      'Minimize to tray on close'
     ),
     description: translate(
       'auto.components.settings.appearance.search.4d5b9427b5',
@@ -49,7 +49,7 @@ const getSystemTrayEntryCatalog = createLocalizedCatalog((): SettingsSearchEntry
 
 const getMenuBarIconEntryCatalog = createLocalizedCatalog((): SettingsSearchEntry[] => [
   {
-    title: translate('settings.appearance.menuBarIcon.title', 'Show Menu Bar Icon'),
+    title: translate('settings.appearance.menuBarIcon.title', 'Show menu bar icon'),
     description: translate(
       'settings.appearance.menuBarIcon.description',
       'Keep an Aster shortcut and activity indicator in the macOS menu bar.'

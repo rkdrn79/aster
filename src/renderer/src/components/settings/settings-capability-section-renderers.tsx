@@ -47,7 +47,7 @@ export function renderAccountsSettingsSection(context: SettingsRenderContext): R
   return (
     <SettingsSection
       id="accounts"
-      title={translate('auto.components.settings.Settings.ad6c529693', 'AI Provider Accounts')}
+      title={translate('auto.components.settings.Settings.ad6c529693', 'AI provider accounts')}
       description={translate(
         'auto.components.settings.Settings.21f09426ea',
         'Optional. Aster works with your existing provider logins; add accounts only if you want Aster to help switch between them.'
@@ -133,7 +133,7 @@ export function renderDesktopCapabilitySettingsSections(
     <>
       <SettingsSection
         id="computer-use"
-        title={translate('auto.components.settings.Settings.c9841721cb', 'Computer Use')}
+        title={translate('auto.components.settings.Settings.c9841721cb', 'Computer use')}
         description={translate(
           'auto.components.settings.Settings.7118953f14',
           'Enable agents to control any app on your computer.'

@@ -1,0 +1,937 @@
+{
+  "title": "Annotation-only data pruning for instance segmentation",
+  "method": "Training-free, model-independent image-level pruning for instance segmentation from mask annotations only. Per instance: boundary complexity P/A of the largest contour, made scale-invariant (P / 2√(πA)) and class-balanced (divided by the sum of scores over all instances of that class); the image score sums its instances' scores; keep the top-K highest-scoring (hardest) images. No model, training or tunable hyperparameters beyond the budget. Also a generic recipe to adapt classification-oriented, model-based pruning criteria to instance segmentation by aggregating per-pixel scores to an image score.",
+  "scope": {
+    "compute": {
+      "hardware": "A few GPUs: a single 24 GB consumer GPU up to two 80 GB data-center GPUs"
+    }
+  },
+  "claims": [
+    {
+      "id": "C1",
+      "text": "This is the first training-free, model-independent dataset pruning framework for instance segmentation",
+      "status": "argued-only"
+    },
+    {
+      "id": "C2",
+      "text": "A boundary-complexity score computed from mask annotations alone identifies informative training images; its scale-invariant and class-balanced refinements handle instance-area variation and class imbalance",
+      "kind": "mechanism",
+      "evidence": ["E2", "E3"]
+    },
+    {
+      "id": "C3",
+      "text": "At the same data budget, subsets selected this way train better instance-segmentation models than subsets chosen by existing (adapted) model-based pruning criteria",
+      "kind": "performance",
+      "evidence": ["E1"]
+    },
+    {
+      "id": "C4",
+      "text": "Because selection does not depend on a model, the subsets carry over across CNN- and Transformer-based segmentation architectures",
+      "kind": "generality",
+      "evidence": ["E4"]
+    },
+    {
+      "id": "C5",
+      "text": "Selection costs far less than with model-based criteria, which must train a model first",
+      "kind": "efficiency",
+      "evidence": ["E5"]
+    },
+    {
+      "id": "C6",
+      "text": "A recipe for adapting classification-oriented pruning criteria to instance segmentation, to serve as reference methods for this new setting",
+      "evidence": ["E6"]
+    }
+  ],
+  "questions": [
+    {
+      "id": "E1",
+      "claim": "C3",
+      "text": "Main comparison: all methods × keep fractions × datasets, with Mask R-CNN as the primary model",
+      "hypothesis": "Your method beats random and the adapted baselines at matched budget",
+      "predictionIfFalse": "It wins only at some budgets (hard-sample selection is known to degrade at small budgets)"
+    },
+    {
+      "id": "E2",
+      "claim": "C2",
+      "text": "Is the signal really boundary complexity, or something the trivial annotation-only baselines and count controls also capture?",
+      "hypothesis": "Your gain survives these controls and shows up in Boundary AP",
+      "predictionIfFalse": "Instance count alone matches your method"
+    },
+    {
+      "id": "E3",
+      "claim": "C2",
+      "text": "Ablations on the six design choices (raw score, scale-invariant normalization, class-balanced normalization, largest contour only, image aggregation, selection direction), plus sensitivity to implementation details"
+    },
+    {
+      "id": "E4",
+      "claim": "C4",
+      "text": "Cross-architecture transfer: do subsets transfer across Mask R-CNN, Mask2Former R50 and Mask2Former Swin-T, and do model-based baselines show a matched-vs-mismatched transfer gap?",
+      "hypothesis": "The baselines show a transfer gap, while yours is architecture-agnostic by construction (retention numbers must show it is good for every architecture)"
+    },
+    {
+      "id": "E5",
+      "claim": "C5",
+      "text": "Selection cost: wall-clock time and GPU-hours of each method's whole pipeline on the same hardware, total cost to a trained model vs full-data training, and break-even points"
+    },
+    {
+      "id": "E6",
+      "claim": "C6",
+      "text": "Adaptation recipe: which choices in the per-pixel to image aggregation step matter, for several criteria?",
+      "hypothesis": "The adapted criteria beat random somewhere",
+      "predictionIfFalse": "Adapted criteria never beat random: the references are weak and the claim of a useful recipe fails"
+    },
+    {
+      "id": "E7",
+      "text": "Robustness and limits: simple smooth masks, very high pruning, crowd/ambiguous/erroneous annotations",
+      "hypothesis": "Less signal on a dataset with simple, smooth masks; the hardest-first strategy degrades at very high pruning (90%)"
+    }
+  ],
+  "methodComponents": [
+    {
+      "id": "M1",
+      "name": "raw boundary-complexity score S = P / A",
+      "ablation": "A-rawscore"
+    },
+    {
+      "id": "M2",
+      "name": "scale-invariant normalization S' = P / (2√(πA))",
+      "ablation": "A-scale"
+    },
+    {
+      "id": "M3",
+      "name": "class-balanced normalization (divide by the per-class sum of S')",
+      "ablation": "A-classbal"
+    },
+    {
+      "id": "M4",
+      "name": "largest (primary) contour only per mask",
+      "ablation": "A-contour"
+    },
+    {
+      "id": "M5",
+      "name": "image score = sum over the image's instances",
+      "ablation": "A-aggregation"
+    },
+    {
+      "id": "M6",
+      "name": "keep the highest-scoring (hardest) images",
+      "ablation": "A-direction"
+    },
+    {
+      "id": "M7",
+      "name": "adaptation recipe: per-pixel scores of model-based criteria aggregated to an image score",
+      "ablation": "A-recipe"
+    }
+  ],
+  "baselines": [
+    {
+      "id": "B1",
+      "name": "Random selection"
+    },
+    {
+      "id": "B2",
+      "name": "Uncertainty family: entropy, margin, least-confidence (adapted)",
+      "why": "Adapted model-based criteria are the references the paper needs to be credible",
+      "source": "reimplemented",
+      "fairness": {
+        "notes": "adapted with the per-pixel to image aggregation recipe; scorer trained on the full set with the standard recipe"
+      }
+    },
+    {
+      "id": "B3",
+      "name": "EL2N (adapted)",
+      "why": "Adapted model-based criterion",
+      "source": "reimplemented",
+      "fairness": {
+        "notes": "adapted with the per-pixel to image aggregation recipe; scorer trained on the full set with the standard recipe"
+      }
+    },
+    {
+      "id": "B4",
+      "name": "GraNd (adapted)",
+      "why": "Adapted model-based criterion",
+      "source": "reimplemented",
+      "fairness": {
+        "notes": "adapted with the per-pixel to image aggregation recipe; scorer trained on the full set with the standard recipe"
+      }
+    },
+    {
+      "id": "B5",
+      "name": "Forgetting (adapted)",
+      "why": "Adapted model-based criterion",
+      "source": "reimplemented",
+      "fairness": {
+        "notes": "adapted with the per-pixel to image aggregation recipe; scorer trained on the full set with the standard recipe"
+      }
+    },
+    {
+      "id": "B6",
+      "name": "AUM (adapted)",
+      "why": "Adapted model-based criterion",
+      "source": "reimplemented",
+      "fairness": {
+        "notes": "adapted with the per-pixel to image aggregation recipe; scorer trained on the full set with the standard recipe"
+      }
+    },
+    {
+      "id": "B7",
+      "name": "Coverage/diversity method (herding or k-center on features)",
+      "why": "Adapted model-based criterion",
+      "source": "reimplemented",
+      "fairness": {
+        "notes": "scorer trained on the full set with the standard recipe"
+      }
+    },
+    {
+      "id": "B8",
+      "name": "Coverage-aware method (e.g. CCS or Moderate)",
+      "why": "Adapted model-based criterion",
+      "source": "reimplemented",
+      "fairness": {
+        "notes": "scorer trained on the full set with the standard recipe"
+      }
+    },
+    {
+      "id": "B9",
+      "name": "Model-based criteria with a cheaper proxy scorer (short schedule or small model)",
+      "why": "So the E5 cost comparison can't be dismissed as a strawman"
+    },
+    {
+      "id": "B10",
+      "name": "Instance count per image",
+      "role": "simplest",
+      "why": "Trivial annotation-only control (most important controls)"
+    },
+    {
+      "id": "B11",
+      "name": "Total mask area",
+      "role": "simplest",
+      "why": "Trivial annotation-only control"
+    },
+    {
+      "id": "B12",
+      "name": "Polygon vertex count",
+      "role": "simplest",
+      "why": "Trivial annotation-only control"
+    },
+    {
+      "id": "B13",
+      "name": "Rare-class coverage (images ranked by inverse class frequency of their instances)",
+      "role": "simplest",
+      "why": "Trivial annotation-only control"
+    },
+    {
+      "id": "B14",
+      "name": "Raw P/A sum",
+      "role": "ablated-self",
+      "why": "Trivial annotation-only control: the score without normalizations"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "D1",
+      "name": "Cityscapes (2,975 train images, 8 thing classes)",
+      "role": "main",
+      "why": "Cheap, so it gets the full grid and many seeds"
+    },
+    {
+      "id": "D2",
+      "name": "COCO (118k images, 80 classes)",
+      "role": "main",
+      "why": "The standard benchmark and the main result"
+    },
+    {
+      "id": "D3",
+      "name": "Long-tailed set: LVIS or ADE20K instances (100 thing classes)",
+      "role": "stress",
+      "why": "Tests the class-imbalance claim; not optional if you claim class-balanced normalization works"
+    },
+    {
+      "id": "D4",
+      "name": "A dataset with simple, smooth masks (not named)",
+      "role": "ood",
+      "why": "Different dataset type; the score should have less signal there"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "mask AP",
+      "direction": "maximize"
+    },
+    {
+      "name": "AP50, AP75",
+      "direction": "maximize"
+    },
+    {
+      "name": "AP_S / AP_M / AP_L",
+      "direction": "maximize"
+    },
+    {
+      "name": "Boundary AP (or Boundary IoU)",
+      "direction": "maximize",
+      "why": "the direct test of the boundary-complexity motivation"
+    },
+    {
+      "name": "AP on rare vs frequent classes",
+      "direction": "maximize"
+    },
+    {
+      "name": "retention (subset AP / full-data AP)",
+      "direction": "maximize"
+    },
+    {
+      "name": "method rank consistency across architectures"
+    },
+    {
+      "name": "transfer gap (matched minus mismatched scorer)"
+    },
+    {
+      "name": "Jaccard overlap of subsets selected by different scorer architectures"
+    },
+    {
+      "name": "selection wall-clock time and GPU-hours",
+      "direction": "minimize"
+    },
+    {
+      "name": "total cost to a trained model and break-even point vs full-data training",
+      "direction": "minimize"
+    },
+    {
+      "name": "fraction of top-ranked images that are low-quality (manual inspection of a sample)",
+      "direction": "minimize",
+      "judged": true
+    }
+  ],
+  "statistics": {
+    "seedsMain": 3,
+    "repeatUnit": "seed (both selection and training seeds for random; same seeds across methods, paired)"
+  },
+  "hyperparameters": {
+    "sensitivity": [
+      {
+        "knob": "contour approximation",
+        "levels": ["none", "simplified polygons"]
+      },
+      {
+        "knob": "mask resolution / rasterization",
+        "levels": ["COCO polygons", "RLE"]
+      },
+      {
+        "knob": "annotation noise",
+        "levels": ["clean", "perturbed masks"]
+      }
+    ]
+  },
+  "protocol": {
+    "training": "each architecture's standard recipe, with the same number of epochs on the subset as on the full set; small supplementary equal-iterations run on Cityscapes",
+    "pretraining": "same pretraining for all methods; no COCO pretraining when pruning COCO"
+  },
+  "matrix": [
+    {
+      "cell": "P0.pilot",
+      "stage": "P0",
+      "purpose": "pilot",
+      "factors": {
+        "dataset": "Cityscapes",
+        "keep": "one budget"
+      },
+      "expect": "checks the pipeline, the schedule length and run-to-run variance"
+    },
+    {
+      "cell": "E1.cs.ours",
+      "stage": "P1",
+      "question": "E1",
+      "purpose": "main",
+      "factors": {
+        "method": "ours",
+        "dataset": "Cityscapes",
+        "keep": "90, 70, 50, 30, 10%",
+        "arch": "Mask R-CNN R50-FPN, Mask2Former R50, Mask2Former Swin-T"
+      },
+      "compareTo": ["E1.cs.random", "E1.cs.model-based"],
+      "seeds": 3
+    },
+    {
+      "cell": "E1.cs.random",
+      "stage": "P1",
+      "question": "E1",
+      "purpose": "main",
+      "factors": {
+        "method": "random",
+        "dataset": "Cityscapes",
+        "keep": "90, 70, 50, 30, 10%",
+        "arch": "Mask R-CNN R50-FPN, Mask2Former R50, Mask2Former Swin-T"
+      },
+      "seeds": 3
+    },
+    {
+      "cell": "E1.cs.model-based",
+      "stage": "P1",
+      "question": ["E1", "E4"],
+      "purpose": "main",
+      "factors": {
+        "method": "adapted model-based criteria (entropy, margin, least-confidence, EL2N, GraNd, forgetting, AUM, herding/k-center, CCS/Moderate)",
+        "scorer": "Mask R-CNN trained on the full set",
+        "dataset": "Cityscapes",
+        "keep": "90, 70, 50, 30, 10%",
+        "arch": "Mask R-CNN R50-FPN, Mask2Former R50, Mask2Former Swin-T"
+      },
+      "seeds": 3
+    },
+    {
+      "cell": "E1.cs.proxy",
+      "stage": "P1",
+      "question": ["E1", "E5"],
+      "purpose": "main",
+      "factors": {
+        "method": "model-based criteria with a cheaper proxy scorer (short schedule or small model)",
+        "dataset": "Cityscapes",
+        "keep": "90, 70, 50, 30, 10%"
+      },
+      "seeds": 3
+    },
+    {
+      "cell": "E1.cs.equal-iters",
+      "question": "E1",
+      "purpose": "sensitivity",
+      "factors": {
+        "protocol": "equal iterations (instead of equal epochs)",
+        "dataset": "Cityscapes"
+      }
+    },
+    {
+      "cell": "E1.coco.ours",
+      "stage": "P2",
+      "question": "E1",
+      "purpose": "main",
+      "factors": {
+        "method": "ours",
+        "dataset": "COCO",
+        "keep": "70, 50, 30, 10%",
+        "arch": "Mask R-CNN R50-FPN"
+      },
+      "compareTo": ["E1.coco.random", "E1.coco.baselines"],
+      "seeds": 1
+    },
+    {
+      "cell": "E1.coco.random",
+      "stage": "P2",
+      "question": "E1",
+      "purpose": "main",
+      "factors": {
+        "method": "random",
+        "dataset": "COCO",
+        "keep": "70, 50, 30, 10%",
+        "arch": "Mask R-CNN R50-FPN"
+      },
+      "seeds": 1
+    },
+    {
+      "cell": "E1.coco.baselines",
+      "stage": "P2",
+      "question": "E1",
+      "purpose": "main",
+      "factors": {
+        "method": "remaining methods (about 8 methods in total on COCO)",
+        "dataset": "COCO",
+        "keep": "70, 50, 30, 10%",
+        "arch": "Mask R-CNN R50-FPN"
+      },
+      "seeds": 1
+    },
+    {
+      "cell": "E1.coco.variance",
+      "stage": "P2",
+      "question": "E1",
+      "purpose": "main",
+      "factors": {
+        "method": "ours and random",
+        "dataset": "COCO",
+        "keep": "one or two keep fractions",
+        "arch": "Mask R-CNN R50-FPN"
+      },
+      "seeds": 3
+    },
+    {
+      "cell": "E1.longtail",
+      "question": "E1",
+      "purpose": "main",
+      "factors": {
+        "method": "all methods",
+        "dataset": "long-tailed set (LVIS or ADE20K)",
+        "keep": "90, 70, 50, 30, 10%",
+        "arch": "Mask R-CNN R50-FPN"
+      }
+    },
+    {
+      "cell": "E2.cs.trivial",
+      "stage": "P1",
+      "question": "E2",
+      "purpose": "main",
+      "factors": {
+        "method": "instance count, total mask area, polygon vertex count, rare-class coverage, raw P/A sum",
+        "dataset": "Cityscapes",
+        "keep": "90, 70, 50, 30, 10%"
+      },
+      "compareTo": ["E1.cs.ours"],
+      "seeds": 3
+    },
+    {
+      "cell": "E2.cs.count-matched",
+      "stage": "P1",
+      "question": "E2",
+      "purpose": "main",
+      "factors": {
+        "method": "random subset with the same total instance count as ours",
+        "dataset": "Cityscapes"
+      },
+      "compareTo": ["E1.cs.ours"],
+      "seeds": 3
+    },
+    {
+      "cell": "E2.cs.topk-count",
+      "stage": "P1",
+      "question": "E2",
+      "purpose": "main",
+      "factors": {
+        "method": "top-K by instance count, boundary score removed",
+        "dataset": "Cityscapes"
+      },
+      "compareTo": ["E1.cs.ours"],
+      "seeds": 3
+    },
+    {
+      "cell": "E3.raw.cs",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "P/A vs P/√A vs 1 − solidity, vertex count, Fourier or curvature descriptors",
+        "dataset": "Cityscapes",
+        "keep": "all budgets"
+      },
+      "compareTo": ["E1.cs.ours"],
+      "seeds": 3
+    },
+    {
+      "cell": "E3.raw.coco",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "P/A vs P/√A vs 1 − solidity, vertex count, Fourier or curvature descriptors",
+        "dataset": "COCO",
+        "keep": "30, 50%"
+      },
+      "compareTo": ["E1.coco.ours"],
+      "seeds": 1
+    },
+    {
+      "cell": "E3.scale.cs",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "without scale-invariant normalization (report AP_S/M/L)",
+        "dataset": "Cityscapes",
+        "keep": "all budgets"
+      },
+      "compareTo": ["E1.cs.ours"],
+      "seeds": 3
+    },
+    {
+      "cell": "E3.scale.coco",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "without scale-invariant normalization (report AP_S/M/L)",
+        "dataset": "COCO",
+        "keep": "30, 50%"
+      },
+      "compareTo": ["E1.coco.ours"],
+      "seeds": 1
+    },
+    {
+      "cell": "E3.classbal.cs",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "without class-balanced normalization; rare-class coverage",
+        "dataset": "Cityscapes",
+        "keep": "all budgets"
+      },
+      "compareTo": ["E1.cs.ours"],
+      "seeds": 3
+    },
+    {
+      "cell": "E3.classbal.coco",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "without class-balanced normalization; rare-class coverage",
+        "dataset": "COCO",
+        "keep": "30, 50%"
+      },
+      "compareTo": ["E1.coco.ours"],
+      "seeds": 1
+    },
+    {
+      "cell": "E3.classbal.lt",
+      "stage": "P3",
+      "question": "E3",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": {
+        "variant": "with vs without class-balanced normalization; rare-class coverage",
+        "dataset": "long-tailed set (LVIS or ADE20K)"
+      }
+    },
+    {
+      "cell": "E3.contour.cs",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "all contours vs holes included (vs largest only)",
+        "dataset": "Cityscapes",
+        "keep": "all budgets"
+      },
+      "compareTo": ["E1.cs.ours"],
+      "seeds": 3
+    },
+    {
+      "cell": "E3.contour.coco",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "all contours vs holes included (vs largest only)",
+        "dataset": "COCO",
+        "keep": "30, 50%"
+      },
+      "compareTo": ["E1.coco.ours"],
+      "seeds": 1
+    },
+    {
+      "cell": "E3.aggregation.cs",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "mean vs max vs top-k (vs sum)",
+        "dataset": "Cityscapes",
+        "keep": "all budgets"
+      },
+      "compareTo": ["E1.cs.ours"],
+      "seeds": 3
+    },
+    {
+      "cell": "E3.aggregation.coco",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "mean vs max vs top-k (vs sum)",
+        "dataset": "COCO",
+        "keep": "30, 50%"
+      },
+      "compareTo": ["E1.coco.ours"],
+      "seeds": 1
+    },
+    {
+      "cell": "E3.direction.cs",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "easiest vs middle vs random mix (vs hardest)",
+        "dataset": "Cityscapes",
+        "keep": "all budgets"
+      },
+      "compareTo": ["E1.cs.ours"],
+      "seeds": 3
+    },
+    {
+      "cell": "E3.direction.coco",
+      "question": "E3",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "easiest vs middle vs random mix (vs hardest)",
+        "dataset": "COCO",
+        "keep": "30, 50%"
+      },
+      "compareTo": ["E1.coco.ours"],
+      "seeds": 1
+    },
+    {
+      "cell": "E3.impl-sensitivity",
+      "question": "E3",
+      "purpose": "sensitivity",
+      "factors": {
+        "variant": "contour approximation (none vs simplified polygons); mask resolution or rasterization (COCO polygons vs RLE); small-object pixel-staircase effects; annotation noise (perturbed masks, ranking stability)"
+      }
+    },
+    {
+      "cell": "E4.cs.matched",
+      "stage": "P1",
+      "question": "E4",
+      "purpose": "generality",
+      "factors": {
+        "method": "model-based baselines scored with the matching architecture",
+        "scorer": "Mask2Former R50, Mask2Former Swin-T",
+        "dataset": "Cityscapes",
+        "keep": "90, 70, 50, 30, 10%"
+      },
+      "compareTo": ["E1.cs.model-based"],
+      "seeds": 3
+    },
+    {
+      "cell": "E4.ade20k",
+      "question": "E4",
+      "purpose": "generality",
+      "factors": {
+        "method": "full grid (ours, random, model-based with matched and mismatched scorers)",
+        "dataset": "ADE20K",
+        "arch": "Mask R-CNN R50-FPN, Mask2Former R50, Mask2Former Swin-T"
+      }
+    },
+    {
+      "cell": "E4.coco.m2f",
+      "stage": "P4",
+      "question": "E4",
+      "purpose": "generality",
+      "factors": {
+        "method": "ours, random, the two strongest baselines",
+        "dataset": "COCO",
+        "arch": "Mask2Former",
+        "keep": "two or three keep fractions"
+      },
+      "seeds": 1
+    },
+    {
+      "cell": "E4.fourth-arch",
+      "question": "E4",
+      "purpose": "generality",
+      "tier": "could",
+      "factors": {
+        "arch": "a different paradigm such as SOLOv2 or YOLO-seg (optional)"
+      }
+    },
+    {
+      "cell": "E5.cost",
+      "question": "E5",
+      "purpose": "cost",
+      "factors": {
+        "measure": "whole-pipeline wall-clock and GPU-hours per method on the same hardware",
+        "methods": "model-based (scorer training + scoring inference + aggregation), proxy scorers, ours (CPU contour extraction)"
+      }
+    },
+    {
+      "cell": "E6.aggregation",
+      "question": "E6",
+      "purpose": "ablation",
+      "factors": {
+        "variant": "mean over all pixels, foreground only, instance-level then image-level, top-k pixels",
+        "method": "several adapted criteria"
+      }
+    },
+    {
+      "cell": "E6.criterion-check",
+      "question": "E6",
+      "purpose": "sanity",
+      "factors": {
+        "check": "the recipe does not change the underlying criterion"
+      }
+    },
+    {
+      "cell": "E7.smooth-masks",
+      "question": "E7",
+      "purpose": "generality",
+      "factors": {
+        "dataset": "a dataset with simple, smooth masks (not named)"
+      },
+      "expect": "the score has less signal there"
+    }
+  ],
+  "ablations": [
+    {
+      "id": "A-rawscore",
+      "component": "M1",
+      "structure": "swap",
+      "default": "P/A",
+      "levels": ["P/√A", "1 − solidity", "vertex count", "Fourier or curvature descriptors"],
+      "budget": "Cityscapes at all budgets, then COCO at 30 and 50% kept",
+      "cells": ["E3.raw.cs", "E3.raw.coco"]
+    },
+    {
+      "id": "A-scale",
+      "component": "M2",
+      "structure": "remove",
+      "levels": ["with", "without"],
+      "budget": "Cityscapes at all budgets, then COCO at 30 and 50% kept",
+      "expect": "report AP_S/M/L, since the claim is about area variation",
+      "cells": ["E3.scale.cs", "E3.scale.coco"]
+    },
+    {
+      "id": "A-classbal",
+      "component": "M3",
+      "structure": "remove",
+      "levels": ["with", "without", "rare-class coverage"],
+      "datasets": ["D3"],
+      "cells": ["E3.classbal.cs", "E3.classbal.coco", "E3.classbal.lt"]
+    },
+    {
+      "id": "A-contour",
+      "component": "M4",
+      "structure": "swap",
+      "default": "largest contour",
+      "levels": ["all contours", "holes included"],
+      "budget": "Cityscapes at all budgets, then COCO at 30 and 50% kept",
+      "cells": ["E3.contour.cs", "E3.contour.coco"]
+    },
+    {
+      "id": "A-aggregation",
+      "component": "M5",
+      "structure": "swap",
+      "default": "sum",
+      "levels": ["mean", "max", "top-k"],
+      "budget": "Cityscapes at all budgets, then COCO at 30 and 50% kept",
+      "cells": ["E3.aggregation.cs", "E3.aggregation.coco"]
+    },
+    {
+      "id": "A-direction",
+      "component": "M6",
+      "structure": "swap",
+      "default": "hardest",
+      "levels": ["easiest", "middle", "random mix"],
+      "budget": "Cityscapes at all budgets, then COCO at 30 and 50% kept",
+      "cells": ["E3.direction.cs", "E3.direction.coco"]
+    },
+    {
+      "id": "A-recipe",
+      "component": "M7",
+      "structure": "swap",
+      "levels": [
+        "mean over all pixels",
+        "foreground only",
+        "instance-level then image-level",
+        "top-k pixels"
+      ],
+      "cells": ["E6.aggregation"]
+    }
+  ],
+  "costMeasurements": [
+    {
+      "id": "K1",
+      "what": ["wall-clock time", "GPU-hours", "per-image cost", "CPU core count"],
+      "methods": [
+        "model-based (scorer training + scoring inference + aggregation)",
+        "model-based with cheaper proxy scorers",
+        "ours (CPU contour extraction)"
+      ],
+      "protocol": "whole pipeline per method on the same hardware; total cost to reach a trained model (selection + subset training) vs full-data training; break-even point per method",
+      "cell": "E5.cost"
+    }
+  ],
+  "analysis": [
+    {
+      "id": "N1",
+      "kind": "mechanism-probe",
+      "question": "Subset statistics for every method: instances per image, total instances, class histogram, area histogram"
+    },
+    {
+      "id": "N2",
+      "kind": "mechanism-probe",
+      "question": "Motivation check: Boundary IoU vs mask IoU across training epochs on the full set (are interiors learned before boundaries?)"
+    },
+    {
+      "id": "N3",
+      "kind": "mechanism-probe",
+      "question": "Rank-correlate I_i with model-based difficulty (per-image loss and EL2N from a trained model)"
+    },
+    {
+      "id": "N4",
+      "kind": "sensitivity",
+      "question": "Very high pruning (90%): where does hardest-first degrade, and where is the crossover?"
+    },
+    {
+      "id": "N5",
+      "kind": "failure-cases",
+      "question": "Crowd/ambiguous annotations and annotation errors: what fraction of top-ranked images are low-quality (manual inspection of a sample)?"
+    },
+    {
+      "id": "N6",
+      "kind": "qualitative",
+      "question": "Figure of top- and bottom-scoring images"
+    }
+  ],
+  "leakageChecks": [
+    {
+      "what": "no model or label information from the validation set enters scoring"
+    },
+    {
+      "what": "no COCO pretraining when pruning COCO",
+      "how": "use the same pretraining for all methods"
+    }
+  ],
+  "humanEval": {
+    "needed": true,
+    "protocol": "manual inspection of a sample of top-ranked images to estimate the fraction that are low-quality (offered as an example check)"
+  },
+  "stages": [
+    {
+      "id": "P0",
+      "name": "Pilot on Cityscapes at one budget (before the full grid)"
+    },
+    {
+      "id": "P1",
+      "name": "Cityscapes full grid (all methods, all budgets, 3 architectures, 3 seeds; covers E1–E4)"
+    },
+    {
+      "id": "P2",
+      "name": "COCO Mask R-CNN (about 8 methods × 4 budgets)"
+    },
+    {
+      "id": "P3",
+      "name": "Long-tailed dataset for the class-balance ablation"
+    },
+    {
+      "id": "P4",
+      "name": "COCO Mask2Former at two or three budgets, fewer methods"
+    }
+  ],
+  "decisionPoints": [
+    {
+      "after": "E2",
+      "if": "instance count alone matches your method",
+      "then": "rewrite the 'boundary' story"
+    },
+    {
+      "after": "literature search",
+      "if": "there is any near neighbor (incl. coreset work for detection and semantic segmentation)",
+      "then": "soften the 'first' wording"
+    },
+    {
+      "if": "time is tight on COCO Mask R-CNN",
+      "then": "use a reduced input size (short side ~512) and state it in the paper"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Summing over instances in Step 4 makes an instance-count confound a real risk",
+      "mitigation": "count-matched and top-K-by-count controls in E2"
+    },
+    {
+      "text": "Hard-sample selection is known to degrade at small budgets",
+      "mitigation": "keep-easy ablation in E3 shows whether it happens"
+    },
+    {
+      "text": "Perimeter measured on a pixel grid is inflated for tiny masks",
+      "mitigation": "check that the normalization is scale-invariant in practice"
+    },
+    {
+      "text": "Boundary complexity may favor noisy or badly annotated masks",
+      "mitigation": "check what fraction of top-ranked images are low-quality"
+    },
+    {
+      "text": "ImageNet- or COCO-pretrained backbones can mask differences between subsets",
+      "mitigation": "same pretraining for all methods; no COCO pretraining when pruning COCO"
+    },
+    {
+      "text": "Mask2Former schedules are long",
+      "mitigation": "full grid on Cityscapes and ADE20K; only two or three keep fractions on COCO"
+    }
+  ]
+}

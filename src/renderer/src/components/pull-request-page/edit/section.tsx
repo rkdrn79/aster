@@ -127,7 +127,7 @@ export function GHEditSection({
           <button
             type="button"
             className={cn(
-              'group/status inline-flex items-center gap-0.5 rounded-full border px-2 py-0.5 text-[11px] font-medium transition hover:brightness-125 hover:ring-1 hover:ring-white/10',
+              'group/status inline-flex items-center gap-0.5 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-[filter,box-shadow] hover:brightness-125 hover:ring-1 hover:ring-white/10',
               getStateTone({ ...item, state: localState })
             )}
           >
@@ -195,7 +195,7 @@ export function GHEditSection({
           <button
             type="button"
             disabled={isPending('labels') || repoLabels.loading}
-            className="group/labels inline-flex items-center gap-1 rounded-full border border-border/30 bg-muted/20 px-2 py-0.5 text-[11px] transition hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50"
+            className="group/labels inline-flex items-center gap-1 rounded-md border border-border/30 bg-muted/20 px-2 py-0.5 text-[11px] transition-[filter,box-shadow] hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50"
           >
             {localLabels.length === 0 ? (
               <span className="text-muted-foreground">
@@ -267,7 +267,7 @@ export function GHEditSection({
           <button
             type="button"
             disabled={isPending('assignees') || repoAssignees.loading}
-            className="group/assignees inline-flex items-center gap-1 rounded-full border border-border/30 bg-muted/20 px-2 py-0.5 text-[11px] transition hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50"
+            className="group/assignees inline-flex items-center gap-1 rounded-md border border-border/30 bg-muted/20 px-2 py-0.5 text-[11px] transition-[filter,box-shadow] hover:brightness-125 hover:ring-1 hover:ring-white/10 disabled:opacity-50"
           >
             {localAssignees.length === 0 ? (
               <span className="text-muted-foreground">

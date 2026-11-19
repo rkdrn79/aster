@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react'
-import { ChevronDown, GitBranch } from 'lucide-react'
+import { ChevronDown, GitBranch, GitFork } from 'lucide-react'
 import { toast } from 'sonner'
 import type { RuntimeClientTarget } from '../../../../shared/runtime-client-target'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,13 @@ import { NativeChatBranchNavigationContext } from '@/components/native-chat/nati
 import { executionHostIdForStructuredTarget } from '@/runtime/structured-agent-session-owner'
 import { openResearchChatHere } from './research-chat-branch-run'
 import { useResearchChatBranchLineage } from './use-research-chat-branch-lineage'
+import { ResearchChatStatusBadge } from './ResearchChatStatusBadge'
+
+const COPIED_FROM = {
+  branch: 'Branched from',
+  fork: 'Forked from',
+  subtask: 'Subtask of'
+} as const
 
 /** A quiet line over a chat that has branch relatives: where it was branched from, which opens
  *  that chat, and its own branches. Nothing for a chat with none. */
@@ -38,18 +45,18 @@ export function ResearchChatBranchBar({
     if (navigation) {
       navigation.open(id)
     } else if (!openResearchChatHere(scope, id)) {
-      toast.error('That chat is closed, so it cannot be opened from here.')
+      toast.error('That chat is closed, so it cannot be opened from here')
     }
   }
   return (
     <div
       data-native-chat-branch-bar=""
-      className="flex min-h-7 shrink-0 items-center gap-2 border-b border-border/60 px-3 text-xs text-muted-foreground"
+      className="flex min-h-7 shrink-0 items-center gap-2 border-b border-border px-3 text-xs text-muted-foreground"
     >
       {parent ? (
         <span className="flex min-w-0 items-center gap-1">
-          <GitBranch className="size-3 shrink-0" aria-hidden />
-          <span className="shrink-0">Branched from</span>
+          <GitBranch className="size-4 shrink-0" aria-hidden />
+          <span className="shrink-0">{COPIED_FROM[parent.copiedAs]}</span>
           <button
             type="button"
             className="min-w-0 truncate rounded-sm font-medium text-foreground/80 underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -68,16 +75,19 @@ export function ResearchChatBranchBar({
           <DropdownMenuTrigger asChild>
             <Button size="xs" variant="ghost" className="ml-auto">
               Branches ({branches.length})
-              <ChevronDown className="size-3" aria-hidden />
+              <ChevronDown className="size-4" aria-hidden />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="max-w-72">
             {branches.map((branch) => (
               <DropdownMenuItem key={branch.sessionId} onSelect={() => open(branch.sessionId)}>
-                <GitBranch aria-hidden />
-                <span className="min-w-0 truncate" title={branch.label}>
+                {branch.kind === 'fork' ? <GitFork aria-hidden /> : <GitBranch aria-hidden />}
+                <span className="min-w-0 flex-1 truncate" title={branch.label}>
                   {branch.shortLabel}
                 </span>
+                {branch.kind === 'fork' ? (
+                  <ResearchChatStatusBadge sessionId={branch.sessionId} hostId={scope.hostId} />
+                ) : null}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

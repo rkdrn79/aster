@@ -1,0 +1,683 @@
+{
+  "title": "MethodX under stochastic execution delays (plain plan)",
+  "method": "MethodX wraps a sample-efficient model-based agent with a learned latent world model (representation H, latent dynamics G, reward/value/policy heads, MCTS) for MDPs with exogenous, observed execution delays z_t ≤ M. It keeps queues of the last M prescribed actions and their observed delays; a pending-queue resolver computes the actions that will actually execute over the next z_t steps from effective decision times; it applies G z_t times from H(o_t) to predict the latent state at execution time and runs MCTS there; the first M actions are planned from s_0 by alternating policy and dynamics; after each episode, replay stores the executed action a_{τ_t} instead of the decided one; the policy loss targets the MCTS distribution at the predicted state. Only acting, episode post-processing and evaluation change.",
+  "scope": {
+    "compute": {
+      "hardware": "2x RTX 2080 Ti-class GPUs per training run, ~1 day per run"
+    }
+  },
+  "claims": [
+    {
+      "id": "C1",
+      "text": "A formalism that separates the delay process from the MDP, with no state augmentation",
+      "kind": "analysis",
+      "evidence": ["Q0", "Q1"],
+      "status": "planned"
+    },
+    {
+      "id": "C2",
+      "text": "Markov policies suffice when delays are observed",
+      "kind": "analysis",
+      "evidence": ["Q1", "Q5"],
+      "status": "planned"
+    },
+    {
+      "id": "C3",
+      "text": "A plug-in, delay-distribution-agnostic tree-search algorithm",
+      "kind": "generality",
+      "evidence": ["Q4", "Q3", "Q3b", "Q5"],
+      "status": "planned"
+    },
+    {
+      "id": "C4",
+      "text": "Higher return under constant, stochastic and large delays, with sample efficiency retained",
+      "kind": "performance",
+      "evidence": ["Q2", "Q3", "Q6"],
+      "status": "planned"
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q0",
+      "claim": "C1",
+      "text": "E0: is the shared delay wrapper correct (τ_t, overwrites, duplicates, default queue) and does the pending-queue resolver predict the actions that actually execute?",
+      "hypothesis": "The wrapper matches hand-worked traces and is the identity for M = 0 or z ≡ 0; the resolver's predicted actions equal the executed actions over 10^6 random steps for each delay distribution"
+    },
+    {
+      "id": "Q1",
+      "claim": "C2",
+      "text": "E1: on small tabular MDPs, does the non-stationary Markov policy class reach the augmented-state optimum, and how much does MethodX's point-prediction policy lose?",
+      "hypothesis": "V*_aug equals the optimum of the non-stationary Markov class up to numerical error under constant and stochastic delays; the oblivious policy is strictly worse; the augmented state grows as |S||A|^M while the formalism's does not"
+    },
+    {
+      "id": "Q2",
+      "claim": "C4",
+      "text": "E2: under constant delay (M ∈ {5, 15, 25}, deterministic dynamics), does MethodX get higher return than the oblivious, augmented, Delayed-Q and augmentation-based random-delay baselines?"
+    },
+    {
+      "id": "Q3",
+      "claim": "C4",
+      "text": "E3: under stochastic delays (i.i.d. uniform, random walk, heavy-tailed; M ∈ {5, 15, 25}), and with sticky actions, does MethodX get higher return than the baselines?"
+    },
+    {
+      "id": "Q3b",
+      "claim": "C3",
+      "text": "E3 distribution shift: trained under i.i.d. uniform delays and evaluated under random-walk and heavy-tailed delays (and the reverse), how much does MethodX degrade?",
+      "hypothesis": "MethodX degrades little, because it only consumes the observed z_t"
+    },
+    {
+      "id": "Q4",
+      "claim": "C3",
+      "text": "E4: does wrapping another model-based tree-search learner (MuZero or Gumbel MuZero) improve it over its oblivious version?"
+    },
+    {
+      "id": "Q5",
+      "claim": "C3",
+      "text": "E5: which modifications account for the gains, and does observing z matter?",
+      "hypothesis": "The planned initial queue matters most at large M and on short episodes; storing the decided a_t instead of the executed action causes a large drop, since the model learns wrong dynamics"
+    },
+    {
+      "id": "Q6",
+      "claim": "C4",
+      "text": "E6: does MethodX retain the backbone's sample efficiency, and where does the learned model fail at large M?",
+      "hypothesis": "MethodX's learning curve has a similar shape to the delay-free backbone's and its retention ratio stays high throughout training, not only at 100k"
+    }
+  ],
+  "methodComponents": [
+    { "id": "M1", "name": "action and observed-delay queues (last M)" },
+    { "id": "M2", "name": "pending-queue resolver (effective decision times)", "ablation": "A1" },
+    {
+      "id": "M3",
+      "name": "future-state prediction: G applied z_t times from H(o_t)",
+      "ablation": "A2"
+    },
+    { "id": "M4", "name": "acting: MCTS from the predicted latent ŝ_{t+z_t}" },
+    { "id": "M5", "name": "planned initial queue (first M actions from s_0)", "ablation": "A3" },
+    {
+      "id": "M6",
+      "name": "replay correction: store the executed action a_{τ_t}",
+      "ablation": "A4"
+    },
+    { "id": "M7", "name": "policy loss with the MCTS target at ŝ_{t+z_t}", "ablation": "A5" }
+  ],
+  "baselines": [
+    {
+      "id": "B1",
+      "name": "Oblivious backbone",
+      "role": "ablated-self",
+      "why": "the same agent, acting on s_t and ignoring the delay",
+      "fairness": {
+        "sameBackbone": true,
+        "trainingBudget": "same 100k interaction budget, training steps, MCTS simulations and unroll length",
+        "tuning": { "space": "all backbone hyperparameters held fixed across methods" },
+        "notes": "given the observed z_t"
+      }
+    },
+    {
+      "id": "B2",
+      "name": "Augmented backbone (pending-action queue and delays fed as input)",
+      "role": "standard-recipe",
+      "why": "the principled-but-exponential alternative under identical machinery",
+      "fairness": {
+        "sameBackbone": true,
+        "trainingBudget": "same 100k interaction budget, training steps, MCTS simulations and unroll length",
+        "tuning": { "space": "all backbone hyperparameters held fixed across methods" },
+        "notes": "given the observed z_t"
+      }
+    },
+    {
+      "id": "B3",
+      "name": "Delayed-Q (Derman et al.)",
+      "role": "closest-prior",
+      "why": "the forward-model, constant-delay baseline",
+      "fairness": {
+        "trainingBudget": "same budget",
+        "notes": "given the observed z_t; under stochastic delays both a version that simulates z_t steps and one that always simulates M steps"
+      }
+    },
+    {
+      "id": "B4",
+      "name": "Augmentation-based random-delay method (DC/AC-style, adapted to discrete actions), if it can be run on Atari at reasonable cost",
+      "source": "reimplemented",
+      "fairness": {
+        "trainingBudget": "same budget",
+        "notes": "given the observed z_t"
+      }
+    },
+    {
+      "id": "B5",
+      "name": "Delay-free backbone",
+      "role": "oracle",
+      "why": "an upper-bound reference, not a competitor"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "D1",
+      "name": "Atari 100k, one fixed subset of games chosen before running (e.g. Pong, Breakout, Boxing, Freeway, Kangaroo, MsPacman, Seaquest, Qbert, RoadRunner, Asterix, ...; example 8 games)",
+      "role": "main",
+      "why": "the backbone's native benchmark; makes the 'sample efficiency retained' claim meaningful"
+    },
+    {
+      "id": "D2",
+      "name": "Atari 100k with sticky actions (p = 0.25), half the games",
+      "role": "stress",
+      "why": "standard Atari 100k is nearly deterministic; otherwise only the regime prior methods are said to be limited to is tested"
+    },
+    {
+      "id": "D3",
+      "name": "Tabular MDPs: random MDPs with |S| ≈ 10-50, |A| ≈ 2-4, plus one hand-built MDP where timing matters (M ≤ 4)"
+    }
+  ],
+  "metrics": [
+    { "name": "human-normalized score", "direction": "maximize" },
+    {
+      "name": "delay-retention ratio (score / delay-free backbone score on the same game)",
+      "direction": "maximize",
+      "why": "raw HNS is dominated by easy games once delays push everything toward random play"
+    },
+    { "name": "exact value of each policy class (tabular E1)", "direction": "maximize" },
+    {
+      "name": "latent prediction error ‖G^k(H(o_t), â) − H(o_{t+k})‖ for k ≤ M; reward-prediction error",
+      "direction": "minimize"
+    }
+  ],
+  "statistics": {
+    "seedsMain": 3,
+    "variance": "bootstrap_ci",
+    "test": "'significantly higher' requires non-overlapping CIs, or P(improvement) with its CI above 0.5",
+    "aggregate": "rliable: IQM and mean, stratified-bootstrap 95% CIs, probability of improvement, performance profiles",
+    "notes": "at least 3 seeds per (game, setting, method); 5 for the headline configuration"
+  },
+  "hyperparameters": {
+    "notes": "100k interaction budget, training steps, MCTS simulations, unroll length and all backbone hyperparameters held fixed across methods; no tuning stated"
+  },
+  "protocol": {
+    "checkpoint": "final checkpoint chosen by a pre-declared rule",
+    "evaluation": "under the same delay process used in training; 32 episodes per run",
+    "sharedByAllArms": true,
+    "notes": "one delay wrapper implemented once and shared across all methods; delays counted in agent steps after frame-skip; all delay processes exogenous with z_t observed; distribution-shift results reported separately",
+    "delayProcesses": [
+      "constant: z ≡ M, M ∈ {5, 15, 25}",
+      "stochastic i.i.d.: z_t ~ Uniform{0, ..., M}",
+      "stochastic persistent (network-like): z_{t+1} = clip(z_t + ξ, 0, M), ξ ∈ {−1, 0, +1}",
+      "stochastic heavy-tailed: mostly small delays with rare spikes to M",
+      "large-delay sweep (subset of games): M ∈ {0, 5, 15, 25, 35, 50}"
+    ]
+  },
+  "stages": [
+    {
+      "id": "S0",
+      "name": "checks before scaling: E0 first, then E1 and a 2-game pilot of E5 (stored-action ablation)",
+      "gate": "E0, E1 and the 2-game E5 pilot work before scaling"
+    },
+    { "id": "S1", "name": "scaled runs" }
+  ],
+  "matrix": [
+    {
+      "cell": "E0.sim-tests",
+      "stage": "S0",
+      "question": "Q0",
+      "purpose": "sanity",
+      "factors": {
+        "what": "unit and property tests of the delay wrapper and resolver for each delay distribution"
+      },
+      "cost": { "total": 0, "source": "estimate", "note": "unit tests, CPU only" },
+      "expect": "matches hand-worked traces; identity for M = 0 or z ≡ 0; resolver's predicted actions equal executed actions over 10^6 random steps"
+    },
+    {
+      "cell": "E1.tabular",
+      "stage": "S0",
+      "question": "Q1",
+      "purpose": "analysis",
+      "factors": {
+        "dataset": "D3",
+        "delay": "constant and stochastic, M ≤ 4",
+        "policies": "(1) V*_aug, (2) non-stationary Markov class with exact model, (3) MethodX point-prediction policy, (4) oblivious policy"
+      },
+      "cost": { "total": 0, "source": "estimate", "note": "CPU only" },
+      "expect": "(1) = (2) up to numerical error; (4) strictly worse"
+    },
+    {
+      "cell": "E5.pilot-stored-action",
+      "stage": "S0",
+      "question": "Q5",
+      "purpose": "pilot",
+      "factors": {
+        "ablation": "store the decided a_t instead of the executed a_{τ_t}",
+        "games": "2 games"
+      }
+    },
+    {
+      "cell": "E2.methodx",
+      "stage": "S1",
+      "question": "Q2",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "MethodX",
+        "delay": "constant, M ∈ {5, 15, 25}",
+        "dataset": "D1 (example 8 games)",
+        "dynamics": "deterministic"
+      },
+      "compareTo": ["E2.oblivious", "E2.augmented", "E2.delayed-q", "E2.dcac-style"],
+      "seeds": 3,
+      "cost": {
+        "total": 3456,
+        "source": "estimate",
+        "note": "72 heavy runs (8 games × 3 M × 3 seeds) × 2 GPUs × ~1 day"
+      }
+    },
+    {
+      "cell": "E2.oblivious",
+      "stage": "S1",
+      "question": "Q2",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "B1",
+        "delay": "constant, M ∈ {5, 15, 25}",
+        "dataset": "D1 (example 8 games)",
+        "dynamics": "deterministic"
+      },
+      "seeds": 3,
+      "cost": { "total": 3456, "source": "estimate", "note": "72 heavy runs × 2 GPUs × ~1 day" }
+    },
+    {
+      "cell": "E2.augmented",
+      "stage": "S1",
+      "question": "Q2",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "B2",
+        "delay": "constant, M ∈ {5, 15, 25}",
+        "dataset": "D1 (example 8 games)",
+        "dynamics": "deterministic"
+      },
+      "seeds": 3,
+      "cost": { "total": 3456, "source": "estimate", "note": "72 heavy runs × 2 GPUs × ~1 day" }
+    },
+    {
+      "cell": "E2.delayed-q",
+      "stage": "S1",
+      "question": "Q2",
+      "purpose": "main",
+      "factors": { "method": "B3", "delay": "constant, M ∈ {5, 15, 25}", "dataset": "D1" },
+      "expect": "much cheaper than a day per run; full grid affordable"
+    },
+    {
+      "cell": "E2.dcac-style",
+      "stage": "S1",
+      "question": "Q2",
+      "purpose": "main",
+      "factors": {
+        "method": "B4 (if it can be run on Atari at reasonable cost)",
+        "delay": "constant, M ∈ {5, 15, 25}",
+        "dataset": "D1"
+      }
+    },
+    {
+      "cell": "E2.delay-free",
+      "stage": "S1",
+      "question": "Q2",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "B5 delay-free backbone (reference)",
+        "dataset": "D1 (example 8 games)"
+      },
+      "seeds": 3,
+      "cost": {
+        "total": 1152,
+        "source": "estimate",
+        "note": "24 heavy runs (8 games × 3 seeds) × 2 GPUs × ~1 day"
+      }
+    },
+    {
+      "cell": "E3.methodx-rw",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "MethodX",
+        "delay": "random walk, M ∈ {5, 15, 25}",
+        "dataset": "D1 (example 8 games)"
+      },
+      "compareTo": ["E3.oblivious-rw", "E3.augmented-rw", "E3.delayed-q", "E3.dcac-style"],
+      "seeds": 3,
+      "cost": { "total": 3456, "source": "estimate", "note": "72 heavy runs × 2 GPUs × ~1 day" }
+    },
+    {
+      "cell": "E3.oblivious-rw",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "B1",
+        "delay": "random walk, M ∈ {5, 15, 25}",
+        "dataset": "D1 (example 8 games)"
+      },
+      "seeds": 3,
+      "cost": { "total": 3456, "source": "estimate", "note": "72 heavy runs × 2 GPUs × ~1 day" }
+    },
+    {
+      "cell": "E3.augmented-rw",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "B2",
+        "delay": "random walk, M ∈ {5, 15, 25}",
+        "dataset": "D1 (example 8 games)"
+      },
+      "seeds": 3,
+      "cost": { "total": 3456, "source": "estimate", "note": "72 heavy runs × 2 GPUs × ~1 day" }
+    },
+    {
+      "cell": "E3.methodx-iid-ht",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "main",
+      "tier": "should",
+      "factors": {
+        "method": "MethodX",
+        "delay": "i.i.d. uniform and heavy-tailed, M ∈ {5, 15, 25}",
+        "dataset": "D1 (example 8 games)"
+      },
+      "compareTo": ["E3.oblivious-iid-ht"],
+      "seeds": 3,
+      "cost": {
+        "total": 6912,
+        "source": "estimate",
+        "note": "144 heavy runs (half of the 288 stated for MethodX and Oblivious) × 2 GPUs × ~1 day"
+      }
+    },
+    {
+      "cell": "E3.oblivious-iid-ht",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "main",
+      "tier": "should",
+      "factors": {
+        "method": "B1",
+        "delay": "i.i.d. uniform and heavy-tailed, M ∈ {5, 15, 25}",
+        "dataset": "D1 (example 8 games)"
+      },
+      "seeds": 3,
+      "cost": { "total": 6912, "source": "estimate", "note": "144 heavy runs × 2 GPUs × ~1 day" }
+    },
+    {
+      "cell": "E3.augmented-iid-ht",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "main",
+      "factors": {
+        "method": "B2",
+        "delay": "i.i.d. uniform and heavy-tailed, M ∈ {5, 15, 25}",
+        "dataset": "D1"
+      }
+    },
+    {
+      "cell": "E3.delayed-q",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "main",
+      "factors": {
+        "method": "B3, simulating z_t steps and always simulating M steps",
+        "delay": "all three stochastic processes, M ∈ {5, 15, 25}",
+        "dataset": "D1"
+      }
+    },
+    {
+      "cell": "E3.dcac-style",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "main",
+      "factors": {
+        "method": "B4",
+        "delay": "all three stochastic processes, M ∈ {5, 15, 25}",
+        "dataset": "D1"
+      }
+    },
+    {
+      "cell": "E3.distribution-shift",
+      "stage": "S1",
+      "question": "Q3b",
+      "purpose": "generality",
+      "factors": {
+        "method": "MethodX (other methods not specified)",
+        "train": "i.i.d. uniform",
+        "evaluate": "random walk and heavy-tailed; and the reverse"
+      },
+      "expect": "MethodX degrades little"
+    },
+    {
+      "cell": "E3.sticky",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "generality",
+      "tier": "could",
+      "factors": {
+        "method": "same methods as E3",
+        "dataset": "D2 (half the games)",
+        "delay": "random walk, M = 15"
+      },
+      "cost": {
+        "source": "estimate",
+        "note": "included in the ≈150-250 heavy runs stated for T3 together"
+      }
+    },
+    {
+      "cell": "E2.large-delay-sweep",
+      "stage": "S1",
+      "question": "Q2",
+      "purpose": "sensitivity",
+      "tier": "could",
+      "factors": {
+        "delay": "M ∈ {0, 5, 15, 25, 35, 50} (T3 adds M = 35, 50)",
+        "dataset": "subset of D1"
+      },
+      "expect": "M = 0 confirms MethodX reduces exactly to the backbone",
+      "cost": {
+        "total": 12000,
+        "source": "estimate",
+        "note": "plan states ≈150-250 heavy runs for T3 together (large-delay sweep M=35/50, sticky actions, E4, 400k runs); upper end × 2 GPUs × ~1 day"
+      }
+    },
+    {
+      "cell": "E4.second-backbone",
+      "stage": "S1",
+      "question": "Q4",
+      "purpose": "generality",
+      "tier": "could",
+      "factors": {
+        "backbone": "MuZero or Gumbel MuZero",
+        "arm": "wrapped vs oblivious",
+        "dataset": "~5 games of D1",
+        "delay": "one constant and one stochastic setting at M = 15"
+      },
+      "cost": {
+        "source": "estimate",
+        "note": "included in the ≈150-250 heavy runs stated for T3 together"
+      }
+    },
+    {
+      "cell": "E5.ablations",
+      "stage": "S1",
+      "question": "Q5",
+      "purpose": "ablation",
+      "tier": "should",
+      "factors": {
+        "variant": "naive resolver; no future prediction; default/random initial queue; store decided a_t; policy target at s_t; delay hidden",
+        "dataset": "~6 games of D1",
+        "delay": "M = 15 random walk + one constant setting"
+      },
+      "seeds": 3,
+      "cost": {
+        "total": 10368,
+        "source": "estimate",
+        "note": "216 heavy runs (6 games × 6 ablations × 2 settings × 3 seeds) × 2 GPUs × ~1 day"
+      }
+    },
+    {
+      "cell": "E6.learning-curves",
+      "stage": "S1",
+      "question": "Q6",
+      "purpose": "analysis",
+      "factors": {
+        "what": "score vs environment steps for all methods, overlaid on the delay-free backbone"
+      }
+    },
+    {
+      "cell": "E6.model-error",
+      "stage": "S1",
+      "question": "Q6",
+      "purpose": "analysis",
+      "factors": {
+        "what": "latent prediction error and reward-prediction error for each k ≤ M, correlated with per-game performance drop"
+      }
+    },
+    {
+      "cell": "E6.400k",
+      "stage": "S1",
+      "question": "Q6",
+      "purpose": "analysis",
+      "tier": "could",
+      "factors": { "dataset": "2-3 games of D1", "budget": "400k environment steps (optional)" },
+      "cost": {
+        "source": "estimate",
+        "note": "included in the ≈150-250 heavy runs stated for T3 together"
+      }
+    },
+    {
+      "cell": "E6.overhead",
+      "stage": "S1",
+      "question": "Q6",
+      "purpose": "cost",
+      "factors": { "what": "wall-clock cost of z_t extra dynamics unrolls per acting step" }
+    }
+  ],
+  "ablations": [
+    {
+      "id": "A1",
+      "component": "M2",
+      "structure": "swap",
+      "levels": [
+        "naive resolver: assume a_{t−k} executes at t−k+z_{t−k}, ignoring overwrites/duplicates"
+      ],
+      "tests": "value of modification 2",
+      "cells": ["E5.ablations"]
+    },
+    {
+      "id": "A2",
+      "component": "M3",
+      "structure": "remove",
+      "levels": ["no future prediction: MCTS from H(o_t), replay correction kept"],
+      "tests": "value of modification 3",
+      "cells": ["E5.ablations"]
+    },
+    {
+      "id": "A3",
+      "component": "M5",
+      "structure": "swap",
+      "levels": ["default/random initial queue instead of planned"],
+      "tests": "value of modification 5",
+      "expect": "largest effect at large M and on short episodes",
+      "cells": ["E5.ablations"]
+    },
+    {
+      "id": "A4",
+      "component": "M6",
+      "structure": "swap",
+      "levels": ["store the decided a_t instead of the executed a_{τ_t}"],
+      "tests": "value of modification 6",
+      "expect": "a large drop, since the model learns wrong dynamics",
+      "cells": ["E5.ablations", "E5.pilot-stored-action"]
+    },
+    {
+      "id": "A5",
+      "component": "M7",
+      "structure": "swap",
+      "levels": ["policy target computed at s_t instead of ŝ_{t+z}"],
+      "tests": "value of modification 7",
+      "cells": ["E5.ablations"]
+    },
+    {
+      "id": "A6",
+      "structure": "remove",
+      "levels": ["delay hidden: agent always predicts M steps ahead"],
+      "tests": "empirical side of C2 (observing z matters)",
+      "cells": ["E5.ablations"]
+    }
+  ],
+  "costMeasurements": [
+    {
+      "id": "K1",
+      "what": ["wall-clock overhead of z_t extra dynamics unrolls per acting step"],
+      "methods": ["MethodX"],
+      "cell": "E6.overhead"
+    }
+  ],
+  "analysis": [
+    {
+      "id": "N1",
+      "kind": "mechanism-probe",
+      "question": "Gap between the non-stationary Markov optimum and MethodX's point-prediction policy under stochastic transitions",
+      "cells": ["E1.tabular"]
+    },
+    {
+      "id": "N2",
+      "kind": "mechanism-probe",
+      "question": "Does per-game latent prediction error at k = M correlate with the per-game performance drop (where does the method fail at large M)?",
+      "cells": ["E6.model-error"]
+    }
+  ],
+  "decisionPoints": [
+    {
+      "after": "S0",
+      "if": "the E1 gap between the Markov-class optimum and the point-prediction policy is non-zero",
+      "then": "word C2 as a statement about the policy class and present MethodX as an approximation to it"
+    },
+    {
+      "after": "pre-launch compute check",
+      "if": "compute doesn't allow E4",
+      "then": "weaken C3 to 'designed to be pluggable'"
+    },
+    {
+      "after": "pre-launch compute check",
+      "if": "the budget is tight",
+      "then": "run the Augmented backbone only at M ∈ {5, 15} and present its failure at large M as evidence rather than leaving the cell empty"
+    },
+    {
+      "after": "pre-launch compute check",
+      "if": "T1 takes too long for the available GPU pairs (about two months with 8 pairs)",
+      "then": "cut to 6 games and M ∈ {5, 25} first"
+    }
+  ],
+  "risks": [
+    {
+      "text": "The policy class the theorem refers to may not be what MethodX computes when dynamics are stochastic",
+      "mitigation": "E1 item 3 measures the gap"
+    },
+    {
+      "text": "Atari 100k is nearly deterministic",
+      "mitigation": "sticky-actions runs in E3"
+    },
+    {
+      "text": "Baseline handicapping",
+      "mitigation": "every baseline observes z_t and uses the same budget; stated explicitly"
+    },
+    {
+      "text": "Evaluation under a different delay than training",
+      "mitigation": "report the distribution-shift results separately (E3)"
+    },
+    {
+      "text": "Cherry-picked games",
+      "mitigation": "fix the subset in advance and report per-game tables in the appendix"
+    }
+  ]
+}

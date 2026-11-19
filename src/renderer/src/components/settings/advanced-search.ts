@@ -9,7 +9,7 @@ export const getAdvancedPaneSearchEntries = createLocalizedCatalog((): SettingsS
   {
     title: translate(
       'auto.components.settings.advanced.search.11eea3da72',
-      'HTTP/1.1 Compatibility'
+      'HTTP/1.1 compatibility'
     ),
     description: translate(
       'auto.components.settings.advanced.search.585f56fae0',
@@ -55,7 +55,7 @@ function findEntry(title: string): SettingsSearchEntry {
 export function getAdvancedSearchEntry() {
   return {
     http1Compatibility: findEntry(
-      translate('auto.components.settings.advanced.search.11eea3da72', 'HTTP/1.1 Compatibility')
+      translate('auto.components.settings.advanced.search.11eea3da72', 'HTTP/1.1 compatibility')
     )
   } as const
 }

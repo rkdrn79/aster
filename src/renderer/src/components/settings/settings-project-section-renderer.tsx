@@ -39,7 +39,7 @@ export function renderProjectSettingsSections(context: SettingsRenderContext): R
         id={repoSectionId}
         title={translate(
           'auto.components.settings.Settings.3bf149e873',
-          'Project Settings > {{value0}}',
+          'Project settings > {{value0}}',
           { value0: settingsProject.checkoutLabel ?? project.displayName }
         )}
         description={repo.path}

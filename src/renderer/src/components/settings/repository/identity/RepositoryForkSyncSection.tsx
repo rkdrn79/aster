@@ -160,7 +160,7 @@ export function RepositoryForkSyncSection({
     <SearchableSetting
       title={translate(
         'auto.components.settings.RepositoryForkSyncSection.title',
-        'Keep Fork Up to Date'
+        'Keep fork up to date'
       )}
       description={translate(
         'auto.components.settings.RepositoryForkSyncSection.description',
@@ -199,7 +199,7 @@ export function RepositoryForkSyncSection({
           <div className="text-sm font-semibold">
             {translate(
               'auto.components.settings.RepositoryForkSyncSection.title',
-              'Keep Fork Up to Date'
+              'Keep fork up to date'
             )}
           </div>
           <p className="text-xs text-muted-foreground">
@@ -227,7 +227,7 @@ export function RepositoryForkSyncSection({
           <RefreshCw className={syncing ? 'size-3.5 animate-spin' : 'size-3.5'} />
           {syncing
             ? translate('auto.components.settings.RepositoryForkSyncSection.syncing', 'Syncing')
-            : translate('auto.components.settings.RepositoryForkSyncSection.syncNow', 'Sync Now')}
+            : translate('auto.components.settings.RepositoryForkSyncSection.syncNow', 'Sync now')}
         </Button>
       </div>
       <SettingsSegmentedControl<ForkSyncMode>
@@ -248,7 +248,7 @@ export function RepositoryForkSyncSection({
             value: 'safe-auto',
             label: translate(
               'auto.components.settings.RepositoryForkSyncSection.safeAuto',
-              'Safe Auto'
+              'Safe auto'
             ),
             disabled: syncing
           },

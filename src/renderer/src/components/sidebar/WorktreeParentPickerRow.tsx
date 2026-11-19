@@ -38,7 +38,7 @@ export const WorktreeParentPickerRow = React.memo(function WorktreeParentPickerR
         </div>
         <div className="mt-1 flex min-w-0 items-center gap-1.5 text-[11px] leading-none text-muted-foreground">
           {repo ? (
-            <span className="inline-flex min-w-0 max-w-[8rem] shrink-0 items-center gap-1 rounded border border-border bg-accent px-1.5 py-0.5 text-[10px] font-semibold text-foreground">
+            <span className="inline-flex min-w-0 max-w-[8rem] shrink-0 items-center gap-1 rounded border border-border bg-accent px-1.5 py-0.5 text-[10px] font-medium text-foreground">
               <RepoBadgeMark color={repo.badgeColor} />
               <span className="truncate lowercase">{repo.displayName}</span>
             </span>

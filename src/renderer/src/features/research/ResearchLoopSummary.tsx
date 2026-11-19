@@ -31,7 +31,7 @@ function LoopState({ progress }: { progress: ResearchLoopProgress }): React.JSX.
       ? researchRelativeTime(progress.stoppedAt)
       : null
   return (
-    <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+    <span className="inline-flex items-center gap-2 font-medium text-foreground">
       <span
         aria-hidden
         className={cn(
@@ -70,9 +70,7 @@ export function ResearchLoopSummary({
       className="space-y-3 rounded-lg border border-border bg-card p-4"
     >
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <h2 className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Research loop
-        </h2>
+        <h2 className="text-xs font-medium text-muted-foreground">Research loop</h2>
         <span className="flex items-center gap-2 text-xs text-muted-foreground">
           {budget
             ? researchLoopBudgetText(budget, progress.hoursElapsed ?? budget.hoursElapsed)
@@ -107,7 +105,7 @@ export function ResearchLoopSummary({
             >
               <span
                 className={cn(
-                  'flex items-center gap-1.5 text-muted-foreground',
+                  'flex items-center gap-2 text-muted-foreground',
                   entry.kind === 'decision' && 'text-foreground'
                 )}
               >

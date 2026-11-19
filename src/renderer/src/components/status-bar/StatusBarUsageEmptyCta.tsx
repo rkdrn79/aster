@@ -67,7 +67,7 @@ export function StatusBarUsageEmptyCta({
       <HoverCardContent side="top" align="start" sideOffset={8} className="w-[260px] p-2.5">
         <div className="space-y-2 text-xs leading-[1.45]">
           <div className="flex items-start justify-between gap-2">
-            <div className="font-semibold text-foreground">
+            <div className="font-medium text-foreground">
               {remoteOwner
                 ? translate(
                     'auto.components.status.bar.StatusBarUsageEmptyCta.remoteTitle',

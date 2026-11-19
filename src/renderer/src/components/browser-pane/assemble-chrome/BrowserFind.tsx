@@ -176,7 +176,7 @@ export default function BrowserFind({
         onChange={(e) => setQuery(e.target.value)}
         placeholder={translate(
           'auto.components.browser.pane.BrowserFind.636a69cd66',
-          'Find in page...'
+          'Find in page'
         )}
         className="min-w-0 flex-1 border-none bg-transparent text-sm text-white outline-none placeholder:text-zinc-500"
       />

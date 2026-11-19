@@ -27,7 +27,7 @@ export function switchSortToManualAfterDrop(): void {
   })
   const previousLabel = SORT_OPTIONS.find((option) => option.id === previousSortBy)?.label
   toast.info(
-    translate('auto.components.sidebar.manualSortSwitch.title', 'Sort changed to Manual'),
+    translate('auto.components.sidebar.manualSortSwitch.title', 'Sort changed to manual'),
     {
       id: MANUAL_SORT_SWITCH_TOAST_ID,
       description: translate(

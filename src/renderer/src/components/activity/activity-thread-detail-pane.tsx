@@ -43,7 +43,7 @@ export function ActivityThreadDetailPane({
               <div className="flex min-w-0 items-start gap-2">
                 <span className="inline-flex shrink-0 items-start gap-1">
                   <ThreadAgentStateIndicator thread={selectedThread} />
-                  <span className="inline-flex shrink-0 pt-[3px]">
+                  <span className="inline-flex shrink-0 pt-0.5">
                     <AgentTypeIcon agentType={selectedThread.agentType} size={16} />
                   </span>
                 </span>

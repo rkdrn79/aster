@@ -7,7 +7,9 @@ import {
   nextSequentialId,
   type RebuttalPromise
 } from '../../../../research-harness/research-rebuttal-model.mjs'
+import { cn } from '@/lib/utils'
 import { ResearchEmptyState } from './ResearchPageLayout'
+import { RAISED_CARD } from './research-surface-classes'
 import type { RebuttalSnapshot } from './research-rebuttal-snapshot'
 
 type Props = {
@@ -85,12 +87,12 @@ export function ResearchRebuttalPromises({
       ) : null}
       {promises.length === 0 ? (
         <ResearchEmptyState icon={ListChecks} title="No promises yet">
-          The agent records them while drafting, or add one above.
+          The agent records them while drafting, or add one above
         </ResearchEmptyState>
       ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+        <ul className={cn(RAISED_CARD, 'divide-y divide-border')}>
           {promises.map((promise) => (
-            <li key={promise.id} className="flex items-start gap-2.5 px-3 py-2">
+            <li key={promise.id} className="flex items-start gap-2 px-3 py-2">
               <Checkbox
                 className="mt-0.5"
                 checked={promise.done}

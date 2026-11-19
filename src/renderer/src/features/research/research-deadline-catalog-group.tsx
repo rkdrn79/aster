@@ -35,14 +35,14 @@ function ConferenceRow({
         disabled={saving}
         title={summary.fullName ?? undefined}
         className={cn(
-          'mb-1 flex w-full items-start gap-2 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60',
-          isTracked && 'bg-accent'
+          'mb-1 flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left transition-[background-color,box-shadow] duration-(--duration-fast) hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60',
+          isTracked && 'bg-raised shadow-raised hover:bg-raised'
         )}
         onClick={() => onToggle(summary.series)}
       >
         <span
           className={cn(
-            'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-sm border border-border',
+            'mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border border-border transition-colors duration-(--duration-fast)',
             isTracked && 'border-primary bg-primary text-primary-foreground'
           )}
           aria-hidden
@@ -50,7 +50,7 @@ function ConferenceRow({
           {isTracked ? <Check className="size-3" /> : <Plus className="size-3 opacity-50" />}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="flex items-baseline gap-1.5">
+          <span className="flex items-baseline gap-2">
             <span className="truncate text-sm font-medium">{summary.title}</span>
             <span className="text-xs text-muted-foreground">{summary.latestYear}</span>
             {rank ? (
@@ -104,16 +104,16 @@ export function ResearchDeadlineCatalogGroup({
           <CollapsibleTrigger asChild>
             <button
               type="button"
-              className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md px-1 py-1 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-1 text-left transition-colors duration-(--duration-fast) hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <ChevronRight
                 className={cn(
-                  'size-3.5 shrink-0 text-muted-foreground transition-transform',
+                  'size-4 shrink-0 text-muted-foreground transition-transform duration-(--duration-base) ease-out-quint motion-reduce:transition-none',
                   open && 'rotate-90'
                 )}
                 aria-hidden
               />
-              <span className="truncate text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <span className="truncate text-xs font-medium text-muted-foreground">
                 {group.label}
               </span>
               <span className="shrink-0 text-2xs tabular-nums text-muted-foreground">

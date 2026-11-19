@@ -4,10 +4,10 @@ import { figureElement } from './research-figures-model.mjs'
 import { figureStyle, textInk } from './research-figures-style.mjs'
 import {
   PAPER_FONT,
-  TEXT_BASELINE,
   TEXT_LINE_HEIGHT,
   measureText,
-  missingGlyphs
+  missingGlyphs,
+  textBaseline
 } from './research-figures-text.mjs'
 import { MATH_SYMBOLS, MATH_SUBSTITUTES } from './research-figures-symbols.mjs'
 
@@ -53,7 +53,7 @@ export function makeText(spec, random = Math.random) {
       : (spec.x ?? 0) - (align === 'center' ? size.width / 2 : align === 'right' ? size.width : 0)
   const y =
     spec.baseline !== undefined
-      ? spec.baseline - (TEXT_BASELINE + (lineHeight - TEXT_LINE_HEIGHT) / 2) * fontSize
+      ? spec.baseline - (textBaseline(family) + (lineHeight - TEXT_LINE_HEIGHT) / 2) * fontSize
       : spec.cy !== undefined
         ? spec.cy - height / 2
         : (spec.y ?? 0)
@@ -242,7 +242,7 @@ function texImage(spec, run, x, baseline, random) {
       scale: [1, 1],
       crop: null,
       strokeColor: 'transparent',
-      customData: { asterMath: run.math ?? run.tex, asterTex: true },
+      customData: { asterMath: run.math ?? run.tex, asterTex: true, asterTexSize: run.size },
       frameId: spec.frame ?? null,
       groupIds: [spec.group ?? `${spec.id}-group`]
     },
@@ -306,11 +306,8 @@ export function makeRuns(spec, runs, random = Math.random) {
     spec.cx !== undefined
       ? spec.cx - total / 2
       : (spec.x ?? 0) - (align === 'center' ? total / 2 : align === 'right' ? total : 0)
-  const baseline =
-    spec.baseline ??
-    (spec.cy !== undefined
-      ? spec.cy + (TEXT_BASELINE - TEXT_LINE_HEIGHT / 2) * base
-      : (spec.y ?? 0) + TEXT_BASELINE * base)
+  const top = spec.cy !== undefined ? spec.cy - (TEXT_LINE_HEIGHT / 2) * base : (spec.y ?? 0)
+  const baseline = spec.baseline ?? top + textBaseline(style.fontFamily) * base
   const elements = []
   for (const run of placed) {
     if (run.tex !== undefined && style.renderTex) {
@@ -621,9 +618,10 @@ export function measureLines(lines, size, style = undefined) {
     const tex = line
       .filter((run) => run.tex !== undefined && style?.renderTex)
       .map((run) => style.renderTex(run.tex, run.size ?? size))
-    const ascent = Math.max(TEXT_BASELINE * base, ...tex.map((box) => box.ascent + 0.1 * size))
+    const lead = textBaseline(style?.fontFamily)
+    const ascent = Math.max(lead * base, ...tex.map((box) => box.ascent + 0.1 * size))
     const descent = Math.max(
-      (TEXT_LINE_HEIGHT - TEXT_BASELINE) * base,
+      (TEXT_LINE_HEIGHT - lead) * base,
       ...tex.map((box) => box.descent + 0.1 * size)
     )
     return { base, ascent, height: ascent + descent }

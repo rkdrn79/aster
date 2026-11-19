@@ -134,7 +134,7 @@ function RuntimeRepairForm({
         <DialogDescription>
           {translate(
             'auto.components.settings.RuntimeRepairDialog.descriptionShareComputer',
-            '{{name}} no longer accepts this computer. On {{name}}, open Settings → Remote Aster Servers → Share this computer, create a link for another Aster, then paste it here.',
+            '{{name}} no longer accepts this computer. On {{name}}, open Settings → Remote Aster servers → Share this computer, create a link for another Aster, then paste it here.',
             { name }
           )}
         </DialogDescription>

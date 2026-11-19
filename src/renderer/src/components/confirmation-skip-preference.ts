@@ -35,7 +35,7 @@ export function persistConfirmationSkipPreference({
           ),
           duration: 8000,
           action: {
-            label: translate('auto.components.confirmation.skip.openSettings', 'Open Settings'),
+            label: translate('auto.components.confirmation.skip.openSettings', 'Open settings'),
             onClick: () => {
               openSettingsPage()
               openSettingsTarget({ pane: 'general', repoId: null, sectionId: settingsSectionId })

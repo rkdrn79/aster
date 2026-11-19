@@ -53,7 +53,7 @@ export function developerPermissionStatusClass(
   status: DeveloperPermissionStatus | undefined
 ): string {
   if (status === 'granted' || status === 'ready') {
-    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+    return 'border-status-success-border bg-status-success-background text-status-success'
   }
   if (status === 'denied' || status === 'restricted') {
     return 'border-destructive/30 bg-destructive/10 text-destructive'

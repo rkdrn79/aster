@@ -21,7 +21,7 @@ export function EditorFontFamilySetting({
     <SearchableSetting
       title={translate(
         'auto.components.settings.EditorFontFamilySetting.title',
-        'Editor Font Family'
+        'Editor font family'
       )}
       description={translate(
         'auto.components.settings.EditorFontFamilySetting.description',
@@ -32,7 +32,7 @@ export function EditorFontFamilySetting({
       <SettingsRow
         label={translate(
           'auto.components.settings.EditorFontFamilySetting.title',
-          'Editor Font Family'
+          'Editor font family'
         )}
         description={translate(
           'auto.components.settings.EditorFontFamilySetting.description',

@@ -54,7 +54,7 @@ export function GitHubIssueLabelSelector({
                 {selectedLabels.map((label) => (
                   <span
                     key={label}
-                    className="rounded-full border border-border/50 bg-muted/40 px-2 py-0.5 text-[11px] font-medium"
+                    className="rounded-sm border border-border/50 bg-muted/40 px-2 py-0.5 text-[11px] font-medium"
                   >
                     {label}
                   </span>
@@ -69,7 +69,7 @@ export function GitHubIssueLabelSelector({
             <div className="px-2 py-2 text-xs text-destructive">{error}</div>
           ) : labels.length === 0 ? (
             <div className="px-2 py-2 text-xs text-muted-foreground">
-              {translate('auto.components.TaskPage.b36f4bf9de', 'No labels.')}
+              {translate('auto.components.TaskPage.b36f4bf9de', 'No labels')}
             </div>
           ) : (
             labels.map((label) => (
@@ -165,7 +165,7 @@ export function GitHubIssueAssigneeSelector({
             <div className="px-2 py-2 text-xs text-destructive">{error}</div>
           ) : assignees.length === 0 ? (
             <div className="px-2 py-2 text-xs text-muted-foreground">
-              {translate('auto.components.TaskPage.edf4bc4135', 'No assignable users.')}
+              {translate('auto.components.TaskPage.edf4bc4135', 'No assignable users')}
             </div>
           ) : (
             assignees.map((assignee) => {

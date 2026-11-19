@@ -1,6 +1,13 @@
 // Text the way Excalidraw lays it out in the paper font: widths from Liberation Sans' own advances.
 import { LIBERATION_ADVANCES, LIBERATION_UNITS_PER_EM } from './research-figures-font-metrics.mjs'
 import { NUNITO_ADVANCES, NUNITO_UNITS_PER_EM } from './research-figures-font-nunito.mjs'
+import {
+  LMROMAN_ADVANCES,
+  LMROMAN_UNITS_PER_EM,
+  TERMES_ADVANCES,
+  TERMES_UNITS_PER_EM
+} from './research-figures-font-serif.mjs'
+import { PAPER_SERIF, PAPER_SERIF_BASELINE } from './research-figures-paper-fonts.mjs'
 
 export const TEXT_LINE_HEIGHT = 1.25
 /** First baseline below a text element's top, in font sizes: half the 1.25 line box's leading
@@ -12,6 +19,11 @@ export const BOUND_TEXT_PADDING = 5
 /** Excalidraw's font families the kit draws with: Liberation Sans (9) and Nunito (6). */
 export const PAPER_FONT = 9
 export const ROUNDED_FONT = 6
+/** Cascadia Code (3), Excalidraw's monospace: code cards only; every glyph 1200/2048 em wide. */
+export const MONO_FONT = 3
+const MONO_ADVANCE = 1200 / 2048
+/** Cascadia has no CJK or emoji: those fall back to another font, wider than a column. */
+const monoHas = (code) => code < 0x2e80
 
 const tableOf = (runs) => {
   const table = new Map()
@@ -23,10 +35,22 @@ const tableOf = (runs) => {
 const advances = tableOf(LIBERATION_ADVANCES)
 const FONTS = {
   [PAPER_FONT]: { advances, unitsPerEm: LIBERATION_UNITS_PER_EM },
-  [ROUNDED_FONT]: { advances: tableOf(NUNITO_ADVANCES), unitsPerEm: NUNITO_UNITS_PER_EM }
+  [ROUNDED_FONT]: { advances: tableOf(NUNITO_ADVANCES), unitsPerEm: NUNITO_UNITS_PER_EM },
+  [PAPER_SERIF.cm.id]: { advances: tableOf(LMROMAN_ADVANCES), unitsPerEm: LMROMAN_UNITS_PER_EM },
+  [PAPER_SERIF.times.id]: { advances: tableOf(TERMES_ADVANCES), unitsPerEm: TERMES_UNITS_PER_EM }
+}
+
+/** The first baseline below a text's top in font sizes: the paper look's serifs sit higher. */
+export function textBaseline(family = PAPER_FONT) {
+  return family === PAPER_SERIF.cm.id || family === PAPER_SERIF.times.id
+    ? PAPER_SERIF_BASELINE
+    : TEXT_BASELINE
 }
 
 function lineWidth(line, fontSize, family = PAPER_FONT) {
+  if (family === MONO_FONT) {
+    return Array.from(line).length * MONO_ADVANCE * fontSize
+  }
   const font = FONTS[family] ?? FONTS[PAPER_FONT]
   let units = 0
   for (const char of line) {
@@ -35,7 +59,7 @@ function lineWidth(line, fontSize, family = PAPER_FONT) {
   return (units * fontSize) / font.unitsPerEm
 }
 
-/** The size Excalidraw gives text (fontFamily 9, or 6): the widest line, 1.25 × size per line. */
+/** The size Excalidraw gives text (9, 6 or a paper serif): the widest line, 1.25 × size per line. */
 export function measureText(text, fontSize = 16, family = PAPER_FONT) {
   const lines = String(text).split('\n')
   return {
@@ -48,6 +72,14 @@ export function measureText(text, fontSize = 16, family = PAPER_FONT) {
 /** Characters the paper font has no glyph for; they print in a fallback font or as boxes. */
 export function missingGlyphs(text, family = PAPER_FONT) {
   const missing = new Set()
+  if (family === MONO_FONT) {
+    for (const char of String(text)) {
+      if (!monoHas(char.codePointAt(0))) {
+        missing.add(char)
+      }
+    }
+    return [...missing]
+  }
   const table = (FONTS[family] ?? FONTS[PAPER_FONT]).advances
   for (const char of String(text)) {
     const code = char.codePointAt(0)
@@ -90,7 +122,8 @@ export function inkHeight(text, fontSize = 16, lineHeight = TEXT_LINE_HEIGHT) {
 export function glyphBounds(element) {
   const size = element.fontSize ?? 16
   const lineHeight = element.lineHeight ?? TEXT_LINE_HEIGHT
-  const baseline = element.y + (TEXT_BASELINE + (lineHeight - TEXT_LINE_HEIGHT) / 2) * size
+  const baseline =
+    element.y + (textBaseline(element.fontFamily) + (lineHeight - TEXT_LINE_HEIGHT) / 2) * size
   const top = baseline - INK_ASCENT * size
   const bottom = top + inkHeight(element.text ?? '', size, lineHeight)
   return {

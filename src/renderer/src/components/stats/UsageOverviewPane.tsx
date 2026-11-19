@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react'
-import { Activity, CalendarDays, Coins, DatabaseZap, RefreshCw, Sparkles } from 'lucide-react'
+import { Activity, CalendarDays, Coins, DatabaseZap, Hash, RefreshCw } from 'lucide-react'
 import { useAppStore } from '../../store'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -120,7 +120,7 @@ export function UsageOverviewPane(): React.JSX.Element {
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-foreground">
-              {translate('auto.components.stats.UsageOverviewPane.c760c481c5', 'Usage Overview')}
+              {translate('auto.components.stats.UsageOverviewPane.c760c481c5', 'Usage overview')}
             </h3>
             <p className="mt-1 text-xs text-muted-foreground">
               {formatUpdatedAt(overview.lastUpdatedAt)}
@@ -225,7 +225,7 @@ export function UsageOverviewPane(): React.JSX.Element {
                   'Total tokens'
                 )}
                 value={formatUsageTokens(overview.totalTokens)}
-                icon={<Sparkles className="size-4" />}
+                icon={<Hash className="size-4" />}
               />
               <StatCard
                 label={translate('auto.components.stats.UsageOverviewPane.0eaf937335', 'Est. cost')}

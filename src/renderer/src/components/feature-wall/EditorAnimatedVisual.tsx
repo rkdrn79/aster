@@ -16,14 +16,7 @@ const KBD_CLASS_DOC =
 
 function CursorIcon(): JSX.Element {
   return (
-    <svg
-      width={16}
-      height={16}
-      viewBox="0 0 16 16"
-      aria-hidden
-      focusable="false"
-      className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]"
-    >
+    <svg width={16} height={16} viewBox="0 0 16 16" aria-hidden focusable="false">
       <path
         d="M2 1.5 L2 12 L5 9 L7.2 14.5 L9.5 13.6 L7.3 8 L11.5 8 Z"
         fill="#fff"
@@ -175,7 +168,7 @@ export function EditorAnimatedVisual(props: { reducedMotion: boolean }): JSX.Ele
         >
           <div
             data-slash-show="all"
-            className="px-2 pb-1 pt-1.5 text-[9.5px] font-bold uppercase tracking-[0.06em] text-muted-foreground"
+            className="px-2 pb-1 pt-1.5 text-[9.5px] font-medium text-muted-foreground"
           >
             {translate('auto.components.feature.wall.EditorAnimatedVisual.1fb29ad710', 'Headings')}
           </div>
@@ -201,7 +194,7 @@ export function EditorAnimatedVisual(props: { reducedMotion: boolean }): JSX.Ele
           <div data-slash-show="all" className="my-1 h-px bg-foreground/[0.08]" />
           <div
             data-slash-show="all"
-            className="px-2 pb-1 pt-1.5 text-[9.5px] font-bold uppercase tracking-[0.06em] text-muted-foreground"
+            className="px-2 pb-1 pt-1.5 text-[9.5px] font-medium text-muted-foreground"
           >
             {translate(
               'auto.components.feature.wall.EditorAnimatedVisual.abbdeea15d',
@@ -220,7 +213,7 @@ export function EditorAnimatedVisual(props: { reducedMotion: boolean }): JSX.Ele
             iconKey="list"
             label={translate(
               'auto.components.feature.wall.EditorAnimatedVisual.37fa4948ce',
-              'Bullet List'
+              'Bullet list'
             )}
             shortcut="-"
           />
@@ -231,7 +224,7 @@ export function EditorAnimatedVisual(props: { reducedMotion: boolean }): JSX.Ele
             iconKey="code"
             label={translate(
               'auto.components.feature.wall.EditorAnimatedVisual.8268b2376b',
-              'Code Block'
+              'Code block'
             )}
             shortcut="```"
           />
@@ -276,7 +269,7 @@ export function EditorAnimatedVisual(props: { reducedMotion: boolean }): JSX.Ele
       <style>
         {translate(
           'auto.components.feature.wall.EditorAnimatedVisual.e16479c1c5',
-          '[data-slash-menu] [data-slash-row].slash-active { background: rgba(24,24,27,0.07); box-shadow: inset 0 0 0 1px rgba(24,24,27,0.06); } [data-md-active-line][data-role="active"] { color: rgb(113 113 122); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; } [data-md-active-line][data-role="h1"] { color: inherit; font-family: inherit; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; margin-top: 6px; } [data-md-caret] { display: inline-block; width: 1.5px; height: 1em; background: currentColor; vertical-align: -2px; margin-left: 1px; animation: md-caret-blink 1.05s steps(1) infinite; } @keyframes md-caret-blink { 0%, 50% { opacity: 1 } 51%, 100% { opacity: 0 } } @keyframes md-block-in { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: none; } } @keyframes md-cursor-ripple { 0% { transform: scale(0.4); opacity: 0.9; } 100% { transform: scale(1.4); opacity: 0; } } [data-clicking="1"] [data-cursor-ripple] { animation: md-cursor-ripple 460ms ease-out forwards; }'
+          '[data-slash-menu] [data-slash-row].slash-active { background: rgba(24,24,27,0.07); box-shadow: inset 0 0 0 1px rgba(24,24,27,0.06); } [data-md-active-line][data-role="active"] { color: rgb(113 113 122); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; } [data-md-active-line][data-role="h1"] { color: inherit; font-family: inherit; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; margin-top: 6px; } [data-md-caret] { display: inline-block; width: 1.5px; height: 1em; background: currentColor; vertical-align: -2px; margin-left: 1px; animation: md-caret-blink 1.05s steps(1) infinite; } @keyframes md-caret-blink { 0%, 50% { opacity: 1 } 51%, 100% { opacity: 0 } } @keyframes md-block-in { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: none; } } @keyframes md-cursor-ripple { 0% { transform: scale(0.4); opacity: 0.9; } 100% { transform: scale(1.4); opacity: 0; } } [data-clicking="1"] [data-cursor-ripple] { animation: md-cursor-ripple 460ms ease-out forwards; }'
         )}
       </style>
     </div>
@@ -285,7 +278,7 @@ export function EditorAnimatedVisual(props: { reducedMotion: boolean }): JSX.Ele
 
 function DocTitle(props: { children: ReactNode }): JSX.Element {
   return (
-    <div className="mb-2.5 text-[22px] font-bold leading-[1.15] tracking-[-0.01em]">
+    <div className="mb-2.5 text-[22px] font-semibold leading-[1.15] tracking-[-0.01em]">
       {props.children}
     </div>
   )

@@ -62,7 +62,7 @@ function ActivePill({
   onClear: () => void
 }): React.JSX.Element {
   return (
-    <span className="inline-flex h-6 items-center gap-1 rounded-full border border-border/60 bg-muted/50 pl-2 pr-1 text-[11px] text-foreground">
+    <span className="inline-flex h-6 items-center gap-1 rounded-md border border-border/60 bg-muted/50 pl-2 pr-1 text-[11px] text-foreground">
       <span className="text-muted-foreground">{label}:</span>
       <span className="max-w-[160px] truncate font-medium">{value}</span>
       {partial ? (
@@ -95,7 +95,7 @@ function ActivePill({
           { value0: label }
         )}
         onClick={onClear}
-        className="rounded-full p-0.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+        className="rounded-sm p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
         <X className="size-3" />
       </button>
@@ -332,9 +332,7 @@ export default function LinearIssueAttributeFilterDropdowns({
               'Filters'
             )}
             {activeCount > 0 ? (
-              <span className="rounded-full bg-muted px-1.5 text-[10px] font-medium text-muted-foreground">
-                {activeCount}
-              </span>
+              <span className="text-xs tabular-nums text-muted-foreground">{activeCount}</span>
             ) : null}
           </Button>
         </PopoverTrigger>
@@ -389,7 +387,7 @@ export default function LinearIssueAttributeFilterDropdowns({
                 <div className="border-t border-border/50 p-2">
                   <button
                     type="button"
-                    className="w-full rounded-md px-2 py-1.5 text-left text-xs text-muted-foreground transition hover:bg-muted/50 hover:text-foreground"
+                    className="w-full rounded-md px-2 py-1.5 text-left text-xs text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
                     onClick={() => onChange(emptyLinearIssueAttributeFilter())}
                   >
                     {translate(

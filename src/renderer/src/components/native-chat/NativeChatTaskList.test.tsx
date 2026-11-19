@@ -28,8 +28,8 @@ describe('NativeChatTaskList', () => {
     expect(screen.getByText('Writing').closest('li')).toHaveClass('text-chat-foreground-strong')
     expect(screen.getByText('Test')).toBeInTheDocument()
     expect(screen.getByLabelText('1 of 3 tasks completed')).toHaveTextContent('1/3')
-    for (const glyph of ['circle', 'circle-dot', 'circle-check']) {
-      expect(container.querySelector(`.lucide-${glyph}`)).not.toBeNull()
+    for (const glyph of ['pending', 'running', 'done']) {
+      expect(container.querySelector(`[data-step-icon="${glyph}"]`)).not.toBeNull()
     }
     expect(screen.getByText('In progress:')).toHaveClass('sr-only')
   })

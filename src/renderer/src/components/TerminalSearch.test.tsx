@@ -46,7 +46,7 @@ function renderSearch(searchAddon: SearchAddon, query = ''): ReturnType<typeof r
     />
   )
   if (query) {
-    fireEvent.change(view.getByPlaceholderText('Search...'), { target: { value: query } })
+    fireEvent.change(view.getByPlaceholderText('Search'), { target: { value: query } })
   }
   return view
 }
@@ -97,7 +97,7 @@ describe('TerminalSearch cleanup', () => {
     vi.mocked(addon.clearDecorations).mockClear()
     vi.mocked(addon.findNext).mockClear()
 
-    fireEvent.change(view.getByPlaceholderText('Search...'), { target: { value: '' } })
+    fireEvent.change(view.getByPlaceholderText('Search'), { target: { value: '' } })
 
     await waitFor(() => expect(addon.clearDecorations).toHaveBeenCalledTimes(1))
     expect(addon.findNext).toHaveBeenCalledWith('')
@@ -156,8 +156,8 @@ describe('TerminalSearch cleanup', () => {
         inputRef={inputRef}
       />
     )
-    expect(inputRef.current).toBe(view.getByPlaceholderText('Search...'))
-    fireEvent.change(view.getByPlaceholderText('Search...'), { target: { value: 'needle' } })
+    expect(inputRef.current).toBe(view.getByPlaceholderText('Search'))
+    fireEvent.change(view.getByPlaceholderText('Search'), { target: { value: 'needle' } })
     view.rerender(
       <TerminalSearch
         isOpen={false}

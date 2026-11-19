@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Cpu } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { useShallow } from 'zustand/react/shallow'
 import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store'
@@ -23,6 +23,8 @@ import { ResearchComputeProjectDot } from './ResearchComputeProjectDot'
 import type { ResearchHomeProject } from './research-home-projects'
 import { openResearchHome } from './research-navigation'
 import type { ResearchHomeActivity } from './research-home-activity'
+import { cn } from '@/lib/utils'
+import { HOME_CARD_ARROW, HOME_CARD_HEADER, RAISED_CARD } from './research-surface-classes'
 
 const PROJECTS_SHOWN = 5
 const REFRESH_INTERVAL_MS = 60_000
@@ -221,27 +223,21 @@ export function ResearchHomeCompute({
   const unassignedCount = (unassigned?.jobs.length ?? 0) + (unassigned?.processes.length ?? 0)
 
   return (
-    <section
-      aria-label="Compute"
-      className="overflow-hidden rounded-lg border border-border bg-card"
-    >
+    <section aria-label="Compute" className={cn(RAISED_CARD, 'overflow-hidden')}>
       <button
         type="button"
-        className="flex w-full items-center gap-2 px-4 py-3 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={HOME_CARD_HEADER}
         onClick={() => openResearchHome('research-compute')}
       >
-        <Cpu className="size-4 text-muted-foreground" aria-hidden />
         <span className="flex-1 text-sm font-medium">Compute</span>
-        <ArrowRight className="size-4 text-muted-foreground" aria-hidden />
+        <ArrowRight className={HOME_CARD_ARROW} aria-hidden />
       </button>
       {desktopOnly ? (
-        <p className="border-t border-border px-4 py-4 text-xs text-muted-foreground">
-          Available in the desktop app.
-        </p>
+        <p className="px-4 pb-4 text-xs text-muted-foreground">Available in the desktop app</p>
       ) : rows.length ? (
-        <ul className="divide-y divide-border border-t border-border">
+        <ul className="space-y-0.5 px-2 pb-2">
           {rows.slice(0, PROJECTS_SHOWN).map(({ project, runs, observation, parts }) => (
-            <li key={project.key} className="min-w-0 px-4 py-2.5 text-xs">
+            <li key={project.key} className="min-w-0 rounded-sm px-3 py-2 text-xs">
               <div className="flex min-w-0 items-center gap-2">
                 <ResearchComputeProjectDot color={project.badgeColor} />
                 <span className="min-w-0 flex-1 truncate font-medium" title={project.name}>
@@ -265,11 +261,11 @@ export function ResearchHomeCompute({
         </ul>
       ) : null}
       {desktopOnly ? null : !projects.length ? (
-        <p className="border-t border-border px-4 py-4 text-xs text-muted-foreground">
-          Add a project to see its compute activity here.
+        <p className="px-4 pb-4 text-xs text-muted-foreground">
+          Add a project to see its compute activity here
         </p>
       ) : unlinkedCount ? (
-        <div className="flex items-center gap-2 border-t border-border px-4 py-2.5 text-xs text-muted-foreground">
+        <div className="mx-2 mb-2 flex items-center gap-2 rounded-sm bg-muted/60 py-2 pr-2 pl-3 text-xs text-muted-foreground dark:bg-muted/45">
           <span className="min-w-0 flex-1">
             {unlinkedCount === projects.length
               ? 'No remote compute linked yet.'
@@ -281,7 +277,7 @@ export function ResearchHomeCompute({
         </div>
       ) : null}
       {!desktopOnly && (rows.length > PROJECTS_SHOWN || unassignedCount || linksError) ? (
-        <p className="border-t border-border px-4 py-2 text-xs text-muted-foreground">
+        <p className="px-4 pb-3 text-xs text-muted-foreground">
           {[
             rows.length > PROJECTS_SHOWN ? `${rows.length - PROJECTS_SHOWN} more projects` : null,
             unassignedCount ? `${unassignedCount} unassigned jobs or processes` : null,

@@ -42,6 +42,16 @@ export const getResearchReadingLanguageSearchEntry = createLocalizedCatalog(
   })
 )
 
+export const getResearchChatPapersSearchEntry = createLocalizedCatalog((): SettingsSearchEntry => ({
+  title: translate('research.settings.chatPapersTitle', 'Papers mentioned in chat'),
+  description: translate(
+    'research.settings.chatPapersDescription',
+    "When a chat names a paper the project's Library lacks: ask, add it with its PDF, or do nothing."
+  ),
+  keywords: ['library', 'paper', 'chat', 'arxiv', 'doi', 'citation', 'automatic', 'add'],
+  targetSectionId: 'research-chat-papers'
+}))
+
 export const getResearchComputeSearchEntry = createLocalizedCatalog((): SettingsSearchEntry => ({
   title: translate('research.settings.computeTitle', 'Compute hosts'),
   description: translate(
@@ -52,12 +62,48 @@ export const getResearchComputeSearchEntry = createLocalizedCatalog((): Settings
   targetSectionId: 'research-compute'
 }))
 
+export const getResearchFigureAgentSearchEntry = createLocalizedCatalog(
+  (): SettingsSearchEntry => ({
+    title: translate('research.settings.figureAgentTitle', 'Figure agent'),
+    description: translate(
+      'research.settings.figureAgentDescription',
+      "What a new project's Figure agent starts with; each project changes it in the Figures agent panel."
+    ),
+    keywords: [
+      'figure',
+      'careful',
+      'art director',
+      'critic',
+      'reference',
+      'concept',
+      'codex',
+      'image'
+    ],
+    targetSectionId: 'research-figure-agent'
+  })
+)
+
+export const getResearchFigureReferencesSearchEntry = createLocalizedCatalog(
+  (): SettingsSearchEntry => ({
+    title: translate('research.settings.figureReferencesTitle', 'Figure references'),
+    description: translate(
+      'research.settings.figureReferencesDescription',
+      'Published figures the Figure agent follows, kept on this computer; Aster never bundles them.'
+    ),
+    keywords: ['figure', 'reference', 'folder', 'image', 'library', 'refs'],
+    targetSectionId: 'research-figure-references'
+  })
+)
+
 export function getResearchSettingsSearchEntries(): SettingsSearchEntry[] {
   return [
     getResearchUiSearchEntry(),
     getResearchDefaultAgentSearchEntry(),
     getResearchDeadlineZoneSearchEntry(),
     getResearchReadingLanguageSearchEntry(),
+    getResearchChatPapersSearchEntry(),
+    getResearchFigureAgentSearchEntry(),
+    getResearchFigureReferencesSearchEntry(),
     getResearchComputeSearchEntry()
   ]
 }

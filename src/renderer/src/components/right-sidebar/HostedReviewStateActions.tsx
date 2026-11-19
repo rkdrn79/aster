@@ -182,7 +182,7 @@ export function MergedReviewActions({
         ? translate('auto.components.right.sidebar.HostedReviewActions.eefd50457e', 'Deleting...')
         : translate(
             'auto.components.right.sidebar.HostedReviewActions.e4aca40024',
-            'Delete Workspace'
+            'Delete workspace'
           )}
     </Button>
   )

@@ -51,7 +51,7 @@ async function openSourceControl(page: Page, expectedWorktreeId: string): Promis
       { timeout: 5_000 }
     )
     .toBe(true)
-  const sourceControlTab = page.getByRole('button', { name: /Source Control/ })
+  const sourceControlTab = page.getByRole('button', { name: /Source control/ })
   await expect(sourceControlTab).toBeVisible()
   await sourceControlTab.click()
 }

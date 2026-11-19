@@ -33,6 +33,7 @@ import { collectProjectAgentGroups } from './research-project-agent-groups'
 import { canCreateResearchWorktree, openResearchNewWorktree } from './research-new-worktree'
 import { researchConversationHome } from './research-conversation-home'
 import { researchBackgroundTabIsHidden } from './research-background-tab'
+import { researchChatIsSubtask } from './research-chat-branches'
 import { useResearchSlackBackgroundTasks } from './research-slack-background-tasks'
 import {
   researchOrchestrationWorkerContexts,
@@ -121,6 +122,14 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
     tabs: group.tabs.filter(
       (tab) =>
         !researchBackgroundTabIsHidden(document, tab, group.hostId, slackTasks) &&
+        !(
+          group.hostId &&
+          researchChatIsSubtask(
+            document,
+            { hostId: group.hostId, workspaceId: group.workspace.id },
+            tab.entityId
+          )
+        ) &&
         // Why: subagents are listed under their parent's tab strip indicator, not here.
         (!workerTabIds.has(tab.id) || tab.isPinned === true) &&
         (tab.contentType !== 'agent-session' ||
@@ -312,7 +321,7 @@ export function ResearchWorkspaceChats(): React.JSX.Element {
                 >
                   <span
                     className={cn(
-                      'min-w-0 flex-1 truncate text-left text-2xs font-semibold',
+                      'min-w-0 flex-1 truncate text-left text-2xs font-medium',
                       workspace.id === workspaceId ? 'text-foreground' : 'text-muted-foreground'
                     )}
                   >

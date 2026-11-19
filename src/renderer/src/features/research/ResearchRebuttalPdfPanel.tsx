@@ -69,19 +69,19 @@ export function ResearchRebuttalPdfPanel({
         </p>
       ) : null}
       {error || build?.status === 'failed' ? (
-        <div role="alert" className="space-y-1.5">
+        <div role="alert" className="space-y-2">
           <p className="text-xs text-destructive">
             {error ?? (build?.status === 'failed' ? build.message : '')}
           </p>
           {build?.status === 'failed' && build.output ? (
-            <pre className="scrollbar-sleek max-h-48 overflow-auto rounded-md bg-muted px-2.5 py-2 font-mono text-2xs leading-4 whitespace-pre-wrap">
+            <pre className="scrollbar-sleek max-h-48 overflow-auto rounded-md bg-muted px-3 py-2 font-mono text-2xs leading-4 whitespace-pre-wrap">
               {build.output.split('\n').slice(-40).join('\n')}
             </pre>
           ) : null}
         </div>
       ) : null}
       {build?.status === 'ok' ? (
-        <div className="h-[min(70vh,56rem)] overflow-hidden rounded-lg border border-border">
+        <div className="h-[min(70vh,56rem)] overflow-hidden rounded-xl shadow-raised">
           <Suspense
             fallback={
               <p role="status" className="p-4 text-sm text-muted-foreground">

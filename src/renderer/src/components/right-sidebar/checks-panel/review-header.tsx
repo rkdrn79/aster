@@ -64,7 +64,7 @@ export function ChecksPanelReviewHeader({
       <ReviewIcon className="size-4 text-muted-foreground shrink-0" />
       <button
         type="button"
-        className="rounded px-0.5 text-[12px] font-semibold text-foreground underline decoration-border underline-offset-2 hover:text-foreground hover:decoration-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        className="rounded px-0.5 text-[12px] font-medium text-foreground underline decoration-border underline-offset-2 hover:text-foreground hover:decoration-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         title={title}
         onClick={onOpenReview}
       >
@@ -72,7 +72,7 @@ export function ChecksPanelReviewHeader({
       </button>
       <span
         className={cn(
-          'text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border',
+          'text-[9px] font-medium capitalize px-1.5 py-0.5 rounded border',
           prStateColor(review.state)
         )}
       >

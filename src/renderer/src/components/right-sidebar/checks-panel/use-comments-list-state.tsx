@@ -263,7 +263,7 @@ export function useCommentsListState({
           empty
             ? translate(
                 'auto.components.right.sidebar.checks.panel.content.ea9fd5ed6a',
-                'Start conversation...'
+                'Start conversation'
               )
             : translate(
                 'auto.components.right.sidebar.checks.panel.content.3fff651d32',

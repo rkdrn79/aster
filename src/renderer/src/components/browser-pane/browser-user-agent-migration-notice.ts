@@ -27,7 +27,7 @@ export function useBrowserIdentityMigrationNotice(): void {
             description,
             duration: Infinity,
             action: {
-              label: translate('browser.userAgentMigration.openSettings', 'Open Settings'),
+              label: translate('browser.userAgentMigration.openSettings', 'Open settings'),
               onClick: () => {
                 const store = useAppStore.getState()
                 store.openSettingsPage()

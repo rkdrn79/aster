@@ -44,7 +44,7 @@ export function FloatingTerminalIconContextMenu({
         icon: <PanelBottom className="size-3.5" />,
         label: translate(
           'auto.components.floating.terminal.FloatingTerminalIconContextMenu.0ee79e0674',
-          'Move to Status Bar'
+          'Move to status bar'
         ),
         location: 'status-bar' as const
       }
@@ -53,7 +53,7 @@ export function FloatingTerminalIconContextMenu({
       icon: <PanelTop className="size-3.5" />,
       label: translate(
         'auto.components.floating.terminal.FloatingTerminalIconContextMenu.763f5fa2c1',
-        'Move to Floating Button'
+        'Move to floating button'
       ),
       location: 'floating-button' as const
     }
@@ -118,7 +118,7 @@ export function FloatingTerminalIconContextMenu({
             <EyeOff className="size-3.5" />
             {translate(
               'auto.components.floating.terminal.FloatingTerminalIconContextMenu.8e7d775287',
-              'Hide Floating Workspace'
+              'Hide floating workspace'
             )}
           </DropdownMenuItem>
         </DropdownMenuContent>

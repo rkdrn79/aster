@@ -171,7 +171,7 @@ import type { NativeChatLiveSession } from './use-native-chat-live-session'
       fireEvent.click(screen.getByRole('button', { name: 'Thinking' }))
       const live = body()
       expect(live).toHaveAttribute('data-native-chat-message-tone', 'faint')
-      expect(live).toHaveClass('text-chat-foreground-faint', 'pl-5.5', 'max-h-80')
+      expect(live).toHaveClass('text-chat-foreground-faint', 'border-l', 'max-h-80')
       const liveClasses = live?.getAttribute('class')
       rerender(list([reasoning('r-1', 'Weighing two approaches', 'completed')]))
       expect(body()?.getAttribute('class')).toBe(liveClasses)

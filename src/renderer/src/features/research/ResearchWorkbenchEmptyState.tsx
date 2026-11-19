@@ -21,9 +21,7 @@ export function ResearchWorkbenchEmptyState({
   }
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
-        <MessageSquare className="size-6" aria-hidden />
-      </div>
+      <MessageSquare className="size-4.5 text-muted-foreground" aria-hidden />
       <p className="text-sm font-medium">No conversations yet</p>
       <p className="max-w-sm text-balance text-xs text-muted-foreground">
         Start a conversation to work on this project&apos;s code with an agent. No agent runs until

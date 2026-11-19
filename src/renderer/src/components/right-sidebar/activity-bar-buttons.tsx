@@ -85,7 +85,7 @@ export function TopActivityOverflowMenu({
           {hiddenItemStatus && (
             <div
               className={cn(
-                'absolute top-[8px] right-[4px] size-[7px] rounded-full ring-1 ring-sidebar',
+                'absolute top-2 right-1 size-2 rounded-full ring-1 ring-sidebar',
                 STATUS_DOT_COLOR[hiddenItemStatus] ?? 'bg-muted-foreground'
               )}
             />
@@ -157,8 +157,8 @@ export function ActivityBarButton({
           {effectiveStatus && effectiveStatus !== 'neutral' && (
             <div
               className={cn(
-                'absolute rounded-full size-[7px] ring-1 ring-sidebar',
-                isTop ? 'top-[8px] right-[5px]' : 'top-[7px] right-[7px]',
+                'absolute rounded-full size-2 ring-1 ring-sidebar',
+                isTop ? 'top-2 right-1' : 'top-2 right-2',
                 STATUS_DOT_COLOR[effectiveStatus] ?? 'bg-muted-foreground'
               )}
             />

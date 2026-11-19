@@ -100,8 +100,8 @@ export function ResearchFigureMathPopover({
         }
       }}
     >
-      <div className="mb-1.5 flex items-center gap-1.5 text-xs font-medium">
-        <Sigma className="size-3.5" aria-hidden />
+      <div className="mb-2 flex items-center gap-2 text-xs font-medium">
+        <Sigma className="size-4" aria-hidden />
         <span className="min-w-0 flex-1 truncate">{title}</span>
         <Button size="icon-xs" variant="ghost" aria-label="Cancel" onClick={onCancel}>
           <X aria-hidden />
@@ -123,7 +123,7 @@ export function ResearchFigureMathPopover({
         }}
       />
       <div
-        className="mt-1.5 flex h-16 items-center justify-center overflow-hidden rounded-sm border border-border bg-white"
+        className="mt-2 flex h-16 items-center justify-center overflow-hidden rounded-sm border border-border bg-white"
         aria-label="Preview"
         role="img"
       >
@@ -140,7 +140,7 @@ export function ResearchFigureMathPopover({
           {error}
         </p>
       ) : null}
-      <div className="mt-1.5 flex items-center gap-1.5 text-xs">
+      <div className="mt-2 flex items-center gap-2 text-xs">
         <label className="flex items-center gap-1 text-muted-foreground">
           Size
           <Input
@@ -177,7 +177,7 @@ export function ResearchFigureMathPopover({
           ))}
         </div>
       </div>
-      <div className="mt-2 flex items-center justify-end gap-1.5">
+      <div className="mt-2 flex items-center justify-end gap-2">
         <span className="mr-auto text-2xs text-muted-foreground">
           Enter to apply · Esc to cancel
         </span>

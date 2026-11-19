@@ -71,7 +71,7 @@ export function AgentDefaultSetting({
   return (
     <section className="space-y-4">
       <SettingsSubsectionHeader
-        title={translate('auto.components.settings.AgentsPane.385212c7a1', 'Default Agent')}
+        title={translate('auto.components.settings.AgentsPane.385212c7a1', 'Default agent')}
         description={description}
       />
       <div className="flex flex-wrap gap-2">

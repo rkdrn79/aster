@@ -65,9 +65,7 @@ export function ConversationCommentsList({
           {translate('auto.components.PullRequestPage.3463d10a63', 'Comments')}
         </span>
         {comments.length > 0 && (
-          <span className="rounded-full border border-border/50 bg-muted/30 px-1.5 py-0.5 text-[11px] tabular-nums text-muted-foreground">
-            {comments.length}
-          </span>
+          <span className="text-[11px] tabular-nums text-muted-foreground">{comments.length}</span>
         )}
       </div>
 
@@ -96,7 +94,7 @@ export function ConversationCommentsList({
 
       {comments.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border/50 px-3 py-6 text-left text-[13px] text-muted-foreground">
-          {translate('auto.components.PullRequestPage.d2d589556c', 'No comments yet.')}
+          {translate('auto.components.PullRequestPage.d2d589556c', 'No comments yet')}
         </div>
       ) : visibleComments.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border/50 px-3 py-6 text-center text-[13px] text-muted-foreground">

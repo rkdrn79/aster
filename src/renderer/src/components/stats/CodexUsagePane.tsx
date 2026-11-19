@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Activity, Brain, Coins, DatabaseZap, FolderKanban, Sparkles } from 'lucide-react'
+import { Activity, Brain, Coins, DatabaseZap, FolderKanban, Hash } from 'lucide-react'
 import type { CodexUsageRange, CodexUsageScope } from '../../../../shared/codex-usage-types'
 import { useAppStore } from '../../store'
 import { ClaudeUsageLoadingState } from './ClaudeUsageLoadingState'
@@ -66,7 +66,7 @@ export function CodexUsagePane(): React.JSX.Element {
     void setCodexUsageEnabled(enabled)
   }
 
-  const title = translate('auto.components.stats.CodexUsagePane.408210470c', 'Codex Usage Tracking')
+  const title = translate('auto.components.stats.CodexUsagePane.408210470c', 'Codex usage tracking')
   const enableLabel = translate(
     'auto.components.stats.CodexUsagePane.f7c1affbd5',
     'Enable Codex usage analytics'
@@ -170,7 +170,7 @@ export function CodexUsagePane(): React.JSX.Element {
           <StatCard
             label={translate('auto.components.stats.CodexUsagePane.e365eaa6fd', 'Input tokens')}
             value={formatTokens(summary?.inputTokens ?? 0)}
-            icon={<Sparkles className="size-4" />}
+            icon={<Hash className="size-4" />}
           />
           <StatCard
             label={translate('auto.components.stats.CodexUsagePane.5d8eba87bd', 'Output tokens')}
@@ -190,7 +190,7 @@ export function CodexUsagePane(): React.JSX.Element {
           <StatCard
             label={translate(
               'auto.components.stats.CodexUsagePane.907b31865f',
-              'Sessions / Events'
+              'Sessions / events'
             )}
             value={`${(summary?.sessions ?? 0).toLocaleString()} / ${(summary?.events ?? 0).toLocaleString()}`}
             icon={<FolderKanban className="size-4" />}

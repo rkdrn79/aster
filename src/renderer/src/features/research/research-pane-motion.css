@@ -1,0 +1,56 @@
+/* Motion for the Figures, Writing and Library panes: one ease-out curve, no overshoot, and only
+   opacity under reduced motion (motion.css holds the tokens and the shared keyframes). Docked
+   panels take the sheet duration, floating ones the popover duration. Why backwards, not both: a
+   transform held after the entrance would make each pane the containing block for its fixed
+   children (the PDF revise composer, Monaco's widgets). */
+
+@keyframes research-pane-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+
+@keyframes research-panel-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+
+@keyframes research-panel-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.98);
+  }
+}
+
+/* A pane's content after a tab or view switch. */
+.research-pane-in {
+  animation: research-pane-in var(--duration-base) var(--ease-out-quint) backwards;
+}
+
+/* A panel that slides in from the edge it is docked to (the Inspector, the claims drawer). */
+.research-panel-in-right {
+  animation: research-panel-in-right var(--duration-slow) var(--ease-out-quint) backwards;
+}
+
+/* A floating panel that grows from a control on its left (the canvas's Insert panel). */
+.research-panel-in-left {
+  transform-origin: top left;
+  animation: research-panel-in-left var(--duration-base) var(--ease-out-quint) backwards;
+}
+
+/* A floating bar that pops in where it is anchored (the reader's selection toolbar, Ask box). */
+.research-pop-in {
+  animation: pop-in var(--duration-base) var(--ease-out-quint) backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .research-pane-in,
+  .research-panel-in-right,
+  .research-panel-in-left,
+  .research-pop-in {
+    animation: fade-in-only var(--duration-fast) var(--ease-out-quint) backwards;
+  }
+}

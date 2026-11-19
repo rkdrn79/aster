@@ -83,7 +83,7 @@ describe('resolveBrowserAddressBarSubmission', () => {
       loadError: {
         code: 0,
         description:
-          'This browser tab cannot open local files. Use "Open Preview to the Side" on the file instead.',
+          'This browser tab cannot open local files. Use "Open preview to the side" on the file instead.',
         validatedUrl: '/tmp/report.html'
       }
     })

@@ -1,11 +1,13 @@
-import { GitBranch } from 'lucide-react'
+import { GitBranch, GitFork } from 'lucide-react'
 import type { Tab } from '../../../../shared/tab-types'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { nativeChatBranchLabels } from '@/components/native-chat/NativeChatBranchAction'
 import { branchResearchChatTab } from './research-chat-branch-actions'
 import { researchChatBranchAgentBlock } from './research-chat-branch-copy'
 
-/** Branch chat in a chat list's ⋯ menu: a new chat with the whole conversation, opened where
- *  `open` opens chats (by default the Workbench, or a project window's Chats). */
+/** Branch chat and Fork to background in a chat list's ⋯ menu: the whole conversation copied, and
+ *  for a branch, opened where `open` opens chats (by default the Workbench, or a project window's
+ *  Chats); a fork stays in the background. */
 export function ResearchChatBranchMenuItem({
   tab,
   open
@@ -17,15 +19,26 @@ export function ResearchChatBranchMenuItem({
     return null
   }
   const blocked = researchChatBranchAgentBlock(tab.agentSessionAgent)
-  return (
-    <DropdownMenuItem disabled={Boolean(blocked)} onSelect={() => branchResearchChatTab(tab, open)}>
-      <GitBranch aria-hidden />
+  const labels = nativeChatBranchLabels()
+  const row = (kind: 'branch' | 'fork') => (
+    <DropdownMenuItem
+      key={kind}
+      disabled={Boolean(blocked)}
+      onSelect={() => branchResearchChatTab(tab, open, { kind })}
+    >
+      {kind === 'branch' ? <GitBranch aria-hidden /> : <GitFork aria-hidden />}
       <span className="grid min-w-0">
-        Branch chat
+        {kind === 'branch' ? labels.branchChat : labels.forkChat}
         <span className="text-xs whitespace-normal text-muted-foreground">
-          {blocked ?? 'A new chat with this conversation; this one stays.'}
+          {blocked ?? (kind === 'branch' ? labels.branchChatHint : labels.forkChatHint)}
         </span>
       </span>
     </DropdownMenuItem>
+  )
+  return (
+    <>
+      {row('branch')}
+      {row('fork')}
+    </>
   )
 }

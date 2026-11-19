@@ -37,11 +37,8 @@ export function FeatureTipDialogFrame({
 
 export function FeatureTipEyebrow({ label }: { label: string }): JSX.Element {
   return (
-    <Badge
-      variant="outline"
-      className="mb-3 rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground"
-    >
-      {label.toUpperCase()}
+    <Badge variant="outline" className="mb-3">
+      {label}
     </Badge>
   )
 }

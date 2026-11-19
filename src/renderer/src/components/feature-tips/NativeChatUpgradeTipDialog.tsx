@@ -100,7 +100,7 @@ export function NativeChatUpgradeTipDialog({
                   )}
                   emphasis={translate(
                     'auto.components.right.sidebar.AiVaultPanel.sessionHistory',
-                    'Agent Session History'
+                    'Agent session history'
                   )}
                 />
               </span>
@@ -114,7 +114,7 @@ export function NativeChatUpgradeTipDialog({
                   )}
                   action={translate(
                     'auto.components.right.sidebar.AiVaultSessionRow.resumeInNewNativeChat',
-                    'Resume in New Chat'
+                    'Resume in new chat'
                   )}
                 />
                 <ActionLine
@@ -126,14 +126,14 @@ export function NativeChatUpgradeTipDialog({
                   )}
                   action={translate(
                     'auto.components.right.sidebar.AiVaultSessionRow.resumeInNewCli',
-                    'Resume in New Terminal'
+                    'Resume in new terminal'
                   )}
                 />
               </span>
               <FeatureTipSettingsLine
                 lead={translate(
                   'featureTips.nativeChatUpgrade.settingsInstruction',
-                  'Manage Chat UI in'
+                  'Manage chat UI in'
                 )}
                 link={translate(
                   'featureTips.nativeChatUpgrade.settingsLink',
@@ -148,14 +148,14 @@ export function NativeChatUpgradeTipDialog({
 
       <DialogFooter className="mt-8 flex flex-row items-center">
         {offerChatMode ? (
-          // Why: plain text, flush with the copy, so Enable Now reads as the only button.
+          // Why: plain text, flush with the copy, so Enable now reads as the only button.
           <button
             type="button"
             onClick={() => onOpenChange(false)}
             disabled={primaryBusy}
             className="mr-4 shrink-0 cursor-pointer rounded-sm text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
           >
-            {translate('featureTips.nativeChatUpgrade.leaveOff', 'Leave Off')}
+            {translate('featureTips.nativeChatUpgrade.leaveOff', 'Leave off')}
           </button>
         ) : null}
         <FeatureTipActions
@@ -168,8 +168,8 @@ export function NativeChatUpgradeTipDialog({
           primaryButtonRef={primaryButtonRef}
           label={
             offerChatMode
-              ? translate('featureTips.nativeChatUpgrade.enableNow', 'Enable Now')
-              : translate('featureTips.nativeChatUpgrade.gotIt', 'Got It')
+              ? translate('featureTips.nativeChatUpgrade.enableNow', 'Enable now')
+              : translate('featureTips.nativeChatUpgrade.gotIt', 'Got it')
           }
         />
       </DialogFooter>

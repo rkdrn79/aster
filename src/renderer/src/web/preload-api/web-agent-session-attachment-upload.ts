@@ -1,7 +1,9 @@
 import {
+  AGENT_SESSION_ATTACHMENT_MAX_BYTES,
   agentSessionAttachmentAppends,
   agentSessionPastedImageName,
   base64DecodedByteLength,
+  type AgentSessionAttachmentPathUploadResult,
   type AgentSessionAttachmentUploadCommitResult,
   type AgentSessionAttachmentUploadTarget
 } from '../../../../shared/agent-session-attachments'
@@ -9,6 +11,7 @@ import { callEnvironmentEnvelope } from './web-runtime-calls'
 import { resolveEnvironment } from './web-runtime-session'
 import { createBrowserUuid } from '@/lib/browser-uuid'
 import { PRODUCT_NAME } from '../../../../shared/product-brand'
+import { readWebPickedFileBase64, takeWebPickedFile } from './web-picked-files'
 
 const ATTACHMENT_CALL_TIMEOUT_MS = 30_000
 const SERVER_CHANGED = `The paired ${PRODUCT_NAME} server changed while the request was in progress.`
@@ -46,8 +49,50 @@ async function callPinned<TResult>(
 }
 
 /** The browser client's paste into a structured chat: the same store the desktop client uses. */
-export async function saveClipboardImageAsWebAgentSessionAttachment(
+export function saveClipboardImageAsWebAgentSessionAttachment(
   contentBase64: string,
+  target: AgentSessionAttachmentUploadTarget
+): Promise<string> {
+  return uploadWebAgentSessionAttachment(
+    contentBase64,
+    agentSessionPastedImageName(Date.now(), createBrowserUuid()),
+    target
+  )
+}
+
+/** Files picked in the browser (the chat's attach button), uploaded one by one in pick order. */
+export async function uploadWebPickedFilesToAgentSession(
+  args: AgentSessionAttachmentUploadTarget & { paths: string[] }
+): Promise<AgentSessionAttachmentPathUploadResult> {
+  const { paths, ...target } = args
+  const result: AgentSessionAttachmentPathUploadResult = { uploaded: [], skipped: [], failed: [] }
+  for (const sourcePath of paths) {
+    const file = takeWebPickedFile(sourcePath)
+    if (!file) {
+      result.failed.push({ sourcePath, reason: 'Pick the file again.' })
+      continue
+    }
+    if (file.size > AGENT_SESSION_ATTACHMENT_MAX_BYTES) {
+      result.failed.push({ sourcePath, reason: 'The file is larger than 50 MB.' })
+      continue
+    }
+    try {
+      const contentBase64 = await readWebPickedFileBase64(file)
+      const path = await uploadWebAgentSessionAttachment(contentBase64, file.name, target)
+      result.uploaded.push({ sourcePath, path })
+    } catch (error) {
+      result.failed.push({
+        sourcePath,
+        reason: error instanceof Error ? error.message : String(error)
+      })
+    }
+  }
+  return result
+}
+
+async function uploadWebAgentSessionAttachment(
+  contentBase64: string,
+  name: string,
   target: AgentSessionAttachmentUploadTarget
 ): Promise<string> {
   const { uploadId } = await callPinned<{ uploadId: string }>(
@@ -55,7 +100,7 @@ export async function saveClipboardImageAsWebAgentSessionAttachment(
     'agentSessionAttachment.uploadStart',
     {
       sessionId: target.sessionId,
-      name: agentSessionPastedImageName(Date.now(), createBrowserUuid()),
+      name,
       byteLength: base64DecodedByteLength(contentBase64)
     }
   )

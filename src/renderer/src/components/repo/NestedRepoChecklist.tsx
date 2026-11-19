@@ -45,7 +45,7 @@ function NestedRepoSelectAllRow({
             : translate('auto.components.repo.NestedRepoChecklist.91b5bcadb6', 'Select all')
         }
       />
-      <span className="min-w-0 truncate text-[12.5px] font-semibold text-foreground">
+      <span className="min-w-0 truncate text-[12.5px] font-medium text-foreground">
         {allSelected
           ? translate('auto.components.repo.NestedRepoChecklist.929734aea5', 'Deselect all')
           : translate('auto.components.repo.NestedRepoChecklist.91b5bcadb6', 'Select all')}

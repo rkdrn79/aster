@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
-import { Loader2, Sparkles, X } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { ResearchChip } from './research-chip'
 
 export type CanvasViewport = { scrollX: number; scrollY: number; zoom: number }
 export type SceneBox = { x: number; y: number; width: number; height: number }
@@ -65,11 +66,10 @@ export function ResearchFigureAskBox({
     <div
       role="dialog"
       aria-label={title}
-      className="absolute z-20 w-80 max-w-[calc(100%-1rem)] rounded-md border border-border bg-popover p-2 text-popover-foreground shadow-md"
+      className="research-pop-in surface-floating absolute z-20 w-80 max-w-[calc(100%-1rem)] rounded-2xl p-3"
       style={style}
     >
-      <div className="mb-1.5 flex items-center gap-1.5 text-xs font-medium">
-        <Sparkles className="size-3.5 shrink-0" aria-hidden />
+      <div className="mb-2 flex items-center gap-2 text-[13px] font-medium">
         <span className="min-w-0 flex-1 truncate" title={title}>
           {title}
         </span>
@@ -78,19 +78,18 @@ export function ResearchFigureAskBox({
         </Button>
       </div>
       {chips?.length ? (
-        <div className="mb-1.5 flex flex-wrap gap-1" role="group" aria-label="Suggested requests">
+        <div className="mb-2 flex flex-wrap gap-1" role="group" aria-label="Suggested requests">
           {chips.map((chip) => (
-            <Button
+            <ResearchChip
               key={chip.label}
-              size="xs"
-              variant="outline"
+              className="h-6 px-3"
               onClick={() => {
                 setPrompt(chip.prompt)
                 fieldRef.current?.focus()
               }}
             >
               {chip.label}
-            </Button>
+            </ResearchChip>
           ))}
         </div>
       ) : null}
@@ -119,14 +118,14 @@ export function ResearchFigureAskBox({
           {error}
         </p>
       ) : null}
-      <div className="mt-1.5 flex items-center justify-end gap-1.5">
+      <div className="mt-2 flex items-center justify-end gap-2">
         <span className="mr-auto text-2xs text-muted-foreground">
           {isMac ? '⌘↵' : 'Ctrl+Enter'} to send · Esc to close
         </span>
-        <Button size="xs" variant="ghost" onClick={onCancel}>
+        <Button size="xs" variant="ghost" className="h-7" onClick={onCancel}>
           Cancel
         </Button>
-        <Button size="xs" disabled={!prompt.trim() || sending} onClick={send}>
+        <Button size="xs" className="h-7" disabled={!prompt.trim() || sending} onClick={send}>
           {sending ? 'Sending…' : 'Send to agent'}
         </Button>
       </div>
@@ -151,22 +150,23 @@ export function ResearchFigurePendingAreas({
         return (
           <div
             key={area.id}
-            className="pointer-events-none absolute z-10 flex items-center justify-center rounded-sm bg-background/60"
+            // Why white: the area sits on the paper, which stays light in either app theme.
+            className="pointer-events-none absolute z-10 flex items-center justify-center rounded-lg bg-white/60"
             style={{ left: box.x, top: box.y, width: box.width, height: box.height }}
           >
             <span
               role="status"
-              className="pointer-events-auto flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground shadow-xs"
+              className="research-pop-in surface-floating pointer-events-auto flex h-7 items-center gap-2 rounded-lg pr-1 pl-3 text-xs"
             >
-              <Loader2 className="size-3 animate-spin" aria-hidden />
-              Generating…
+              <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden />
+              <span className="text-shimmer">Generating…</span>
               <button
                 type="button"
                 aria-label="Stop waiting for this area"
-                className="ml-0.5 rounded-sm hover:text-foreground"
+                className="flex size-5 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
                 onClick={() => onDismiss(area.id)}
               >
-                <X className="size-3" aria-hidden />
+                <X className="size-4" aria-hidden />
               </button>
             </span>
           </div>

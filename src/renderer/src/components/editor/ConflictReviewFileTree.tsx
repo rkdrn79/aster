@@ -75,7 +75,7 @@ export function ConflictReviewFileTree({
   return (
     <aside className="flex w-72 shrink-0 flex-col border-r border-border bg-background">
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-1.5">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+        <div className="text-[11px] font-medium text-muted-foreground">
           {translate('auto.components.editor.ConflictReviewFileTree.99496bab6e', 'Files')}
         </div>
         <div className="flex items-center gap-2">
@@ -99,7 +99,7 @@ export function ConflictReviewFileTree({
           <div className="px-3 py-6 text-center text-xs text-muted-foreground">
             {translate(
               'auto.components.editor.ConflictReviewFileTree.3449521a8c',
-              'No conflicts in this snapshot.'
+              'No conflicts in this snapshot'
             )}
           </div>
         ) : (
@@ -158,7 +158,7 @@ function ConflictReviewFileTreeRow({
           <FolderOpen className="size-3 shrink-0" />
         )}
         <span className="min-w-0 flex-1 truncate">{node.name}</span>
-        <span className="w-4 shrink-0 text-center text-[10px] font-bold tabular-nums text-muted-foreground/80">
+        <span className="w-4 shrink-0 text-center text-[10px] font-medium tabular-nums text-muted-foreground/80">
           {node.fileCount}
         </span>
       </button>
@@ -194,7 +194,7 @@ function ConflictReviewFileTreeRow({
       </span>
       <span
         className={cn(
-          'ml-1 shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold',
+          'ml-1 shrink-0 rounded-sm px-1.5 py-0.5 text-[10px] font-medium',
           isStillUnresolved
             ? 'bg-destructive/12 text-destructive'
             : 'bg-muted text-muted-foreground'

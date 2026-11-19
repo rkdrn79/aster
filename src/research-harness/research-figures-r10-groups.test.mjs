@@ -29,6 +29,7 @@ const index = (fig, id) => fig.elements.findIndex((element) => element.id === id
 test('an arrow into an item inside a panel is drawn over the panel', async () => {
   await withFigure(async (file) => {
     const fig = await openFigure(file)
+    fig.style(undefined, { look: 'preset' })
     fig.box({ id: 'src', x: 40, y: 40, w: 96, h: 40, label: 'policy' })
     fig.panel({ id: 'p', x: 240, y: 20, w: 300, h: 200, title: 'data' })
     fig.box({ id: 'inner', x: 320, y: 120, w: 120, h: 40, label: 'reward' })

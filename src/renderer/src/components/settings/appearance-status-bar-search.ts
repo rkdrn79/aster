@@ -18,7 +18,7 @@ export const getStatusBarToggles = createLocalizedCatalog(
   }[] => [
     {
       id: 'claude',
-      title: translate('auto.components.settings.appearance.search.9dc15020d7', 'Claude Usage'),
+      title: translate('auto.components.settings.appearance.search.9dc15020d7', 'Claude usage'),
       description: translate(
         'auto.components.settings.appearance.search.de50c6f516',
         'Show Claude token and cost usage in the status bar.'
@@ -50,7 +50,7 @@ export const getStatusBarToggles = createLocalizedCatalog(
     },
     {
       id: 'codex',
-      title: translate('auto.components.settings.appearance.search.54b1acf24f', 'Codex Usage'),
+      title: translate('auto.components.settings.appearance.search.54b1acf24f', 'Codex usage'),
       description: translate(
         'auto.components.settings.appearance.search.e9e4412545',
         'Show Codex token and cost usage in the status bar.'
@@ -76,7 +76,7 @@ export const getStatusBarToggles = createLocalizedCatalog(
     },
     {
       id: 'gemini',
-      title: translate('auto.components.settings.appearance.search.5bfb874d05', 'Gemini Usage'),
+      title: translate('auto.components.settings.appearance.search.5bfb874d05', 'Gemini usage'),
       description: translate(
         'auto.components.settings.appearance.search.9660c5b2f1',
         'Show Gemini token and cost usage in the status bar.'
@@ -108,7 +108,7 @@ export const getStatusBarToggles = createLocalizedCatalog(
       id: 'opencode-go',
       title: translate(
         'auto.components.settings.appearance.search.bc046e7899',
-        'OpenCode Go Usage'
+        'OpenCode Go usage'
       ),
       description: translate(
         'auto.components.settings.appearance.search.7f72de7cbe',
@@ -141,7 +141,7 @@ export const getStatusBarToggles = createLocalizedCatalog(
     },
     {
       id: 'kimi',
-      title: translate('auto.components.settings.appearance.search.3a6c028ea8', 'Kimi Usage'),
+      title: translate('auto.components.settings.appearance.search.3a6c028ea8', 'Kimi usage'),
       description: translate(
         'auto.components.settings.appearance.search.c927a155d5',
         'Show Kimi subscription usage in the status bar.'
@@ -173,7 +173,7 @@ export const getStatusBarToggles = createLocalizedCatalog(
     getZcodeStatusBarToggleSearchEntry(),
     {
       id: 'ssh',
-      title: translate('auto.components.settings.appearance.search.57fb424c56', 'Remote Hosts'),
+      title: translate('auto.components.settings.appearance.search.57fb424c56', 'Remote hosts'),
       description: translate(
         'auto.components.settings.appearance.search.f17d66d0d2',
         'Show remote host connection status in the status bar.'
@@ -201,7 +201,7 @@ export const getStatusBarToggles = createLocalizedCatalog(
     },
     {
       id: 'resource-usage',
-      title: translate('auto.components.settings.appearance.search.7cf005b29f', 'Resource Manager'),
+      title: translate('auto.components.settings.appearance.search.7cf005b29f', 'Resource manager'),
       description: translate(
         'auto.components.settings.appearance.search.81ef5abc2f',
         'Show CPU, memory, terminal sessions, and workspace disk usage in the status bar.'

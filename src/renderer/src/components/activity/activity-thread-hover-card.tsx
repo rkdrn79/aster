@@ -294,7 +294,7 @@ function ActivityThreadHoverCardContent({
               }
             />
             <WorktreeCardDetailSectionContent className="space-y-1.5">
-              <div className="text-[13px] font-semibold leading-snug text-foreground break-words">
+              <div className="text-[13px] font-medium leading-snug text-foreground break-words">
                 {secondary.hoverLinearIssue.title}
               </div>
               {((secondary.hoverLinearIssue.labels &&
@@ -338,7 +338,7 @@ function ActivityThreadHoverCardContent({
               }
             />
             <WorktreeCardDetailSectionContent>
-              <div className="text-[13px] font-semibold leading-snug text-foreground break-words">
+              <div className="text-[13px] font-medium leading-snug text-foreground break-words">
                 {secondary.hoverJiraIssue.title}
               </div>
             </WorktreeCardDetailSectionContent>

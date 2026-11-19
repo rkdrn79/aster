@@ -12,6 +12,7 @@ import { RepoIconGlyph } from '../repo/repo-icon'
 import { RepoForkIndicator } from '../repo/repo-fork-indicator'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { useSegmentIndicator } from '../ui/segment-indicator'
 import { SetupGuideProgressRing } from '../setup-guide/SetupGuideProgressRing'
 import { useSettingsSetupGuideProgress } from './settings-setup-guide-progress'
 import type { SettingsSetupGuideProgress } from './settings-setup-guide-progress'
@@ -67,7 +68,7 @@ function SettingsSearchField({
   const searchShortcutCombos = useShortcutKeyComboDetails('settings.search')
 
   return (
-    <div className="border-b border-worktree-sidebar-border px-3 py-3">
+    <div className="px-3 pb-2">
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -132,10 +133,10 @@ function SettingsSetupGuideNavRow({
       )}
       onClick={() => onSelect()}
       className={cn(
-        'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50',
+        'flex w-full items-center gap-2 rounded-[10px] px-2.5 py-2 text-left outline-none transition-colors duration-150 focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50',
         setupActive
-          ? 'bg-worktree-sidebar-accent font-medium text-worktree-sidebar-accent-foreground'
-          : 'text-worktree-sidebar-foreground/60 hover:bg-worktree-sidebar-foreground/8 hover:text-worktree-sidebar-foreground'
+          ? 'bg-worktree-sidebar-accent font-medium text-worktree-sidebar-accent-foreground shadow-raised'
+          : 'text-worktree-sidebar-foreground/70 hover:bg-worktree-sidebar-foreground/[0.06] hover:text-worktree-sidebar-foreground'
       )}
     >
       <SetupGuideProgressRing
@@ -175,6 +176,9 @@ export function SettingsSidebar({
   const searching = useAppStore((state) => state.settingsSearchQuery.trim() !== '')
   const [codeWorkspaceOpen, setCodeWorkspaceOpen] = useState(false)
   const navScrollRef = useRef<HTMLDivElement>(null)
+  // Why the nested selector: rows sit inside their group, so the current page is found below
+  // each group rather than among the list's own children; one raised row then slides between them.
+  const setNavList = useSegmentIndicator<HTMLDivElement>('div [aria-current="page"]', true)
   // Why: a deep-linked or half-hidden row must land fully in view, clear of the faded edges.
   useLayoutEffect(() => {
     navScrollRef.current
@@ -190,10 +194,11 @@ export function SettingsSidebar({
     setupGuideProgress.doneCount < setupGuideProgress.total
   const navItemClassName = (isActive: boolean): string =>
     cn(
-      'flex w-full scroll-my-4 items-center gap-2 rounded-lg px-3 py-1.5 text-left text-[13px] outline-none transition-colors duration-150 focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50',
+      'relative flex h-8 w-full scroll-my-4 items-center gap-2.5 rounded-[10px] px-2.5 text-left text-[13px] outline-none transition-colors duration-150 focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50 [&>svg]:transition-colors',
       isActive
-        ? 'bg-worktree-sidebar-accent font-medium text-worktree-sidebar-accent-foreground ring-1 ring-worktree-sidebar-ring/25'
-        : 'text-worktree-sidebar-foreground/60 hover:bg-worktree-sidebar-accent/60 hover:text-worktree-sidebar-foreground'
+        ? // Before the sliding row is measured, the current page paints its own.
+          'bg-worktree-sidebar-accent font-medium text-worktree-sidebar-accent-foreground shadow-raised group-data-[segment-indicator]/settings-nav:bg-transparent group-data-[segment-indicator]/settings-nav:shadow-none'
+        : 'text-worktree-sidebar-foreground/70 hover:bg-worktree-sidebar-foreground/[0.06] hover:text-worktree-sidebar-foreground [&>svg]:text-muted-foreground hover:[&>svg]:text-worktree-sidebar-foreground'
     )
   const installStatusLabel = (status: VisibleInstallStatus): string => {
     switch (status) {
@@ -210,14 +215,16 @@ export function SettingsSidebar({
     }
   }
   const installStatusClassName =
-    'ml-auto shrink-0 rounded-full border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium leading-none text-amber-700 dark:text-amber-300'
+    'ml-auto shrink-0 rounded border border-status-warning-border bg-status-warning-background px-1.5 py-0.5 text-[10px] font-medium leading-none text-status-warning'
 
   return (
     <aside
-      className="flex w-[280px] shrink-0 flex-col border-r border-worktree-sidebar-border bg-worktree-sidebar"
+      // Why the inset override: on the inset shell the nav is its own rounded panel, so the seam
+      // between it and the page is the shell gap rather than a hairline.
+      className="scrollbar-sleek-parent flex w-[264px] shrink-0 flex-col overflow-hidden rounded-[var(--shell-radius)] border-r border-worktree-sidebar-border bg-worktree-sidebar [.app-shell-row[data-inset=true]_&]:border-r-0"
       style={leftSidebarStyle}
     >
-      <div className="border-b border-worktree-sidebar-border px-3 py-3">
+      <div className="px-3 pt-3 pb-2">
         <Button
           variant="ghost"
           size="sm"
@@ -232,7 +239,7 @@ export function SettingsSidebar({
       <SettingsSearchField searchInputRef={searchInputRef} searchAutoFocus={searchAutoFocus} />
 
       {showSetupGuideTopRow ? (
-        <div className="border-b border-worktree-sidebar-border px-3 py-3">
+        <div className="px-3 pb-2">
           <SettingsSetupGuideNavRow
             progress={setupGuideProgress}
             setupActive={setupActive}
@@ -241,12 +248,18 @@ export function SettingsSidebar({
         </div>
       ) : null}
 
-      {/* Why: rows scrolled under the search field fade out instead of being cut at its border. */}
+      {/* Why: rows scrolled under the search field fade out instead of being cut at its border; the
+          thumb shows only while the pointer is over the nav, as in the app's own sidebar. */}
       <div
         ref={navScrollRef}
-        className="min-h-0 flex-1 overflow-y-auto scrollbar-sleek px-3 py-4 mask-y-from-[calc(100%-1rem)]"
+        className="worktree-sidebar-scrollbar min-h-0 flex-1 overflow-y-auto scrollbar-sleek pl-3 pt-2 pb-4 mask-y-from-[calc(100%-1rem)]"
       >
-        <div className="space-y-5">
+        <div ref={setNavList} className="group/settings-nav relative space-y-5">
+          <span
+            aria-hidden
+            data-slot="segment-indicator"
+            className="rounded-[10px] bg-worktree-sidebar-accent shadow-raised"
+          />
           {generalGroups.map((group) => {
             const collapsible = group.id === CODE_WORKSPACE_NAV_GROUP_ID
             const expanded =
@@ -258,27 +271,30 @@ export function SettingsSidebar({
                 groupSectionIds: group.sections.map((section) => section.id)
               })
             return (
-              <div key={group.id} className="space-y-2">
+              <div key={group.id} className="space-y-1">
                 {collapsible ? (
                   <button
                     type="button"
                     aria-expanded={expanded}
                     onClick={() => setCodeWorkspaceOpen(!expanded)}
-                    className="flex w-full items-center gap-1 rounded-md px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground outline-none hover:text-worktree-sidebar-foreground focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50"
+                    className="flex h-6 w-full items-center gap-1 rounded-md px-2.5 text-[11px] font-medium text-muted-foreground outline-none transition-colors duration-150 hover:text-worktree-sidebar-foreground focus-visible:ring-[3px] focus-visible:ring-worktree-sidebar-ring/50"
                   >
                     {group.title}
                     <ChevronRight
                       aria-hidden
-                      className={cn('size-3 transition-transform', expanded && 'rotate-90')}
+                      className={cn(
+                        'size-3 transition-transform duration-200 ease-out-quint motion-reduce:transition-none',
+                        expanded && 'rotate-90'
+                      )}
                     />
                   </button>
                 ) : (
-                  <p className="px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                  <p className="flex h-6 items-center px-2.5 text-[11px] font-medium text-muted-foreground">
                     {group.title}
                   </p>
                 )}
                 {expanded ? (
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     {group.sections
                       .filter((section) => section.id !== 'setup-guide')
                       .map((section) => {
@@ -300,7 +316,7 @@ export function SettingsSidebar({
                                 {installStatusLabel(section.installStatus)}
                               </span>
                             ) : section.badge ? (
-                              <span className="ml-auto rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+                              <span className="ml-auto shrink-0 text-[11px] text-muted-foreground">
                                 {section.badge}
                               </span>
                             ) : null}
@@ -313,13 +329,13 @@ export function SettingsSidebar({
             )
           })}
 
-          <div className="space-y-2">
-            <p className="px-3 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+          <div className="space-y-1">
+            <p className="flex h-6 items-center px-2.5 text-[11px] font-medium text-muted-foreground">
               {translate('auto.components.settings.SettingsSidebar.5c9669ff9c', 'Projects')}
             </p>
 
             {repoSections.length > 0 ? (
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {repoSections.map((section) => {
                   const isActive = activeSectionId === section.id
 
@@ -350,7 +366,7 @@ export function SettingsSidebar({
                 })}
               </div>
             ) : (
-              <p className="px-3 text-xs text-muted-foreground">
+              <p className="px-2.5 text-xs text-muted-foreground">
                 {hasRepos
                   ? translate(
                       'auto.components.settings.SettingsSidebar.3e483e256b',

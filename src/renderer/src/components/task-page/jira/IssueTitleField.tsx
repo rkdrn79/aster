@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
 import { Button } from '@/components/ui/button'
-import { Sparkles, Square } from 'lucide-react'
+import { Square, PenLine } from 'lucide-react'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 
 export function TaskPageJiraIssueTitleField({
@@ -88,7 +88,7 @@ export function TaskPageJiraIssueTitleField({
                   'Generate title from description'
                 )}
               >
-                <Sparkles className="size-3.5" />
+                <PenLine className="size-3.5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top" sideOffset={4}>

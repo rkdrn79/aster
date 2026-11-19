@@ -25,9 +25,7 @@ export function WorktreeJumpPaletteTaskRow({
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
             <span className="shrink-0 text-xs text-muted-foreground">{result.identifier}</span>
-            <span className="truncate text-[14px] font-semibold text-foreground">
-              {result.title}
-            </span>
+            <span className="truncate text-[14px] font-medium text-foreground">{result.title}</span>
           </div>
           <div className="mt-1 truncate text-xs text-muted-foreground">
             {result.task.provider} · {result.sourceContext.accountLabel ?? result.hostLabel} ·{' '}

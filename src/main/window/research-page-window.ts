@@ -8,6 +8,8 @@ import { sendToTrustedUIRenderer } from '../ipc/ui'
 import type { Store } from '../persistence'
 import type { KeybindingOverrides } from '../../shared/keybindings'
 import { PRODUCT_NAME } from '../../shared/product-brand'
+import { uiZoomFactorFromLevel } from '../../shared/ui-zoom-level'
+import { TRAFFIC_LIGHT_RADIUS, TRAFFIC_LIGHT_X } from './main-window-visual-lifecycle'
 import {
   RESEARCH_WINDOW_PAGE_LABELS,
   researchWindowQuery,
@@ -16,6 +18,17 @@ import {
 
 const WIDTH = 1180
 const HEIGHT = 820
+// Why: the window's top bar (project, pages, Open in main window) is a 44px band on the shell, so
+// the macOS traffic lights centre in it at 22 CSS px (×zoom), as the main window's do in its header.
+const TITLEBAR_CSS_CENTER = 22
+
+function syncResearchWindowTrafficLights(window: BrowserWindow, zoomLevel: number): void {
+  if (process.platform !== 'darwin' || window.isDestroyed()) {
+    return
+  }
+  const y = Math.round(TITLEBAR_CSS_CENTER * uiZoomFactorFromLevel(zoomLevel) - TRAFFIC_LIGHT_RADIUS)
+  window.setWindowButtonPosition({ x: TRAFFIC_LIGHT_X, y })
+}
 // One window per project: opening another of its pages brings that window to the page.
 const windows = new Map<string, BrowserWindow>()
 
@@ -102,6 +115,16 @@ export function openResearchPageWindow(
     show: false,
     autoHideMenuBar: true,
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#0a0a0a' : '#ffffff',
+    // Why: on macOS the page's own top bar is the title bar; the traffic lights sit at its start.
+    ...(process.platform === 'darwin'
+      ? {
+          titleBarStyle: 'hiddenInset' as const,
+          trafficLightPosition: {
+            x: TRAFFIC_LIGHT_X,
+            y: TITLEBAR_CSS_CENTER - TRAFFIC_LIGHT_RADIUS
+          }
+        }
+      : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: true,
@@ -116,7 +139,9 @@ export function openResearchPageWindow(
   attachResearchWindowShortcuts(window, { getKeybindings })
   window.webContents.on('dom-ready', () => {
     if (!window.isDestroyed()) {
-      window.webContents.setZoomLevel(store.getUI().uiZoomLevel ?? 0)
+      const level = store.getUI().uiZoomLevel ?? 0
+      window.webContents.setZoomLevel(level)
+      syncResearchWindowTrafficLights(window, level)
     }
   })
   let lastFollowedZoomLevel = store.getUI().uiZoomLevel ?? 0
@@ -125,6 +150,7 @@ export function openResearchPageWindow(
     if (level !== lastFollowedZoomLevel && !window.isDestroyed()) {
       lastFollowedZoomLevel = level
       window.webContents.setZoomLevel(level)
+      syncResearchWindowTrafficLights(window, level)
     }
   })
   window.once('ready-to-show', () => showWindowWithoutStealingFocus(window))

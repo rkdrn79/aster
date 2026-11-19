@@ -7,7 +7,7 @@ export const getOpenaiTranscriptionSearchEntry = createLocalizedCatalog(
   (): SettingsSearchEntry => ({
     title: translate(
       'auto.components.settings.voice.pane.search.ebfd0b32e5',
-      'OpenAI Transcription'
+      'OpenAI transcription'
     ),
     description: translate(
       'auto.components.settings.voice.pane.search.dcc7846641',
@@ -32,7 +32,7 @@ export const getVoicePaneSearchEntries = createLocalizedCatalog(() => [
   {
     title: translate(
       'auto.components.settings.voice.pane.search.20574cbc72',
-      'Enable Voice Dictation'
+      'Enable voice dictation'
     ),
     description: translate(
       'auto.components.settings.voice.pane.search.698376a38d',
@@ -53,7 +53,7 @@ export const getVoicePaneSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.voice.pane.search.6a3abb4338', 'Dictation Mode'),
+    title: translate('auto.components.settings.voice.pane.search.6a3abb4338', 'Dictation mode'),
     description: translate(
       'auto.components.settings.voice.pane.search.748b33e531',
       'Toggle or hold-to-talk dictation behavior.'
@@ -100,7 +100,7 @@ export const getVoicePaneSearchEntries = createLocalizedCatalog(() => [
   },
   getOpenaiTranscriptionSearchEntry(),
   {
-    title: translate('auto.components.settings.voice.pane.search.7e62cd7c41', 'Speech Model'),
+    title: translate('auto.components.settings.voice.pane.search.7e62cd7c41', 'Speech model'),
     description: translate(
       'auto.components.settings.voice.pane.search.56defcd6c3',
       'Select a local or cloud speech-to-text model to use for dictation.'

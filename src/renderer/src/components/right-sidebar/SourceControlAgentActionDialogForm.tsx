@@ -1,5 +1,5 @@
 import React from 'react'
-import { Info, RefreshCw, RotateCcw, Settings, Sparkles, TriangleAlert } from 'lucide-react'
+import { Info, RefreshCw, RotateCcw, Settings, TriangleAlert, Bot } from 'lucide-react'
 import AgentCombobox from '@/components/agent/AgentCombobox'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
@@ -288,7 +288,7 @@ export function SourceControlAgentActionDialogForm({
                 className="mt-0.5 size-3.5 accent-foreground"
               />
               <span>
-                <span className="block text-xs font-semibold">
+                <span className="block text-xs font-medium">
                   {selectedLaunchRecipeAlreadySaved
                     ? translate(
                         'auto.components.right.sidebar.SourceControlAgentActionDialogForm.b0da3a4d3e',
@@ -307,7 +307,7 @@ export function SourceControlAgentActionDialogForm({
                       )
                     : translate(
                         'auto.components.right.sidebar.SourceControlAgentActionDialogForm.6cefcdfba1',
-                        'You can change it later in Source Control AI settings.'
+                        'You can change it later in source control AI settings.'
                       )}
                 </span>
               </span>
@@ -355,11 +355,7 @@ export function SourceControlAgentActionDialogForm({
           )}
         </Button>
         <Button type="button" size="sm" disabled={!canStart} onClick={onStart}>
-          {isStarting ? (
-            <RefreshCw className="size-4 animate-spin" />
-          ) : (
-            <Sparkles className="size-4" />
-          )}
+          {isStarting ? <RefreshCw className="size-4 animate-spin" /> : <Bot className="size-4" />}
           {effectiveStartLabel}
         </Button>
       </DialogFooter>

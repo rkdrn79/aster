@@ -31,7 +31,7 @@ export function getNativeChatSplitQuickActions(): CmdJQuickAction[] {
   return [
     splitAction('right', {
       id: 'split-chat-right',
-      title: translate('auto.components.cmd.j.quick.actions.splitChatRight', 'Split Chat Right'),
+      title: translate('auto.components.cmd.j.quick.actions.splitChatRight', 'Split chat right'),
       description: translate(
         'auto.components.cmd.j.quick.actions.splitChatRightDescription',
         'Open the active chat in a split pane to the right.'
@@ -45,7 +45,7 @@ export function getNativeChatSplitQuickActions(): CmdJQuickAction[] {
     }),
     splitAction('down', {
       id: 'split-chat-down',
-      title: translate('auto.components.cmd.j.quick.actions.splitChatDown', 'Split Chat Down'),
+      title: translate('auto.components.cmd.j.quick.actions.splitChatDown', 'Split chat down'),
       description: translate(
         'auto.components.cmd.j.quick.actions.splitChatDownDescription',
         'Open the active chat in a split pane below.'

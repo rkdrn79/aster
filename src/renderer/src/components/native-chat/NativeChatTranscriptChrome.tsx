@@ -21,6 +21,7 @@ import { copyableNativeChatImageSrc, keepPreviewOpenForChatMenu } from './native
 import { isNativeChatPastedImagePath } from './native-chat-image-paste'
 import { nativeChatImageLabel } from './native-chat-image-label'
 import { chatImageAccess } from '@/lib/local-file-access'
+import { NATIVE_CHAT_ROW_ACTION_CLASS } from './native-chat-row-action'
 
 type VisibilityListener = (isVisible: boolean) => void
 
@@ -130,10 +131,10 @@ function TranscriptImagePreview({
   const viewImageLabel = translate('components.native-chat.composer.viewAttachment', 'View image')
   const fallback = (
     <div
-      className="flex max-w-full items-center gap-1.5 rounded-md border border-border bg-chat-canvas px-2 py-1 text-xs text-chat-foreground-faint"
+      className="flex max-w-full items-center gap-2 rounded-md border border-border bg-chat-canvas px-2 py-1 text-xs text-chat-foreground-faint"
       title={label}
     >
-      <ImageIcon className="size-3.5 shrink-0" />
+      <ImageIcon className="size-4 shrink-0" />
       <span className="truncate">{label}</span>
     </div>
   )
@@ -215,7 +216,7 @@ export function NativeChatImageAttachments({
   const imageKeyCounts = new Map<string, number>()
   if (!enablePreview) {
     return (
-      <div className="mb-2 flex flex-wrap gap-1.5">
+      <div className="mb-2 flex flex-wrap gap-2">
         {images.map((image) => {
           const label = image.alt ?? image.path ?? image.url ?? 'Image'
           const imageKeyBase = `${label}-${image.url ?? ''}-${image.path ?? ''}`
@@ -230,10 +231,10 @@ export function NativeChatImageAttachments({
           return (
             <div
               key={`${imageKeyBase}-${occurrence}`}
-              className="flex max-w-full items-center gap-1.5 rounded-md border border-border bg-chat-canvas px-2 py-1 text-xs text-chat-foreground-faint"
+              className="flex max-w-full items-center gap-2 rounded-md border border-border bg-chat-canvas px-2 py-1 text-xs text-chat-foreground-faint"
               title={label}
             >
-              <ImageIcon className="size-3.5 shrink-0" />
+              <ImageIcon className="size-4 shrink-0" />
               <span className="truncate">{name}</span>
             </div>
           )
@@ -242,7 +243,7 @@ export function NativeChatImageAttachments({
     )
   }
   return (
-    <div className="mb-2 flex flex-wrap gap-1.5">
+    <div className="mb-2 flex flex-wrap gap-2">
       {images.map((image) => {
         const label = image.alt ?? image.path ?? image.url ?? 'Image'
         const imageKeyBase = `${label}-${image.url ?? ''}-${image.path ?? ''}`
@@ -288,9 +289,9 @@ export function NativeChatAgentControls({
           'Scroll this message to top'
         )}
         title={translate('components.native-chat.scrollMessageToTop', 'Scroll this message to top')}
-        className="flex size-6 shrink-0 items-center justify-center rounded-md text-chat-foreground-faint transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={NATIVE_CHAT_ROW_ACTION_CLASS}
       >
-        <ArrowUp className="size-3.5" />
+        <ArrowUp className="size-4" />
       </button>
       {branchMessageId ? <NativeChatBranchAction messageId={branchMessageId} kind="agent" /> : null}
       <NativeChatMessageTimestamp timestamp={timestamp} />

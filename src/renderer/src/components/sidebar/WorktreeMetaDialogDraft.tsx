@@ -316,7 +316,7 @@ const WorktreeMetaDialogDraft = React.memo(function WorktreeMetaDialogDraft() {
                   }}
                   placeholder={translate(
                     'auto.components.sidebar.WorktreeMetaDialog.030d484fc0',
-                    'Notes about this worktree...'
+                    'Notes about this worktree'
                   )}
                   rows={3}
                   className="max-h-60 resize-none"

@@ -257,7 +257,7 @@ export function RemoteFileBrowser({
           onKeyDown={handleFilterKeyDown}
           placeholder={translate(
             'auto.components.sidebar.RemoteFileBrowser.2300612806',
-            'Type to filter or enter a path…'
+            'Filter or enter a path'
           )}
           aria-invalid={!!preview?.error}
           aria-describedby={preview?.error ? 'remote-file-browser-path-error' : undefined}

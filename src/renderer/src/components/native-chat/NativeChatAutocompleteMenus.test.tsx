@@ -91,7 +91,7 @@ describe('NativeChatPickerMenu', () => {
       />
     )
     expect(screen.getByRole('option', { name: /clear/i })).toBeTruthy()
-    expect(screen.getAllByText('Loading skills...')).toHaveLength(2)
+    expect(screen.getAllByText('Loading skills…')).toHaveLength(2)
   })
 
   it('renders a retryable error instead of the loading spinner when discovery fails', () => {
@@ -107,7 +107,7 @@ describe('NativeChatPickerMenu', () => {
     )
 
     expect(screen.getAllByText("Couldn't load skills")).toHaveLength(2)
-    expect(screen.queryByText('Loading skills...')).toBeNull()
+    expect(screen.queryByText('Loading skills…')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
     expect(onRetry).toHaveBeenCalledOnce()
   })
@@ -233,7 +233,7 @@ describe('NativeChatMentionMenu', () => {
 
   it.each([
     [NO_ROWS, 'No matching files'],
-    [{ ...NO_ROWS, loading: true, failed: true }, 'Loading files...'],
+    [{ ...NO_ROWS, loading: true, failed: true }, 'Loading files…'],
     [{ ...NO_ROWS, failed: true }, "Couldn't load files"]
   ])('explains an empty list: %#', (mention, text) => {
     render(

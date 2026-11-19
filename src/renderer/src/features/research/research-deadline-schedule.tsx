@@ -6,6 +6,8 @@ import { ResearchDeadlineNextSteps } from './research-deadline-next-steps'
 import type { MissingMilestone, SubmissionPrompt } from './research-deadline-progress'
 import type { DeadlineCategory, DeadlineEntry } from './research-deadline-timeline'
 
+const COUNT_CHIP = 'text-2xs leading-4 tabular-nums text-muted-foreground'
+
 type AgendaProps = Omit<React.ComponentProps<typeof ResearchDeadlineAgenda>, 'entries'>
 
 type Props = AgendaProps & {
@@ -108,20 +110,18 @@ export function ResearchDeadlineSchedule({
       }
       className="min-h-0 flex-1"
     >
-      <div className="flex flex-wrap items-end gap-2 border-b border-border px-6">
-        <TabsList variant="line" aria-label="Schedule">
+      <div className="flex flex-wrap items-center gap-2 px-6 pt-3">
+        <TabsList aria-label="Schedule">
           <TabsTrigger value="deadline">
             Deadlines
-            <span className="text-2xs tabular-nums text-muted-foreground">{deadlines.length}</span>
+            <span className={COUNT_CHIP}>{deadlines.length}</span>
           </TabsTrigger>
           <TabsTrigger value="after-submission">
             After submission
-            <span className="text-2xs tabular-nums text-muted-foreground">
-              {afterSubmission.length}
-            </span>
+            <span className={COUNT_CHIP}>{afterSubmission.length}</span>
           </TabsTrigger>
         </TabsList>
-        <div className="ml-auto flex flex-wrap items-center gap-2 pb-1.5">
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           <ToggleGroup
             type="single"
             variant="outline"
@@ -140,7 +140,7 @@ export function ResearchDeadlineSchedule({
       <TabsContent value="deadline" className="scrollbar-sleek min-h-0 overflow-auto px-6 pb-5">
         {browsing ? (
           <p className="pb-1 pt-3 text-xs text-muted-foreground">
-            Showing every matching conference; track one to keep it here.
+            Showing every matching conference; track one to keep it here
           </p>
         ) : null}
         <div className="pt-3">

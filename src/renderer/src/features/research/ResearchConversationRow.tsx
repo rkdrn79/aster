@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { useAppStore } from '@/store'
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -35,6 +36,7 @@ import { useResearchRecords } from './research-records-store'
 import { useResearchLibrary } from './research-library-store'
 import { researchConversationHome } from './research-conversation-home'
 import { ResearchChatBranchMenuItem } from './ResearchChatBranchMenuItem'
+import { ResearchChatForkStatus } from './ResearchChatStatusBadge'
 
 type Props = {
   tab: Tab
@@ -141,7 +143,9 @@ export function ResearchConversationRow({
     }
   }
   return (
-    <div className="group flex min-w-0 items-center gap-1">
+    // The options button floats inside the row's right edge, so every row (and its highlight)
+    // runs the sidebar's full width; the label gives way only while the button shows.
+    <div className="group relative flex min-w-0 items-center">
       <Button
         size="sm"
         variant={active ? 'secondary' : 'ghost'}
@@ -169,8 +173,11 @@ export function ResearchConversationRow({
         ) : (
           <MessageSquareText className="size-4 shrink-0" aria-hidden />
         )}
-        <span className="flex min-w-0 flex-col items-start">
-          <span className="max-w-full truncate">{label}</span>
+        <span className="flex min-w-0 flex-1 flex-col items-start group-focus-within:pr-6 group-hover:pr-6 group-has-[[data-state=open]]:pr-6">
+          <span className="flex max-w-full min-w-0 items-center gap-2">
+            <span className="min-w-0 truncate">{label}</span>
+            <ResearchChatForkStatus tab={tab} hostId={hostId} />
+          </span>
           {detail ? (
             <span
               id={experimentLabelId}
@@ -182,7 +189,7 @@ export function ResearchConversationRow({
         </span>
       </Button>
       {/* Why: shown on hover, focus or while open so each row reads as a title first. */}
-      <span className="flex opacity-0 group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100">
+      <span className="absolute top-1/2 right-1 flex -translate-y-1/2 opacity-0 transition-opacity duration-(--duration-fast) group-hover:opacity-100 focus-within:opacity-100 has-[[data-state=open]]:opacity-100">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -202,15 +209,21 @@ export function ResearchConversationRow({
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
                   <DropdownMenuLabel>Experiment</DropdownMenuLabel>
-                  <DropdownMenuItem onSelect={() => onLink(null)}>
-                    None{linkedExperiment ? '' : ' ✓'}
-                  </DropdownMenuItem>
+                  <DropdownMenuCheckboxItem
+                    checked={!linkedExperiment}
+                    onSelect={() => onLink(null)}
+                  >
+                    None
+                  </DropdownMenuCheckboxItem>
                   {experiments.length > 0 && <DropdownMenuSeparator />}
                   {experiments.map((experiment) => (
-                    <DropdownMenuItem key={experiment.id} onSelect={() => onLink(experiment.id)}>
+                    <DropdownMenuCheckboxItem
+                      key={experiment.id}
+                      checked={linkedExperiment?.id === experiment.id}
+                      onSelect={() => onLink(experiment.id)}
+                    >
                       {experiment.name}
-                      {linkedExperiment?.id === experiment.id ? ' ✓' : ''}
-                    </DropdownMenuItem>
+                    </DropdownMenuCheckboxItem>
                   ))}
                 </DropdownMenuSubContent>
               </DropdownMenuSub>

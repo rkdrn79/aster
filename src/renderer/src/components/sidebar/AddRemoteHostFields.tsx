@@ -212,7 +212,7 @@ export function RemoteServerFields({
         <p id="add-server-pairing-code-help" className="text-xs text-muted-foreground">
           {translate(
             'auto.components.sidebar.AddRemoteHostDialog.pairingHelpShareComputer',
-            'Create this under Settings → Remote Aster Servers → Share this computer on the other computer.'
+            'Create this under Settings → Remote Aster servers → Share this computer on the other computer.'
           )}
         </p>
         {inputError ? (

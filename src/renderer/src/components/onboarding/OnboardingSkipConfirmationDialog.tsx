@@ -19,7 +19,7 @@ export const ONBOARDING_SKIP_CONFIRMATION_COPY = {
   get description() {
     return translate(
       'auto.components.onboarding.OnboardingSkipConfirmationDialog.9f47f345a4',
-      "It won't take long!"
+      "It won't take long."
     )
   },
   get skipLabel() {

@@ -52,7 +52,7 @@ async function openRepoSettings(page: Page, repoId: string): Promise<void> {
     state.openSettingsPage()
   }, repoId)
   await expect(page.getByPlaceholder('Search settings')).toBeVisible({ timeout: 10_000 })
-  const maybeLaterButton = page.getByRole('button', { name: 'Maybe Later' })
+  const maybeLaterButton = page.getByRole('button', { name: 'Maybe later' })
   if (await maybeLaterButton.isVisible({ timeout: 1_000 }).catch(() => false)) {
     await maybeLaterButton.click()
   }

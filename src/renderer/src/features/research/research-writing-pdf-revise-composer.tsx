@@ -172,9 +172,9 @@ export function ResearchWritingPdfReviseComposer({
         }
       }}
     >
-      <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
+      <div className="flex items-center gap-2 border-b border-border px-3 py-3">
         <MessageSquareText className="size-4 text-muted-foreground" aria-hidden />
-        <h2 className="min-w-0 flex-1 truncate text-sm font-semibold">Revise PDF text</h2>
+        <h2 className="min-w-0 flex-1 truncate text-sm font-medium">Revise PDF text</h2>
         <Button
           type="button"
           size="icon-xs"
@@ -187,7 +187,7 @@ export function ResearchWritingPdfReviseComposer({
       </div>
       <div className="scrollbar-sleek min-h-0 space-y-3 overflow-y-auto p-3">
         <p className="text-xs text-muted-foreground">Page {selection.pageNumber}</p>
-        <blockquote className="scrollbar-sleek max-h-28 overflow-auto whitespace-pre-wrap break-words rounded-md border-l-2 border-primary/50 bg-muted/40 p-2.5 text-xs">
+        <blockquote className="scrollbar-sleek max-h-28 overflow-auto whitespace-pre-wrap break-words rounded-md border-l-2 border-primary/50 bg-muted/40 p-3 text-xs">
           {selection.text}
         </blockquote>
         <label className="block space-y-1 text-xs font-medium">
@@ -222,7 +222,7 @@ export function ResearchWritingPdfReviseComposer({
           </p>
         ) : null}
       </div>
-      <div className="flex justify-end gap-2 border-t border-border px-3 py-2.5">
+      <div className="flex justify-end gap-2 border-t border-border px-3 py-3">
         <Button type="button" size="sm" variant="outline" onClick={onClose} disabled={sending}>
           Cancel
         </Button>

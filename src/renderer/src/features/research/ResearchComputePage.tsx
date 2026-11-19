@@ -261,7 +261,7 @@ export function ResearchComputePage(): React.JSX.Element {
 
         {capabilities.jobs && capabilities.links ? null : (
           <p className="text-xs text-muted-foreground">
-            Restart the app to submit jobs and link folders.
+            Restart the app to submit jobs and link folders
           </p>
         )}
 
@@ -286,7 +286,7 @@ export function ResearchComputePage(): React.JSX.Element {
           </ResearchEmptyState>
         ) : !readableCount ? (
           <ResearchEmptyState icon={Cpu} title="Choose hosts">
-            Select hosts above to see their jobs and GPUs.
+            Select hosts above to see their jobs and GPUs
           </ResearchEmptyState>
         ) : (
           <div className="space-y-8">

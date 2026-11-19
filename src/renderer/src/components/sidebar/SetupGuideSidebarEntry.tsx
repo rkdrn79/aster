@@ -89,7 +89,7 @@ export function SetupGuideSidebarEntry(): React.JSX.Element | null {
           }
           aria-current={setupActive ? 'page' : undefined}
           className={cn(
-            'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] font-medium tracking-tight transition-colors',
+            'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition-colors',
             setupActive
               ? 'bg-worktree-sidebar-accent text-worktree-sidebar-accent-foreground'
               : 'text-worktree-sidebar-foreground/60 hover:bg-worktree-sidebar-foreground/8'

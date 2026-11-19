@@ -15,12 +15,18 @@ import {
   figureContextKey,
   type FigureQuickRequest
 } from './research-figures-agent-prompts'
+import { FIGURE_REQUESTS_WITHOUT_FIGURE, PLOT_QUICK_REQUESTS } from './research-figure-plot-prompts'
 import { sendFigurePrompt } from './research-figures-agent-session'
 import { figureSceneText, writeFigureSketches } from './research-figures-export'
 import { confirmRedraw } from './research-figure-overwrite'
 import { prepareFigureVariants, useFigureVariantsMode } from './research-figure-variants'
-import { figurePromptContext, type FigureRequestHost } from './research-figure-prompt-context'
+import {
+  figurePromptContext,
+  figureRequestPlotTarget,
+  type FigureRequestHost
+} from './research-figure-prompt-context'
 import { attachFigureTurnSession, beginFigureTurn, failFigureTurn } from './research-figure-turn'
+import { warmFigureCritic } from './research-figure-critic'
 
 export { figurePromptContext, type FigureRequestHost } from './research-figure-prompt-context'
 
@@ -44,9 +50,13 @@ export async function sendTrackedFigurePrompt(
   host: FigureRequestHost,
   input: { request: string; prompt: string; before: string | null }
 ): Promise<string | null> {
-  const target = host.api ? host.target : null
+  const figure = host.api ? host.target : null
+  // Why a plot is a target too: its History keeps its files before and after the turn.
+  const plot = figure ? null : figureRequestPlotTarget(host)
+  const target = figure ?? plot
   const id = beginFigureTurn({
     target,
+    plot: plot !== null,
     request: input.request,
     prompt: input.prompt,
     scope: host.scope,
@@ -68,13 +78,15 @@ export async function sendFigureQuickRequest(
   start: FigureRequestHost,
   request: FigureQuickRequest
 ): Promise<string | null> {
-  if (request !== 'draw-method' && request !== 'plot' && !start.api) {
+  if (!FIGURE_REQUESTS_WITHOUT_FIGURE.has(request) && !start.api) {
     return 'Open a figure first.'
   }
   const label = FIGURE_QUICK_ACTIONS.find((entry) => entry.request === request)?.label ?? request
   // Why no question with variants: they go to .variants/, so the figure itself stays as it is.
   const variants =
-    useFigureVariantsMode.getState().on && request !== 'plot' && start.target !== null
+    useFigureVariantsMode.getState().on &&
+    !PLOT_QUICK_REQUESTS.has(request) &&
+    start.target !== null
   const confirmed =
     REDRAWS.has(request) && !variants
       ? await confirmRedraw(start, label, request === 'sketch')
@@ -105,11 +117,15 @@ export async function sendFigureQuickRequest(
     images.length && host.api && host.target
       ? await writeFigureSketches(host.api, host.target, images)
       : []
-  return sendTrackedFigurePrompt(host, {
+  const sendFailure = await sendTrackedFigurePrompt(host, {
     request: variants ? `${label} (three variants)` : label,
     prompt: buildFigureQuickPrompt(figurePromptContext(host), request, sketches, variants),
     before
   })
+  if (!sendFailure && !PLOT_QUICK_REQUESTS.has(request)) {
+    warmFigureCritic(host.scope, host.api ? host.target : null)
+  }
+  return sendFailure
 }
 
 /** Names the area after the request, saves it, and sends the agent its bounds and neighbors. */

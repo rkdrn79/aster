@@ -52,7 +52,7 @@ export async function seedIsolatedSshConfig(
 }
 
 export async function dismissTransientAnnouncement(page: Page): Promise<void> {
-  const maybeLaterButton = page.getByRole('button', { name: 'Maybe Later' })
+  const maybeLaterButton = page.getByRole('button', { name: 'Maybe later' })
   const visible = await expect(maybeLaterButton)
     .toBeVisible({ timeout: 1_000 })
     .then(() => true)

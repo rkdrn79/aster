@@ -34,9 +34,9 @@ function JudgeMixedNote({
   return text ? (
     <p
       role="status"
-      className="flex items-start gap-2 rounded-md border border-status-warning-border bg-status-warning-background px-2 py-1.5"
+      className="flex items-start gap-2 rounded-lg bg-muted/60 px-3 py-2 dark:bg-muted/45"
     >
-      <TriangleAlert aria-hidden className="mt-0.5 size-3 shrink-0 text-status-warning" />
+      <TriangleAlert aria-hidden className="mt-0.5 size-4 shrink-0 text-status-warning" />
       {text}
     </p>
   ) : null
@@ -215,8 +215,8 @@ export function AgentJudgmentLine({
   }
   const judge = [agent.judge?.provider, agent.judge?.model].filter(Boolean).join(' ')
   return (
-    <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
-      <Bot aria-hidden className="mt-0.5 size-3 shrink-0" />
+    <p className="flex items-start gap-2 text-xs text-muted-foreground">
+      <Bot aria-hidden className="mt-0.5 size-4 shrink-0" />
       <span>
         Agent judge{judge ? ` (${judge})` : ''}: {verdictLabel(agent.verdict)}
         {user && user.verdict !== agent.verdict ? ' · differs from yours' : ''}

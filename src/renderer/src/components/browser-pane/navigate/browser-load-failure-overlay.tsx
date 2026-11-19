@@ -244,7 +244,7 @@ export function BrowserLoadFailureOverlay({
       onClick={() => onCopy(currentUrl)}
     >
       <Copy className="size-4" />
-      {translate('browser.loadFailure.copyAddress', 'Copy Address')}
+      {translate('browser.loadFailure.copyAddress', 'Copy address')}
     </Button>
   )
   const externalButton =
@@ -257,7 +257,7 @@ export function BrowserLoadFailureOverlay({
         onClick={() => onOpenExternal(externalUrl)}
       >
         <ExternalLink className="size-4" />
-        {translate('browser.loadFailure.openExternally', 'Open Externally')}
+        {translate('browser.loadFailure.openExternally', 'Open externally')}
       </Button>
     ) : null
 
@@ -345,7 +345,7 @@ export function BrowserLoadFailureOverlay({
                         {translate('browser.loadFailure.connecting', 'Connecting…')}
                       </>
                     ) : (
-                      translate('browser.loadFailure.proceedUnsafe', 'Proceed Anyway (Unsafe)')
+                      translate('browser.loadFailure.proceedUnsafe', 'Proceed anyway (unsafe)')
                     )}
                   </Button>
                 ) : null}

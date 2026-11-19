@@ -43,9 +43,7 @@ function DecisionLine({
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <div className="text-[11px] font-medium uppercase tracking-[0.05em] text-muted-foreground">
-          {label}
-        </div>
+        <div className="text-[11px] font-medium text-muted-foreground">{label}</div>
         <div className="mt-0.5 truncate text-xs" title={value}>
           {value}
         </div>
@@ -150,7 +148,7 @@ export function WorkspaceDecisionHoverCard({
       <div className="border-b border-border/60 px-4 py-3">
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold">{worktree.displayName}</div>
+            <div className="truncate text-sm font-medium">{worktree.displayName}</div>
             <div className="mt-0.5 truncate text-xs text-muted-foreground">
               {worktree.repoDisplayName} · {formatBytes(worktree.sizeBytes)}
             </div>

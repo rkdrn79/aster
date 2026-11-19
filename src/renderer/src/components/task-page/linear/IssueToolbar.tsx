@@ -69,10 +69,10 @@ export function TaskPageLinearIssueToolbar({
             <ChevronLeft className="size-3.5" />
           </Button>
         ) : null}
-        <div className="min-w-0 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+        <div className="min-w-0 text-[11px] font-medium text-muted-foreground">
           {activeLinearIssueContextLabel ??
             (linearMode === 'in-orca'
-              ? translate('auto.components.TaskPage.linearModeHasWorktree', 'Has Workspace')
+              ? translate('auto.components.TaskPage.linearModeHasWorktree', 'Has workspace')
               : translate('auto.components.TaskPage.60f68a2ef4', 'Linear issues'))}
         </div>
       </div>
@@ -98,7 +98,7 @@ export function TaskPageLinearIssueToolbar({
                     )}
                     aria-pressed={active}
                     className={cn(
-                      'inline-flex size-6 items-center justify-center rounded text-muted-foreground transition hover:text-foreground',
+                      'inline-flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground',
                       active && 'bg-accent text-accent-foreground shadow-xs'
                     )}
                   >

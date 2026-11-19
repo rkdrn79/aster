@@ -7,7 +7,7 @@ describe('collapse unchanged settings search', () => {
     'keeps the setting reachable through both search gates for "%s"',
     (query) => {
       const editorEntries = getGeneralEditorSearchEntries()
-      const entry = editorEntries.find((item) => item.title === 'Collapse Unchanged Regions')
+      const entry = editorEntries.find((item) => item.title === 'Collapse unchanged regions')
 
       expect(entry).toBeDefined()
       expect(matchesSettingsSearch(query, entry!)).toBe(true)

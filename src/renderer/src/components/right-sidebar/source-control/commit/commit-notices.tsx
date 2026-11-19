@@ -45,7 +45,7 @@ export function CommitNotices({
           )}
           detailsTitle={translate(
             'auto.components.right.sidebar.SourceControl.a9bf7c171a',
-            'Commit Failed'
+            'Commit failed'
           )}
           summary={commitFailureSummary}
           detailText={commitError}
@@ -75,7 +75,7 @@ export function CommitNotices({
           )}
           detailsTitle={translate(
             'auto.components.right.sidebar.SourceControl.pushRecovery.a9bf7c171a',
-            'Push Failed'
+            'Push failed'
           )}
           summary={pushRecovery.summary}
           detailText={pushRecovery.detailText}
@@ -131,7 +131,7 @@ export function CommitNotices({
             >
               {translate(
                 'auto.components.right.sidebar.SourceControl.473f18758e',
-                'Source Control AI settings'
+                'Source control AI settings'
               )}
             </button>
           ) : null}

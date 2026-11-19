@@ -103,8 +103,8 @@ export function TerminalThemeCatalogSection({
   const showCustomControls = !lightModeMatchesDark
   const selectedTheme = isLightTarget ? settings.terminalThemeLight : settings.terminalThemeDark
   const pickerTitle = isLightTarget
-    ? translate('auto.components.settings.TerminalThemeSections.8273bc75d7', 'Light Theme')
-    : translate('auto.components.settings.TerminalThemeSections.9499ad1dc4', 'Dark Theme')
+    ? translate('auto.components.settings.TerminalThemeSections.8273bc75d7', 'Light theme')
+    : translate('auto.components.settings.TerminalThemeSections.9499ad1dc4', 'Dark theme')
   const pickerDescription = isLightTarget
     ? translate(
         'auto.components.settings.TerminalThemeSections.d56af60e6f',
@@ -115,8 +115,8 @@ export function TerminalThemeCatalogSection({
         'Choose the terminal theme used in dark mode.'
       )
   const dividerTitle = isLightTarget
-    ? translate('auto.components.settings.TerminalThemeSections.ec2e33ad80', 'Light Divider Color')
-    : translate('auto.components.settings.TerminalThemeSections.b739d2abfe', 'Dark Divider Color')
+    ? translate('auto.components.settings.TerminalThemeSections.ec2e33ad80', 'Light divider color')
+    : translate('auto.components.settings.TerminalThemeSections.b739d2abfe', 'Dark divider color')
   const dividerDescription = isLightTarget
     ? translate(
         'auto.components.settings.TerminalThemeSections.5e0c24b5c8',
@@ -133,7 +133,7 @@ export function TerminalThemeCatalogSection({
         className="items-center"
         title={translate(
           'auto.components.settings.TerminalThemeSections.catalog_title',
-          'Terminal Themes'
+          'Terminal themes'
         )}
         action={
           showThemeImport ? (
@@ -151,7 +151,7 @@ export function TerminalThemeCatalogSection({
             <SearchableSetting
               title={translate(
                 'auto.components.settings.TerminalThemeSections.target_title',
-                'Theme Mode'
+                'Theme mode'
               )}
               keywords={['terminal', 'theme', 'dark', 'light']}
               forceVisible
@@ -160,7 +160,7 @@ export function TerminalThemeCatalogSection({
                 <p className="text-xs font-medium text-muted-foreground">
                   {translate(
                     'auto.components.settings.TerminalThemeSections.target_title',
-                    'Theme Mode'
+                    'Theme mode'
                   )}
                 </p>
                 <SettingsSegmentedControl
@@ -223,7 +223,7 @@ export function TerminalThemeCatalogSection({
 
           <div
             className={cn(
-              'grid overflow-hidden transition-[grid-template-rows,padding-top] duration-200 ease-out',
+              'grid overflow-hidden',
               showCustomControls ? 'grid-rows-[1fr] pt-6' : 'grid-rows-[0fr] pt-0'
             )}
             aria-hidden={!showCustomControls}
@@ -231,7 +231,7 @@ export function TerminalThemeCatalogSection({
           >
             <div
               className={cn(
-                'min-h-0 space-y-6 transition-[opacity,transform] duration-150 ease-out',
+                'min-h-0 space-y-6 transition-[opacity,transform] duration-150',
                 showCustomControls
                   ? 'translate-y-0 opacity-100'
                   : 'pointer-events-none -translate-y-1 opacity-0'
@@ -306,11 +306,11 @@ export function TerminalThemeCatalogSection({
             isLightTarget
               ? translate(
                   'auto.components.settings.TerminalThemeSections.db210115c5',
-                  'Light Mode Preview'
+                  'Light mode preview'
                 )
               : translate(
                   'auto.components.settings.TerminalThemeSections.bc8e8a251a',
-                  'Dark Mode Preview'
+                  'Dark mode preview'
                 )
           }
           description={

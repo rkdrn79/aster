@@ -20,7 +20,7 @@ export function Field({
   children: React.ReactNode
 }): React.JSX.Element {
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       <Label htmlFor={htmlFor}>
         {label}
         {required ? (

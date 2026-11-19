@@ -44,7 +44,7 @@ export function BrowserPageGrabToast({
         }}
       />
       <div
-        className={`flex items-center gap-1.5 rounded-full py-1.5 pl-3 pr-1.5 shadow-lg ${
+        className={`flex items-center gap-1.5 rounded-lg py-1.5 pl-3 pr-1.5 shadow-lg ${
           grabToast.type === 'success' ? 'bg-white text-gray-900' : 'bg-white text-red-600'
         }`}
       >
@@ -53,7 +53,7 @@ export function BrowserPageGrabToast({
         ) : (
           <OctagonX className="size-4 text-red-500" />
         )}
-        <span className="text-sm font-semibold">{grabToast.message}</span>
+        <span className="text-sm font-medium">{grabToast.message}</span>
         {grabToast.payload?.screenshot?.dataUrl?.startsWith('data:image/png;base64,') ? (
           <DropdownMenu
             onOpenChange={(open) => {
@@ -66,7 +66,7 @@ export function BrowserPageGrabToast({
           >
             <DropdownMenuTrigger asChild>
               <button className="flex size-6 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-black/10 hover:text-gray-700">
-                <span className="text-sm font-bold leading-none">···</span>
+                <span className="text-sm font-medium leading-none">···</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" sideOffset={4}>
@@ -92,7 +92,7 @@ export function BrowserPageGrabToast({
                 <Image className="size-3.5" />
                 {translate(
                   'auto.components.browser.pane.BrowserPane.1ded0d3168',
-                  'Copy Screenshot'
+                  'Copy screenshot'
                 )}
                 <DropdownMenuShortcut>S</DropdownMenuShortcut>
               </DropdownMenuItem>

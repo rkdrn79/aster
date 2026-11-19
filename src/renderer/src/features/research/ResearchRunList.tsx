@@ -171,7 +171,7 @@ export function ResearchRunList({
           </Select>
         </div>
         {matchingRuns.length === 0 ? (
-          <p className="px-2 py-3 text-sm text-muted-foreground">No runs match.</p>
+          <p className="px-2 py-3 text-sm text-muted-foreground">No runs match</p>
         ) : null}
         <ul className="space-y-0.5">
           {matchingRuns.map((run) => {
@@ -215,7 +215,7 @@ export function ResearchRunList({
                         title={watched}
                         className="ml-auto inline-flex shrink-0 text-muted-foreground"
                       >
-                        <Eye aria-hidden className="size-3" />
+                        <Eye aria-hidden className="size-4" />
                       </span>
                     ) : null}
                   </Button>
@@ -283,7 +283,7 @@ export function ResearchRunList({
           />
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">Select a run.</p>
+        <p className="text-sm text-muted-foreground">Select a run</p>
       )}
     </div>
   )

@@ -12,7 +12,7 @@ export function BrowserUseEnableSwitch({
       checked={enabled}
       aria-label={translate(
         'auto.components.settings.BrowserUseEnableSwitch.aea3f45349',
-        'Enable Agent Browser Use'
+        'Enable agent browser use'
       )}
       onCheckedChange={onToggle}
     />

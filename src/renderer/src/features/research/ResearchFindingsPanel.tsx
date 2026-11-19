@@ -116,7 +116,7 @@ export function ResearchFindingsPanel({
       </div>
       {!state.available || !slug ? (
         <p className="text-xs text-muted-foreground">
-          Available for local research/ catalog projects.
+          Available for local research/ catalog projects
         </p>
       ) : (
         <>

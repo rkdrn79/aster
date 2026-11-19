@@ -1,5 +1,6 @@
 import { Loader2, Trash2 } from 'lucide-react'
 import type { PublicKnownRuntimeEnvironment } from '../../../../shared/runtime-environments'
+import { maskEndpointSecrets } from '../../../../shared/endpoint-display'
 import { translate } from '@/i18n/i18n'
 import { Button } from '../ui/button'
 import {
@@ -35,7 +36,7 @@ export function RuntimeEnvironmentSwitchDialog({
           <DialogTitle className="text-sm">
             {translate(
               'auto.components.settings.RuntimeEnvironmentsPane.d570c35a99',
-              'Switch Server'
+              'Switch server'
             )}
           </DialogTitle>
           <DialogDescription>
@@ -97,7 +98,7 @@ export function RuntimeEnvironmentRemoveDialog({
           <DialogTitle className="text-sm">
             {translate(
               'auto.components.settings.RuntimeEnvironmentsPane.bb90dd6487',
-              'Remove Server'
+              'Remove server'
             )}
           </DialogTitle>
           <DialogDescription>
@@ -116,11 +117,12 @@ export function RuntimeEnvironmentRemoveDialog({
           <div className="rounded-md border border-border/70 bg-muted/35 px-3 py-2 text-xs">
             <div className="truncate font-medium">{pendingRemove.name}</div>
             <div className="mt-0.5 truncate font-mono text-muted-foreground">
-              {pendingRemove.endpoints[0]?.endpoint ??
-                translate(
-                  'auto.components.settings.RuntimeEnvironmentsPane.6ef71985da',
-                  'No endpoint'
-                )}
+              {pendingRemove.endpoints[0]?.endpoint
+                ? maskEndpointSecrets(pendingRemove.endpoints[0].endpoint)
+                : translate(
+                    'auto.components.settings.RuntimeEnvironmentsPane.6ef71985da',
+                    'No endpoint'
+                  )}
             </div>
           </div>
         ) : null}

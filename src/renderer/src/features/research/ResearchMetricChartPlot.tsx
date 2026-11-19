@@ -14,7 +14,11 @@ export type PlotSeries = {
   id: string
   name: string
   color: string
-  /** Beyond the five categorical colors: drawn in muted ink, still listed in the tooltip. */
+  /** SVG stroke-dasharray that tells neutral series apart; none for a solid line. */
+  dash?: string
+  /** The run that matters: drawn on top, a little heavier, in the accent. */
+  lead?: boolean
+  /** Beyond the styled series: drawn in muted ink, still listed in the tooltip. */
   folded: boolean
   raw: ChartPoint[][]
   /** Smoothed segments when smoothing is on; raw then draws faintly underneath. */
@@ -43,6 +47,15 @@ function useWidth(): [React.RefObject<HTMLDivElement | null>, number] {
     return () => observer.disconnect()
   }, [])
   return [ref, width]
+}
+
+/** A short line in the series' colour and dash, for the legend and the readout. */
+export function SeriesSwatch({ color, dash }: { color: string; dash?: string }): React.JSX.Element {
+  return (
+    <svg aria-hidden width={16} height={4} className="shrink-0 overflow-visible">
+      <line x1={0} x2={16} y1={2} y2={2} stroke={color} strokeWidth={2} strokeDasharray={dash} />
+    </svg>
+  )
 }
 
 function pathOf(
@@ -185,14 +198,14 @@ export function ResearchMetricChartPlot({
       aria-label={`${valueLabel} over ${xLabel}. Arrow keys read values at each ${xLabel}.`}
       onKeyDown={onKeyDown}
       onBlur={() => fromKeyboard && setActiveX(null)}
-      className="relative rounded-md border border-border bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="relative rounded-xl bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:bg-muted/30"
     >
       <svg
         width={width}
         height={HEIGHT}
         role="img"
         aria-label={`Metric curve over ${xLabel}`}
-        className="block max-w-full select-none text-muted-foreground"
+        className="block max-w-full select-none text-muted-foreground tabular-nums"
       >
         {frame.yTicks.map((tick, index) => {
           const py = y(tick)
@@ -233,39 +246,43 @@ export function ResearchMetricChartPlot({
         >
           {xLabel}
         </text>
-        {series.map((entry) => (
-          <g
-            key={entry.id}
-            stroke={entry.color}
-            fill="none"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          >
-            <path
-              d={pathOf(entry.raw, x, y)}
-              strokeWidth={entry.folded ? 1.5 : 2}
-              strokeOpacity={entry.smoothed ? 0.25 : entry.folded ? 0.6 : 1}
-            />
-            {entry.smoothed ? (
-              <path d={pathOf(entry.smoothed, x, y)} strokeWidth={entry.folded ? 1.5 : 2} />
-            ) : null}
-            {entry.raw
-              .filter((segment) => segment.length === 1)
-              .map((segment, index) => {
-                const py = y(segment[0].value)
-                return py === null ? null : (
-                  <circle
-                    key={index}
-                    cx={x(segment[0].x)}
-                    cy={py}
-                    r={3}
-                    fill={entry.color}
-                    stroke="none"
-                  />
-                )
-              })}
-          </g>
-        ))}
+        {/* The lead run draws last so it sits on top of the neutral ones. */}
+        {series
+          .toSorted((a, b) => Number(a.lead ?? false) - Number(b.lead ?? false))
+          .map((entry) => (
+            <g
+              key={entry.id}
+              stroke={entry.color}
+              fill="none"
+              strokeLinejoin="round"
+              strokeLinecap={entry.dash ? 'butt' : 'round'}
+              strokeDasharray={entry.dash}
+            >
+              <path
+                d={pathOf(entry.raw, x, y)}
+                strokeWidth={entry.lead ? 2 : 1.5}
+                strokeOpacity={entry.smoothed ? 0.25 : entry.folded ? 0.6 : 1}
+              />
+              {entry.smoothed ? (
+                <path d={pathOf(entry.smoothed, x, y)} strokeWidth={entry.lead ? 2 : 1.5} />
+              ) : null}
+              {entry.raw
+                .filter((segment) => segment.length === 1)
+                .map((segment, index) => {
+                  const py = y(segment[0].value)
+                  return py === null ? null : (
+                    <circle
+                      key={index}
+                      cx={x(segment[0].x)}
+                      cy={py}
+                      r={3}
+                      fill={entry.color}
+                      stroke="none"
+                    />
+                  )
+                })}
+            </g>
+          ))}
         {activeX !== null ? (
           <g pointerEvents="none">
             <line
@@ -304,7 +321,7 @@ export function ResearchMetricChartPlot({
       </svg>
       {activeX !== null ? (
         <div
-          className="pointer-events-none absolute top-2 z-10 min-w-36 rounded-md border border-border bg-popover px-2.5 py-2 text-xs text-popover-foreground shadow-sm"
+          className="pointer-events-none absolute top-2 z-10 min-w-36 rounded-xl px-3 py-2 text-xs surface-floating"
           style={tooltipOnLeft ? { right: width - activeLeft + 10 } : { left: activeLeft + 10 }}
         >
           <p className="mb-1 text-muted-foreground">
@@ -313,11 +330,7 @@ export function ResearchMetricChartPlot({
           <ul className="space-y-0.5">
             {readout.map(({ entry, point, raw }) => (
               <li key={entry.id} className="flex items-center gap-2">
-                <span
-                  aria-hidden
-                  className="h-0.5 w-3 shrink-0 rounded-full"
-                  style={{ backgroundColor: entry.color }}
-                />
+                <SeriesSwatch color={entry.color} dash={entry.dash} />
                 <span className="font-medium tabular-nums">
                   {point ? formatMetricInColumn(point.value, decimals) : '—'}
                 </span>

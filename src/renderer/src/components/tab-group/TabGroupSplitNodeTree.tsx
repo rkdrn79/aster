@@ -130,8 +130,10 @@ function ResizeHandle({
   )
 
   return (
+    // Why the variables: the resting bar is a hairline-toned gutter and only the hovered or
+    // dragged one turns strong, so a split reads as two panes rather than a ruled box.
     <div
-      className={`tab-group-split-resize-handle ${
+      className={`tab-group-split-resize-handle [--tab-group-split-divider:var(--border)] [--tab-group-split-divider-strong:var(--ring)] ${
         isHorizontal ? 'is-vertical' : 'is-horizontal'
       }${dragging ? ' is-dragging' : ''}`}
       onPointerDown={onPointerDown}

@@ -33,6 +33,7 @@ import {
   type ExperimentChatRequest
 } from './research-experiment-agent-chat'
 import { researchErrorText } from './research-error-text'
+import { ResearchChip } from './research-chip'
 
 /** Runs one send at a time and reports a refused one as a toast. */
 function useAgentSend(): {
@@ -84,22 +85,20 @@ function QuickPrompts({ experiment }: { experiment: ExperimentRecord }): React.J
       role="group"
       aria-label="Ask the experiment agent"
       title={scope ? undefined : CATALOG_ONLY}
-      className="@container flex shrink-0 items-center gap-1.5 overflow-hidden border-b border-border px-3 py-2"
+      className="@container flex shrink-0 items-center gap-2 overflow-hidden px-3 pt-1 pb-2"
     >
       {EXPERIMENT_CHAT_QUICK_PROMPTS.map(({ label, request }, index) => {
         const Icon = QUICK_PROMPT_ICONS[request]
         return (
-          <Button
+          <ResearchChip
             key={request}
-            size="xs"
-            variant="outline"
             disabled={disabled}
-            className={cn('shrink-0', index >= INLINE_QUICK_PROMPTS && 'hidden @lg:inline-flex')}
+            className={cn(index >= INLINE_QUICK_PROMPTS && 'hidden @lg:inline-flex')}
             onClick={() => ask(request)}
           >
             <Icon aria-hidden />
             {label}
-          </Button>
+          </ResearchChip>
         )
       })}
       <DropdownMenu modal={false}>

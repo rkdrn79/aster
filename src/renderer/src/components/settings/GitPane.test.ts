@@ -45,7 +45,7 @@ function findSegmentedControl(node: unknown): ReactElementLike {
   let found: ReactElementLike | null = null
   const label = translate(
     'auto.components.settings.GitPane.sourceControlGroupOrderTitle',
-    'Source Control Group Order'
+    'Source control group order'
   )
   visit(node, (entry) => {
     if (entry.type === SettingsSegmentedControl && entry.props.ariaLabel === label) {
@@ -62,7 +62,7 @@ function findCompareBaseSegmentedControl(node: unknown): ReactElementLike {
   let found: ReactElementLike | null = null
   const label = translate(
     'auto.components.settings.GitPane.compareAgainstUpstreamTitle',
-    'Default Compare Base'
+    'Default compare base'
   )
   visit(node, (entry) => {
     if (entry.type === SettingsSegmentedControl && entry.props.ariaLabel === label) {
@@ -131,7 +131,7 @@ describe('GitPane', () => {
   it('renders the local main freshness setting with outcome-focused copy', () => {
     const markup = renderGitPane('behind main')
 
-    expect(markup).toContain('Keep Local Main Up to Date')
+    expect(markup).toContain('Keep local main up to date')
     expect(markup).toContain('git diff main...HEAD')
     expect(markup).toContain('local-only commits')
     expect(markup).not.toContain('Refresh Local Base Ref')
@@ -143,7 +143,7 @@ describe('GitPane', () => {
     expect(markup).toContain(
       translate(
         'auto.components.settings.GitPane.sourceControlGroupOrderTitle',
-        'Source Control Group Order'
+        'Source control group order'
       )
     )
     expect(markup).toContain(
@@ -189,7 +189,7 @@ describe('GitPane', () => {
     expect(markup).toContain(
       translate(
         'auto.components.settings.GitPane.compareAgainstUpstreamTitle',
-        'Default Compare Base'
+        'Default compare base'
       )
     )
     expect(markup).toContain(

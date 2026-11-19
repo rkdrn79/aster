@@ -139,6 +139,7 @@ function RightSidebarInner(): React.JSX.Element {
   return (
     <div
       ref={containerRef}
+      data-right-sidebar-open={rightSidebarOpen}
       className={cn(
         'relative flex-shrink-0 flex flex-row',
         // Why: overflow-visible is needed when open so the resize handle
@@ -151,10 +152,10 @@ function RightSidebarInner(): React.JSX.Element {
     >
       {/* Panel content area */}
       <div
-        className="flex flex-col flex-1 min-w-0 bg-sidebar overflow-hidden"
-        style={{
-          borderLeft: rightSidebarOpen ? '1px solid var(--sidebar-border)' : 'none'
-        }}
+        className={cn(
+          'right-sidebar-panel flex flex-col flex-1 min-w-0 bg-sidebar overflow-hidden',
+          rightSidebarOpen && 'border-l border-sidebar-border'
+        )}
       >
         {activityBarPosition === 'top' ? (
           <RightSidebarTopActivityBar
@@ -177,7 +178,7 @@ function RightSidebarInner(): React.JSX.Element {
              (138-40=98px) as padding-right so the close button clears the
              minimize button without the full 138px gap. */
           <div className="flex items-center justify-between h-[36px] min-h-[36px] px-3 border-b border-border right-sidebar-header-side-inset right-sidebar-header-drag">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground">
+            <span className="text-[11px] font-medium text-foreground">
               {visibleItems.find((item) => item.id === effectiveTab)?.title ?? ''}
             </span>
             <TooltipProvider delayDuration={400}>

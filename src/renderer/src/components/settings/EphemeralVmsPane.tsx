@@ -254,7 +254,7 @@ export function EphemeralVmsPane(): React.JSX.Element {
             size="icon-sm"
             aria-label={translate(
               'auto.components.settings.EphemeralVmsPane.cloudVmRefresh',
-              'Refresh Cloud VM recipes'
+              'Refresh cloud VM recipes'
             )}
             onClick={() => void refresh()}
             disabled={isLoading}

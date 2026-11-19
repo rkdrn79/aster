@@ -60,7 +60,7 @@ export function renderCommentCard(
         )}
         <span
           className={cn(
-            'min-w-0 truncate text-[13px] font-semibold',
+            'min-w-0 truncate text-[13px] font-medium',
             comment.isResolved ? PR_COMMENT_RESOLVED_AUTHOR_CLASS : PR_COMMENT_OPEN_AUTHOR_CLASS
           )}
         >
@@ -80,8 +80,8 @@ export function renderCommentCard(
           </span>
         )}
         {comment.isResolved && (
-          <span className="rounded-full border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[11px] text-muted-foreground">
-            {translate('auto.components.GitHubItemDialog.68cb993d61', 'resolved')}
+          <span className="rounded-sm border border-border/60 bg-muted/40 px-1.5 py-0.5 text-[11px] text-muted-foreground">
+            {translate('auto.components.GitHubItemDialog.68cb993d61', 'Resolved')}
           </span>
         )}
         <div className="ml-auto flex shrink-0 items-center gap-1">

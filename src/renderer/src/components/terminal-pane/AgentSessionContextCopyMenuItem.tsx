@@ -10,7 +10,7 @@ export function AgentSessionContextCopyMenuItem({
   return (
     <DropdownMenuItem onSelect={onSelect}>
       <ClipboardCopy />
-      {translate('auto.components.terminal.pane.TerminalContextMenu.cff67afad1', 'Copy Context')}
+      {translate('auto.components.terminal.pane.TerminalContextMenu.cff67afad1', 'Copy context')}
     </DropdownMenuItem>
   )
 }

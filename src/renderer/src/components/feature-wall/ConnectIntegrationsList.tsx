@@ -42,7 +42,7 @@ function TaskSourceNameList(props: { names: readonly string[] }): React.JSX.Elem
                   )
               : translate('auto.components.feature.wall.ConnectIntegrationsList.list_mid', ', ')
             : null}
-          <span className="font-semibold text-foreground">{name}</span>
+          <span className="font-medium text-foreground">{name}</span>
         </Fragment>
       ))}
     </>
@@ -111,7 +111,7 @@ export function ConnectIntegrationsList(): React.JSX.Element {
           )}
           summary={
             <>
-              <span className="font-semibold text-foreground">{status.reviewProviderName}</span>{' '}
+              <span className="font-medium text-foreground">{status.reviewProviderName}</span>{' '}
               {translate(
                 'auto.components.feature.wall.ConnectIntegrationsList.5b3577a492',
                 'connected for review status'
@@ -153,7 +153,7 @@ export function ConnectIntegrationsList(): React.JSX.Element {
               </>
             ) : (
               <>
-                <span className="font-semibold text-foreground">
+                <span className="font-medium text-foreground">
                   {status.codeHostTaskProviderName}
                 </span>{' '}
                 {translate(

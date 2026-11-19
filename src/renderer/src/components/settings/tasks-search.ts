@@ -22,7 +22,7 @@ export const getTasksPaneSearchKeywords = createLocalizedCatalog(() => [
 
 export const getTasksPaneSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.tasks.search.5b8e4aace5', 'Task Providers'),
+    title: translate('auto.components.settings.tasks.search.5b8e4aace5', 'Task providers'),
     description: translate(
       'auto.components.settings.tasks.search.providersDescription',
       'Connect task providers, install the Linear agent skill, and choose what appears in Tasks.'

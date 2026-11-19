@@ -19,8 +19,8 @@ import type { CombinedDiffTreeNode } from './combined-diff-file-tree-row'
 const UNCOMMITTED_AREA_ORDER: readonly GitStagingArea[] = ['unstaged', 'staged', 'untracked']
 const UNCOMMITTED_AREA_LABELS: Record<GitStagingArea, string> = {
   unstaged: 'Changes',
-  staged: 'Staged Changes',
-  untracked: 'Untracked Files'
+  staged: 'Staged changes',
+  untracked: 'Untracked files'
 }
 
 export type CombinedDiffTreeGroup = {

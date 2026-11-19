@@ -68,7 +68,7 @@ export function renderCodexAccountsSection(model: AccountsPaneSectionModel): Rea
       </div>
 
       <SearchableSetting
-        title={translate('auto.components.settings.AccountsPane.3180536c7a', 'Codex Accounts')}
+        title={translate('auto.components.settings.AccountsPane.3180536c7a', 'Codex accounts')}
         description={translate(
           'auto.components.settings.AccountsPane.d0d53b7eb0',
           'Manage which Codex account Aster uses for live rate limit fetching.'
@@ -187,7 +187,7 @@ export function renderCodexAccountsSection(model: AccountsPaneSectionModel): Rea
               ) : (
                 <Plus className="size-3" />
               )}
-              {translate('auto.components.settings.AccountsPane.b0e948a4f9', 'Add Account')}
+              {translate('auto.components.settings.AccountsPane.b0e948a4f9', 'Add account')}
             </Button>
             {/* Why: follows the running addition; hidden only where its server's prompt has Cancel. */}
             {codexAction === 'adding' && !accountAdditionShownInPrompt('codex', accountOwner) ? (

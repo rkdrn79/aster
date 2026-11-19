@@ -11,7 +11,7 @@ import type { FigureTarget } from './research-figures-export'
 
 /**
  * Under the toolbar after an agent turn on this figure:
- * "Agent · <request> — N added · M changed · K removed [Show changes] [Undo turn] [×]".
+ * "[Agent] <request> · N added · M changed · K removed [Show changes] [Undo turn] [×]".
  */
 export function ResearchFigureTurnBar({
   target
@@ -34,16 +34,16 @@ export function ResearchFigureTurnBar({
     <div
       role="region"
       aria-label="Last agent turn"
-      className="flex shrink-0 items-center gap-2 border-b border-border bg-muted/40 px-3 py-1 text-xs"
+      className="research-pane-in flex h-10 shrink-0 items-center gap-2 border-b border-border px-3 text-xs"
     >
-      <span className="shrink-0 font-medium">
+      <span className="shrink-0 text-xs font-medium text-foreground">
         Agent{turn.phase === 'stopped' ? ' (stopped)' : ''}
       </span>
       <span className="min-w-0 truncate text-muted-foreground" title={turn.request}>
-        · {turn.request}
+        {turn.request}
       </span>
-      <span className="shrink-0 tabular-nums text-muted-foreground">
-        — {figureDiffText(turn.diff)}
+      <span className="shrink-0 text-muted-foreground/80 tabular-nums">
+        · {figureDiffText(turn.diff)}
       </span>
       <span className="ml-auto flex shrink-0 items-center gap-1">
         {changed ? (
@@ -51,6 +51,7 @@ export function ResearchFigureTurnBar({
             <Button
               size="xs"
               variant={showChanges ? 'secondary' : 'ghost'}
+              className="h-7"
               aria-pressed={showChanges}
               onClick={() => setFigureTurnChangesShown(target, !showChanges)}
             >
@@ -59,6 +60,7 @@ export function ResearchFigureTurnBar({
             <Button
               size="xs"
               variant="ghost"
+              className="h-7"
               disabled={turn.beforeText === null}
               title="Put the figure back as it was before this request"
               onClick={() => void undoFigureTurn(target)}
@@ -70,6 +72,7 @@ export function ResearchFigureTurnBar({
         <Button
           size="icon-xs"
           variant="ghost"
+          className="size-7"
           aria-label="Close the turn summary"
           onClick={() => dismissFigureTurnBar(target)}
         >

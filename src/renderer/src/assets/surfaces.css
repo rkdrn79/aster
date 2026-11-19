@@ -1,0 +1,130 @@
+/* ── Surfaces ────────────────────────────────────────────
+   Floating surfaces (menus, popovers, selects, the command palette), the rows on them, toasts and
+   the left sidebar's current page. Depth comes from surface steps and one soft shadow tier, not
+   from hard borders. */
+
+/* Menus, popovers, selects, hover cards: an opaque raised surface with the floating ring, not glass. */
+@utility surface-floating {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--elevation-floating);
+}
+
+/* Dialogs and the command palette. */
+@utility surface-modal {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--elevation-modal);
+}
+
+/* The left sidebar's current page is a raised row, like the selected segment. */
+.left-sidebar-tokens [data-slot='button'][data-variant='secondary'] {
+  box-shadow: var(--elevation-raised);
+}
+
+/* ── Toasts ──────────────────────────────────────────── */
+
+[data-sonner-toaster] {
+  font-family: var(--font-sans);
+  /* Why: above the floating workspace (z-45 panel, z-46 launcher), which parks in the toasts' corner. */
+  z-index: var(--toaster-z-index, 47) !important;
+}
+
+/* Keep errors above standard modal backdrops at the existing popover tier.
+   Why: overlays portal straight into body, and `>` plus a :has() on body alone (not in the toaster's
+   selector) keeps unrelated DOM changes from rescanning the page; the old form froze large diffs. */
+body:has(> [data-slot='dialog-overlay'], > [data-slot='sheet-overlay']) {
+  --toaster-z-index: 60;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] {
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--elevation-floating);
+}
+
+/* A quicker settle than Sonner's 400 ms, on the one curve. Heights snap (never animated); Sonner
+   drops the rest under reduced motion. */
+[data-sonner-toaster] [data-sonner-toast] {
+  transition:
+    transform var(--duration-slow) var(--ease-out-quint),
+    opacity var(--duration-base) var(--ease-out-quint),
+    box-shadow var(--duration-fast) var(--ease-out-quint);
+}
+
+/* The icon sits flush (no Sonner start/end nudges), so text starts at 16 + 8 and actions align to it. */
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-icon] {
+  margin: 2px 0 0;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-content] {
+  min-width: 0;
+  flex: 1 1 calc(100% - 32px);
+  gap: 4px;
+}
+
+/* Why: a folded back toast is squeezed to the front toast's height without clipping, so a taller
+   toast's content hangs below the stack; hovering it re-expands the stack in a loop. clip, not
+   hidden: hidden makes a scroll container that focusing a folded control would scroll. */
+[data-sonner-toaster] [data-sonner-toast][data-expanded='false'][data-front='false'] {
+  overflow: clip;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-button] {
+  /* Why: Sonner's native action slots otherwise share the copy row and squeeze
+     long notices; indent the wrapped footer to align with text after the icon. */
+  margin-top: 2px;
+  margin-left: 24px;
+  margin-right: 0;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-button] ~ [data-button] {
+  margin-left: 0;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-title] {
+  line-height: 1.35;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-description] {
+  /* Why: match the 80% body-copy opacity used by the custom-React toast bodies
+     (delete-worktree-failure, local-base-ref-suggestion) so string and JSX
+     descriptions read at the same weight. */
+  color: color-mix(in srgb, var(--popover-foreground) 80%, transparent);
+  line-height: 1.45;
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-close-button] {
+  /* Why: Sonner's dark-theme defaults can resolve the close icon and button
+     background to the same color; keep the X readable on both themes. */
+  color: var(--popover-foreground);
+  background: var(--popover);
+  border: 0;
+  box-shadow: var(--elevation-raised);
+}
+
+[data-sonner-toaster] [data-sonner-toast][data-styled='true'] [data-close-button]:hover {
+  color: var(--accent-foreground);
+  background: var(--accent);
+}
+
+/* ── Traced numbers (the signature) ─────────────────────
+   A number that links to the run it came from: tabular mono with a thin hairline underline. Use it
+   only where a number is traced; plain numbers stay `tabular-nums` in the body face. */
+@utility traced-number {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, currentColor 32%, transparent);
+  transition: text-decoration-color var(--duration-fast) var(--ease-out-quint);
+  &:is(a, button):hover,
+  &:is(a, button):focus-visible {
+    text-decoration-color: currentColor;
+  }
+}

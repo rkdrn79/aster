@@ -181,7 +181,7 @@ export function MobileEmulatorSettingsPane({
       <SearchableSetting
         title={translate(
           'auto.components.settings.MobileEmulatorSettingsPane.6593c9ddd3',
-          'Mobile Emulator'
+          'Mobile emulator'
         )}
         description={translate(
           'auto.components.settings.MobileEmulatorSettingsPane.bc39d0f115',
@@ -193,7 +193,7 @@ export function MobileEmulatorSettingsPane({
         <SettingsSwitchRow
           label={translate(
             'auto.components.settings.MobileEmulatorSettingsPane.700ddbf9b1',
-            'Enable Mobile Emulator'
+            'Enable mobile emulator'
           )}
           description={translate(
             'auto.components.settings.MobileEmulatorSettingsPane.f9af91ea26',
@@ -258,7 +258,7 @@ export function MobileEmulatorSettingsPane({
           alignTop
           label={translate(
             'auto.components.settings.MobileEmulatorSettingsPane.143961d031',
-            'Default Device'
+            'Default device'
           )}
           description={defaultDeviceDescription}
           control={
@@ -296,7 +296,7 @@ export function MobileEmulatorSettingsPane({
         <SearchableSetting
           title={translate(
             'auto.components.settings.MobileEmulatorSettingsPane.f2f8d97bb6',
-            'Agent Mobile Emulator Control'
+            'Agent mobile emulator control'
           )}
           description={translate(
             'auto.components.settings.MobileEmulatorSettingsPane.19d39113b6',

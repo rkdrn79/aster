@@ -243,7 +243,7 @@ export function AutomationRunHistory({
             className={cn(
               RUN_ROW_GRID_CLASS,
               RUN_ROW_HEADER_SURFACE_CLASS,
-              'sticky top-0 z-10 border-b border-border/50 px-3 py-1.5 text-[11px] font-medium uppercase text-muted-foreground'
+              'sticky top-0 z-10 border-b border-border/50 px-3 py-1.5 text-[11px] font-medium text-muted-foreground'
             )}
           >
             <div>

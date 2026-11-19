@@ -9,7 +9,7 @@ import { NewWorkspaceComposerAgentSection } from './NewWorkspaceComposerAgentSec
 afterEach(cleanup)
 
 describe('NewWorkspaceComposerAgentSection agent picker', () => {
-  it('offers Blank Terminal because a workspace can start without an agent', () => {
+  it('offers Blank terminal because a workspace can start without an agent', () => {
     const onQuickAgentChange = vi.fn()
     render(
       <TooltipProvider>
@@ -29,7 +29,7 @@ describe('NewWorkspaceComposerAgentSection agent picker', () => {
     )
 
     fireEvent.click(screen.getByRole('combobox'))
-    fireEvent.click(screen.getByRole('option', { name: 'Blank Terminal' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Blank terminal' }))
 
     expect(onQuickAgentChange).toHaveBeenCalledWith(null)
   })

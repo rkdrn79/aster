@@ -81,7 +81,7 @@ export function TabBarStaticCreateMenu({
           >
             <ShellIcon shell={entry.shell} size={14} />
             <span className="flex-1">
-              {translate('auto.components.tab.bar.TabBar.7c1313d237', 'New Terminal:')}{' '}
+              {translate('auto.components.tab.bar.TabBar.7c1313d237', 'New terminal:')}{' '}
               {entry.label}
             </span>
             {isDefault ? <DropdownMenuShortcut>{newTerminalShortcut}</DropdownMenuShortcut> : null}
@@ -97,7 +97,7 @@ export function TabBarStaticCreateMenu({
         className="gap-2 rounded-[7px] px-2 py-1.5 text-[12px] leading-5 font-medium"
       >
         <TerminalSquare className="size-4 text-muted-foreground" />
-        {translate('auto.components.tab.bar.TabBar.d364f3c8d4', 'New Terminal')}
+        {translate('auto.components.tab.bar.TabBar.d364f3c8d4', 'New terminal')}
         <DropdownMenuShortcut>{newTerminalShortcut}</DropdownMenuShortcut>
       </DropdownMenuItem>
     )
@@ -108,7 +108,7 @@ export function TabBarStaticCreateMenu({
         className="gap-2 rounded-[7px] px-2 py-1.5 text-[12px] leading-5 font-medium"
       >
         <Globe className="size-4 text-muted-foreground" />
-        {translate('auto.components.tab.bar.TabBar.4833fb2cbe', 'New Browser Tab')}
+        {translate('auto.components.tab.bar.TabBar.4833fb2cbe', 'New browser tab')}
         <DropdownMenuShortcut>{newBrowserShortcut}</DropdownMenuShortcut>
       </DropdownMenuItem>
     ) : null
@@ -122,7 +122,7 @@ export function TabBarStaticCreateMenu({
               className="gap-2 rounded-[7px] px-2 py-1.5 text-[12px] leading-5 font-medium"
             >
               <Smartphone className="size-4 text-muted-foreground" />
-              {translate('auto.components.tab.bar.TabBar.b426bb2615', 'Go to Mobile Emulator')}
+              {translate('auto.components.tab.bar.TabBar.b426bb2615', 'Go to mobile emulator')}
               <DropdownMenuShortcut>{newSimulatorShortcut}</DropdownMenuShortcut>
             </DropdownMenuItem>
           </TooltipTrigger>
@@ -139,7 +139,7 @@ export function TabBarStaticCreateMenu({
           className="gap-2 rounded-[7px] px-2 py-1.5 text-[12px] leading-5 font-medium"
         >
           <Smartphone className="size-4 text-muted-foreground" />
-          {translate('auto.components.tab.bar.TabBar.fd2b42aaa3', 'New Mobile Emulator')}
+          {translate('auto.components.tab.bar.TabBar.fd2b42aaa3', 'New mobile emulator')}
           <DropdownMenuShortcut>{newSimulatorShortcut}</DropdownMenuShortcut>
         </DropdownMenuItem>
       )

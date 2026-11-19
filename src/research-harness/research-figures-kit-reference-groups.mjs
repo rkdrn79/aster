@@ -11,7 +11,7 @@ export const GROUP_REFERENCE = [
   {
     topic: 'layout',
     name: 'legend',
-    call: "fig.legend({ id, x, y, items: [{ label, color, swatch: 'box' | 'dot' | 'line' | 'icon', dashed, dotted, icon }], direction: 'row' | 'column', gap, size }) → { x, y, width, height, right, bottom, items }",
-    does: 'A small legend for 3–4 colour roles or line styles (ours vs. frozen, data vs. gradient): a swatch and a label per item, in a row (gap 16) or a column (gap 6), small text in ink. An item with dashed/dotted draws a line sample, with icon an icon. Returns its bounds, so place it in a free corner or under the figure; the lint does not flag it. Ids: <id>-s<n> (swatch), <id>-t<n> (label).'
+    call: "fig.legend({ id, x, y, items: [{ label, color, role, swatch: 'box' | 'dot' | 'line' | 'arrow' | 'icon' | 'switch' | 'node', symbol, dashed, dotted, icon }], direction: 'row' | 'column', gap, size, maxWidth, asked }) → { x, y, width, height, right, bottom, items }",
+    does: "A small legend for 3–4 colour roles, arrow kinds or glyphs (ours vs. frozen, data vs. gradient, Latent Diffusion's skip, switch and concat): a swatch and a label per item, in a row (gap 16) or a column (gap 6), small text in ink. role: 'cond' | 'grad' | 'skip' | 'feedback' | … (or that name as color) draws a short arrow in that role's colour, weight and dash; swatch 'switch' a small switch; symbol: 'concat' | 'plus' | 'minus' | 'times' a small operator node; dashed/dotted a line sample; icon an icon. Returns its bounds, so place it in a free corner or under the figure; the lint does not flag it. Ids: <id>-s<n> (swatch), <id>-t<n> (label). A row wraps onto more rows at maxWidth (default: to the page's right margin). asked: true marks a legend the person asked for: small-page then never suggests dropping it. A label mixes words and math like any label ('pose $(R_i, T_i)$'), typeset."
   }
 ]

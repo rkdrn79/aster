@@ -257,7 +257,7 @@ describe('BrowserTab favicon', { timeout: 30_000 }, () => {
     vi.clearAllMocks()
   })
 
-  it('passes the workspace ID to Copy Tab ID instead of the browser content ID', async () => {
+  it('passes the workspace ID to Copy tab ID instead of the browser content ID', async () => {
     const { CopyTabIdMenuItem } = await import('./CopyTabIdMenuItem')
     const tree = await renderBrowserTab(baseBrowserTab(), 'workspace-browser-1')
     const visit = (node: unknown): ReactElementLike | undefined => {

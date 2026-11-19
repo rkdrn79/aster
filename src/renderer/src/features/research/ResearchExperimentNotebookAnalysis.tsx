@@ -110,7 +110,7 @@ function TablePreview({ table }: { table: AnalysisTable }): React.JSX.Element {
         </thead>
         <tbody>
           {columnAlignedRows(table).map((row, rowIndex) => (
-            <tr key={rowIndex} className="border-b border-border/60">
+            <tr key={rowIndex} className="border-b border-border">
               {table.columns.map((_, index) => (
                 <td key={index} className="py-1 pr-3">
                   {row[index] ?? ''}

@@ -47,7 +47,7 @@ test.describe('Agent Session History live log', () => {
     const title = orcaPage.getByText(fixture.title, { exact: true }).first()
     await expect(title).toBeVisible({ timeout: 30_000 })
     await title.click()
-    await orcaPage.getByText('View Log', { exact: true }).click()
+    await orcaPage.getByText('View log', { exact: true }).click()
     await expect
       .poll(() => readProbeOrNull(orcaPage), { timeout: 120_000 })
       .toMatchObject({ filePath: fixture.filePath, valueLength: fixture.initialLength })
@@ -179,7 +179,7 @@ async function openSessionHistory(page: Page): Promise<void> {
   // activity-bar action a user takes so the Agents panel wins that race.
   await page.getByRole('button', { name: 'Agents', exact: true }).click()
   await page.evaluate(async () => window.api.aiVault.listSessions({ force: true }))
-  await page.getByRole('button', { name: 'Refresh Session History' }).click()
+  await page.getByRole('button', { name: 'Refresh session history' }).click()
 }
 
 async function focusAnchorWithFind(page: Page): Promise<void> {

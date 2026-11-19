@@ -51,7 +51,7 @@ function ToolLineDetail({
       ? diffFromText(block.output)
       : null
   return (
-    <div className="ml-6 space-y-1.5 py-1">
+    <div className="ml-6 space-y-2 py-1">
       {results.length > 0 ? (
         <NativeChatSearchResults results={results} onLinkClick={onLinkClick} />
       ) : null}
@@ -124,7 +124,7 @@ export function NativeChatToolLine({
         type="button"
         onClick={() => hasDetail && setExpanded(!expanded)}
         className={cn(
-          'group/tool-line flex min-h-6.5 w-full items-center gap-2 rounded-md text-left font-sans text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+          'group/tool-line flex min-h-7 w-full items-center gap-2 rounded-md text-left font-sans text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
           hasDetail ? 'cursor-pointer' : 'cursor-default'
         )}
         aria-expanded={hasDetail ? expanded : undefined}
@@ -169,12 +169,12 @@ export function NativeChatToolLine({
           </span>
         ) : null}
         {/* Held at the row's right edge, so the carets of a run line up in one column. */}
-        <span className="ml-auto flex shrink-0 items-center gap-1.5 pl-2">
+        <span className="ml-auto flex shrink-0 items-center gap-2 pl-2">
           {isCall ? <NativeChatCommandMetadata block={block} /> : null}
           {hasDetail ? (
             <ChevronRight
               className={cn(
-                'size-3.5 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
+                'size-4 shrink-0 text-chat-foreground-faint transition-transform motion-reduce:transition-none',
                 expanded && 'rotate-90'
               )}
             />

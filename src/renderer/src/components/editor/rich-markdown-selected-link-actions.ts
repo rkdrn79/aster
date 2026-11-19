@@ -95,7 +95,7 @@ export function formatSelectedHtmlSuperscriptLinkStatus(
       )
     : translate(
         'auto.components.editor.RichMarkdownEditor.noCitationActions',
-        'No link actions are available.'
+        'No link actions are available'
       )
   return translate(
     'auto.components.editor.RichMarkdownEditor.citationLinkUnavailable',

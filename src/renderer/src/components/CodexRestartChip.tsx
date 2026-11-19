@@ -134,7 +134,7 @@ function LoudRestartOverlay({
             <RefreshCw className="size-5 text-foreground" aria-hidden="true" />
           </div>
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <div className="text-xs font-medium uppercase tracking-wide text-foreground">
+            <div className="text-xs font-medium text-muted-foreground">
               {translate('auto.components.CodexRestartChip.d3e8a1f4b2', 'Account switched')}
             </div>
             <div id={titleId} className="text-base font-semibold leading-tight">

@@ -136,7 +136,7 @@ export function AutomationRunsDashboard({
                   'Filters'
                 )}
                 {activeFilterCount > 0 ? (
-                  <span className="rounded-full bg-foreground px-1.5 text-[10px] font-semibold leading-4 text-background">
+                  <span className="text-xs text-muted-foreground tabular-nums">
                     {activeFilterCount}
                   </span>
                 ) : null}

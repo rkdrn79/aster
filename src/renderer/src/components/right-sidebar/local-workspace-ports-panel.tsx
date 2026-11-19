@@ -206,7 +206,7 @@ export function LocalWorkspacePortsPanel({
   return (
     <div className="flex flex-col h-full overflow-y-auto scrollbar-sleek">
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-[11px] font-medium text-muted-foreground">
           {translate('auto.components.right.sidebar.PortsPanel.6bc058dbe1', 'Ports')}
         </span>
         <Tooltip>
@@ -220,14 +220,14 @@ export function LocalWorkspacePortsPanel({
               disabled={refreshing || !runtimeTarget}
               aria-label={translate(
                 'auto.components.right.sidebar.PortsPanel.7822e3edc6',
-                'Refresh Ports'
+                'Refresh ports'
               )}
             >
               <RefreshCw size={14} className={cn(refreshing && 'animate-spin')} />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="top" sideOffset={4}>
-            {translate('auto.components.right.sidebar.PortsPanel.7822e3edc6', 'Refresh Ports')}
+            {translate('auto.components.right.sidebar.PortsPanel.7822e3edc6', 'Refresh ports')}
           </TooltipContent>
         </Tooltip>
       </div>
@@ -253,7 +253,7 @@ export function LocalWorkspacePortsPanel({
             id="active"
             title={translate(
               'auto.components.right.sidebar.PortsPanel.935dda7718',
-              'Active Workspace'
+              'Active workspace'
             )}
             ports={activePorts}
             emptyText={
@@ -274,7 +274,7 @@ export function LocalWorkspacePortsPanel({
             id="other"
             title={translate(
               'auto.components.right.sidebar.PortsPanel.4db4b5e435',
-              'Other Workspaces'
+              'Other workspaces'
             )}
             ports={otherWorkspacePorts}
             collapsed={collapsedSections.other ?? false}

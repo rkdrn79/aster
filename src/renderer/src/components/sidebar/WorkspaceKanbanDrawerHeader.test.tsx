@@ -135,7 +135,7 @@ describe('WorkspaceKanbanDrawerHeader', () => {
     expect(findByType(header, SheetTitle)?.props.className).toContain('shrink-0')
     expect(findByType(header, SheetHeader)?.props.className).toContain('pr-32')
     expect(
-      findElement(header, (props) => Boolean(props.className?.includes('rounded-full')))
+      findElement(header, (props) => Boolean(props.className?.includes('tabular-nums')))
     ).not.toBeNull()
     expect(findByType(header, WorkspaceKanbanSearchField)).not.toBeNull()
   })

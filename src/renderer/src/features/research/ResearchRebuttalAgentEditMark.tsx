@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { cn } from '@/lib/utils'
 import { Bot, Undo2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { RebuttalReplyProposal } from '../../../../research-harness/research-rebuttal-records.mjs'
 import { RebuttalDiff } from './ResearchRebuttalProposalCard'
+import { INSET_WELL, REVEAL } from './research-surface-classes'
 
 type Props = {
   /** An agent edit already in the reply; `base` is the text Undo puts back. */
@@ -38,10 +40,10 @@ export function ResearchRebuttalAgentEditMark({
     return (
       <p
         role="status"
-        className="flex items-start gap-1.5 text-2xs leading-4 text-muted-foreground"
+        className="flex items-start gap-2 rounded-lg bg-foreground/4 px-3 py-2 text-2xs leading-4 text-muted-foreground"
         aria-label="Agent edit held while you type"
       >
-        <Bot className="mt-px size-3 shrink-0" aria-hidden />
+        <Bot className="mt-px size-4 shrink-0" aria-hidden />
         The agent rewrote this reply while you were typing. Your words stay; its version waits here
         when you pause.
       </p>
@@ -49,10 +51,10 @@ export function ResearchRebuttalAgentEditMark({
   }
 
   return (
-    <div aria-label="Agent edit" className="space-y-1.5">
-      <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-2xs text-muted-foreground">
-        <Bot className="size-3 shrink-0" aria-hidden />
-        <span className="min-w-0 truncate">
+    <div aria-label="Agent edit" className="space-y-2">
+      <div className="flex w-fit max-w-full flex-wrap items-center gap-x-0.5 gap-y-0.5 rounded-lg bg-foreground/4 py-0.5 pr-0.5 pl-3 text-2xs text-muted-foreground">
+        <Bot className="mr-0.5 size-4 shrink-0" aria-hidden />
+        <span className="min-w-0 truncate pr-1">
           {drafted ? 'Drafted by the agent' : 'Edited by the agent'}
           {proposal.request ? ` · ${proposal.request}` : ''}
         </span>
@@ -80,7 +82,7 @@ export function ResearchRebuttalAgentEditMark({
         )}
       </div>
       {open && !drafted ? (
-        <div className="rounded-md border border-border bg-muted/40 px-2.5 py-1.5">
+        <div className={cn(INSET_WELL, REVEAL, 'px-3 py-2')}>
           <RebuttalDiff before={proposal.base} after={proposal.text} />
         </div>
       ) : null}

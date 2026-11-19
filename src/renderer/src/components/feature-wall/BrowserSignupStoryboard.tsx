@@ -4,7 +4,7 @@ import { translate } from '@/i18n/i18n'
 export function BrowserSignupStoryboard(): JSX.Element {
   return (
     <div className="flex animate-[browserViewIn_360ms_cubic-bezier(.2,.8,.2,1)_both] flex-col gap-3">
-      <div className="text-[15px] font-bold leading-tight">
+      <div className="text-[15px] font-semibold leading-tight">
         {translate(
           'auto.components.feature.wall.BrowserAnimatedVisual.46df009982',
           'Start your free trial'

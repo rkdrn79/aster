@@ -224,7 +224,7 @@ export function RuntimeHostStatusRow({
           <span>
             {translate(
               'auto.components.status.bar.SshStatusSegment.remote_server',
-              'Remote Server'
+              'Remote server'
             )}
           </span>
           <span aria-hidden="true">·</span>
@@ -311,7 +311,7 @@ export function RuntimeHostStatusRow({
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent className="w-[min(18rem,calc(100vw-1rem))] p-1.5">
         <div className="px-1.5 pt-0.5 pb-1.5">
-          <div className="text-[11px] font-semibold">{failureSummary}</div>
+          <div className="text-[11px] font-medium">{failureSummary}</div>
           {failureExplanation ? (
             <div className="mt-1 text-[11px] leading-4 text-muted-foreground">
               {failureExplanation}

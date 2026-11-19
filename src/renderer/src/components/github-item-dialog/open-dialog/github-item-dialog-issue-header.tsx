@@ -210,7 +210,7 @@ export function GitHubItemDialogIssueHeader({
         <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
           <span
             className={cn(
-              'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium',
+              'inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-[12px] font-medium',
               issueStateBadgeTone
             )}
           >
@@ -224,7 +224,7 @@ export function GitHubItemDialogIssueHeader({
               : translate('auto.components.GitHubItemDialog.dc1ca081a8', 'Open')}
           </span>
           <span className="flex flex-wrap items-center gap-1.5">
-            <span className="font-semibold text-foreground">
+            <span className="font-medium text-foreground">
               {workItem.author ??
                 translate('auto.components.GitHubItemDialog.773ff70035', 'unknown')}
             </span>

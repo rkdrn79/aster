@@ -153,7 +153,7 @@ describe('NonGitFolderDialog', () => {
   it('confirms runtime folder imports on the checked host', () => {
     renderToStaticMarkup(<NonGitFolderDialog />)
 
-    const button = mocks.buttons.find((entry) => entry.label.includes('Open as Folder'))
+    const button = mocks.buttons.find((entry) => entry.label.includes('Open as folder'))
     button?.onClick?.()
 
     expect(mocks.state.addNonGitFolder).toHaveBeenCalledWith('/srv/non-git', {
@@ -170,7 +170,7 @@ describe('NonGitFolderDialog', () => {
     }
     renderToStaticMarkup(<NonGitFolderDialog />)
 
-    const button = mocks.buttons.find((entry) => entry.label.includes('Open as Folder'))
+    const button = mocks.buttons.find((entry) => entry.label.includes('Open as folder'))
     button?.onClick?.()
 
     expect(mocks.state.addNonGitFolder).toHaveBeenCalledWith('/srv/non-git', {
@@ -196,7 +196,7 @@ describe('NonGitFolderDialog', () => {
     } satisfies Repo)
     renderToStaticMarkup(<NonGitFolderDialog />)
 
-    const button = mocks.buttons.find((entry) => entry.label.includes('Open as Folder'))
+    const button = mocks.buttons.find((entry) => entry.label.includes('Open as folder'))
     button?.onClick?.()
 
     await vi.waitFor(() =>
@@ -248,7 +248,7 @@ describe('NonGitFolderDialog', () => {
     })
     renderToStaticMarkup(<NonGitFolderDialog />)
 
-    const button = mocks.buttons.find((entry) => entry.label.includes('Open as Folder'))
+    const button = mocks.buttons.find((entry) => entry.label.includes('Open as folder'))
     button?.onClick?.()
 
     await vi.waitFor(() =>
@@ -267,7 +267,7 @@ describe('NonGitFolderDialog', () => {
     mocks.state.modalData = { folderPath: '/srv/non-git', connectionId: 'ssh-1' }
     renderToStaticMarkup(<NonGitFolderDialog />)
 
-    const button = mocks.buttons.find((entry) => entry.label.includes('Open as Folder'))
+    const button = mocks.buttons.find((entry) => entry.label.includes('Open as folder'))
     button?.onClick?.()
 
     await vi.waitFor(() =>

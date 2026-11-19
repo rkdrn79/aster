@@ -50,7 +50,7 @@ export function BrowserToolbarProfileDialogs({
             <DialogTitle className="text-base">
               {translate(
                 'auto.components.browser.pane.BrowserToolbarMenu.fe683eb3b4',
-                'Switch Profile'
+                'Switch profile'
               )}
             </DialogTitle>
             <DialogDescription className="text-xs">
@@ -77,7 +77,7 @@ export function BrowserToolbarProfileDialogs({
             <DialogTitle className="text-base">
               {translate(
                 'auto.components.browser.pane.BrowserToolbarMenu.67e9b9fcd6',
-                'New Browser Profile'
+                'New browser profile'
               )}
             </DialogTitle>
           </DialogHeader>

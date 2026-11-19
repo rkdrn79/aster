@@ -33,7 +33,31 @@ export type PhoneScreen =
   /** One Experiment of a workspace's `.aster/` catalog, read-only. */
   | { kind: 'experiment'; worktreeId: string; experiment: string; title: string; subtitle?: string }
   /** Start an agent; `worktreeId` preselects a workspace, else the current or most recent one. */
-  | { kind: 'new-agent'; worktreeId: string | null; title: string }
+  | { kind: 'new-agent'; worktreeId: string | null; title: string; prompt?: string }
+  | PhoneResearchScreen
+
+/** Research records of one workspace that the phone reads, and decides on, through its host. */
+export type PhoneResearchScreen =
+  | {
+      kind: 'proposal'
+      worktreeId: string
+      experiment: string
+      proposal: string
+      title: string
+      subtitle?: string
+    }
+  | { kind: 'plan'; worktreeId: string; plan: string; title: string; subtitle?: string }
+  | { kind: 'figures'; worktreeId: string; title: string; subtitle?: string }
+  /** `path` is the workspace-relative image (SVG or PNG) to show. */
+  | {
+      kind: 'figure'
+      worktreeId: string
+      path: string
+      slug: string
+      title: string
+      subtitle?: string
+    }
+  | { kind: 'rebuttal'; worktreeId: string; title: string; subtitle?: string }
 
 type PhoneNavigationState = {
   tab: PhoneTab

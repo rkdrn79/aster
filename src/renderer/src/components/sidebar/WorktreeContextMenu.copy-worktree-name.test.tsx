@@ -125,7 +125,7 @@ function clickMenuItem(label: string): void {
   })
 }
 
-describe('WorktreeContextMenu Copy Worktree Name', () => {
+describe('WorktreeContextMenu Copy worktree name', () => {
   it('passes an inactive row owner even before that row reaches the catalog', () => {
     openMenu(worktreeFixture({ hostId: 'runtime:remote-owner' }))
 
@@ -138,7 +138,7 @@ describe('WorktreeContextMenu Copy Worktree Name', () => {
   it('copies the workspace display name', () => {
     openMenu(worktreeFixture())
 
-    clickMenuItem('Copy Worktree Name')
+    clickMenuItem('Copy worktree name')
 
     expect(writeClipboardText).toHaveBeenCalledExactlyOnceWith('Fix authentication race')
   })
@@ -146,7 +146,7 @@ describe('WorktreeContextMenu Copy Worktree Name', () => {
   it('falls back like every other name read when the custom name is blank', () => {
     openMenu(worktreeFixture({ displayName: '' }))
 
-    clickMenuItem('Copy Worktree Name')
+    clickMenuItem('Copy worktree name')
 
     expect(writeClipboardText).toHaveBeenCalledExactlyOnceWith('feature/auth-race')
   })
@@ -173,7 +173,7 @@ describe('WorktreeContextMenu Copy Worktree Name', () => {
       })
     )
 
-    clickMenuItem('Copy Worktree Name')
+    clickMenuItem('Copy worktree name')
 
     expect(writeClipboardText).toHaveBeenCalledExactlyOnceWith(expected)
   })

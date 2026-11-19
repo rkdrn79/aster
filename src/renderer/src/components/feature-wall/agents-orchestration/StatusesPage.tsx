@@ -181,7 +181,7 @@ function ClaudeActivityLine(props: { activity: ClaudeActivity }): JSX.Element {
   }
   return (
     <span className="inline-flex max-w-full items-center gap-1.5 truncate">
-      <span className="inline-flex items-center gap-1 font-semibold text-muted-foreground">
+      <span className="inline-flex items-center gap-1 font-medium text-muted-foreground">
         <Wrench className="size-2.5" aria-hidden />
         {a.tool}
       </span>

@@ -268,7 +268,7 @@ export function EphemeralVmRuntimesSection(): React.JSX.Element | null {
                   size="icon-xs"
                   aria-label={translate(
                     'auto.components.settings.EphemeralVmRuntimesSection.cloudVmRefresh',
-                    'Refresh Cloud VM runtimes'
+                    'Refresh cloud VM runtimes'
                   )}
                   onClick={() => void refresh()}
                   disabled={isLoading || cleaningId !== null}
@@ -279,7 +279,7 @@ export function EphemeralVmRuntimesSection(): React.JSX.Element | null {
               <TooltipContent side="top" sideOffset={4}>
                 {translate(
                   'auto.components.settings.EphemeralVmRuntimesSection.cloudVmRefreshLabel',
-                  'Refresh Cloud VMs'
+                  'Refresh cloud VMs'
                 )}
               </TooltipContent>
             </Tooltip>

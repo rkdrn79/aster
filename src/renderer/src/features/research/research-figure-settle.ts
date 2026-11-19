@@ -1,23 +1,16 @@
-import { readAsterRoute } from './research-figure-element-meta'
+import { fitPanels, isPanelElement, refreshPanels } from './research-figure-panel-fit'
+import { settleArrow } from './research-figure-settle-arrows'
 import {
-  isOrthogonal,
-  routeOrthogonal,
-  sideFraction,
-  sideOfMove,
-  type Point,
-  type RouteEnd,
-  type Side
-} from './research-figure-orthogonal-route'
+  moved,
+  resized,
+  type SettleContext,
+  type SettleOptions
+} from './research-figure-settle-context'
 import {
   SettleState,
-  absolutePoints,
   anchorPoint,
   linkFrom,
   refreshLinks,
-  rememberedRoute,
-  routeKey,
-  sameGeometry,
-  samePoints,
   sameSize,
   type Link,
   type Seen,
@@ -30,30 +23,9 @@ import {
 const PAD_X = 8
 const PAD_Y = 6
 
-export type SettleOptions = {
-  /** A resize gesture is under way (Excalidraw rescales the selection on every move). */
-  resizing?: boolean
-  selected?: ReadonlySet<string>
-}
+export type { SettleOptions } from './research-figure-settle-context'
 
-type Context = {
-  memory: SettleMemory
-  state: SettleState
-  changed: ReadonlySet<string>
-  options: SettleOptions
-}
-
-function moved(context: Context, id: string): boolean {
-  const seen = context.memory.seen.get(id)
-  const now = context.state.get(id)
-  return Boolean(seen && now && !sameGeometry(seen, now))
-}
-
-function resized(context: Context, id: string): boolean {
-  const seen = context.memory.seen.get(id)
-  const now = context.state.get(id)
-  return Boolean(seen && now && !sameSize(now, seen))
-}
+type Context = SettleContext
 
 /** Puts a follower at its link: same size it had, centred on anchor + offset. */
 function place(context: Context, id: string, link: Link, owner: Seen): void {
@@ -127,17 +99,32 @@ function settleFollower(context: Context, id: string, link: Link): void {
     place(context, id, link, owner)
     return
   }
-  // Both changed: a group resize scales a label's type (keep its point size); anything else
-  // moved them together on purpose (a drag, an undo), so the follower keeps where it is.
-  if (
-    resized(context, link.to) &&
-    follower.fontSize !== null &&
-    follower.fontSize !== link.fontSize
-  ) {
+  // Both changed: a group resize scales a label's type with its box (keep its point size);
+  // anything else moved them together on purpose (a drag, an undo of a text size that grew the
+  // box), so the follower keeps where and how big it is.
+  if (resized(context, link.to) && scaledWithOwner(context, follower, link)) {
     place(context, id, link, owner)
   } else {
     relink(context, id, link)
   }
+}
+
+/** True when a label's type changed by the factor its owner's box did, as a group resize does. */
+function scaledWithOwner(context: Context, follower: Seen, link: Link): boolean {
+  const before = context.memory.seen.get(link.to)
+  const owner = context.state.get(link.to)
+  if (!before || !owner || follower.fontSize === null || !link.fontSize) {
+    return false
+  }
+  const type = follower.fontSize / link.fontSize
+  if (Math.abs(type - 1) < 1e-6) {
+    return false
+  }
+  const ratios = [
+    before.width > 0 ? owner.width / before.width : 0,
+    before.height > 0 ? owner.height / before.height : 0
+  ]
+  return ratios.some((ratio) => Math.abs(ratio - type) <= 0.02 * type)
 }
 
 /** Grows a box around its centre when its label no longer fits. */
@@ -191,152 +178,28 @@ function settleBoxes(context: Context, followers: readonly [string, Link][]): vo
   }
 }
 
-/** The end of a connector as it was: which side of which shape, and how far along. */
-function routeEnd(
+function settleChanged(
   context: Context,
-  shapeId: string | null,
-  path: readonly Point[],
-  arriving: boolean
-): RouteEnd | null {
-  const [from, to] = arriving ? [path.at(-2), path.at(-1)] : [path[0], path[1]]
-  if (!from || !to) {
-    return null
-  }
-  const side: Side | null = sideOfMove(from, to, arriving)
-  if (!side) {
-    return null
-  }
-  const shape = shapeId ? context.state.get(shapeId) : null
-  const before = shapeId ? context.memory.seen.get(shapeId) : null
-  const kind = shapeId ? context.state.byId.get(shapeId)?.type : null
-  if (!shape || !before || shape.isDeleted) {
-    return { kind: 'point', point: arriving ? to : from, side }
-  }
-  const end = arriving ? to : from
-  return {
-    kind: 'shape',
-    box: shape,
-    side,
-    t: sideFraction(before, side, end),
-    round: kind === 'ellipse' || kind === 'diamond'
-  }
-}
-
-const ROUND = new Set(['ellipse', 'diamond'])
-
-/** True when a path end sits on `side` of a shape, its gap off the outline, within the side. */
-function onSide(point: Point, box: Seen, side: Side, gap: number, round: boolean): boolean {
-  const horizontalSide = side === 'left' || side === 'right'
-  const [along, low, length] = horizontalSide
-    ? [point[1], box.y, box.height]
-    : [point[0], box.x, box.width]
-  if (along < low - 0.5 || along > low + length + 0.5) {
-    return false
-  }
-  const edge =
-    side === 'left'
-      ? box.x - point[0]
-      : side === 'right'
-        ? point[0] - box.x - box.width
-        : side === 'top'
-          ? box.y - point[1]
-          : point[1] - box.y - box.height
-  const depth = (horizontalSide ? box.width : box.height) / 2
-  // Why: an ellipse or diamond's outline lies inside its box away from the side's middle.
-  return round ? edge >= -depth && edge <= gap + 1.5 : Math.abs(edge - gap) <= 1.5
-}
-
-/** Axis-aligned, and each bound end sits its gap off the side it leaves or enters by. */
-function connectorFits(context: Context, element: SettleElement, path: readonly Point[]): boolean {
-  if (path.length < 2 || !isOrthogonal(path)) {
-    return false
-  }
-  const gap = element.startBinding?.gap ?? element.endBinding?.gap ?? 4
-  const last = path.at(-1) ?? path[0]
-  const beforeLast = path.at(-2) ?? path[0]
-  const ends = [
-    {
-      id: element.startBinding?.elementId,
-      point: path[0],
-      side: sideOfMove(path[0], path[1], false)
-    },
-    { id: element.endBinding?.elementId, point: last, side: sideOfMove(beforeLast, last, true) }
-  ]
-  return ends.every(({ id, point, side }) => {
-    const shape = id ? context.state.get(id) : null
-    if (!id || !shape || shape.isDeleted) {
-      return true
-    }
-    const round = ROUND.has(context.state.byId.get(id)?.type ?? '')
-    return side !== null && onSide(point, shape, side, gap, round)
-  })
-}
-
-function settleArrow(context: Context, element: SettleElement): void {
-  const before = context.memory.seen.get(element.id)
-  const now = context.state.get(element.id)
-  const startId = element.startBinding?.elementId ?? null
-  const endId = element.endBinding?.elementId ?? null
-  if (!before?.points || !now?.points || now.isDeleted || element.elbowed || !(startId || endId)) {
-    return
-  }
-  const endsMoved = [startId, endId].some((id) => id !== null && moved(context, id))
-  const arrowChanged = context.changed.has(element.id)
-  if (!endsMoved && (!arrowChanged || context.options.selected?.has(element.id))) {
-    // Why: an arrow the person is editing directly is theirs to shape.
-    return
-  }
-  const path = absolutePoints(before)
-  if (path.length < 2 || !(isOrthogonal(path) || readAsterRoute(element))) {
-    return
-  }
-  const key = routeKey(
-    startId ? context.state.get(startId) : null,
-    endId ? context.state.get(endId) : null
+  elements: readonly SettleElement[],
+  links: readonly [string, Link][]
+): void {
+  settleBoxes(
+    context,
+    links.filter(([, link]) => link.kind === 'box-label')
   )
-  // Why first: an undo puts the shapes back and Excalidraw then re-binds the ends; the path
-  // they had there is the one to restore.
-  const remembered = endsMoved ? rememberedRoute(context.memory, element.id, key) : null
-  if (!remembered && connectorFits(context, element, absolutePoints(now))) {
-    return
+  for (const [id, link] of links.filter(([, l]) => l.kind === 'badge' || l.kind === 'title')) {
+    settleFollower(context, id, link)
   }
-  const next = remembered
-    ? remembered.points.map(([px, py]) => [remembered.x + px, remembered.y + py] as const)
-    : routeAgain(context, element, path, startId, endId)
-  if (!next) {
-    return
+  for (const element of elements) {
+    if (element.type === 'arrow') {
+      settleArrow(context, element)
+    }
   }
-  const [x, y] = next[0]
-  const points = next.map(([px, py]) => [px - x, py - y] as const)
-  if (samePoints(points, now.points) && Math.abs(now.x - x) < 0.01 && Math.abs(now.y - y) < 0.01) {
-    return
+  for (const [id, link] of links.filter(
+    ([, l]) => l.kind === 'arrow-label' || l.kind === 'other'
+  )) {
+    settleFollower(context, id, link)
   }
-  const xs = points.map((point) => point[0])
-  const ys = points.map((point) => point[1])
-  context.state.update(element.id, {
-    x,
-    y,
-    points,
-    width: Math.max(...xs) - Math.min(...xs),
-    height: Math.max(...ys) - Math.min(...ys)
-  })
-}
-
-function routeAgain(
-  context: Context,
-  element: SettleElement,
-  path: readonly Point[],
-  startId: string | null,
-  endId: string | null
-): Point[] | null {
-  const start = routeEnd(context, startId, path, false)
-  const end = routeEnd(context, endId, path, true)
-  if (!start || !end) {
-    return null
-  }
-  const route = readAsterRoute(element)
-  const gap = element.startBinding?.gap ?? element.endBinding?.gap ?? 4
-  return routeOrthogonal(start, end, gap, route === 'hv' || route === 'vh' ? route : null)
 }
 
 /**
@@ -358,29 +221,31 @@ export function settleFigure(
       })
       .map((element) => element.id)
   )
-  if (!changed.size) {
-    refreshLinks(memory, state)
-    return state.updates
-  }
   const context: Context = { memory, state, changed, options }
-  const links = [...memory.links.entries()]
-  settleBoxes(
-    context,
-    links.filter(([, link]) => link.kind === 'box-label')
+  // Why before any update: a panel counts as the person's own edit only if it changed itself.
+  const panelsMoved = new Set(
+    elements
+      .filter((element) => isPanelElement(element) && moved(context, element.id))
+      .map((element) => element.id)
   )
-  for (const [id, link] of links.filter(([, l]) => l.kind === 'badge' || l.kind === 'title')) {
-    settleFollower(context, id, link)
+  const personMoved = (id: string): boolean => panelsMoved.has(id)
+  // Why the scene before the edit: a panel first seen now is learned as it was drawn.
+  refreshPanels(memory, state, () => false, {
+    geometry: (id) => memory.seen.get(id),
+    gesture: options.gesture
+  })
+  const links = [...memory.links.entries()]
+  if (changed.size) {
+    settleChanged(context, elements, links)
   }
-  for (const element of elements) {
-    if (element.type === 'arrow') {
-      settleArrow(context, element)
+  // Why also with nothing changed: a drag settles as it goes, and its panels grow when it ends.
+  if (!options.gesture) {
+    const grown = new Set(fitPanels(memory, state, personMoved))
+    for (const [id, link] of links.filter(([, l]) => l.kind === 'title' && grown.has(l.to))) {
+      settleFollower(context, id, link)
     }
   }
-  for (const [id, link] of links.filter(
-    ([, l]) => l.kind === 'arrow-label' || l.kind === 'other'
-  )) {
-    settleFollower(context, id, link)
-  }
   refreshLinks(memory, state)
+  refreshPanels(memory, state, personMoved, { gesture: options.gesture })
   return state.updates
 }

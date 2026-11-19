@@ -123,12 +123,12 @@ export function ResearchBackgroundTasksDialog({
           </DialogDescription>
         </DialogHeader>
         <section className="space-y-2" aria-label="Live agent work">
-          <div className="flex items-center gap-2 text-xs font-semibold">
+          <div className="flex items-center gap-2 text-xs font-medium">
             <Activity className="size-4" aria-hidden />
             Live agent work · {tasks.length}
           </div>
           {tasks.length ? (
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {tasks.map((task) => (
                 <div
                   key={task.id}
@@ -183,16 +183,16 @@ export function ResearchBackgroundTasksDialog({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">No child tasks running in open agents.</p>
+            <p className="text-xs text-muted-foreground">No child tasks running in open agents</p>
           )}
         </section>
         {slackRows.length ? (
           <section className="space-y-2" aria-label="Slack coordinator tasks">
-            <div className="flex items-center gap-2 text-xs font-semibold">
+            <div className="flex items-center gap-2 text-xs font-medium">
               <Bot className="size-4" aria-hidden />
               Slack coordinators · {slackRows.length}
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {slackRows.map((row) => (
                 <div
                   key={row.delegation.id}

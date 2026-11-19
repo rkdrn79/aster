@@ -47,7 +47,7 @@ export function RichMarkdownSlashMenu({
           value={slashMenu.query}
           placeholder={translate(
             'auto.components.editor.RichMarkdownSlashMenu.dbdd2ad15f',
-            'Search blocks...'
+            'Search blocks'
           )}
         />
       </div>

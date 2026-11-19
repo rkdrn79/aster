@@ -132,8 +132,8 @@ describe('FileExplorerRowContextMenu host capabilities', () => {
       })
       const labels = items.list.flatMap((item) => React.Children.toArray(item.children))
       expect(labels).not.toContain('Copy')
-      expect(labels).toContain('Copy Path')
-      expect(labels).toContain('Copy Relative Path')
+      expect(labels).toContain('Copy path')
+      expect(labels).toContain('Copy relative path')
     }
   )
 

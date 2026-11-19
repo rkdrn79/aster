@@ -128,7 +128,7 @@ export function AutoRenameBranchFromWorkSetting({
     <SearchableSetting
       title={translate(
         'auto.components.settings.AutoRenameBranchFromWorkSetting.ef787db0e3',
-        'Auto-rename branch & worktree'
+        'Auto-rename branch and worktree'
       )}
       description={translate(
         'auto.components.settings.AutoRenameBranchFromWorkSetting.6a051586d2',
@@ -154,7 +154,7 @@ export function AutoRenameBranchFromWorkSetting({
           <Label>
             {translate(
               'auto.components.settings.AutoRenameBranchFromWorkSetting.ef787db0e3',
-              'Auto-rename branch & worktree'
+              'Auto-rename branch and worktree'
             )}
           </Label>
           <p className="text-xs text-muted-foreground">
@@ -177,7 +177,7 @@ export function AutoRenameBranchFromWorkSetting({
         <Switch
           aria-label={translate(
             'auto.components.settings.AutoRenameBranchFromWorkSetting.ef787db0e3',
-            'Auto-rename branch & worktree'
+            'Auto-rename branch and worktree'
           )}
           checked={settings.autoRenameBranchFromWork}
           onCheckedChange={(checked) =>

@@ -216,11 +216,11 @@ export function TerminalQuickCommandDialog({
             {mode === 'edit'
               ? translate(
                   'auto.components.terminal.quick.commands.TerminalQuickCommandDialog.f9b184fc16',
-                  'Edit Quick Command'
+                  'Edit quick command'
                 )
               : translate(
                   'auto.components.terminal.quick.commands.TerminalQuickCommandDialog.5b3f634a55',
-                  'Add Quick Command'
+                  'Add quick command'
                 )}
           </DialogTitle>
           <DialogDescription className="text-xs">

@@ -163,8 +163,8 @@ export default function RecentTabSwitcher(): React.JSX.Element | null {
           'Switch tabs'
         )}
       >
-        <div className="border-b border-border px-3 py-2 text-xs font-semibold text-muted-foreground">
-          {translate('auto.components.tab.bar.RecentTabSwitcher.329638ff6f', 'Switch Tab')}
+        <div className="border-b border-border px-3 py-2 text-xs font-medium text-muted-foreground">
+          {translate('auto.components.tab.bar.RecentTabSwitcher.329638ff6f', 'Switch tab')}
         </div>
         <div className="max-h-[min(360px,60vh)] overflow-hidden py-1">
           {switcher.items.map((item, index) => {

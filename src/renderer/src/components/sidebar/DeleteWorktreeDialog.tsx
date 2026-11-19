@@ -346,11 +346,11 @@ const DeleteWorktreeDialog = React.memo(function DeleteWorktreeDialog() {
             {isBatchDelete
               ? translate(
                   'auto.components.sidebar.DeleteWorktreeDialog.86f0ae1257',
-                  'Delete Workspaces'
+                  'Delete workspaces'
                 )
               : translate(
                   'auto.components.sidebar.DeleteWorktreeDialog.fc23c4cbdf',
-                  'Delete Workspace'
+                  'Delete workspace'
                 )}
           </DialogTitle>
           <DeleteWorktreeDialogDescription

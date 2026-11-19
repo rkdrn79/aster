@@ -39,11 +39,11 @@ export function EditorFileLocationMenuItems({
       </DropdownMenuItem>
       <DropdownMenuItem onSelect={onCopyPath}>
         <Copy />
-        {translate('auto.components.editor.EditorPanelHeader.7c08a1f990', 'Copy Path')}
+        {translate('auto.components.editor.EditorPanelHeader.7c08a1f990', 'Copy path')}
       </DropdownMenuItem>
       <DropdownMenuItem onSelect={() => void window.api.ui.writeClipboardText(file.relativePath)}>
         <Copy />
-        {translate('auto.components.editor.EditorPanelHeader.269ce4842b', 'Copy Relative Path')}
+        {translate('auto.components.editor.EditorPanelHeader.269ce4842b', 'Copy relative path')}
       </DropdownMenuItem>
     </>
   )

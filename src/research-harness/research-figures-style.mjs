@@ -21,6 +21,8 @@ import {
   panelColors,
   presetColors
 } from './research-figures-palette.mjs'
+import { ROLE_PART, pairStroke, quietRoles, roleTarget } from './research-figures-roles.mjs'
+import { pageLook, paperLook } from './research-figures-paper.mjs'
 
 export { LOSS_TONES, lossStyle }
 
@@ -60,7 +62,7 @@ export const FIGURE_STYLES = Object.fromEntries(
       line: preset.neutrals.line,
       muted: preset.neutrals.muted,
       radius: preset.radius,
-      accent: PRESET_ACCENT[id]
+      accent: PRESET_ACCENT[id] ?? null
     }
   ])
 )
@@ -133,7 +135,15 @@ export const ARROW_ROLES = {
   main: { color: 'ink', strokeWidth: 2.5, headSize: 10 },
   side: { color: 'muted', strokeWidth: 1.5, headSize: 8 },
   aux: { color: 'muted', strokeWidth: 1.5, headSize: 8, dashed: true },
-  loss: { color: 'loss-link', strokeWidth: 1.5, headSize: 8 }
+  loss: { color: 'loss-link', strokeWidth: 1.5, headSize: 8 },
+  // Why world hues: a hand-drawn figure tells what flows by the arrow's colour (Voyager's
+  // retrieval, refine and update paths); each takes a role's mid tone, ink stays for text.
+  cond: { color: 'd-solid', strokeWidth: 2, headSize: 10 },
+  grad: { color: 'a-solid', strokeWidth: 2.5, headSize: 10 },
+  feedback: { color: 'b-solid', strokeWidth: 2, headSize: 10 },
+  good: { color: 'good', strokeWidth: 2, headSize: 10 },
+  bad: { color: 'bad', strokeWidth: 2, headSize: 10 },
+  skip: { color: 'muted', strokeWidth: 2, headSize: 8, dashed: true }
 }
 
 // Why: scenes and scripts from before the styles still name Okabe-Ito hues.
@@ -148,9 +158,14 @@ const accentKey = (name) => ACCENT_ALIASES[name] ?? name
 
 /**
  * A preset by name (old `neutral` is graphite) with its accent: a swatch name (`figures kit
- * colors`), an old name or any `#hex`, derived by the colour study's rule.
+ * colors`), an old name or any `#hex`, derived by the colour study's rule. `look: 'paper'` (with
+ * `font` 'cm' | 'times') draws it as published papers do (research-figures-paper).
  */
-export function figureStyle(name = DEFAULT_FIGURE_STYLE, accent, { panels } = {}) {
+export function figureStyle(name = DEFAULT_FIGURE_STYLE, accent, { panels, look, font } = {}) {
+  // Why a look over the colours: 'paper' changes type, weights and corners, never the hues.
+  if (look === 'paper') {
+    return paperLook(figureStyle(name, accent, { panels }), { font, roles: ARROW_ROLES })
+  }
   const key = PRESET_ALIASES[name] ?? name
   const id = Object.hasOwn(FIGURE_STYLES, key) ? key : DEFAULT_FIGURE_STYLE
   const preset = FIGURE_STYLES[id]
@@ -164,7 +179,10 @@ export function figureStyle(name = DEFAULT_FIGURE_STYLE, accent, { panels } = {}
     strong: item.strong,
     ink: item.shade,
     solid: item.solid,
-    highlight: item.highlight ?? null
+    highlight: item.highlight ?? null,
+    stroke: item.stroke ?? null,
+    light: item.light ?? null,
+    dark: item.dark ?? null
   }))
   return {
     name: id,
@@ -182,6 +200,11 @@ export function figureStyle(name = DEFAULT_FIGURE_STYLE, accent, { panels } = {}
     mutedText: mutedText(preset.muted),
     outlineWidth: colors.outlineWidth,
     rules: colors.rules,
+    // Why roles: scripts colour by meaning (input, model, a–d); a world turns each into its hue.
+    roles: colors.world ? colors.world.roles : quietRoles(id, accents),
+    world: colors.world,
+    // Why pairs: in a world every box has an outline darker than its fill, in the fill's hue.
+    pairs: Boolean(colors.world),
     // Why two sizes: 8 pt labels and 7 pt tokens, scripts and notes, as in printed papers.
     textSize: 16,
     smallSize: 14,
@@ -201,9 +224,18 @@ export function figureStyle(name = DEFAULT_FIGURE_STYLE, accent, { panels } = {}
           calloutSize: 16,
           panelRadius: null,
           panelPad: 10,
-          panels: []
+          panels: colors.panels ?? []
         })
   }
+}
+
+/** The style a figure page draws in: its preset, accent and panels, in its look (paper by default). */
+export function pageStyle(page) {
+  return figureStyle(page?.style, page?.accent, {
+    panels: page?.panels,
+    look: pageLook(page),
+    font: page?.paperFont
+  })
 }
 
 const isHex = (value) => typeof value === 'string' && /^#[0-9a-f]{3,8}$/i.test(value)
@@ -217,12 +249,15 @@ function accentRole(style, role) {
   if (role === 'accent' || role === 'primary') {
     return style.accents[0]
   }
-  return style.accents.find((item) => item.name === role) ?? null
+  const named = style.accents.find((item) => item.name === role)
+  // Why: scripts written for blue-amber or sage-butter name their second and third accents.
+  const ordinal = { secondary: 1, tertiary: 2 }[role]
+  return named ?? (ordinal && style.world ? style.accents[ordinal] : null)
 }
 
 function knownColor(style, name) {
-  const role = LEGACY[name] ?? name
-  if (role === undefined || role === 'block') {
+  const role = roleTarget(style.roles, LEGACY[name] ?? name ?? 'block')
+  if (role === 'block') {
     return { fill: style.block, stroke: style.boxStroke }
   }
   if (role === 'strong' || role === 'panel' || role === 'mid') {
@@ -235,17 +270,23 @@ function knownColor(style, name) {
       stroke: style.boxStroke === 'transparent' ? style.strong : style.boxStroke
     }
   }
-  const [base, part] = /^(.*?)(?:-(strong|ink|solid))?$/.exec(role).slice(1)
+  const [base, part] = ROLE_PART.exec(role).slice(1)
   const named = accentRole(style, base)
   if (named) {
-    if (part === 'ink' || part === 'solid') {
-      const color = part === 'ink' ? named.ink : named.solid
+    if (part === 'ink' || part === 'solid' || part === 'stroke') {
+      const color = { ink: named.ink, solid: named.solid, stroke: named.stroke ?? named.ink }[part]
       return { fill: color, stroke: color, ink: color }
     }
+    const fill = {
+      strong: named.strong,
+      light: named.light ?? named.fill,
+      dark: named.dark ?? named.strong
+    }[part]
     return {
-      fill: part === 'strong' ? named.strong : named.fill,
-      stroke: style.boxStroke,
-      ink: named.ink
+      fill: fill ?? named.fill,
+      stroke: style.pairs && named.stroke ? named.stroke : style.boxStroke,
+      ink: named.ink,
+      solid: named.solid
     }
   }
   // Why '-strong' too: a glyph in a panel colour (nn nodes, bars) asks for its mid tone, and a
@@ -272,11 +313,12 @@ function knownColor(style, name) {
   }
   const semantic = SEMANTIC_COLORS[base]
   if (semantic) {
-    if (part === 'ink' || part === 'solid') {
-      return { fill: semantic[part], stroke: semantic[part], ink: semantic[part] }
+    if (part === 'ink' || part === 'solid' || part === 'stroke') {
+      const color = semantic[part === 'stroke' ? 'ink' : part]
+      return { fill: color, stroke: color, ink: color }
     }
     return {
-      fill: part === 'strong' ? semantic.strong : semantic.fill,
+      fill: part === 'strong' || part === 'dark' ? semantic.strong : semantic.fill,
       stroke: style.boxStroke,
       ink: semantic.ink
     }
@@ -324,6 +366,13 @@ const COLOR_NAMES = [
   'line',
   'muted',
   'none',
+  'a, b, c, d (-strong, -ink, -solid, -stroke, -light, -dark)',
+  'input',
+  'output',
+  'data',
+  'model',
+  'frozen',
+  'ours',
   ...Object.keys(FIGURE_ACCENTS)
 ]
 
@@ -333,7 +382,8 @@ const COLOR_NAMES = [
  */
 export function styleColor(style, name) {
   if (isHex(name)) {
-    return { fill: name, stroke: style.boxStroke, ink: name }
+    // Why the pair in a world: a literal fill still gets an outline darker than itself.
+    return { fill: name, stroke: style.pairs ? pairStroke(name) : style.boxStroke, ink: name }
   }
   const color = knownColor(style, name)
   if (!color) {
@@ -475,6 +525,21 @@ export function styleNeutrals(style) {
 
 /** The colours the editor's Colors menu offers for a style: roles first, then the accents. */
 export function figureSwatches(style) {
+  if (style.world) {
+    const world = [
+      ['block', 'Block'],
+      ['strong', 'Heavy block'],
+      ['white', 'White box'],
+      ['a', `Ours (a${style.accentName ? `, ${style.accentName}` : ''})`],
+      ['b', 'Output (b)'],
+      ['c', 'Model (c)'],
+      ['d', 'Input, data (d)'],
+      ['frozen', 'Frozen'],
+      ['loss', 'Loss'],
+      ['line', 'Line']
+    ]
+    return world.map(([name, label]) => ({ name, label, ...styleColor(style, name) }))
+  }
   const roles = [
     ['block', 'Block'],
     ['strong', 'Heavy block'],
@@ -503,14 +568,16 @@ export function stylePalette(style) {
     line: style.line,
     muted: style.muted,
     outline: style.boxStroke,
-    accents: style.accents.map(({ name, role, fill, strong, ink, solid }) => ({
+    accents: style.accents.map(({ name, role, fill, strong, ink, solid, stroke, light, dark }) => ({
       name,
       role,
       fill,
       strong,
       ink,
-      solid
+      solid,
+      ...(stroke ? { stroke, light, dark } : {})
     })),
+    roles: { ...style.roles },
     // Why the names: `color: 'panel-1'` (or 'panel-1-ink', 'panel-1-strong') draws in them.
     panels: (style.panels ?? []).map(({ name, fill, strong, ink }, index) => ({
       name: `panel-${index + 1}`,

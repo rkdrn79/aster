@@ -95,8 +95,7 @@ export function getAutomationRunStatusLabel(status: AutomationRun['status']): st
   }
 }
 
-export const AUTOMATION_EDITOR_SECTION_LABEL_CLASS =
-  'text-[11px] font-semibold uppercase tracking-[0.05em]'
+export const AUTOMATION_EDITOR_SECTION_LABEL_CLASS = 'text-[11px] font-medium'
 
 export function Field({
   label,

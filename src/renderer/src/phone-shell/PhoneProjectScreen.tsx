@@ -1,5 +1,6 @@
 import { FolderX, Plus } from 'lucide-react'
 import { useDeadlineClock } from '@/features/research/use-deadline-clock'
+import type { ResearchHomeWorkspace } from '@/features/research/research-home-projects'
 import {
   usePhoneResearchOverviewRefresh,
   usePhoneResearchOverviews
@@ -9,6 +10,7 @@ import type { PhoneSession } from './phone-sessions'
 import { usePhoneNavigation } from './phone-navigation-store'
 import { PhoneExperimentRows } from './PhoneExperimentRows'
 import { PhoneIdleShellRows } from './PhoneIdleShellRows'
+import { PhoneProjectResearchLinks } from './PhoneProjectResearchLinks'
 import { PhoneEmptyState, PhoneScrollBody, PhoneSection, PhoneSectionNote } from './PhoneListLayout'
 import { PhoneRunRow } from './PhoneRunRow'
 import { openPhoneRun } from './PhoneRunsScreen'
@@ -37,14 +39,15 @@ function NewAgentButton({ workspaceId }: { workspaceId: string }): React.JSX.Ele
 
 /** A workspace's `.aster/` catalog: its Experiments, then every Run by recency. */
 function ProjectResearch({
-  worktreeId,
+  workspace,
   projectName,
   now
 }: {
-  worktreeId: string
+  workspace: ResearchHomeWorkspace
   projectName: string
   now: number
 }): React.JSX.Element {
+  const worktreeId = workspace.id
   const overview = usePhoneResearchOverviews((state) => state.byWorktreeId[worktreeId])
   if (!overview || overview.status !== 'ready') {
     return (
@@ -65,6 +68,7 @@ function ProjectResearch({
   const runs = listPhoneRuns(worktreeId, overview.result)
   return (
     <>
+      <PhoneProjectResearchLinks workspace={workspace} projectName={projectName} now={now} />
       <PhoneSection label="Experiments">
         <PhoneExperimentRows
           worktreeId={worktreeId}
@@ -147,7 +151,7 @@ export function PhoneProjectScreen({
           </PhoneSection>
         )
       })}
-      <ProjectResearch worktreeId={primaryId} projectName={project.name} now={now} />
+      <ProjectResearch workspace={project.workspaces[0]} projectName={project.name} now={now} />
     </PhoneScrollBody>
   )
 }

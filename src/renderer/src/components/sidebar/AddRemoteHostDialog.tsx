@@ -208,7 +208,7 @@ export function AddRemoteHostDialog({
     toast.success(
       translate(
         'auto.components.sidebar.AddRemoteHostDialog.sshConfigPickerFilled',
-        'Filled from {{value0}}. Review and Save.',
+        'Filled from {{value0}}. Review and save.',
         { value0: host.alias }
       )
     )

@@ -154,7 +154,7 @@ describe('the status menu for a managed SSH host', () => {
   it('shows and counts one row per machine and disconnects the managed server', async () => {
     render(<SshStatusSegment compact={false} iconOnly={false} />)
     expect(screen.getAllByText('openclaw')).toHaveLength(1)
-    expect(screen.queryByText('SSH Host')).toBeNull()
+    expect(screen.queryByText('SSH host')).toBeNull()
     expect(
       screen.getByRole('button', { name: 'Remote host connection status' }).textContent
     ).toContain('2 hosts')
@@ -172,7 +172,7 @@ describe('the status menu for a managed SSH host', () => {
     )
     render(<SshStatusSegment compact={false} iconOnly={false} />)
     expect(screen.getAllByText('openclaw')).toHaveLength(1)
-    expect(screen.getByText('SSH Host')).toBeTruthy()
+    expect(screen.getByText('SSH host')).toBeTruthy()
     expect(
       screen.getByRole('button', { name: 'Remote host connection status' }).textContent
     ).toContain('2 hosts')
@@ -221,7 +221,7 @@ describe('the status menu for a managed SSH host', () => {
     state.runtimeEnvironments = [environment('server-windows', 'win-lowspec')]
     render(<SshStatusSegment compact={false} iconOnly={false} />)
     expect(screen.getAllByText('openclaw')).toHaveLength(1)
-    expect(screen.getByText('SSH Host')).toBeTruthy()
+    expect(screen.getByText('SSH host')).toBeTruthy()
   })
 
   it('names the managed row after its SSH host, honouring a rename saved on the SSH id', () => {

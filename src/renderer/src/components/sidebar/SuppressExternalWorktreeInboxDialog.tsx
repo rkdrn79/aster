@@ -58,7 +58,7 @@ export default function SuppressExternalWorktreeInboxDialog({
           >
             {translate(
               'auto.components.sidebar.SuppressExternalWorktreeInboxDialog.8c0b2e7a41',
-              'Open Non-Aster worktrees settings'
+              'Open non-Aster worktrees settings'
             )}
           </button>
         </div>

@@ -130,7 +130,7 @@ for (const surface of [
         })
       }
       if (surface === 'source-control') {
-        await page.getByRole('button', { name: /Source Control/ }).click()
+        await page.getByRole('button', { name: /Source control/ }).click()
         await expect(page.getByRole('textbox', { name: 'Commit message' })).toBeVisible()
         const entry = page
           .locator('[data-testid="source-control-entry"]')
@@ -145,7 +145,7 @@ for (const surface of [
         await page.getByRole('menuitem', { name: 'Open in', exact: true }).hover()
       } else if (surface === 'explorer-toolbar') {
         await page.evaluate(() => window.__store?.getState().showRightSidebarFiles())
-        await page.getByRole('button', { name: 'More Explorer Actions', exact: true }).click()
+        await page.getByRole('button', { name: 'More explorer actions', exact: true }).click()
       } else {
         await page.evaluate(() => window.__store?.getState().setActiveWorktree(null))
         await page

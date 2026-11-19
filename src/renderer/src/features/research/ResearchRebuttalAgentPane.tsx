@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { ResearchChip } from './research-chip'
 import { useResearchRecords } from './research-records-store'
 import { ResearchAgentChatPane } from './ResearchAgentChatPane'
 import {
@@ -60,18 +60,16 @@ export function ResearchRebuttalAgentPane({ scope, visible, onRequest }: Props):
       onLaunch={(agent) => launchRebuttalAgent(scope, agent)}
       toolbar={
         onRequest ? (
-          <div className="shrink-0 space-y-1.5 border-b border-border px-3 py-2">
+          <div className="shrink-0 space-y-2 px-3 pt-1 pb-2">
             <div className="flex flex-wrap gap-1" role="group" aria-label="Rebuttal requests">
               {REBUTTAL_QUICK_ACTIONS.map(({ request, label }) => (
-                <Button
+                <ResearchChip
                   key={label}
-                  size="xs"
-                  variant="outline"
                   disabled={sending !== null}
                   onClick={() => void send(request, label)}
                 >
                   {sending === label ? 'Sending…' : label}
-                </Button>
+                </ResearchChip>
               ))}
               <ResearchRebuttalTurnChips actor="author" />
             </div>

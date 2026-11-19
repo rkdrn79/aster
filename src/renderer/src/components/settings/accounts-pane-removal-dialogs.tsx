@@ -66,7 +66,7 @@ export function renderAccountsRemovalDialogs(
                 )
               }}
             >
-              {translate('auto.components.settings.AccountsPane.c2d2751587', 'Remove Account')}
+              {translate('auto.components.settings.AccountsPane.c2d2751587', 'Remove account')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -109,7 +109,7 @@ export function renderAccountsRemovalDialogs(
                 )
               }}
             >
-              {translate('auto.components.settings.AccountsPane.c2d2751587', 'Remove Account')}
+              {translate('auto.components.settings.AccountsPane.c2d2751587', 'Remove account')}
             </Button>
           </DialogFooter>
         </DialogContent>

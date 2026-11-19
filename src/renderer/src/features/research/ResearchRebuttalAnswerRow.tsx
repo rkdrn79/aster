@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { AnimatedCheck } from '@/components/ui/animated-check'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 import type {
@@ -25,6 +26,7 @@ import { ResearchRebuttalReviseButton } from './ResearchRebuttalReviseButton'
 import { RebuttalTranslationBlock } from './ResearchRebuttalTranslation'
 import { ResearchRebuttalVersionsDialog } from './ResearchRebuttalVersionsDialog'
 import type { RebuttalActions } from './use-research-rebuttal-actions'
+import { TAG_CHIP, RAISED_CARD } from './research-surface-classes'
 
 const STATUS_LABELS: Record<RebuttalClusterStatus, string> = {
   todo: 'To do',
@@ -46,7 +48,7 @@ export function ReplyAuthorBadge({
   const label =
     author === 'human' ? 'Written by you' : author === 'agent' ? 'Agent draft' : 'You and the agent'
   return (
-    <span className="inline-flex items-center gap-1 text-2xs text-muted-foreground [&>svg]:size-3">
+    <span className="inline-flex items-center gap-1 text-2xs font-medium text-muted-foreground [&>svg]:size-3">
       {icon}
       {label}
     </span>
@@ -106,7 +108,7 @@ export function ResearchRebuttalAnswerRow({
       aria-label={`${answerLabel}: ${title}`}
       data-answer={answerLabel}
       data-answer-points={points.map((point) => point.id).join(' ')}
-      className="rounded-lg border border-border bg-card text-card-foreground"
+      className={RAISED_CARD}
     >
       <div
         className={cn('grid', stacked ? 'grid-cols-1' : 'grid-cols-[minmax(0,5fr)_minmax(0,7fr)]')}
@@ -121,15 +123,16 @@ export function ResearchRebuttalAnswerRow({
           actions={actions}
           onError={setError}
         />
-        <div className="min-w-0 space-y-2 p-3">
+        <div className="min-w-0 space-y-2 px-4 py-3">
           <div className="flex flex-wrap items-center gap-2">
             <ReplyAuthorBadge author={cluster?.author ?? null} empty={!reply.trim()} />
             {predicted ? (
               <button
                 type="button"
                 className={cn(
-                  'inline-flex items-center gap-1 rounded-sm bg-muted px-1 py-px text-2xs hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring',
-                  predicted.stale ? 'text-status-warning' : 'text-muted-foreground'
+                  TAG_CHIP,
+                  'px-2 text-2xs transition-colors hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-ring',
+                  predicted.stale && 'text-status-warning'
                 )}
                 title="Next concerns the simulated reviewer predicted from this reply"
                 onClick={onShowPredictions}
@@ -140,7 +143,8 @@ export function ResearchRebuttalAnswerRow({
             ) : null}
             {busy ? (
               <span className="inline-flex items-center gap-1 text-2xs text-muted-foreground">
-                <Loader2 className="size-3 animate-spin" aria-hidden /> Agent is working on this
+                <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden />
+                <span className="text-shimmer">Agent is working on this</span>
               </span>
             ) : null}
             <div className="ml-auto flex items-center gap-1">
@@ -160,7 +164,30 @@ export function ResearchRebuttalAnswerRow({
                 >
                   {(['todo', 'drafting', 'done'] as const).map((status) => (
                     <ToggleGroupItem key={status} value={status}>
-                      {STATUS_LABELS[status]}
+                      {status === 'done' ? (
+                        // Why the hidden twin: Ready keeps the check's width, so marking it
+                        // never shifts the control under the pointer.
+                        <span className="inline-grid place-items-center">
+                          <span
+                            aria-hidden
+                            className="invisible col-start-1 row-start-1 inline-flex items-center gap-1"
+                          >
+                            <span className="size-3" />
+                            {STATUS_LABELS[status]}
+                          </span>
+                          <span className="col-start-1 row-start-1 inline-flex items-center gap-1">
+                            {/* Mounted only when Ready: the check draws itself as the reply is marked. */}
+                            {cluster.status === 'done' ? (
+                              <span className="inline-flex text-status-success">
+                                <AnimatedCheck className="size-4" />
+                              </span>
+                            ) : null}
+                            {STATUS_LABELS[status]}
+                          </span>
+                        </span>
+                      ) : (
+                        STATUS_LABELS[status]
+                      )}
                     </ToggleGroupItem>
                   ))}
                 </ToggleGroup>

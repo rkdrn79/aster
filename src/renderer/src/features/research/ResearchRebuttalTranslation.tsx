@@ -42,7 +42,7 @@ export function useRebuttalTranslation(
 function OutdatedTag(): React.JSX.Element {
   return (
     <span
-      className="ml-1.5 text-3xs font-medium whitespace-nowrap text-status-warning"
+      className="ml-2 text-3xs font-medium whitespace-nowrap text-status-warning"
       title="The original changed after this was translated"
     >
       Outdated
@@ -100,7 +100,7 @@ export function RebuttalTranslationBlock({
     <section
       aria-label={`${found.label} translation`}
       data-translation={tkey}
-      className={cn('border-l-2 border-border pl-2.5', className)}
+      className={cn('border-l-2 border-border pl-3', className)}
     >
       <p className="text-3xs font-medium text-muted-foreground">
         {found.label}

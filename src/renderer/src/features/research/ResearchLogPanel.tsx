@@ -99,7 +99,7 @@ export function ResearchLogPanel({
               onChange={(event) => setQuery(event.target.value)}
               className="h-8 min-w-48 flex-1"
             />
-            <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
               <Switch
                 checked={showMetricLines}
                 onCheckedChange={setShowMetricLines}
@@ -138,7 +138,7 @@ export function ResearchLogPanel({
               pinnedToTail.current =
                 element.scrollHeight - element.scrollTop - element.clientHeight < 24
             }}
-            className="scrollbar-sleek mt-2 max-h-[min(28rem,60vh)] overflow-auto rounded-md bg-muted py-2 font-mono text-xs"
+            className="scrollbar-sleek mt-2 max-h-[min(28rem,60vh)] overflow-auto rounded-lg bg-muted/70 py-2 font-mono text-xs dark:bg-muted/55"
           >
             <pre data-log-lines className="whitespace-pre-wrap break-words">
               {visibleLines.length ? (

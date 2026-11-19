@@ -64,7 +64,7 @@ async function openAiVaultSidebar(page: Page): Promise<void> {
     store.getState().setRightSidebarOpen(true)
     store.getState().setRightSidebarTab('vault')
   })
-  const refresh = page.getByRole('button', { name: 'Refresh Session History' })
+  const refresh = page.getByRole('button', { name: 'Refresh session history' })
   await expect(refresh).toBeVisible()
   await expect(refresh).toBeEnabled({ timeout: 30_000 })
 }
@@ -104,7 +104,7 @@ async function runArm(args: {
   await focusActiveTerminalInput(args.page)
   await typeAtCadence(args.page, target)
   if (args.scenario === 'vault-refresh') {
-    await expect(args.page.getByRole('button', { name: 'Refresh Session History' })).toBeEnabled({
+    await expect(args.page.getByRole('button', { name: 'Refresh session history' })).toBeEnabled({
       timeout: 120_000
     })
   }

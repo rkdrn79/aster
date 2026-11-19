@@ -17,7 +17,7 @@ export function DiffShowWhitespaceSetting({
     <SearchableSetting
       title={translate(
         'auto.components.settings.GeneralEditorSettingsSection.f1b3ceeb98',
-        'Diff Show Whitespace'
+        'Diff show whitespace'
       )}
       description={translate(
         'auto.components.settings.GeneralEditorSettingsSection.94a479cef3',
@@ -30,7 +30,7 @@ export function DiffShowWhitespaceSetting({
         <Label>
           {translate(
             'auto.components.settings.GeneralEditorSettingsSection.f1b3ceeb98',
-            'Diff Show Whitespace'
+            'Diff show whitespace'
           )}
         </Label>
         <p className="text-xs text-muted-foreground">
@@ -43,7 +43,7 @@ export function DiffShowWhitespaceSetting({
       <SettingsSegmentedControl
         ariaLabel={translate(
           'auto.components.settings.GeneralEditorSettingsSection.f1b3ceeb98',
-          'Diff Show Whitespace'
+          'Diff show whitespace'
         )}
         value={settings.diffShowWhitespace ? 'on' : 'off'}
         onChange={(option) => updateSettings({ diffShowWhitespace: option === 'on' })}

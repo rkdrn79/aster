@@ -194,13 +194,13 @@ export function ResearchExperimentList({
                     {status && status.needsYou > 0 ? (
                       <span
                         aria-hidden
-                        className="ml-auto shrink-0 rounded-sm border border-worktree-sidebar-border px-1 text-2xs tabular-nums text-muted-foreground"
+                        className="ml-auto shrink-0 px-1 text-2xs leading-4 tabular-nums text-muted-foreground"
                       >
                         {status.needsYou}
                       </span>
                     ) : !selected && conversations > 0 ? (
                       <span className="ml-auto flex items-center gap-1 text-2xs text-muted-foreground">
-                        <MessageSquareText className="size-3" aria-hidden />
+                        <MessageSquareText className="size-4" aria-hidden />
                         {conversations}
                       </span>
                     ) : null}

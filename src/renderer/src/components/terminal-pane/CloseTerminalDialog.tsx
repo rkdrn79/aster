@@ -168,11 +168,11 @@ function CloseTerminalDialogBody({
           {isAgent
             ? translate(
                 'auto.components.terminal.pane.CloseTerminalDialog.stop_agent_confirm',
-                'Stop Agent'
+                'Stop agent'
               )
             : translate(
                 'auto.components.terminal.pane.CloseTerminalDialog.stop_command_confirm',
-                'Stop and Close'
+                'Stop and close'
               )}
         </Button>
       </DialogFooter>

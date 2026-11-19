@@ -213,7 +213,7 @@ function LimitsBody({
           <Button
             variant="ghost"
             className="sm:mr-auto"
-            title="Held jobs on this host are released."
+            title="Held jobs on this host are released"
             disabled={saving}
             onClick={() => void persist({ schemaVersion: 1, ...others })}
           >

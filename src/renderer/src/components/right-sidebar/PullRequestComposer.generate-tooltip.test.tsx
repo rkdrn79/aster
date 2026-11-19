@@ -214,7 +214,7 @@ describe('CreateHostedReviewComposer generate tooltip', () => {
 
     // Unchecked, the helper explains the effect rather than repeating the base ref.
     expect(container.innerHTML).toContain(
-      "Creates a GitHub Stack or extends the parent's existing stack."
+      "Creates a GitHub stack or extends the parent's existing stack."
     )
 
     fireEvent.click(screen.getByRole('checkbox', { name: /Stack this PR above #13741/ }))

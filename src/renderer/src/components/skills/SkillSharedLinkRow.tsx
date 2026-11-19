@@ -93,7 +93,7 @@ export function SkillSharedLinkRow({
         return
       }
       toast.success(
-        translate('auto.components.skills.SkillSharedLinkRow.deleted', 'Deleted from the Cloud')
+        translate('auto.components.skills.SkillSharedLinkRow.deleted', 'Deleted from the cloud')
       )
       onDeleted()
     } finally {
@@ -209,7 +209,7 @@ export function SkillSharedLinkRow({
                     <Trash2 />
                     {translate(
                       'auto.components.skills.SkillSharedLinkRow.deletePackage',
-                      'Delete from the Cloud'
+                      'Delete from the cloud'
                     )}
                   </DropdownMenuItem>
                 </DropdownMenuContent>

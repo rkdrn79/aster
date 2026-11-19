@@ -58,8 +58,8 @@ export function TaskPageLinearProjectDialog({
         </DialogDescription>
         <div className="flex items-center justify-between border-b border-border/60 bg-muted/10 px-5 py-3">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {translate('auto.components.TaskPage.02f67c0d09', 'New Project')}
+            <span className="text-xs font-medium text-muted-foreground">
+              {translate('auto.components.TaskPage.02f67c0d09', 'New project')}
             </span>
             <span className="text-xs text-muted-foreground/40">/</span>
             {availableTeams.length > 1 ? (
@@ -79,7 +79,7 @@ export function TaskPageLinearProjectDialog({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="start" className="w-72 p-1">
-                  <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <div className="px-2 py-1.5 text-[10px] font-medium text-muted-foreground">
                     {translate('auto.components.TaskPage.a98cbe7664', 'Team')}
                   </div>
                   <div className="max-h-64 overflow-y-auto scrollbar-sleek">

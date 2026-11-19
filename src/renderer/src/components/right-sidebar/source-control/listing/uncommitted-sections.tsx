@@ -29,7 +29,7 @@ import type { SourceControlRowOpenEvent } from './split-open'
 const SECTION_LABELS: Record<SourceControlDisplaySectionArea, { key: string; fallback: string }> = {
   staged: {
     key: 'auto.components.right.sidebar.SourceControl.48a003c1b1',
-    fallback: 'Staged Changes'
+    fallback: 'Staged changes'
   },
   unstaged: {
     key: 'auto.components.right.sidebar.SourceControl.d4ef4bafc5',

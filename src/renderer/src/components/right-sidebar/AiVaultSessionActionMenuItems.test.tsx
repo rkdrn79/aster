@@ -12,7 +12,7 @@ import { SessionActionMenuItems } from './AiVaultSessionActionMenuItems'
 
 afterEach(cleanup)
 
-const HAND_OFF = 'Hand Off to Another Agent'
+const HAND_OFF = 'Hand off to another agent'
 const SEPARATOR = '---'
 
 function renderMenuOrder(
@@ -25,7 +25,7 @@ function renderMenuOrder(
         <DropdownMenuContent>
           <SessionActionMenuItems
             resumeDisabled={false}
-            resumeLabel="Resume in New Tab"
+            resumeLabel="Resume in new tab"
             onResume={vi.fn()}
             showJumpToWorktree={false}
             onContinueInNewSession={vi.fn()}
@@ -43,13 +43,13 @@ function renderMenuOrder(
 }
 
 describe('SessionActionMenuItems hand-off placement', () => {
-  it('places Hand Off after Copy Resume Command, behind a separator', () => {
+  it('places Hand Off after Copy resume command, behind a separator', () => {
     const order = renderMenuOrder({ onCopyResume: vi.fn() })
     const handOff = order.indexOf(HAND_OFF)
 
     expect(order.slice(0, handOff + 1)).toEqual([
-      'Resume in New Tab',
-      'Copy Resume Command',
+      'Resume in new tab',
+      'Copy resume command',
       SEPARATOR,
       HAND_OFF
     ])
@@ -64,8 +64,8 @@ describe('SessionActionMenuItems hand-off placement', () => {
 
 describe('SessionActionMenuItems jump label', () => {
   it.each([
-    ['folder:folder-1', 'Jump to Folder'],
-    ['repo-1::/repo/orca', 'Jump to Worktree']
+    ['folder:folder-1', 'Jump to folder'],
+    ['repo-1::/repo/orca', 'Jump to worktree']
   ])('names the jump by the workspace kind of %s', (jumpWorkspaceId, label) => {
     const order = renderMenuOrder({
       showJumpToWorktree: true,

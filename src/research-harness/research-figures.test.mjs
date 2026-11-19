@@ -229,10 +229,19 @@ test('a figure script imports the kit through a portable shim, and figures run r
       env: { PATH: path.dirname(process.execPath), ASTER_HARNESS: path.join(other, 'cli.mjs') }
     })
     assert.deepEqual(JSON.parse(alone.stdout), { harness: other, marker: 'other' })
-    // Without it and without an aster CLI, the shim says how to run the script.
+    // Without it, the harness that last ran a figure here (~/.cache/aster/harness) serves.
+    const home = path.join(project, 'home')
+    await mkdir(path.join(home, '.cache', 'aster'), { recursive: true })
+    await writeFile(path.join(home, '.cache', 'aster', 'harness'), `${other}\n`)
+    const remembered = spawnSync(process.execPath, [script], {
+      encoding: 'utf8',
+      env: { PATH: path.dirname(process.execPath), HOME: home }
+    })
+    assert.deepEqual(JSON.parse(remembered.stdout), { harness: other, marker: 'other' })
+    // Without either and without an aster CLI, the shim says how to run the script.
     const lost = spawnSync(process.execPath, [script], {
       encoding: 'utf8',
-      env: { PATH: path.dirname(process.execPath) }
+      env: { PATH: path.dirname(process.execPath), HOME: path.join(project, 'nobody') }
     })
     assert.match(lost.stderr, /figures run --figure/)
     assert.equal((await harness(project, ['figures', 'show'])).result.shim.exists, true)

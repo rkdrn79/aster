@@ -81,7 +81,7 @@ export function ResearchRebuttalReviewForm({
   return (
     <form className="flex min-h-0 flex-1 flex-col gap-3" onSubmit={(event) => void submit(event)}>
       <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2">
-        <div className="min-w-0 space-y-1.5">
+        <div className="min-w-0 space-y-2">
           <Label htmlFor="rebuttal-reviewer-label">Reviewer</Label>
           <Input
             id="rebuttal-reviewer-label"
@@ -91,7 +91,7 @@ export function ResearchRebuttalReviewForm({
             onChange={(event) => setLabel(event.target.value)}
           />
         </div>
-        <div className="min-w-0 space-y-1.5">
+        <div className="min-w-0 space-y-2">
           <Label htmlFor="rebuttal-reviewer-score">Score</Label>
           <Input
             id="rebuttal-reviewer-score"
@@ -101,7 +101,7 @@ export function ResearchRebuttalReviewForm({
             onChange={(event) => setRating(event.target.value)}
           />
         </div>
-        <div className="min-w-0 space-y-1.5">
+        <div className="min-w-0 space-y-2">
           <Label htmlFor="rebuttal-reviewer-confidence">Confidence</Label>
           <Input
             id="rebuttal-reviewer-confidence"
@@ -112,7 +112,7 @@ export function ResearchRebuttalReviewForm({
           />
         </div>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-1.5">
+      <div className="flex min-h-0 flex-1 flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
           <Label htmlFor="rebuttal-review-text">Review</Label>
           <Button

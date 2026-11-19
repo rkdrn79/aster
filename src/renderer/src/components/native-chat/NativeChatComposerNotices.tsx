@@ -67,11 +67,11 @@ function NoticeRow({ notice }: { notice: NativeChatComposerNotice }): React.JSX.
   const dismissLabel = translate('components.native-chat.notices.dismiss', 'Dismiss')
   return (
     <li data-notice-kind={notice.kind} className={cn(isError && 'bg-destructive/5')}>
-      <div className="flex items-start gap-2 px-2.5 py-1.5">
+      <div className="flex items-start gap-2 px-3 py-2">
         <Icon
           aria-hidden
           className={cn(
-            'mt-0.5 size-3.5 shrink-0',
+            'mt-0.5 size-4 shrink-0',
             'text-muted-foreground',
             isError && 'text-destructive',
             isHostWarning && 'text-destructive'
@@ -107,13 +107,13 @@ function NoticeRow({ notice }: { notice: NativeChatComposerNotice }): React.JSX.
             title={dismissLabel}
             onClick={notice.onDismiss}
           >
-            <X />
+            <X className="size-4" />
           </Button>
         ) : null}
       </div>
       {notice.errorText ? (
-        <div className="relative mb-2 ml-8 mr-2.5 rounded-md border border-border bg-muted">
-          <pre className="scrollbar-sleek max-h-28 select-text overflow-auto whitespace-pre-wrap break-words py-1.5 pl-2 pr-8 font-mono text-2xs text-foreground">
+        <div className="relative mb-2 ml-9 mr-3 rounded-md border border-border bg-muted">
+          <pre className="scrollbar-sleek max-h-28 select-text overflow-auto whitespace-pre-wrap break-words py-2 pl-2 pr-8 font-mono text-2xs text-foreground">
             {notice.errorText}
           </pre>
           <NativeChatCopyButton

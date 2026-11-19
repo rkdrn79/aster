@@ -92,7 +92,7 @@ export function McpConfigFileRow({ config, onOpen }: McpConfigFileRowProps): Rea
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="truncate text-xs font-medium">{server.name}</span>
-                  <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">
+                  <span className="font-mono text-[11px] text-muted-foreground">
                     {server.transport}
                   </span>
                 </div>

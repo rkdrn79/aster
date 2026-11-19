@@ -240,9 +240,9 @@ describe('background-tasks strip header', () => {
     ])
     // Same glyph AND same colour as AgentStateDot/StatusIndicator, or a monitor
     // here does not read as the monitor there.
-    expect(header.querySelector('.lucide-activity')?.classList).toContain('text-yellow-500')
+    expect(header.querySelector('.lucide-activity')?.classList).toContain('text-status-warning')
     expect(header.querySelector('.lucide-bot')?.classList).toContain('text-muted-foreground')
-    expect(header.querySelector('.lucide-bot')?.classList).not.toContain('text-yellow-500')
+    expect(header.querySelector('.lucide-bot')?.classList).not.toContain('text-status-warning')
   })
 
   it('dims the monitor amber while a turn owns the voice', () => {
@@ -260,7 +260,7 @@ describe('background-tasks strip header', () => {
       />
     )
     const header = screen.getByRole('button', { expanded: false })
-    expect(header.querySelector('.lucide-activity')?.classList).toContain('text-yellow-500/40')
+    expect(header.querySelector('.lucide-activity')?.classList).toContain('text-status-warning/40')
   })
 
   it('carries the monitor amber on the expanded row too', () => {
@@ -271,7 +271,7 @@ describe('background-tasks strip header', () => {
     fireEvent.click(header)
     // Each kind group is its own labelled list, so scope to the monitor one.
     const monitors = screen.getByRole('list', { name: 'Monitors' })
-    expect(monitors.querySelector('.lucide-activity')?.classList).toContain('text-yellow-500')
+    expect(monitors.querySelector('.lucide-activity')?.classList).toContain('text-status-warning')
     const shell = screen.getByRole('list', { name: 'Shell' })
     expect(shell.querySelector('.lucide-square-terminal')?.classList).toContain(
       'text-muted-foreground'

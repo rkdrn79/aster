@@ -97,7 +97,7 @@ describe('TabBar PowerShell launch wiring', () => {
       onTogglePaneExpand: () => {}
     })
 
-    const item = findDropdownMenuItemByText(expandNode(element), 'New Terminal: PowerShell')
+    const item = findDropdownMenuItemByText(expandNode(element), 'New terminal: PowerShell')
     expect(item).not.toBeNull()
 
     const onSelect = item?.props.onSelect as (() => void) | undefined
@@ -170,9 +170,9 @@ describe('TabBar PowerShell launch wiring', () => {
     })
 
     expect(
-      findDropdownMenuItemByText(expandNode(element), 'New Terminal: PowerShell')
+      findDropdownMenuItemByText(expandNode(element), 'New terminal: PowerShell')
     ).not.toBeNull()
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: WSL')).toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: WSL')).toBeNull()
   })
 
   it('shows only the WSL terminal row for local WSL-runtime projects', async () => {
@@ -237,9 +237,9 @@ describe('TabBar PowerShell launch wiring', () => {
       onTogglePaneExpand: () => {}
     })
 
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: PowerShell')).toBeNull()
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: Git Bash')).toBeNull()
-    expect(findDropdownMenuItemByText(expandNode(element), 'New Terminal: WSL')).not.toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: PowerShell')).toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: Git Bash')).toBeNull()
+    expect(findDropdownMenuItemByText(expandNode(element), 'New terminal: WSL')).not.toBeNull()
   })
 
   it('shows the Git Bash terminal row when shared Windows capabilities find bash.exe', async () => {
@@ -286,7 +286,7 @@ describe('TabBar PowerShell launch wiring', () => {
       onTogglePaneExpand: () => {}
     })
 
-    const item = findDropdownMenuItemByText(expandNode(element), 'New Terminal: Git Bash')
+    const item = findDropdownMenuItemByText(expandNode(element), 'New terminal: Git Bash')
     expect(item).not.toBeNull()
 
     const onSelect = item?.props.onSelect as (() => void) | undefined

@@ -21,7 +21,7 @@ async function openDeleteMenu(): Promise<void> {
     screen.getByRole('button', { name: /More actions/ }),
     new PointerEvent('pointerdown', { bubbles: true, button: 0 })
   )
-  fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete from the Cloud' }))
+  fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete from the cloud' }))
 }
 
 function renderRow(onDeleted = vi.fn()): { onDeleted: ReturnType<typeof vi.fn> } {

@@ -40,37 +40,35 @@ export function FileExplorerViewSwitch({
     }
   ]
 
+  // Why no wrapper or spacing: a joined single choice is the pill track whose highlight slides.
   return (
-    <div className="rounded-md bg-muted p-0.5">
-      <ToggleGroup
-        variant="segmented"
-        size="xs"
-        type="single"
-        spacing={1}
-        value={view}
-        onValueChange={(value) => {
-          if (value === 'files' || value === 'search') {
-            onSelectView(value)
-          }
-        }}
-        aria-label={translate(
-          'auto.components.right.sidebar.FileExplorerViewSwitch.f8a2c4d1e0',
-          'Explorer search mode'
-        )}
-        className="h-6 w-full"
-        data-ignore-file-explorer-keys="true"
-      >
-        {options.map((option) => (
-          <ToggleGroupItem
-            key={option.view}
-            value={option.view}
-            aria-label={option.ariaLabel}
-            className="min-w-0 flex-1"
-          >
-            {option.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-    </div>
+    <ToggleGroup
+      variant="segmented"
+      size="xs"
+      type="single"
+      value={view}
+      onValueChange={(value) => {
+        if (value === 'files' || value === 'search') {
+          onSelectView(value)
+        }
+      }}
+      aria-label={translate(
+        'auto.components.right.sidebar.FileExplorerViewSwitch.f8a2c4d1e0',
+        'Explorer search mode'
+      )}
+      className="h-7 w-full"
+      data-ignore-file-explorer-keys="true"
+    >
+      {options.map((option) => (
+        <ToggleGroupItem
+          key={option.view}
+          value={option.view}
+          aria-label={option.ariaLabel}
+          className="min-w-0 flex-1"
+        >
+          {option.label}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
   )
 }

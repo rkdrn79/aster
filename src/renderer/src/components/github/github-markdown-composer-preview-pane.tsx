@@ -23,7 +23,7 @@ export function GitHubMarkdownComposerPreviewPane({
           className="min-w-0 max-w-full overflow-hidden break-words text-[13px] leading-relaxed [&_a]:break-all [&_code]:break-words [&_pre]:max-w-full"
         />
       ) : (
-        <p className="text-[13px] italic text-muted-foreground">
+        <p className="text-[13px] text-muted-foreground">
           {translate(
             'auto.components.github.GitHubMarkdownComposer.8f1c2d4e6a',
             'Nothing to preview'

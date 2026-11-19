@@ -51,7 +51,7 @@ export function WorkspaceSleepMenuItems({
               <Moon className="size-3.5" />
               {translate(
                 'auto.components.sidebar.WorktreeContextMenu.sleepWithDescendants',
-                'Sleep with Descendants ({{value0}})',
+                'Sleep with descendants ({{value0}})',
                 { value0: descendantCount }
               )}
             </DropdownMenuItem>

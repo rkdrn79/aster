@@ -124,7 +124,7 @@ export function buildFileLinkActions(
           : {
               label: translate(
                 'auto.components.terminal.pane.TerminalLinkActionPopover.downloadOpenWithDefaultApp',
-                'Download & open with default app'
+                'Download and open with default app'
               ),
               // Why the open flow, not a direct download: a path the host disowns may be on this computer.
               run: () =>

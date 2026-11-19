@@ -188,8 +188,8 @@ export function NativeChatSessionOptionRows({
   })
   const frame = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
-  // Why measured: a row arriving with the next model would otherwise jump the popover; the list
-  // above glides to its height the same way, from the size cmdk publishes.
+  // Why measured: the frame takes the rows' height in one step, from the size cmdk publishes,
+  // so a row arriving with the next model sets the popover's height without animating it.
   useLayoutEffect(() => {
     const frameElement = frame.current
     const contentElement = content.current
@@ -205,10 +205,7 @@ export function NativeChatSessionOptionRows({
     return () => observer.disconnect()
   }, [])
   return (
-    <div
-      ref={frame}
-      className="h-(--option-rows-height) shrink-0 overflow-hidden transition-[height] duration-150 ease-out motion-reduce:transition-none"
-    >
+    <div ref={frame} className="h-(--option-rows-height) shrink-0 overflow-hidden">
       <div ref={content}>
         {rows.length > 0 ? (
           <div className="border-t border-border p-1">

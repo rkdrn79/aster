@@ -107,11 +107,11 @@ export function getWorktreeParentPickerLabel(validParentWorktreeId: string | nul
   return validParentWorktreeId
     ? translate(
         'auto.components.sidebar.WorktreeContextMenu.changeParentWorkspace',
-        'Change Parent Worktree...'
+        'Change parent worktree...'
       )
     : translate(
         'auto.components.sidebar.WorktreeContextMenu.setParentWorkspace',
-        'Set Parent Worktree...'
+        'Set parent worktree...'
       )
 }
 

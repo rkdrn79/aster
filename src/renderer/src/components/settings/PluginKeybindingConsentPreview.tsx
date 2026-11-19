@@ -46,7 +46,7 @@ export function PluginKeybindingConsentPreview({
     <section className="space-y-3" aria-labelledby="plugin-keybinding-consent-heading">
       <h3
         id="plugin-keybinding-consent-heading"
-        className="text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground"
+        className="text-[11px] font-medium text-muted-foreground"
       >
         {translate(
           'auto.components.settings.PluginKeybindingConsentPreview.heading',

@@ -109,7 +109,7 @@ function DeleteWorktreeFailureToastBody({
           <Button type="button" variant="destructive" size="sm" onClick={deleteAnyway}>
             {translate(
               'auto.components.sidebar.delete.worktree.failure.archive.waiver',
-              'Delete Anyway'
+              'Delete anyway'
             )}
           </Button>
         ) : null}

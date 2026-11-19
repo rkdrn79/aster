@@ -176,7 +176,7 @@ for (const interaction of ['click', 'drag'] as const) {
     await waitForRichMarkdownEditor(orcaPage)
     await orcaPage.getByRole('radio', { name: 'Source', exact: true }).click()
     await expect(orcaPage.locator('.monaco-editor')).toBeVisible()
-    await orcaPage.getByRole('radio', { name: 'Rich Editor', exact: true }).click()
+    await orcaPage.getByRole('radio', { name: 'Rich editor', exact: true }).click()
     const editor = await waitForRichMarkdownEditor(orcaPage)
     await expect(editor).not.toBeFocused()
     const paragraph = editor.locator('td p').filter({ hasText: 'Editing' })

@@ -23,10 +23,8 @@ const UNDO = FIGURE_MOD_KEY === 'Cmd' ? '⌘Z' : 'Ctrl+Z'
 
 function Heading({ children, aside }: { children: React.ReactNode; aside?: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2 px-3 pt-3 pb-1.5">
-      <h3 className="flex-1 text-2xs font-medium tracking-wide text-muted-foreground uppercase">
-        {children}
-      </h3>
+    <div className="flex items-center gap-2 px-3 pt-4 pb-2">
+      <h3 className="flex-1 text-2xs leading-4 font-medium text-muted-foreground">{children}</h3>
       {aside}
     </div>
   )
@@ -52,10 +50,10 @@ function Swatch({ fill, stroke }: { fill: string; stroke: string }) {
 
 function Notes({ notes }: { notes: readonly string[] }) {
   return notes.length ? (
-    <ul className="space-y-0.5 px-3 pt-1.5 text-2xs text-muted-foreground" role="status">
+    <ul className="space-y-0.5 px-3 pt-2 text-2xs text-muted-foreground" role="status">
       {notes.map((note) => (
         <li key={note} className="flex items-start gap-1">
-          <TriangleAlert className="mt-px size-3 shrink-0 text-status-warning" aria-hidden />
+          <TriangleAlert className="mt-px size-4 shrink-0 text-status-warning" aria-hidden />
           {note}
         </li>
       ))}
@@ -87,19 +85,19 @@ function Presets({
             aria-label={label}
             title={FIGURE_STYLES[name].label}
             disabled={disabled}
-            className="group flex min-w-0 flex-col gap-1 rounded-md text-left focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-60"
+            className="group flex min-w-0 flex-col gap-1 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-60"
             onClick={() => onPick({ style: name })}
           >
             <span
               className={cn(
-                'block h-[58px] overflow-hidden rounded-md border border-border group-hover:border-foreground/40',
-                chosen && 'border-foreground ring-1 ring-foreground'
+                'block h-14 overflow-hidden rounded-lg border border-border transition-[border-color,box-shadow] duration-(--duration-fast) group-hover:border-foreground/30 group-hover:shadow-raised',
+                chosen && 'border-foreground ring-1 ring-foreground group-hover:border-foreground'
               )}
             >
               <ResearchFigureStyleTile style={style} />
             </span>
             <span className="flex items-center gap-1 truncate text-2xs text-foreground">
-              {chosen ? <Check className="size-3 shrink-0" aria-hidden /> : null}
+              {chosen ? <Check className="size-4 shrink-0" aria-hidden /> : null}
               {label}
             </span>
           </button>
@@ -124,8 +122,7 @@ function Accents({
   const hex = parseAccentHex(draft)
   const mono = current.name === 'print-mono'
   const shown = hex ?? current.accentName
-  const check =
-    shown && !mono ? checkAccent(shown, figureStyle(current.name).block, paper.redLoss) : null
+  const check = shown && !mono ? checkAccent(shown, paper.redLoss) : null
   const custom = current.accentName?.startsWith('#') ? current.accentName : null
   return (
     <div>
@@ -140,7 +137,7 @@ function Accents({
       </Heading>
       {mono ? (
         <p className="px-3 text-2xs text-muted-foreground">
-          Print mono has no hue: emphasis is a darker gray and an ink outline.
+          Print mono has no hue: emphasis is a darker gray and an ink outline
         </p>
       ) : (
         <>
@@ -157,8 +154,8 @@ function Accents({
                   title={name}
                   disabled={disabled}
                   className={cn(
-                    'flex size-7 items-center justify-center rounded-md border border-transparent hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring',
-                    chosen && 'border-foreground bg-accent'
+                    'flex size-7 items-center justify-center rounded-lg border border-transparent transition-colors duration-(--duration-fast) hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring',
+                    chosen && 'border-foreground/70 bg-accent'
                   )}
                   onClick={() => onPick({ style: current.name, accent: name })}
                 >
@@ -168,7 +165,7 @@ function Accents({
             })}
           </div>
           <form
-            className="flex items-center gap-1.5 px-3 pt-2"
+            className="flex items-center gap-2 px-3 pt-2"
             onSubmit={(event) => {
               event.preventDefault()
               if (hex) {
@@ -205,7 +202,7 @@ function Accents({
                 <span key={part} className="flex items-center gap-1">
                   <span
                     aria-hidden
-                    className="size-3 rounded-[3px] border border-border"
+                    className="size-3 rounded border border-border"
                     style={{ backgroundColor: color }}
                   />
                   {part}
@@ -233,7 +230,7 @@ function Vision() {
             aria-pressed={vision === entry.vision}
             aria-label={`${entry.label} preview`}
             title={`Show the canvas ${entry.detail}; the figure is not changed`}
-            className="flex h-7 items-center justify-center rounded-md border border-border px-1.5 text-xs hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring aria-pressed:border-foreground aria-pressed:bg-accent"
+            className="flex h-7 items-center justify-center rounded-lg border border-border px-3 text-xs transition-colors duration-(--duration-fast) hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring aria-pressed:border-foreground/70 aria-pressed:bg-accent"
             onClick={() => setFigureVision(vision === entry.vision ? null : entry.vision)}
           >
             {entry.label}
@@ -265,7 +262,7 @@ export function ResearchFigureStylePanel(): React.JSX.Element {
   if (!paper) {
     return (
       <p className="p-3 text-xs text-muted-foreground">
-        This figure has no page frame, so it has no paper style to change.
+        This figure has no page frame, so it has no paper style to change
       </p>
     )
   }
@@ -298,8 +295,8 @@ export function ResearchFigureStylePanel(): React.JSX.Element {
     done && done.to !== done.from && (done.to === 'illustrative' || done.from === 'illustrative')
   return (
     <div className="scrollbar-sleek max-h-[min(640px,calc(100vh-140px))] overflow-y-auto pb-3">
-      <div className="flex items-baseline gap-2 border-b border-border px-3 py-2">
-        <span className="text-xs font-medium">Paper colors</span>
+      <div className="flex h-10 items-center gap-2 border-b border-border px-3">
+        <span className="text-[13px] font-medium">Paper colors</span>
         <span className="ml-auto truncate text-2xs text-muted-foreground">
           {chooserText(paper)}
         </span>

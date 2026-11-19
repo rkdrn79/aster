@@ -180,13 +180,13 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
               />
               <DropdownMenuItem onSelect={handleCopyPath} disabled={isDeleting}>
                 <Copy className="size-3.5" />
-                {translate('auto.components.sidebar.WorktreeContextMenu.3350101edb', 'Copy Path')}
+                {translate('auto.components.sidebar.WorktreeContextMenu.3350101edb', 'Copy path')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={handleCopyName} disabled={isDeleting}>
                 <Copy className="size-3.5" />
                 {translate(
                   'auto.components.sidebar.WorktreeContextMenu.copyWorktreeName',
-                  'Copy Worktree Name'
+                  'Copy worktree name'
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -203,10 +203,10 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
                   <Bell className="size-3.5" />
                 )}
                 {worktree.isUnread
-                  ? translate('auto.components.sidebar.WorktreeContextMenu.8dacff1fe0', 'Mark Read')
+                  ? translate('auto.components.sidebar.WorktreeContextMenu.8dacff1fe0', 'Mark read')
                   : translate(
                       'auto.components.sidebar.WorktreeContextMenu.f50603c6b2',
-                      'Mark Unread'
+                      'Mark unread'
                     )}
               </DropdownMenuItem>
               {repo ? (
@@ -267,7 +267,7 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
                       <Workflow className="size-3.5" />
                       {translate(
                         'auto.components.sidebar.WorktreeContextMenu.8d9cd19d09',
-                        'Open Parent Worktree'
+                        'Open parent worktree'
                       )}
                     </DropdownMenuItem>
                   )}
@@ -276,7 +276,7 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
                       <Unlink className="size-3.5" />
                       {translate(
                         'auto.components.sidebar.WorktreeContextMenu.579b1a8e61',
-                        'Remove from Parent'
+                        'Remove from parent'
                       )}
                     </DropdownMenuItem>
                   )}
@@ -291,7 +291,7 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
                 <Unlink className="size-3.5" />
                 {translate(
                   'auto.components.sidebar.WorktreeContextMenu.579b1a8e61',
-                  'Remove from Parent'
+                  'Remove from parent'
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -324,7 +324,7 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
                     <Trash2 className="size-3.5" />
                     {translate(
                       'auto.components.sidebar.WorktreeContextMenu.deleteWorktree',
-                      'Delete Worktree'
+                      'Delete worktree'
                     )}
                   </DropdownMenuItem>
                 </div>
@@ -366,17 +366,17 @@ export default function WorktreeContextMenuView({ model }: { model: WorktreeCont
                 : folderWorkspaceId
                   ? translate(
                       'auto.components.sidebar.WorktreeContextMenu.250de158fd',
-                      'Remove Workspace'
+                      'Remove workspace'
                     )
                   : removesProject
                     ? translate(
                         'auto.components.sidebar.WorktreeContextMenu.f5ac91531d',
-                        'Remove Project from Aster'
+                        'Remove project from Aster'
                       )
                     : lineageDescendantCount > 0
                       ? translate(
                           'auto.components.sidebar.WorktreeContextMenu.deleteWithDescendants',
-                          'Delete with Descendants…'
+                          'Delete with descendants…'
                         )
                       : translate(
                           'auto.components.sidebar.WorktreeContextMenu.f4475537d8',

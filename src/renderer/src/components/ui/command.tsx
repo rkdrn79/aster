@@ -42,7 +42,7 @@ function Command({
 
 function CommandDialog({
   children,
-  title = 'Command Palette',
+  title = 'Command palette',
   description = 'Search for a command to run...',
   shouldFilter,
   onOpenAutoFocus,
@@ -67,22 +67,16 @@ function CommandDialog({
     <DialogPrimitive.Root {...props}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
-          // Why: matches the DialogOverlay recipe — deeper scrim + 2px backdrop
-          // blur so the dark canvas lifts off the command palette. A flat
-          // bg-black/50 disappears in dark mode.
+          // Why: matches the DialogOverlay recipe (--scrim + 2px blur).
           className={cn(
-            'fixed inset-0 z-50 bg-black/55 backdrop-blur-[2px] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0',
+            'fixed inset-0 z-50 bg-scrim backdrop-blur-[2px] motion-fade',
             overlayClassName
           )}
         />
         <DialogPrimitive.Content
-          // Why: matches the DialogContent recipe — translucent surface, solid
-          // 14% border, dual shadow, and 2xl backdrop blur. bg-popover equals
-          // the canvas in dark mode (#171717 vs #0a0a0a) and the previous
-          // border-border + shadow-lg was barely visible against the dark
-          // canvas.
+          // Why: the same modal surface and motion as DialogContent (surfaces.css, motion.css).
           className={cn(
-            'fixed top-[20%] left-[50%] z-50 w-[660px] max-w-[90vw] translate-x-[-50%] rounded-lg border border-black/14 bg-background/96 text-foreground shadow-[0_20px_60px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-2xl outline-none dark:border-white/14 dark:bg-[rgba(23,23,23,0.96)] dark:shadow-[0_24px_72px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.06)] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+            'fixed top-[20%] left-[50%] z-50 w-[660px] max-w-[90vw] translate-x-[-50%] rounded-2xl outline-none surface-modal motion-dialog',
             contentClassName
           )}
           onEscapeKeyDown={(event) => handleImeOverlayEscape(event)}
@@ -162,7 +156,7 @@ function CommandList({
   ref,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.List> & {
-  /** Glide to the filtered height (cmdk publishes it) instead of jumping. */
+  /** Fit the filtered height cmdk publishes. Not animated: height never transitions. */
   animateHeight?: boolean
 }) {
   const internalRef = React.useRef<HTMLDivElement>(null)
@@ -207,8 +201,7 @@ function CommandList({
       data-slot="command-list"
       className={cn(
         'max-h-[min(400px,60vh)] overflow-y-auto overflow-x-hidden scrollbar-sleek scroll-pb-4 scroll-pt-4',
-        animateHeight &&
-          'h-[min(var(--cmdk-list-height),400px,60vh)] transition-[height] duration-150 ease-out motion-reduce:transition-none',
+        animateHeight && 'h-[min(var(--cmdk-list-height),400px,60vh)]',
         className
       )}
       {...props}

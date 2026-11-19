@@ -284,7 +284,7 @@ describe('workspace linked work editor', () => {
   })
   it('omits untouched links on comment-only saves', async () => {
     openDialog({ linkedIssue: 1, linkedLinearIssue: 'STA-2' })
-    fireEvent.change(screen.getByPlaceholderText('Notes about this worktree...'), {
+    fireEvent.change(screen.getByPlaceholderText('Notes about this worktree'), {
       target: { value: 'new note' }
     })
     await save()
@@ -564,7 +564,7 @@ describe('workspace linked work editor', () => {
   })
   it('preserves name and comment autofocus while search remains inline', () => {
     openDialog({}, { focus: 'displayName' })
-    expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'Display Name' }))
+    expect(document.activeElement).toBe(screen.getByRole('textbox', { name: 'Display name' }))
   })
   it('does not dismiss the dialog when Escape belongs to IME composition', () => {
     openDialog()

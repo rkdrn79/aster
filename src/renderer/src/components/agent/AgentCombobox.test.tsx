@@ -54,7 +54,7 @@ describe('AgentCombobox', () => {
         clearSelection={{ cleared: true, onClear: vi.fn() }}
       />
     )
-    expect(screen.getByRole('combobox').textContent).toBe('Select an Agent')
+    expect(screen.getByRole('combobox').textContent).toBe('Select an agent')
     expect(screen.queryByRole('button', { name: 'Clear agent selection' })).toBeNull()
     fireEvent.contextMenu(screen.getByRole('combobox'))
     expect(screen.queryByRole('menuitem')).toBeNull()
@@ -84,7 +84,7 @@ describe('AgentCombobox', () => {
     expect(onSetDefault).toHaveBeenCalledWith('codex')
   })
 
-  it('maps the closed Blank Terminal selection to the blank default preference', () => {
+  it('maps the closed Blank terminal selection to the blank default preference', () => {
     const onSetDefault = vi.fn()
     renderPicker(
       <AgentCombobox
@@ -159,20 +159,20 @@ describe('AgentCombobox', () => {
       <AgentCombobox agents={[]} value={null} onValueChange={vi.fn()} />
     )
 
-    expect(markup).toContain('Select an Agent')
-    expect(markup).not.toContain('Blank Terminal')
+    expect(markup).toContain('Select an agent')
+    expect(markup).not.toContain('Blank terminal')
   })
 
-  it('hides Blank Terminal from the list unless the caller opts in', () => {
+  it('hides Blank terminal from the list unless the caller opts in', () => {
     renderPicker(<AgentCombobox agents={AGENT_CATALOG} value="codex" onValueChange={vi.fn()} />)
 
     fireEvent.click(screen.getByRole('combobox'))
 
     expect(screen.getByRole('option', { name: 'Claude' })).toBeTruthy()
-    expect(screen.queryByRole('option', { name: 'Blank Terminal' })).toBeNull()
+    expect(screen.queryByRole('option', { name: 'Blank terminal' })).toBeNull()
   })
 
-  it('offers Blank Terminal and reports null when the caller opts in', () => {
+  it('offers Blank terminal and reports null when the caller opts in', () => {
     const onValueChange = vi.fn()
     renderPicker(
       <AgentCombobox
@@ -184,7 +184,7 @@ describe('AgentCombobox', () => {
     )
 
     fireEvent.click(screen.getByRole('combobox'))
-    fireEvent.click(screen.getByRole('option', { name: 'Blank Terminal' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Blank terminal' }))
 
     expect(onValueChange).toHaveBeenCalledWith(null)
   })

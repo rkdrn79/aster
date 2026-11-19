@@ -14,6 +14,25 @@ export const ARXIV_ID_PATTERN = /^(?:\d{4}\.\d{4,5}|[a-z-]+(?:\.[A-Z]{2})?\/\d{7
 
 export const paperReadingStatusSchema = z.enum(['unread', 'reading', 'read'])
 
+/** Where a paper came from when a chat or an agent brought it in, so the Library can say so. */
+export const libraryPaperOriginSchema = z
+  .object({
+    /** `chat`: mentioned in an Aster chat; `agent`: an agent asked from outside any open chat. */
+    kind: z.enum(['chat', 'agent']),
+    /** Aster's chat session id; the Library reopens the chat from it. */
+    sessionId: z.string().trim().min(1).max(256).optional(),
+    messageId: z.string().trim().min(1).max(512).optional(),
+    /** The chat's name when the paper was added; the tab may be renamed or closed later. */
+    chatTitle: z.string().trim().min(1).max(200).optional(),
+    /** `person` chose Add; `auto` is the "Add automatically" setting. */
+    addedBy: z.enum(['person', 'auto']),
+    /** The agent CLI that asked for the paper (`claude-code`, `codex`), when one did. */
+    agent: z.string().trim().min(1).max(64).optional(),
+    /** The agent's reason, e.g. "closest prior method". */
+    note: z.string().trim().min(1).max(500).optional()
+  })
+  .strict()
+
 export const libraryPaperSchema = z
   .object({
     id: z.string().uuid(),
@@ -36,6 +55,7 @@ export const libraryPaperSchema = z
     notes: z.string().max(50_000).optional(),
     tags: z.array(z.string().trim().min(1).max(40)).max(20).default([]),
     status: paperReadingStatusSchema.default('unread'),
+    origin: libraryPaperOriginSchema.optional(),
     createdAt: z.string(),
     updatedAt: z.string()
   })
@@ -114,6 +134,7 @@ export const researchLibraryDocumentSchema = z
 export type LibraryScope = z.infer<typeof libraryScopeSchema>
 export type LibraryPaper = z.infer<typeof libraryPaperSchema>
 export type PaperReadingStatus = z.infer<typeof paperReadingStatusSchema>
+export type LibraryPaperOrigin = z.infer<typeof libraryPaperOriginSchema>
 export type HighlightColor = (typeof HIGHLIGHT_COLORS)[number]
 export type PageRect = z.infer<typeof pageRectSchema>
 export type PaperHighlight = z.infer<typeof paperHighlightSchema>

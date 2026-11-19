@@ -105,9 +105,9 @@ export function NativeChatComposerActions({
       onClick={handleCriticalAction}
       variant={stops ? 'secondary' : 'default'}
       size="icon"
-      className="size-8 rounded-full pointer-coarse:size-10"
+      className="size-8 pointer-coarse:size-10"
     >
-      {stops ? <Square className="size-3.5 fill-current" /> : <ArrowUp className="size-4" />}
+      {stops ? <Square className="size-4 fill-current" /> : <ArrowUp className="size-4" />}
     </Button>
   )
   const workingSendButton =
@@ -119,7 +119,7 @@ export function NativeChatComposerActions({
         onClick={onSend}
         variant="default"
         size="icon"
-        className="size-8 rounded-full pointer-coarse:size-10"
+        className="size-8 pointer-coarse:size-10"
       >
         <ArrowUp className="size-4" />
       </Button>
@@ -127,7 +127,7 @@ export function NativeChatComposerActions({
 
   return (
     <div className="flex w-full items-center justify-between gap-2 text-chat-foreground-faint">
-      <div className="flex min-w-0 items-center gap-0.5">
+      <div className="flex min-w-0 items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -153,7 +153,7 @@ export function NativeChatComposerActions({
         />
         {onExitGoalMode ? <NativeChatComposerGoalChip onExit={onExitGoalMode} /> : null}
       </div>
-      <div className="ml-auto flex items-center gap-1.5">
+      <div className="ml-auto flex items-center gap-1">
         {/* Why: keep the session picker beside the actions it affects; only the
         context ring separates it from dictation. */}
         <NativeChatSessionOptionPickers
@@ -198,7 +198,7 @@ export function NativeChatComposerActions({
               className="pointer-coarse:size-11"
             >
               {isDictating ? (
-                <Square className="size-3.5 fill-current" />
+                <Square className="size-4 fill-current" />
               ) : (
                 <Mic className="size-4" />
               )}

@@ -27,9 +27,12 @@ import { phoneWorkspaceLabel, usePhoneProjects } from './use-phone-projects'
 
 /** Pick a workspace and an agent the host can run, optionally a first message, then start. */
 export function PhoneNewAgentScreen({
-  initialWorktreeId
+  initialWorktreeId,
+  initialPrompt
 }: {
   initialWorktreeId: string | null
+  /** A first message another screen prepared, e.g. an approved proposal to launch. */
+  initialPrompt?: string
 }): React.JSX.Element {
   const { projects, byWorkspaceId } = usePhoneProjects()
   const activeWorktreeId = useAppStore((state) => state.activeWorktreeId)
@@ -37,7 +40,7 @@ export function PhoneNewAgentScreen({
   const settings = useAppStore((state) => state.settings)
   const [chosenWorktreeId, setChosenWorktreeId] = useState<string | null>(null)
   const [chosenAgent, setChosenAgent] = useState<string | null>(null)
-  const [prompt, setPrompt] = useState('')
+  const [prompt, setPrompt] = useState(initialPrompt ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const worktreeId =

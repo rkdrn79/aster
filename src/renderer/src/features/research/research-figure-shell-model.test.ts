@@ -98,6 +98,19 @@ describe('figure quick actions', () => {
       /sketch/
     )
   })
+
+  it('with a plot open, offers the plot actions and keeps the canvas ones for diagrams', () => {
+    const plot = figureQuickActions('plot')
+    expect(plot.primary.map((action) => action.id)).toEqual(['plot-dist', 'plot'])
+    expect(plot.primary.every((action) => action.disabledReason === null)).toBe(true)
+    for (const id of ['clean-up', 'sketch', 'recreate']) {
+      expect(plot.more.find((action) => action.id === id)?.disabledReason).toMatch(
+        /a plot is edited/
+      )
+    }
+    expect(plot.more.find((action) => action.id === 'draw-method')?.disabledReason).toBeNull()
+    expect(figureQuickActions('none').more.map((action) => action.id)).toContain('plot-dist')
+  })
 })
 
 describe('figure side panel tabs', () => {

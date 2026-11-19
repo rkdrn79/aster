@@ -139,7 +139,7 @@ describe('WorktreeCardStatusSlot', () => {
     expect(markup).toContain('Mark as read')
     expect(markup).not.toContain('Active · Mark as read')
     expect(markup).not.toContain('bg-emerald-500')
-    expect(markup).toContain('text-amber-500')
+    expect(markup).toContain('text-status-warning')
   })
 
   it('overlays an unread badge on the status dot when new card style is on', () => {
@@ -161,10 +161,10 @@ describe('WorktreeCardStatusSlot', () => {
     expect(markup).toContain('Active · Unread')
     expect(markup).toContain('data-worktree-status-lane-unread=""')
     expect(markup).toContain('data-worktree-unread-alert=""')
-    expect(markup).toContain('bg-amber-500')
+    expect(markup).toContain('bg-status-warning')
     expect(markup).toContain('bg-emerald-500')
     expect(markup).not.toContain('lucide-bell')
-    expect(markup).not.toContain('text-amber-500')
+    expect(markup).not.toContain('text-status-warning')
   })
 
   it('suppresses the new-card unread badge while unread status is working', () => {
@@ -188,7 +188,7 @@ describe('WorktreeCardStatusSlot', () => {
     expect(markup).not.toContain('data-worktree-unread-alert=""')
     expect(markup).not.toContain('aria-label="Mark as read"')
     expect(markup).not.toContain('lucide-bell')
-    expect(markup).not.toContain('text-amber-500')
+    expect(markup).not.toContain('text-status-warning')
   })
 
   it('suppresses the new-card unread badge while unread status is permission', () => {
@@ -232,7 +232,7 @@ describe('WorktreeCardStatusSlot', () => {
     expect(markup).toContain('aria-label="Mark as read"')
     expect(markup).toContain('Mark as read')
     expect(markup).toContain('Working')
-    expect(markup).toContain('text-amber-500')
+    expect(markup).toContain('text-status-warning')
     expect(markup).not.toContain('border-agent-working')
     expect(markup).not.toContain('data-worktree-unread-alert=""')
   })
@@ -516,7 +516,7 @@ describe('WorktreeCardStatusSlot', () => {
     expect(markup).not.toContain('Active · Mark as read')
     expect(markup).not.toContain('PR checks: Failed')
     expect(markup).not.toContain('bg-emerald-500')
-    expect(markup).toContain('text-amber-500')
+    expect(markup).toContain('text-status-warning')
   })
 
   it('overlays an unread badge on PR status when new card style is on', () => {
@@ -542,9 +542,9 @@ describe('WorktreeCardStatusSlot', () => {
     expect(markup).not.toContain('group/unread')
     expect(markup).not.toContain('cursor-pointer')
     expect(markup).toContain('text-rose-500/85')
-    expect(markup).toContain('bg-amber-500')
+    expect(markup).toContain('bg-status-warning')
     expect(markup).not.toContain('lucide-bell')
-    expect(markup).not.toContain('text-amber-500')
+    expect(markup).not.toContain('text-status-warning')
     expect(markup).not.toContain('bg-emerald-500')
     expect(markup).not.toContain('data-tooltip-root')
   })
@@ -572,9 +572,9 @@ describe('WorktreeCardStatusSlot', () => {
     expect(markup).not.toContain('group/unread')
     expect(markup).not.toContain('cursor-pointer')
     expect(markup).toContain('lucide-moon')
-    expect(markup).toContain('bg-amber-500')
+    expect(markup).toContain('bg-status-warning')
     expect(markup).not.toContain('lucide-bell')
-    expect(markup).not.toContain('text-amber-500')
+    expect(markup).not.toContain('text-status-warning')
     expect(markup).not.toContain('bg-emerald-500')
     expect(markup).not.toContain('data-tooltip-root')
   })

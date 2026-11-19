@@ -137,7 +137,7 @@ export default function GrabConfirmationSheet({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="rounded-md bg-indigo-500/10 px-2 py-0.5 text-xs font-medium text-indigo-400">
+          <div className="rounded-sm bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
             {translate('auto.components.browser.pane.GrabConfirmationSheet.f3575229df', 'Grab')}
           </div>
           <span className="text-sm text-muted-foreground">
@@ -173,15 +173,15 @@ export default function GrabConfirmationSheet({
 
           {/* Element summary */}
           <div className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h3 className="text-xs font-medium text-muted-foreground">
               {translate(
                 'auto.components.browser.pane.GrabConfirmationSheet.a759d8f866',
-                'Selected Element'
+                'Selected element'
               )}
             </h3>
             <div className="rounded-lg border border-border/60 bg-muted/20 p-3 text-sm">
               <div className="flex items-baseline gap-2">
-                <span className="font-mono font-semibold text-foreground">
+                <span className="font-mono font-medium text-foreground">
                   <EscapedText text={`<${target.tagName}>`} />
                 </span>
                 {target.accessibility.role ? (
@@ -215,7 +215,7 @@ export default function GrabConfirmationSheet({
 
           {/* Page info */}
           <div className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h3 className="text-xs font-medium text-muted-foreground">
               {translate('auto.components.browser.pane.GrabConfirmationSheet.9098b118ab', 'Page')}
             </h3>
             <div className="rounded-lg border border-border/60 bg-muted/20 p-3 text-sm">
@@ -239,7 +239,7 @@ export default function GrabConfirmationSheet({
           {/* HTML snippet */}
           {target.htmlSnippet ? (
             <div className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-medium text-muted-foreground">
                 {translate('auto.components.browser.pane.GrabConfirmationSheet.7d1480fbf1', 'HTML')}
               </h3>
               <pre className="max-h-32 overflow-auto rounded-lg border border-border/60 bg-muted/20 p-3 font-mono text-xs text-foreground/80 scrollbar-sleek">
@@ -251,10 +251,10 @@ export default function GrabConfirmationSheet({
           {/* Nearby text */}
           {nearbyText.length > 0 ? (
             <div className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-medium text-muted-foreground">
                 {translate(
                   'auto.components.browser.pane.GrabConfirmationSheet.effd75e330',
-                  'Nearby Context'
+                  'Nearby context'
                 )}
               </h3>
               <div className="rounded-lg border border-border/60 bg-muted/20 p-3">
@@ -285,7 +285,7 @@ export default function GrabConfirmationSheet({
             <Image className="size-3.5" />
             {translate(
               'auto.components.browser.pane.GrabConfirmationSheet.7095e98362',
-              'Copy Screenshot'
+              'Copy screenshot'
             )}
           </Button>
         ) : null}

@@ -35,7 +35,7 @@ async function openSettings(page: Page): Promise<void> {
 async function dismissTransientAnnouncement(page: Page): Promise<void> {
   // Why: first-run announcements are independent of this setting and can cover
   // the settings pane on fresh CI profiles before the search input is used.
-  const maybeLaterButton = page.getByRole('button', { name: 'Maybe Later' })
+  const maybeLaterButton = page.getByRole('button', { name: 'Maybe later' })
   const visible = await maybeLaterButton
     .isVisible({
       timeout: 1_000

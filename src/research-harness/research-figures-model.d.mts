@@ -44,10 +44,23 @@ export type FigureScene = {
   files: Record<string, unknown>
 }
 
+export type FolderPlot = {
+  slug: string
+  /** `src/<slug>.plot.py` exists. */
+  script: boolean
+  /** `<slug>.plot.json` exists: the script has run. */
+  manifest: boolean
+  svg: boolean
+  pdf: boolean
+  png: boolean
+}
 export type FigureFolderListing = {
   figures: { slug: string; svg: boolean; pdf: boolean; png: boolean }[]
+  plots: FolderPlot[]
   others: { name: string; kind: 'image' | 'pdf' }[]
 }
+export const PLOT_SCRIPT_SUFFIX: string
+export const PLOT_MANIFEST_SUFFIX: string
 
 export type FigurePage = FigureSize & {
   id: string
@@ -58,6 +71,12 @@ export type FigurePage = FigureSize & {
   accent: string | null
   /** The illustrative style's panel tints (rose, teal, …); null for the defaults. */
   panels?: string[] | null
+  /**
+   * The look the page asked for: 'paper', 'preset' (the preset's own), or null for the default
+   * (the paper look, except recreations and illustrative teasers); with the face 'cm' | 'times'.
+   */
+  look?: 'paper' | 'preset' | null
+  paperFont?: string | null
   /**
    * Who chose the style: the person (set on the page), the agent (`fig.style`), or null when
    * nobody did and Aster's default applies.
@@ -113,7 +132,8 @@ export function figurePreviewPaths(
   lint: string
 }
 export function listFigureFolder(
-  entries: readonly { name: string; isDirectory: boolean }[]
+  entries: readonly { name: string; isDirectory: boolean }[],
+  sources?: readonly { name: string; isDirectory: boolean }[]
 ): FigureFolderListing
 export function figureElement(
   type: string,

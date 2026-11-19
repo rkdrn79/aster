@@ -33,7 +33,7 @@ export function TabGroupPaneActionsMenu({
               type="button"
               aria-label={translate(
                 'auto.components.tab.group.TabGroupPanel.9acaf92093',
-                'Pane Actions'
+                'Pane actions'
               )}
               onClick={(event) => {
                 event.stopPropagation()
@@ -64,7 +64,7 @@ export function TabGroupPaneActionsMenu({
         </DropdownMenuContent>
       </DropdownMenu>
       <TooltipContent side="bottom" sideOffset={6}>
-        {translate('auto.components.tab.group.TabGroupPanel.9acaf92093', 'Pane Actions')}
+        {translate('auto.components.tab.group.TabGroupPanel.9acaf92093', 'Pane actions')}
       </TooltipContent>
     </Tooltip>
   )

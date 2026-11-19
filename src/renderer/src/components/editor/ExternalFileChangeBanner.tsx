@@ -230,7 +230,7 @@ export function ExternalFileChangeBanner({
           <Button type="button" size="xs" variant="outline" onClick={handleReload}>
             {translate(
               'auto.components.editor.ExternalFileChangeBanner.3fa2b8d417',
-              'Reload from Disk'
+              'Reload from disk'
             )}
           </Button>
           {/* Why: with no unsaved edits there is nothing to write over the newer disk version. */}
@@ -251,7 +251,7 @@ export function ExternalFileChangeBanner({
           >
             {translate(
               'auto.components.editor.ExternalFileChangeBanner.a95d02c644',
-              'Keep My Edits'
+              'Keep my edits'
             )}
           </Button>
         </div>

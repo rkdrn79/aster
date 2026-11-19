@@ -1,0 +1,326 @@
+{
+  "title": "Instance-adaptive TS augmentation (design-skill plan)",
+  "method": "A parametric augmentation network learns per-instance views: a factorization mask h (hard-concrete relaxed Bernoulli per time step from a factorization head), a non-zero transformation mask g (transformation head) and noise η (random time-step masking of the encoder's first hidden layer); both heads share an input layer and a dilated-CNN extractor. The augmenter is trained with a Principle-of-Relevant-Information objective (β·expected L0 of h + mean-embedding discrepancy through the encoder) plus a temporal-consistency loss L_t (λ); the encoder is trained with L_global (InfoNCE) + α·L_local (subsequence contrast). Both are trained from scratch, alternating GAN-style (encoder every step, augmenter every M rounds), each with its own Adam optimizer.",
+  "scope": {
+    "compute": {
+      "hardware": "8x 40 GB GPUs (single machine)"
+    }
+  },
+  "claims": [
+    {
+      "id": "C1",
+      "text": "A factorization-based, information-theoretic definition of good views that preserves task-relevant information regardless of the downstream task while adding variance, with no prior domain knowledge",
+      "kind": "mechanism",
+      "evidence": ["Q2"],
+      "status": "planned"
+    },
+    {
+      "id": "C2",
+      "text": "Learned per-instance views beat hand-picked views when the encoder and protocol are held fixed",
+      "kind": "performance",
+      "weight": "main",
+      "evidence": ["Q1", "Q2"],
+      "status": "planned"
+    },
+    {
+      "id": "C3",
+      "text": "The approach is encoder-agnostic and improves several contrastive learning backbones",
+      "kind": "generality",
+      "status": "planned"
+    },
+    {
+      "id": "C4",
+      "text": "The learned representations beat existing time-series representation learning methods on univariate and multivariate forecasting and on classification",
+      "kind": "performance",
+      "status": "planned"
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "claim": "C2",
+      "text": "With a fixed contrastive backbone (TS2Vec) and evaluation protocol, does replacing hand-picked augmentations with the learned factorization-and-transformation augmentation improve downstream representation quality?",
+      "hypothesis": "On univariate forecasting (ETTh1, ETTh2, ETTm1, Electricity; frozen encoder, ridge probe), TS2Vec + learned augmentation gets lower test MSE averaged over horizons {24, 48, 168, 336, 720} than both TS2Vec with default augmentations and TS2Vec with the best hand-picked augmentation chosen on val; the paired per-seed difference has a 95% CI excluding 0 on at least 3 of the 4 datasets",
+      "predictionIfFalse": "The CIs include 0 or favor the baseline on 2 or more datasets"
+    },
+    {
+      "id": "Q2",
+      "claim": "C2",
+      "text": "Does the gain come from the learned masks, rather than from adding more stochastic augmentation?",
+      "hypothesis": "The learned masks beat random masks with matched sparsity and scale statistics (same expected ‖h‖₀ and distribution of g, no dependence on the instance)",
+      "predictionIfFalse": "H1 holds but H2 does not: the gain is just 'more augmentation', which undercuts the 'good view' claim"
+    }
+  ],
+  "methodComponents": [
+    { "id": "M1", "name": "factorization mask h (factorization head)", "ablation": "A1" },
+    { "id": "M2", "name": "transformation mask g (transformation head)", "ablation": "A1" },
+    { "id": "M3", "name": "noise η (hidden-layer time-step masking)" },
+    { "id": "M4", "name": "hard-concrete relaxation (τ, γ, ζ)" },
+    { "id": "M5", "name": "shared input layer and dilated-CNN extractor for both heads" },
+    { "id": "M6", "name": "PRI objective instead of adversarial training" },
+    { "id": "M7", "name": "L0 sparsity term β·‖h‖₀" },
+    { "id": "M8", "name": "mean-embedding (MMD-style) discrepancy term" },
+    { "id": "M9", "name": "temporal-consistency loss L_t (λ)" },
+    { "id": "M10", "name": "global InfoNCE loss L_global" },
+    { "id": "M11", "name": "local subsequence contrast L_local (α)" },
+    { "id": "M12", "name": "alternating schedule (augmenter every M rounds)" }
+  ],
+  "baselines": [
+    {
+      "id": "B1",
+      "name": "TS2Vec default (random cropping + timestamp masking)",
+      "role": "standard-recipe",
+      "source": "rerun-official-code",
+      "reproduce": {
+        "cell": "R0.reproduce-ts2vec",
+        "tolerance": "average MSE within ~5% of published"
+      },
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "notes": "paired seeds: the same seed controls data order and probe across arms"
+      }
+    },
+    {
+      "id": "B2",
+      "name": "Tuned hand-picked augmentation (grid over {jitter, scaling, permutation, crop, masking} and pairwise combinations)",
+      "role": "standard-recipe",
+      "why": "the baseline that matters, because the claim is 'no trial-and-error'",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "tuning": {
+          "space": "{jitter, scaling, permutation, crop, masking} and pairwise combinations; same tuning budget in GPU-hours as our method's hyperparameter search (Run 3)",
+          "selectionSplit": "val"
+        }
+      }
+    },
+    {
+      "id": "B3",
+      "name": "Random-mask control (h ~ Bernoulli(π̄), g resampled from the learned-g marginal, no augmentation network)",
+      "role": "ablated-self",
+      "why": "for H2",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true
+      }
+    },
+    {
+      "id": "B4",
+      "name": "η-only ablation (h = 1, g = 1, hidden-layer masking only)",
+      "role": "ablated-self",
+      "why": "separates the noise function from the learned masks",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true
+      }
+    }
+  ],
+  "datasets": [
+    {
+      "id": "D1",
+      "name": "ETTh1",
+      "role": "main",
+      "splits": {
+        "train": "60% chronological",
+        "select": "val 20%",
+        "report": "test 20%, read once per final configuration"
+      }
+    },
+    {
+      "id": "D2",
+      "name": "ETTh2",
+      "role": "main",
+      "splits": {
+        "train": "60% chronological",
+        "select": "val 20%",
+        "report": "test 20%, read once per final configuration"
+      }
+    },
+    {
+      "id": "D3",
+      "name": "ETTm1",
+      "role": "main",
+      "splits": {
+        "train": "60% chronological",
+        "select": "val 20%",
+        "report": "test 20%, read once per final configuration"
+      }
+    },
+    {
+      "id": "D4",
+      "name": "Electricity",
+      "role": "main",
+      "splits": {
+        "train": "60% chronological",
+        "select": "val 20%",
+        "report": "test 20%, read once per final configuration"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "name": "mse (normalized, averaged over the 5 horizons, per dataset)",
+      "direction": "minimize",
+      "split": "test",
+      "primary": true
+    },
+    {
+      "name": "mae",
+      "direction": "minimize",
+      "split": "test",
+      "primary": false
+    }
+  ],
+  "statistics": {
+    "seedsMain": 5,
+    "repeatUnit": "seed, paired across arms (same seed controls data order and probe)",
+    "variance": "ci95",
+    "test": "95% CI of the paired per-seed difference; must exclude 0 on at least 3 of 4 datasets",
+    "notes": "forecasting gains between contrastive methods are often 1-5% MSE, about the size of seed variance, so 3 seeds cannot resolve them"
+  },
+  "hyperparameters": {
+    "selectionSplit": "val",
+    "notes": "all hyperparameters for every arm (β, λ, α, M, η, the augmentation grid, ridge α) are chosen on val; our method's sweep covers β, M and η masking probability"
+  },
+  "protocol": {
+    "postprocessing": "frozen encoder + ridge-regression probe (TS2Vec repo evaluation protocol assumed: ridge probe, padding, horizons)",
+    "sharedByAllArms": true
+  },
+  "stages": [
+    {
+      "id": "S0",
+      "name": "Run 0: reproduce the harness (TS2Vec default)",
+      "gate": "average MSE within ~5% of published"
+    },
+    {
+      "id": "S1",
+      "name": "Run 1: our method with mask logging",
+      "gate": "h not ≈ all-1 or all-0; g not ≈ constant; the MMD term does not go to 0 trivially"
+    },
+    { "id": "S2", "name": "Run 2: η-only sanity check", "gate": "close to Run 0" },
+    { "id": "S3", "name": "Run 3: validation sweep of our method" },
+    { "id": "S4", "name": "Run 4: hand-picked augmentation grid, budget matched to Run 3" },
+    { "id": "S5", "name": "Run 5: final runs, test read once" }
+  ],
+  "matrix": [
+    {
+      "cell": "R0.reproduce-ts2vec",
+      "stage": "S0",
+      "question": "Q1",
+      "purpose": "sanity",
+      "factors": { "method": "B1", "dataset": "D1" },
+      "seeds": 5,
+      "expect": "average MSE within ~5% of published"
+    },
+    {
+      "cell": "R1.ours-mask-logging",
+      "stage": "S1",
+      "purpose": "sanity",
+      "factors": {
+        "method": "ours",
+        "dataset": "D1",
+        "logging": "mean π_t, ‖h‖₀, g histogram, L_PRI terms per step"
+      },
+      "seeds": 1,
+      "expect": "h not ≈ all-1 or all-0; g not ≈ constant; the MMD term does not go to 0 trivially"
+    },
+    {
+      "cell": "R2.eta-only-sanity",
+      "stage": "S2",
+      "purpose": "sanity",
+      "factors": { "method": "Run 1 with h, g frozen to 1 (η-only)", "dataset": "D1" },
+      "compareTo": ["R0.reproduce-ts2vec"],
+      "expect": "close to Run 0 (should match TS2Vec plus hidden masking)"
+    },
+    {
+      "cell": "R3.ours-val-sweep",
+      "stage": "S3",
+      "question": "Q1",
+      "purpose": "tuning",
+      "factors": { "method": "ours", "dataset": "D1", "sweep": "β, M, η masking probability" },
+      "seeds": 3,
+      "expect": "choose by val MSE only"
+    },
+    {
+      "cell": "R4.grid-tuning",
+      "stage": "S4",
+      "question": "Q1",
+      "purpose": "tuning",
+      "factors": { "method": "B2", "dataset": "D1", "budget": "matched to Run 3" },
+      "expect": "choose by val MSE only"
+    },
+    {
+      "cell": "R5.ours",
+      "stage": "S5",
+      "question": "Q1",
+      "purpose": "main",
+      "factors": { "method": "ours", "dataset": "D1-D4" },
+      "compareTo": ["R5.ts2vec-default", "R5.tuned-grid", "R5.random-mask", "R5.eta-only"],
+      "seeds": 5
+    },
+    {
+      "cell": "R5.ts2vec-default",
+      "stage": "S5",
+      "question": "Q1",
+      "purpose": "main",
+      "factors": { "method": "B1", "dataset": "D1-D4" },
+      "seeds": 5
+    },
+    {
+      "cell": "R5.tuned-grid",
+      "stage": "S5",
+      "question": "Q1",
+      "purpose": "main",
+      "factors": { "method": "B2", "dataset": "D1-D4" },
+      "seeds": 5
+    },
+    {
+      "cell": "R5.random-mask",
+      "stage": "S5",
+      "question": "Q2",
+      "purpose": "main",
+      "factors": { "method": "B3", "dataset": "D1-D4" },
+      "seeds": 5
+    },
+    {
+      "cell": "R5.eta-only",
+      "stage": "S5",
+      "question": "Q2",
+      "purpose": "ablation",
+      "factors": { "method": "B4", "dataset": "D1-D4" },
+      "seeds": 5
+    }
+  ],
+  "ablations": [
+    {
+      "id": "A1",
+      "component": ["M1", "M2"],
+      "structure": "remove",
+      "levels": ["h = 1, g = 1 (η-only)"],
+      "cells": ["R2.eta-only-sanity", "R5.eta-only"]
+    },
+    {
+      "id": "A2",
+      "component": ["M1", "M2"],
+      "structure": "swap",
+      "levels": [
+        "random masks with matched sparsity and scale statistics, no augmentation network"
+      ],
+      "cells": ["R5.random-mask"]
+    }
+  ],
+  "decisionPoints": [
+    {
+      "after": "S5",
+      "if": "a paired CI straddles 0",
+      "then": "go to 10 seeds rather than declaring a result"
+    }
+  ],
+  "risks": [
+    {
+      "text": "Run 1 is the most likely failure point: with β too high h -> 0, and through the MMD term the augmentation network can learn g ≈ constant scaling that the encoder ignores",
+      "mitigation": "look at the Run 1 logs before spending compute on sweeps"
+    }
+  ]
+}

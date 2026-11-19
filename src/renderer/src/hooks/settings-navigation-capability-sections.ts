@@ -50,7 +50,7 @@ export function buildCapabilitySettingsSections({
       id: 'accounts',
       title: translate(
         'auto.hooks.useSettingsNavigationMetadata.f70ac54d38',
-        'AI Provider Accounts'
+        'AI provider accounts'
       ),
       description: translate(
         'auto.hooks.useSettingsNavigationMetadata.b1c2f8b0ac',
@@ -95,7 +95,7 @@ export function buildCapabilitySettingsSections({
       ? [
           {
             id: 'computer-use',
-            title: translate('auto.hooks.useSettingsNavigationMetadata.b35e92364b', 'Computer Use'),
+            title: translate('auto.hooks.useSettingsNavigationMetadata.b35e92364b', 'Computer use'),
             description: translate(
               'auto.hooks.useSettingsNavigationMetadata.0059bd17f3',
               'Enable agents to control any app on your computer.'

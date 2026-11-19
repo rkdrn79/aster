@@ -210,7 +210,7 @@ test.describe('paired desktop writes to a switch-on server’s workspace land in
         await desktop.page
           .locator(`.pane[data-leaf-id="${sourceLeaf}"]`)
           .click({ button: 'right', force: true })
-        await desktop.page.getByRole('menuitem', { name: /Split Terminal Right/ }).click()
+        await desktop.page.getByRole('menuitem', { name: /Split terminal right/ }).click()
         let leafIds: string[] = []
         await expect
           .poll(

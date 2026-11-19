@@ -1,5 +1,6 @@
 import type { PreloadApi } from '../../../../preload/api-types'
 import { resolveRuntimeFilePath } from './web-runtime-worktree-catalog'
+import { pickWebFiles } from './web-picked-files'
 
 async function pathExistsOnRuntime(path: string): Promise<boolean> {
   try {
@@ -25,7 +26,8 @@ export function createShellApi(): NonNullable<Partial<PreloadApi>['shell']> {
     // Without this the fallback proxy answers `undefined` and the caller's batch rejects.
     pathsExist: (paths) => Promise.all(paths.map((path) => pathExistsOnRuntime(path))),
     pickAttachment: () => Promise.resolve(null),
-    pickAttachments: () => Promise.resolve([]),
+    // Why the browser picker: on a phone it offers the photo library and the camera.
+    pickAttachments: () => pickWebFiles({ multiple: true }),
     pickImage: () => Promise.resolve(null),
     pickRepoIconImage: () => Promise.resolve(null),
     pickAudio: () => Promise.resolve(null),

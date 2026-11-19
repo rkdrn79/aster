@@ -202,6 +202,38 @@ const span = (region) =>
   `x ${Math.round(region.x)}–${Math.round(region.x + region.width)}, y ${Math.round(region.y)}–${Math.round(region.y + region.height)}`
 
 /**
+ * Where a blank region is, in the figure's own names: the panel it lies in, else the item
+ * nearest its middle ("in panel sram", "beside xt").
+ */
+function placeOf(region, elements) {
+  const [cx, cy] = [region.x + region.width / 2, region.y + region.height / 2]
+  const inside = (box) => cx >= box.x && cx <= box.right && cy >= box.y && cy <= box.bottom
+  const panel = elements
+    .filter((element) => element.customData?.asterPanel)
+    .map((element) => ({ element, box: elementBounds(element) }))
+    .filter((entry) => inside(entry.box))
+    .toSorted((a, b) => a.box.width * a.box.height - b.box.width * b.box.height)[0]
+  if (panel) {
+    return `in panel ${panel.element.customData?.asterKit ?? panel.element.id}`
+  }
+  const nearest = elements
+    .filter((element) => element.type !== 'frame' && !element.customData?.asterPanel)
+    .map((element) => {
+      const box = elementBounds(element)
+      const dx = Math.max(box.x - cx, 0, cx - box.right)
+      const dy = Math.max(box.y - cy, 0, cy - box.bottom)
+      return { element, distance: Math.hypot(dx, dy) }
+    })
+    .toSorted((a, b) => a.distance - b.distance)[0]
+  return nearest ? `beside ${nearest.element.customData?.asterKit ?? nearest.element.id}` : ''
+}
+
+const named = (region, elements) => {
+  const place = placeOf(region, elements)
+  return `${span(region)}${place ? `, ${place}` : ''}`
+}
+
+/**
  * Empty stretches of about an inch, and a page mostly blank: each finding carries the
  * `regions` it is about, so `figures check` names them and the lint PNG boxes them in place.
  */
@@ -223,7 +255,7 @@ export function spaceChecks(elements, page, add, { sized = false, gaps = [] } = 
       'warning',
       'empty-space',
       null,
-      `${blank} (more than a sixth of an inch from any ink${regions.length ? `; most around ${span(regions[0])}` : ''}); fill it: enlarge the data glyphs, give the hero more room, or spread the rows${keep}`,
+      `${blank} (more than a sixth of an inch from any ink${regions.length ? `; most around ${named(regions[0], elements)}` : ''}); fill it: enlarge the data glyphs, give the hero more room, or spread the rows${keep}`,
       { regions }
     )
   }
@@ -232,7 +264,7 @@ export function spaceChecks(elements, page, add, { sized = false, gaps = [] } = 
       'warning',
       'empty-region',
       null,
-      `${empty.length} empty stretch${empty.length > 1 ? 'es' : ''} of about an inch or more (${empty.map(span).join('; ')})${share >= BLANK_SHARE ? `, and ${blank}` : ''}; move content there or enlarge the data glyphs${keep}; fig.allow('empty-region', { x, y, w, h }) marks a gap left on purpose`,
+      `${empty.length} empty stretch${empty.length > 1 ? 'es' : ''} of about an inch or more (${empty.map((region) => named(region, elements)).join('; ')})${share >= BLANK_SHARE ? `, and ${blank}` : ''}; move content there or enlarge the data glyphs${keep}; fig.allow('empty-region', { x, y, w, h }) marks a gap left on purpose`,
       { regions: empty }
     )
   }

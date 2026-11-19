@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Button } from '@/components/ui/button'
+import { SegmentIndicator, useSegmentIndicator } from '@/components/ui/segment-indicator'
 import type { RebuttalReviewer } from '../../../../research-harness/research-rebuttal-model.mjs'
 import { useResearchRecords } from './research-records-store'
 import { ResearchRebuttalAgentPane } from './ResearchRebuttalAgentPane'
@@ -49,6 +49,7 @@ export function ResearchRebuttalSidePanel({
     [reviewers, reviewerId, records, scope, slug]
   )
   const activeTab: RebuttalSideTab = tab === 'author' || reviewer ? tab : 'author'
+  const setTabs = useSegmentIndicator<HTMLDivElement>('[data-state="active"]', true)
   const tabs: { id: RebuttalSideTab; label: string; disabled?: boolean }[] = [
     ...(reviewer ? [{ id: 'review' as const, label: 'Review' }] : []),
     ...(reviewer ? [{ id: 'debate' as const, label: `Simulated ${reviewer.id}` }] : []),
@@ -56,24 +57,28 @@ export function ResearchRebuttalSidePanel({
   ]
   return (
     <section aria-label="Rebuttal side panel" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div
-        role="tablist"
-        aria-label="Side panel views"
-        className="flex shrink-0 items-center gap-1 border-b border-border px-2 py-1.5"
-      >
-        {tabs.map((entry) => (
-          <Button
-            key={entry.id}
-            role="tab"
-            aria-selected={activeTab === entry.id}
-            size="xs"
-            variant={activeTab === entry.id ? 'secondary' : 'ghost'}
-            className="min-w-0"
-            onClick={() => onTabChange(entry.id)}
-          >
-            <span className="truncate">{entry.label}</span>
-          </Button>
-        ))}
+      <div className="flex shrink-0 px-3 pt-3 pb-2">
+        <div
+          ref={setTabs}
+          role="tablist"
+          aria-label="Side panel views"
+          className="group/side-tabs relative flex min-w-0 items-center gap-0.5 rounded-full bg-muted p-0.5"
+        >
+          <SegmentIndicator />
+          {tabs.map((entry) => (
+            <button
+              key={entry.id}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === entry.id}
+              data-state={activeTab === entry.id ? 'active' : 'inactive'}
+              className="relative inline-flex h-6 min-w-0 items-center rounded-full px-3 text-xs font-medium text-muted-foreground transition-colors duration-(--duration-fast) hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring data-[state=active]:bg-raised data-[state=active]:text-foreground data-[state=active]:shadow-raised group-data-[segment-indicator]/side-tabs:data-[state=active]:bg-transparent group-data-[segment-indicator]/side-tabs:data-[state=active]:shadow-none"
+              onClick={() => onTabChange(entry.id)}
+            >
+              <span className="truncate">{entry.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
       {reviewer && activeTab === 'review' ? (
         <ResearchRebuttalReviewPane

@@ -48,10 +48,14 @@ export function ResearchWritingSourcePane({
   )
 
   return (
-    <div className="min-h-0 min-w-0 flex-col" style={{ display: visible ? 'flex' : 'none' }}>
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-1.5">
+    // Why the class: its fade replays each time the pane is shown again.
+    <div
+      className="research-pane-in min-h-0 min-w-0 flex-col"
+      style={{ display: visible ? 'flex' : 'none' }}
+    >
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-border px-3 py-2">
         <div className="flex min-w-0 items-baseline gap-2">
-          <h2 className="shrink-0 text-xs font-semibold">TeX</h2>
+          <h2 className="shrink-0 text-[13px] font-medium">TeX</h2>
           <span
             className="truncate font-mono text-2xs text-muted-foreground"
             title={sourceFile.absolutePath}
@@ -78,7 +82,7 @@ export function ResearchWritingSourcePane({
           ) : null}
           <Button
             size="xs"
-            variant="ghost"
+            variant={filesOpen ? 'secondary' : 'ghost'}
             aria-pressed={filesOpen}
             onClick={() => {
               saveWritingFilesOpen(experiment.id, !filesOpen)

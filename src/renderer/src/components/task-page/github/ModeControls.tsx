@@ -58,7 +58,7 @@ export function TaskPageGitHubModeControls({
                   handleSelectGithubTaskKind(mode.id)
                 }}
                 className={cn(
-                  'rounded-md border px-2.5 py-1 text-xs font-medium transition',
+                  'rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
                   active
                     ? 'border-border/50 bg-foreground/90 text-background shadow-xs'
                     : 'border-border/60 bg-muted/50 text-foreground shadow-xs hover:bg-muted/70'
@@ -104,7 +104,7 @@ export function TaskPageGitHubModeControls({
               )
             })
           }}
-          triggerClassName="h-8 w-auto max-w-[220px] rounded-md border border-border/50 bg-muted/50 px-2 text-xs font-medium shadow-sm transition hover:bg-muted/50 focus:ring-2 focus:ring-ring/20 focus:outline-none"
+          triggerClassName="h-8 w-auto max-w-[220px] rounded-md border border-border/50 bg-muted/50 px-2 text-xs font-medium shadow-sm transition-colors hover:bg-muted/50 focus:ring-2 focus:ring-ring/20 focus:outline-none"
         />
       </div>
       <Tooltip>

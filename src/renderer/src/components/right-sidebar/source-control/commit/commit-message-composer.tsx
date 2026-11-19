@@ -1,5 +1,5 @@
 import React from 'react'
-import { RefreshCw, Sparkles, Square } from 'lucide-react'
+import { RefreshCw, Square, PenLine } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { translate } from '@/i18n/i18n'
 import { cn } from '@/lib/utils'
@@ -96,7 +96,7 @@ export function CommitMessageComposer({
                     'cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground'
                 )}
               >
-                <Sparkles className="size-3.5" />
+                <PenLine className="size-3.5" />
               </button>
             </TooltipTrigger>
             <TooltipContent side="left" sideOffset={6}>

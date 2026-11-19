@@ -53,7 +53,7 @@ export function WorktreeJumpPaletteProjectRow({
         <div className="flex items-center justify-between gap-2.5">
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="truncate text-[14px] font-semibold text-foreground">
+              <span className="truncate text-[14px] font-medium text-foreground">
                 {result.title}
               </span>
               <span className="shrink-0 rounded-[6px] border border-border/60 bg-background/45 px-1.5 py-px text-[9px] font-medium leading-normal text-muted-foreground/88">
@@ -64,7 +64,7 @@ export function WorktreeJumpPaletteProjectRow({
           {isProject ? (
             <div className="flex shrink-0 items-center gap-1.5">
               <PaletteHostBadgeChip badge={hostBadge} />
-              <span className="inline-flex max-w-[180px] items-center gap-1.5 rounded-md border border-border bg-muted px-2 py-1 text-[11px] font-semibold leading-none text-foreground">
+              <span className="inline-flex max-w-[180px] items-center gap-1.5 rounded-md border border-border bg-muted px-2 py-1 text-[11px] font-medium leading-none text-foreground">
                 <RepoBadgeMark color={result.repo.badgeColor} />
                 <span className="truncate">{result.repo.displayName}</span>
               </span>
@@ -108,9 +108,7 @@ export function WorktreeJumpPaletteActionRow({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-[14px] font-semibold tracking-[-0.01em] text-foreground">
-            {result.title}
-          </span>
+          <span className="truncate text-[14px] font-medium text-foreground">{result.title}</span>
           <span className="shrink-0 rounded-[6px] border border-border/60 bg-background/45 px-1.5 py-px text-[9px] font-medium leading-normal text-muted-foreground/88">
             {kindLabel}
           </span>

@@ -120,10 +120,7 @@ export function MarkupDrawButton({
         <div className="space-y-3">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <Badge
-                variant="secondary"
-                className="h-5 shrink-0 px-1.5 text-[10px] font-semibold tracking-wider uppercase"
-              >
+              <Badge variant="secondary" className="h-5 shrink-0">
                 {translate('auto.components.browser-pane.markup.drawHintBadge', 'New')}
               </Badge>
               <div className="text-sm font-medium text-foreground">{label}</div>

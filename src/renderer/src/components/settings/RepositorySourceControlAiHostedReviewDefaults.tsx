@@ -40,7 +40,7 @@ const HOSTED_REVIEW_DEFAULT_ROWS: { key: HostedReviewDefaultKey; label: string }
     get label() {
       return translate(
         'auto.components.settings.RepositorySourceControlAiHostedReviewDefaults.14f1eb99d0',
-        'Generate details when opening Create PR'
+        'Generate details when opening create PR'
       )
     }
   },

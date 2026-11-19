@@ -56,6 +56,25 @@ export function shapePaint(spec) {
   }
 }
 
+/** A TeX token typed bare (`\\tau_\\theta`, `h_{t-1}`) in a plain label, to typeset. */
+const BARE_TEX = /^(\\[a-zA-Z]+|[A-Za-z]{1,3}[_^](\{[^}]{1,12}\}|[A-Za-z0-9]))\S*$/
+
+/**
+ * A string label whose words hold bare TeX (a macro, or a short symbol with a script) gets
+ * those words as `$…$` math, so `\\tau_\\theta` never prints its backslashes; labels with `$`
+ * or several plain words without TeX stay as written.
+ */
+export function bareTexLabel(label) {
+  if (typeof label !== 'string' || label.includes('$') || !/[\\_^]/.test(label)) {
+    return label
+  }
+  const words = label.split(' ')
+  if (!words.some((word) => BARE_TEX.test(word))) {
+    return label
+  }
+  return words.map((word) => (BARE_TEX.test(word) ? `$${word}$` : word)).join(' ')
+}
+
 /**
  * A shape with its label inside. Without `w`/`h` it grows to fit the label with room to spare;
  * with them it keeps that size (only growing to what the label needs) and `exact` keeps it even
@@ -64,7 +83,8 @@ export function shapePaint(spec) {
  * or after the label with `inline: true`) or with `labelOffset` [dx, dy] is free text grouped
  * with it, placed by `labelAlign` and `labelValign` too.
  */
-export function makeBox(spec, random = Math.random) {
+export function makeBox(given, random = Math.random) {
+  const spec = { ...given, label: bareTexLabel(given.label) }
   const style = styleOf(spec)
   const shape = spec.shape ?? 'rectangle'
   const fontSize = spec.size ?? style.textSize ?? PAPER_STYLE.fontSize
@@ -124,12 +144,13 @@ export function makeBox(spec, random = Math.random) {
           ? { type: 3, value: radius }
           : null,
       boundElements: [],
-      ...(paint.customData || spec.bar || spec.intentional
+      ...(paint.customData || spec.bar || spec.intentional || spec.swatch
         ? {
             customData: {
               ...paint.customData,
               ...(spec.bar ? { asterBar: true } : {}),
-              ...(spec.intentional ? { asterIntentional: true } : {})
+              ...(spec.intentional ? { asterIntentional: true } : {}),
+              ...(spec.swatch ? { asterSwatch: true } : {})
             }
           }
         : {}),
@@ -313,11 +334,15 @@ function curvePath(spec, start, end, gap) {
   }
   // Why left of travel: y grows downward, so (dy, -dx) points to the left of the direction.
   const normal = [(to[1] - from[1]) / length, -(to[0] - from[0]) / length]
-  const middle = [
-    (from[0] + to[0]) / 2 + normal[0] * bend,
-    (from[1] + to[1]) / 2 + normal[1] * bend
+  const along = (share, offset) => [
+    from[0] + (to[0] - from[0]) * share + normal[0] * offset,
+    from[1] + (to[1] - from[1]) * share + normal[1] * offset
   ]
-  return [from, middle, to]
+  // Why two inner points for an S: one bulge each side, so the curve leaves and lands level.
+  if (spec.curveShape === 's') {
+    return [from, along(0.3, bend * 0.75), along(0.7, -bend * 0.75), to]
+  }
+  return [from, along(0.5, bend), to]
 }
 
 /** A path through hand-given corners (`via`, a forced route), or one straight diagonal. */
@@ -363,6 +388,20 @@ function handPath(spec, start, end, gap) {
 const SIDES = ['left', 'right', 'top', 'bottom']
 
 /**
+ * The gap an arrow leaves at each end: 4 units, less between shapes under 20 apart, so the
+ * arrow keeps 12 units (a head and a shaft) instead of becoming a stub.
+ */
+function shortGap(start, end) {
+  if (!start || !end) {
+    return 4
+  }
+  const a = elementBounds(start)
+  const b = elementBounds(end)
+  const apart = Math.max(b.x - a.right, a.x - b.right, b.y - a.bottom, a.y - b.bottom)
+  return apart > 0 && apart < 20 ? Math.max(1, Math.min(4, (apart - 12) / 2)) : 4
+}
+
+/**
  * Where an arrow end that names its spot meets a shape, still bound to it: `at` a fraction 0–1
  * along the side (top to bottom on a left or right side, left to right on a top or bottom one)
  * or `{ x }` / `{ y }` on it, on `side` (by default the side facing `toward`), `gap` units out.
@@ -371,8 +410,27 @@ const SIDES = ['left', 'right', 'top', 'bottom']
 export function pinnedEnd(shape, toward, at, side, gap, name = 'fromAt') {
   const b = elementBounds(shape)
   const [cx, cy] = centerOf(shape)
+  // Why: { y } names a height on a left or right side and { x } a spot on the top or bottom,
+  // so the side follows the key when none is given.
+  const keyed =
+    at && typeof at === 'object'
+      ? at.y !== undefined
+        ? 'y'
+        : at.x !== undefined
+          ? 'x'
+          : null
+      : null
   const facing =
     oneOf(name === 'fromAt' ? 'fromSide' : 'toSide', side, SIDES) ??
+    (keyed === 'y'
+      ? toward[0] < cx
+        ? 'left'
+        : 'right'
+      : keyed === 'x'
+        ? toward[1] < cy
+          ? 'top'
+          : 'bottom'
+        : null) ??
     (Math.abs(toward[0] - cx) / (b.width || 1) >= Math.abs(toward[1] - cy) / (b.height || 1)
       ? toward[0] < cx
         ? 'left'
@@ -381,14 +439,13 @@ export function pinnedEnd(shape, toward, at, side, gap, name = 'fromAt') {
         ? 'top'
         : 'bottom')
   const upright = facing === 'left' || facing === 'right'
+  const given = typeof at === 'number' ? null : upright ? at?.y : at?.x
+  const [start, length] = upright ? [b.y, b.height] : [b.x, b.width]
+  // Why a share too: { y: 0.3 } inside 0–1 but off the shape is a fraction of its side.
+  const share =
+    Number.isFinite(given) && given >= 0 && given <= 1 && (given < start || given > start + length)
   const value =
-    typeof at === 'number'
-      ? upright
-        ? b.y + at * b.height
-        : b.x + at * b.width
-      : upright
-        ? at?.y
-        : at?.x
+    typeof at === 'number' ? start + at * length : share ? start + given * length : given
   const [low, high] = upright ? [b.y, b.bottom] : [b.x, b.right]
   if (
     (typeof at === 'number' && (at < 0 || at > 1)) ||
@@ -397,7 +454,7 @@ export function pinnedEnd(shape, toward, at, side, gap, name = 'fromAt') {
     value > high
   ) {
     throw new Error(
-      `${name} is a fraction 0–1 along the ${facing} side of ${shape.id} or { ${upright ? 'y' : 'x'} } from ${Math.round(low)} to ${Math.round(high)}, not ${JSON.stringify(at)}`
+      `${name} is a fraction 0–1 along the ${facing} side of ${shape.id}, or { ${upright ? 'y' : 'x'} } as a fraction or from ${Math.round(low)} to ${Math.round(high)}, not ${JSON.stringify(at)}`
     )
   }
   const point = upright
@@ -420,10 +477,11 @@ export function makeArrow(spec, lookup, { random = Math.random, elements = [] } 
   oneOf('heads', spec.heads, ['end', 'both', 'none'])
   const roleName =
     oneOf('role', spec.role, Object.keys(ARROW_ROLES)) ?? (spec.color === 'loss' ? 'loss' : 'data')
-  const look = ARROW_ROLES[roleName]
-  const gap = spec.gap ?? 4
+  // Why the style's: the paper look draws every role at one thin weight with small heads.
+  const look = (styleOf(spec).arrowRoles ?? ARROW_ROLES)[roleName]
   const start = typeof spec.from === 'string' ? target(lookup(spec.from)) : null
   const end = typeof spec.to === 'string' ? target(lookup(spec.to)) : null
+  const gap = spec.gap ?? shortGap(start, end)
   const headSize = spec.headSize ?? look.headSize ?? FIGURE_HEAD_SIZE
   // Why: connectors run only horizontally and vertically; a diagonal must be asked for.
   const curved = spec.curve !== undefined && spec.curve !== null && spec.curve !== 0

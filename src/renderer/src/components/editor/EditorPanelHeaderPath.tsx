@@ -179,7 +179,7 @@ export function EditorPanelHeaderPath({
                 <Eye className="w-3.5 h-3.5 mr-1.5" />
                 {translate(
                   'auto.components.editor.EditorPanelHeader.4157f3cbf3',
-                  'Open Markdown Preview'
+                  'Open Markdown preview'
                 )}
                 <DropdownMenuShortcut>{markdownPreviewShortcutLabel}</DropdownMenuShortcut>
               </DropdownMenuItem>

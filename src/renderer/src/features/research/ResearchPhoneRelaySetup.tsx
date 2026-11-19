@@ -72,7 +72,7 @@ export function ResearchPhoneRelaySetup({
           Run the setup below. It signs you in to Cloudflare in the browser, deploys the relay to
           your account and saves a private key on this computer.
         </li>
-        <li>When it prints Done, the relay URL fills in above.</li>
+        <li>When it prints Done, the relay URL fills in above</li>
       </ol>
       <div className="flex flex-wrap items-center gap-2">
         {command ? (

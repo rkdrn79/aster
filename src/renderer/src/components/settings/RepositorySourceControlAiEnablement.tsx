@@ -37,7 +37,7 @@ export function RepositorySourceControlAiEnablement({
         <Label className="text-xs font-medium">
           {translate(
             'auto.components.settings.RepositorySourceControlAiEnablement.showActionsLabel',
-            'Show Source Control AI actions'
+            'Show source control AI actions'
           )}
         </Label>
         <p className="text-[11px] text-muted-foreground">

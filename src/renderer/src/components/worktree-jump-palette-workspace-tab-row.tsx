@@ -83,14 +83,14 @@ export function WorktreeJumpPaletteWorkspaceTabRow({
                 <>
                   {result.isCurrentTab && (
                     <span className="shrink-0 self-center rounded-[6px] border border-border/60 bg-background/45 px-1.5 py-px text-[9px] font-medium leading-normal text-muted-foreground/88">
-                      {translate('auto.components.WorktreeJumpPalette.52404f8096', 'Current Tab')}
+                      {translate('auto.components.WorktreeJumpPalette.52404f8096', 'Current tab')}
                     </span>
                   )}
                   {!result.isCurrentTab && result.isCurrentWorktree && (
                     <span className="shrink-0 self-center rounded-[6px] border border-border/60 bg-background/45 px-1.5 py-px text-[9px] font-medium leading-normal text-muted-foreground/88">
                       {translate(
                         'auto.components.WorktreeJumpPalette.c5081f2814',
-                        'Current Worktree'
+                        'Current worktree'
                       )}
                     </span>
                   )}

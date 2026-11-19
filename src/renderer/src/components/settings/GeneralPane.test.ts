@@ -59,7 +59,7 @@ describe('GeneralPane navigation search keywords', () => {
   it('keeps pinned-tab keywords out of the Tab Order control', () => {
     const keywords = getTabOrderControlSearchKeywords()
 
-    expect(keywords).toContain('Tab Order')
+    expect(keywords).toContain('Tab order')
     expect(keywords).toContain('recent')
     expect(keywords).not.toContain('pinned')
     expect(keywords).not.toContain('confirm')

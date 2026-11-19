@@ -210,18 +210,18 @@ function WritingFileExplorerScope({
       className="flex min-h-0 min-w-0 flex-1 flex-col border-r border-border bg-sidebar text-sidebar-foreground"
       aria-label="Manuscript files"
     >
-      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-3 py-1.5">
+      <header className="flex shrink-0 items-center justify-between gap-2 border-b border-sidebar-border px-3 py-2">
         <div
           className="flex min-w-0 items-center gap-2"
           title={resolveRuntimePath(experiment.workspacePath, root)}
         >
-          <h2 className="shrink-0 text-2xs font-semibold uppercase tracking-wider">TeX files</h2>
+          <h2 className="shrink-0 text-2xs font-medium text-muted-foreground">TeX files</h2>
           <span className="truncate font-mono text-3xs text-muted-foreground">
             {root || 'Workspace root'}
           </span>
         </div>
         <Button size="icon-xs" variant="ghost" aria-label="Refresh TeX files" onClick={refresh}>
-          <RefreshCw aria-hidden className="size-3.5" />
+          <RefreshCw aria-hidden className="size-4" />
         </Button>
       </header>
       <nav
@@ -230,7 +230,7 @@ function WritingFileExplorerScope({
       >
         {!root && (
           <p className="px-3 py-2 text-2xs text-muted-foreground">
-            Showing top-level TeX files only.
+            Showing top-level TeX files only
           </p>
         )}
         {rootLoading && (
@@ -259,7 +259,7 @@ function WritingFileExplorerScope({
             <Fragment key={entry.relativePath}>
               <button
                 type="button"
-                className={`flex w-full min-w-0 items-center gap-1.5 px-2 py-1.5 text-left text-xs hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sidebar-ring ${selected ? 'bg-sidebar-accent font-medium' : ''}`}
+                className={`flex w-full min-w-0 items-center gap-2 px-2 py-2 text-left text-xs hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sidebar-ring ${selected ? 'bg-sidebar-accent font-medium' : ''}`}
                 style={{ paddingInlineStart: `${8 + depth * 16}px` }}
                 aria-expanded={entry.isDirectory ? open : undefined}
                 aria-current={selected ? 'page' : undefined}
@@ -272,20 +272,20 @@ function WritingFileExplorerScope({
                 {entry.isDirectory ? (
                   <>
                     {open ? (
-                      <ChevronDown className="size-3 shrink-0" aria-hidden />
+                      <ChevronDown className="size-4 shrink-0" aria-hidden />
                     ) : (
-                      <ChevronRight className="size-3 shrink-0" aria-hidden />
+                      <ChevronRight className="size-4 shrink-0" aria-hidden />
                     )}
                     {open ? (
-                      <FolderOpen className="size-3.5 shrink-0" aria-hidden />
+                      <FolderOpen className="size-4 shrink-0" aria-hidden />
                     ) : (
-                      <FolderClosed className="size-3.5 shrink-0" aria-hidden />
+                      <FolderClosed className="size-4 shrink-0" aria-hidden />
                     )}
                   </>
                 ) : (
                   // Why only beside folders: the indent lines files up under folder names.
                   <FileCode2
-                    className={`${hasFolders ? 'ml-4' : ''} size-3.5 shrink-0`}
+                    className={`${hasFolders ? 'ml-4' : ''} size-4 shrink-0`}
                     aria-hidden
                   />
                 )}

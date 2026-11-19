@@ -85,7 +85,7 @@ export function ResearchFigureInsertTile({
             type="button"
             draggable
             aria-label={`Insert ${item.name}`}
-            className="flex h-16 w-[88px] items-center justify-center overflow-hidden rounded-md border border-border bg-background hover:border-foreground/40 focus-visible:outline-2 focus-visible:outline-ring"
+            className="flex h-16 w-[88px] items-center justify-center overflow-hidden rounded-xl border border-border bg-background transition-[border-color,box-shadow] duration-(--duration-fast) hover:border-foreground/30 hover:shadow-raised focus-visible:outline-2 focus-visible:outline-ring"
             onPointerLeave={() => setQuiet(false)}
             onClick={(event) => {
               setHover(false)
@@ -109,7 +109,7 @@ export function ResearchFigureInsertTile({
           </button>
         </HoverCardTrigger>
         <HoverCardContent side="left" className="pointer-events-none w-60">
-          <div className="flex h-36 items-center justify-center rounded-sm border border-border bg-background">
+          <div className="flex h-36 items-center justify-center rounded-lg border border-border bg-background">
             {url ? (
               <img alt={item.name} src={url} className="max-h-32 max-w-52 object-contain" />
             ) : null}
@@ -133,7 +133,7 @@ export function ResearchFigureInsertTile({
               aria-label={`${item.name} options`}
               className="absolute top-0.5 right-0.5 hidden size-5 items-center justify-center rounded bg-background/90 text-muted-foreground group-focus-within:flex group-hover:flex hover:text-foreground focus-visible:flex focus-visible:outline-2 focus-visible:outline-ring"
             >
-              <MoreHorizontal className="size-3.5" aria-hidden />
+              <MoreHorizontal className="size-4" aria-hidden />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

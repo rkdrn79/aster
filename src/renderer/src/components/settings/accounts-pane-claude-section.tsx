@@ -90,7 +90,7 @@ export function renderClaudeAccountsSection(model: AccountsPaneSectionModel): Re
       </div>
 
       <SearchableSetting
-        title={translate('auto.components.settings.AccountsPane.8bbfd74556', 'Claude Accounts')}
+        title={translate('auto.components.settings.AccountsPane.8bbfd74556', 'Claude accounts')}
         description={translate(
           'accounts.claude.profileSwitching',
           'Switching applies to the next Claude you start in any tab.'
@@ -131,7 +131,7 @@ export function renderClaudeAccountsSection(model: AccountsPaneSectionModel): Re
                 ) : (
                   <Plus className="size-3" />
                 )}
-                {translate('auto.components.settings.AccountsPane.b0e948a4f9', 'Add Account')}
+                {translate('auto.components.settings.AccountsPane.b0e948a4f9', 'Add account')}
               </Button>
               {!isRemoteAccountScope && canOfferClaudeSignInLink(accountRuntime.runtime) ? (
                 <ClaudeSignInLinkMenu

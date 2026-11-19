@@ -378,7 +378,7 @@ export function NativeChatMessageList({
               <div
                 ref={measureContent}
                 data-native-chat-transcript-column
-                // Shares the composer's maximum width; rail clearance and the 5px inner inset narrow constrained panes.
+                // Shares the composer's maximum width; rail clearance and the 4px inner inset narrow constrained panes.
                 className={NATIVE_CHAT_TRANSCRIPT_COLUMN_CLASS}
               >
                 <NativeChatTranscriptItems

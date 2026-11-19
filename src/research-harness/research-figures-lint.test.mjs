@@ -238,6 +238,7 @@ test('panels: content overflowing them, lines along their border, rows touching 
 test('labels over badges, lines over titles, and the style’s text sizes', async () => {
   await withFigure(async (file) => {
     const fig = await openFigure(file)
+    fig.style(undefined, { look: 'preset' })
     fig.box({ id: 'enc', label: 'encoder', x: 40, y: 60, w: 120, h: 48, exact: true })
     fig.trainable('enc')
     const badge = fig.bounds('enc-trainable')

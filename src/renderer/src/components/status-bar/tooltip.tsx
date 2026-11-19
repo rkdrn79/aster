@@ -246,7 +246,7 @@ function ProviderRateLimitWindowSection({
       <div className={`h-[6px] w-full overflow-hidden rounded-full ${emptyBarClass}`}>
         {/* Why: fill follows the selected percentage; color still signals consumption urgency. */}
         <div
-          className={`h-full rounded-full ${barColor(usedPct)} transition-all duration-300`}
+          className={`h-full rounded-full ${barColor(usedPct)} transition-colors`}
           style={{ width: `${displayedPct}%` }}
         />
       </div>

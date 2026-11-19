@@ -127,35 +127,6 @@ export function getLegendItems(provider: 'claude' | 'codex') {
   ]
 }
 
-export function BackgroundGlows(): React.JSX.Element {
-  return (
-    <>
-      <div
-        style={{
-          position: 'absolute',
-          top: '-60%',
-          right: '-20%',
-          width: 300,
-          height: 300,
-          background: 'radial-gradient(circle, rgba(20, 71, 230, 0.08) 0%, transparent 70%)',
-          pointerEvents: 'none'
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '-40%',
-          left: '-10%',
-          width: 250,
-          height: 250,
-          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.05) 0%, transparent 70%)',
-          pointerEvents: 'none'
-        }}
-      />
-    </>
-  )
-}
-
 export function CardFooter(props: {
   summary: { inputTokens: number; outputTokens: number }
 }): React.JSX.Element {

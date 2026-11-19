@@ -49,8 +49,8 @@ export function TaskPageLinearIssueDialog({
         {/* Header/Team section */}
         <div className="flex items-center justify-between border-b border-border/60 px-5 py-3 bg-muted/10">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {translate('auto.components.TaskPage.c11105dac5', 'New Issue')}
+            <span className="text-xs font-medium text-muted-foreground">
+              {translate('auto.components.TaskPage.c11105dac5', 'New issue')}
             </span>
             <span className="text-muted-foreground/40 text-xs">/</span>
             {availableTeams.length > 1 ? (
@@ -62,7 +62,7 @@ export function TaskPageLinearIssueDialog({
                     className="h-7 gap-1 px-2 font-medium text-xs text-foreground hover:bg-muted"
                   >
                     {newLinearIssueTargetTeam?.key ??
-                      translate('auto.components.TaskPage.d7f16d0e32', 'Select Team')}
+                      translate('auto.components.TaskPage.d7f16d0e32', 'Select team')}
                     <ChevronDown className="size-3 text-muted-foreground" />
                   </Button>
                 </PopoverTrigger>
@@ -70,8 +70,8 @@ export function TaskPageLinearIssueDialog({
                   align="start"
                   className="w-64 p-1 popover-scroll-content scrollbar-sleek"
                 >
-                  <div className="text-[10px] font-semibold text-muted-foreground px-2 py-1.5 uppercase tracking-wider">
-                    {translate('auto.components.TaskPage.4f3cb99f41', 'Switch Team')}
+                  <div className="text-[10px] font-medium text-muted-foreground px-2 py-1.5">
+                    {translate('auto.components.TaskPage.4f3cb99f41', 'Switch team')}
                   </div>
                   {availableTeams.map((t) => (
                     <button
@@ -125,7 +125,7 @@ export function TaskPageLinearIssueDialog({
           <textarea
             value={newLinearIssueBody}
             onChange={(e) => setNewLinearIssueBody(e.target.value)}
-            placeholder={translate('auto.components.TaskPage.9bc8aea407', 'Add description...')}
+            placeholder={translate('auto.components.TaskPage.9bc8aea407', 'Add description')}
             rows={5}
             disabled={newLinearIssueSubmitting}
             className="w-full min-w-0 text-sm bg-transparent border-none outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 p-0 placeholder:text-muted-foreground/45 text-foreground resize-none max-h-60 overflow-y-auto scrollbar-sleek py-1"

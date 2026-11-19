@@ -1,6 +1,8 @@
 import { STATUS_METHODS } from './status'
 import { RESEARCH_RECORD_METHODS } from './research-records'
 import { RESEARCH_PROJECT_METHODS } from './research-project'
+import { RESEARCH_DECISION_METHODS } from './research-decisions'
+import { RESEARCH_LIBRARY_METHODS } from './research-library'
 import { RESEARCH_DEADLINES_METHODS } from './research-deadlines'
 import { RESEARCH_COMPUTE_METHODS } from './research-compute'
 import { SIDEBAR_INPUT_METHODS } from './sidebar-inputs'
@@ -87,6 +89,8 @@ export const ALL_RPC_METHODS = [
   ...STATUS_METHODS,
   ...RESEARCH_RECORD_METHODS,
   ...RESEARCH_PROJECT_METHODS,
+  ...RESEARCH_DECISION_METHODS,
+  ...RESEARCH_LIBRARY_METHODS,
   ...RESEARCH_DEADLINES_METHODS,
   ...RESEARCH_COMPUTE_METHODS,
   ...ORCAD_TERMINAL_CENSUS_METHODS,

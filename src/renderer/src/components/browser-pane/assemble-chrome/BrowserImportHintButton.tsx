@@ -171,8 +171,8 @@ export function BrowserImportHintButton({
         <Button
           type="button"
           variant="secondary"
-          size="sm"
-          className="h-7 shrink-0 rounded-full px-2.5 text-xs"
+          size="xs"
+          className="shrink-0"
           aria-label={translate(
             'auto.components.browser.pane.BrowserImportHintButton.4f5ffaa6a1',
             'Import browser data'
@@ -266,7 +266,7 @@ export function BrowserImportHintButton({
                 <DropdownMenuItem onSelect={() => void handleImportFromFile()}>
                   {translate(
                     'auto.components.browser.pane.BrowserImportHintButton.e0e125e074',
-                    'From File…'
+                    'From file…'
                   )}
                 </DropdownMenuItem>
                 <BrowserCookieImportDisclosure />
@@ -280,7 +280,7 @@ export function BrowserImportHintButton({
             >
               {translate(
                 'auto.components.browser.pane.BrowserImportHintButton.77351d22f5',
-                'Browser Settings'
+                'Browser settings'
               )}
             </button>
 
@@ -291,7 +291,7 @@ export function BrowserImportHintButton({
             >
               {translate(
                 'auto.components.browser.pane.BrowserImportHintButton.05e675fe96',
-                'Hide Hint'
+                'Hide hint'
               )}
             </button>
           </div>

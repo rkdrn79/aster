@@ -16,6 +16,8 @@ import {
 } from './research-project-catalog'
 import { researchRunStatusLabel } from './research-run-status-label'
 import { researchErrorText } from './research-error-text'
+import { cn } from '@/lib/utils'
+import { RAISED_CARD } from './research-surface-classes'
 
 export type ResearchAttachRunState = ReturnType<typeof useResearchAttachRun>
 
@@ -34,7 +36,7 @@ function CatalogPicker({
 }): React.JSX.Element {
   const choices = unlinkedCatalogRuns(catalog, experiment, runs)
   return (
-    <section className="space-y-2 border-t border-border pt-3" aria-label="Unattached project runs">
+    <section className="space-y-2 pt-1" aria-label="Unattached project runs">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-sm font-medium">Runs in this project not yet attached</h3>
         <Button size="xs" variant="ghost" onClick={onClose}>
@@ -61,7 +63,7 @@ function CatalogPicker({
           ))}
         </div>
       ) : (
-        <p className="text-xs text-muted-foreground">Every run here is already attached.</p>
+        <p className="text-xs text-muted-foreground">Every run here is already attached</p>
       )}
     </section>
   )
@@ -115,7 +117,7 @@ export function ResearchExperimentWorkspaceAttach({
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+    <div className={cn(RAISED_CARD, 'space-y-3 p-4')}>
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-sm font-medium">Attach a run</h2>
         <div className="flex items-center gap-1">
@@ -281,7 +283,7 @@ export function ResearchExperimentWorkspaceAttach({
         />
       ) : null}
       {preview && attach.previewIdentity !== attach.inputIdentity ? (
-        <p className="text-xs text-muted-foreground">Preview again to apply these columns.</p>
+        <p className="text-xs text-muted-foreground">Preview again to apply these columns</p>
       ) : null}
       {attach.manifestPreview ? (
         <p className="text-xs text-muted-foreground">

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Copy, Languages, MessageCircleQuestion, Send, Sparkles } from 'lucide-react'
+import { Copy, Languages, Lightbulb, MessageCircleQuestion, Send } from 'lucide-react'
 import type { PdfTextSelection } from '@/components/editor/pdf-text-selection'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -74,7 +74,7 @@ export function ResearchLibrarySelectionToolbar({
       ref={toolbarRef}
       role="toolbar"
       aria-label="Selected paper text"
-      className="fixed z-[90] flex flex-col gap-1.5 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground shadow-lg"
+      className="research-pop-in surface-floating fixed z-[90] flex flex-col gap-2 rounded-xl p-1"
       style={{ left, top, width: TOOLBAR_WIDTH }}
       // Why: keeps the page selection painted while the user picks an action.
       onMouseDown={(event) => {
@@ -93,14 +93,16 @@ export function ResearchLibrarySelectionToolbar({
         <Button
           size="xs"
           variant="ghost"
+          className="h-7"
           disabled={busy}
           onClick={() => void run({ kind: 'explain', selection })}
         >
-          <Sparkles aria-hidden /> Explain
+          <Lightbulb aria-hidden /> Explain
         </Button>
         <Button
           size="xs"
           variant="ghost"
+          className="h-7"
           disabled={busy}
           onClick={() => void run({ kind: 'translate', selection })}
         >
@@ -109,12 +111,14 @@ export function ResearchLibrarySelectionToolbar({
         <Button
           size="xs"
           variant={asking ? 'secondary' : 'ghost'}
+          className="h-7"
+          aria-pressed={asking}
           disabled={busy}
           onClick={() => setAsking((value) => !value)}
         >
           <MessageCircleQuestion aria-hidden /> Ask
         </Button>
-        <span className="mx-1 h-4 w-px bg-border" aria-hidden />
+        <span className="mx-1 h-4 w-px shrink-0 rounded-full bg-border" aria-hidden />
         {HIGHLIGHT_COLORS.map((color) => (
           <button
             key={color}
@@ -122,7 +126,7 @@ export function ResearchLibrarySelectionToolbar({
             disabled={busy}
             aria-label={`Highlight ${HIGHLIGHT_STYLES[color].label.toLowerCase()}`}
             title={`Highlight ${HIGHLIGHT_STYLES[color].label.toLowerCase()}`}
-            className="flex size-6 items-center justify-center rounded hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
+            className="flex size-6 items-center justify-center rounded-md transition-colors duration-(--duration-fast) hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:opacity-50"
             onClick={() => void run({ kind: 'highlight', selection, color })}
           >
             <span
@@ -134,7 +138,7 @@ export function ResearchLibrarySelectionToolbar({
         <Button
           size="icon-xs"
           variant="ghost"
-          className="ml-auto"
+          className="ml-auto size-7"
           aria-label="Copy selected text"
           onClick={() => {
             void window.api.ui.writeClipboardText(selection.text)
@@ -146,7 +150,7 @@ export function ResearchLibrarySelectionToolbar({
       </div>
       {asking ? (
         <form
-          className="flex gap-1.5"
+          className="research-pane-in flex gap-2 px-1 pb-1"
           onSubmit={(event) => {
             event.preventDefault()
             if (question.trim()) {
@@ -174,7 +178,7 @@ export function ResearchLibrarySelectionToolbar({
         </form>
       ) : null}
       {error ? (
-        <p role="alert" className="px-1 text-xs text-destructive">
+        <p role="alert" className="px-2 pb-1 text-xs text-destructive">
           {error}
         </p>
       ) : null}

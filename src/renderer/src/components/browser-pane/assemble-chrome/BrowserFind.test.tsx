@@ -32,7 +32,7 @@ function openFindWithQuery(query: string): ReturnType<typeof createWebviewRef> {
   const webview = createWebviewRef()
   vi.useFakeTimers()
   render(<BrowserFind isOpen onClose={vi.fn()} webviewRef={webview.ref} />)
-  fireEvent.change(screen.getByPlaceholderText('Find in page...'), { target: { value: query } })
+  fireEvent.change(screen.getByPlaceholderText('Find in page'), { target: { value: query } })
   act(() => {
     vi.advanceTimersByTime(250)
   })
@@ -78,7 +78,7 @@ describe('BrowserFind session flags', () => {
   it('treats Enter and Shift+Enter as follow-up requests in both directions', () => {
     const { findInPage } = openFindWithQuery('needle')
     findInPage.mockClear()
-    const input = screen.getByPlaceholderText('Find in page...')
+    const input = screen.getByPlaceholderText('Find in page')
 
     fireEvent.keyDown(input, { key: 'Enter' })
     fireEvent.keyDown(input, { key: 'Enter', shiftKey: true })
@@ -93,7 +93,7 @@ describe('BrowserFind session flags', () => {
     const webview = createWebviewRef()
     vi.useFakeTimers()
     render(<BrowserFind isOpen onClose={vi.fn()} webviewRef={webview.ref} />)
-    const input = screen.getByPlaceholderText('Find in page...')
+    const input = screen.getByPlaceholderText('Find in page')
 
     fireEvent.change(input, { target: { value: 'needle' } })
     fireEvent.keyDown(input, { key: 'Enter' })

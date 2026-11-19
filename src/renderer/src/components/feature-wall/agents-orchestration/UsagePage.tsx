@@ -99,7 +99,7 @@ function Popover(props: {
           </span>
         </span>
         <div>
-          <div className="text-[13.5px] font-bold leading-[1.1]">
+          <div className="text-[13.5px] font-medium leading-[1.1]">
             {translate(
               'auto.components.feature.wall.agents.orchestration.UsagePage.6a4b1d3c38',
               'Codex'
@@ -125,7 +125,7 @@ function Popover(props: {
           <span
             key={`pct-${pulseKey}-${swapped ? 'on' : 'off'}`}
             className={cn(
-              'font-semibold',
+              'font-medium',
               swapped ? 'feature-wall-meta-pulse' : 'text-[rgb(220_38_38)]'
             )}
           >
@@ -159,10 +159,10 @@ function Popover(props: {
         }
       />
       <div className="h-px bg-border" />
-      <div className="text-[11px] font-semibold">
+      <div className="text-[11px] font-medium">
         {translate(
           'auto.components.feature.wall.agents.orchestration.UsagePage.277a9c65a9',
-          'Codex Account'
+          'Codex account'
         )}
       </div>
       <div className="flex items-center justify-between text-[11px]">
@@ -192,7 +192,7 @@ function Popover(props: {
         )}
       >
         <div className="overflow-hidden min-h-0">
-          <div className="pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+          <div className="pb-1 pt-1 text-[10px] font-medium text-muted-foreground">
             {translate(
               'auto.components.feature.wall.agents.orchestration.UsagePage.be5a165875',
               'Switch to'
@@ -239,7 +239,7 @@ function UsageBar(props: {
 }): JSX.Element {
   return (
     <div className="flex flex-col gap-1">
-      <div className="text-[12px] font-semibold">{props.title}</div>
+      <div className="text-[12px] font-medium">{props.title}</div>
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/[0.08]">
         <span
           className={cn(
@@ -274,7 +274,7 @@ function SwitchAccount(props: {
       <div className="flex min-w-0 items-center gap-1.5">
         <AccountNameSkeleton widthClassName={props.accountWidthClassName} />
         {props.tag ? (
-          <span className="shrink-0 rounded-full bg-foreground/[0.06] px-1.5 py-px text-[9.5px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+          <span className="shrink-0 rounded bg-foreground/[0.06] px-1.5 py-px text-[9.5px] font-medium text-muted-foreground">
             {props.tag}
           </span>
         ) : null}

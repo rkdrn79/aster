@@ -1,9 +1,10 @@
-import { exportToBlob, exportToSvg } from '@excalidraw/excalidraw'
+import { FONT_FAMILY, exportToBlob, exportToSvg } from '@excalidraw/excalidraw'
 import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import { toast } from 'sonner'
 import { copyImageToClipboard } from '@/lib/clipboard-image-copy'
 import { revealInFileManager } from '@/lib/reveal-in-file-manager'
 import { parseExecutionHostId } from '../../../../shared/execution-host'
+import { embedPaperFonts, registerPaperFonts } from './research-figure-paper-fonts'
 import {
   FIGURE_UNITS_PER_INCH,
   PAGE_FRAME_ID
@@ -76,7 +77,13 @@ export async function figurePngBlob(
 
 async function selectionSvg(api: ExcalidrawImperativeAPI, options: FigureExportOptions) {
   const input = imageInput(api, options)
-  return exportToSvg({ ...input, ...(await cropPhotosForExport(input.elements, input.files)) })
+  registerPaperFonts(FONT_FAMILY)
+  const svg = await exportToSvg({
+    ...input,
+    ...(await cropPhotosForExport(input.elements, input.files))
+  })
+  await embedPaperFonts(svg)
+  return svg
 }
 
 /**

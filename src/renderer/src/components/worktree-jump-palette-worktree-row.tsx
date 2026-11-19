@@ -111,7 +111,7 @@ export function WorktreeJumpPaletteWorktreeRow({
                   )}
                 </span>
               )}
-              <span className="truncate text-[14px] font-semibold text-foreground">
+              <span className="truncate text-[14px] font-medium text-foreground">
                 <HighlightedText text={worktreeLabel} matchRanges={entry.match.displayNameRanges} />
               </span>
               {sessionAge ? (
@@ -147,7 +147,7 @@ export function WorktreeJumpPaletteWorktreeRow({
             </div>
             {entry.match.supportingText && (
               <div className="mt-1.5 flex min-w-0 items-center gap-2 text-[12px] leading-5 text-muted-foreground/88">
-                <span className="inline-flex h-[18px] shrink-0 items-center rounded border border-border bg-foreground/[0.04] px-1.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <span className="inline-flex h-4 shrink-0 items-center rounded border border-border bg-foreground/[0.04] px-1.5 text-[10px] font-medium text-muted-foreground">
                   {getPaletteSupportingTextLabel(entry.match.supportingText.labelKind)}
                 </span>
                 <span className="truncate">
@@ -162,7 +162,7 @@ export function WorktreeJumpPaletteWorktreeRow({
           <div className="flex shrink-0 items-center gap-1.5">
             <PaletteHostBadgeChip badge={hostBadge} />
             {repoName && (
-              <span className="inline-flex max-w-[180px] items-center gap-1.5 rounded-md border border-border bg-muted px-2 py-1 text-[11px] font-semibold leading-none text-foreground">
+              <span className="inline-flex max-w-[180px] items-center gap-1.5 rounded-md border border-border bg-muted px-2 py-1 text-[11px] font-medium leading-none text-foreground">
                 <RepoBadgeMark color={repo?.badgeColor} />
                 <span className="truncate">
                   <HighlightedText text={repoName} matchRanges={entry.match.repoRanges} />

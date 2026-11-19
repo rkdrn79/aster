@@ -22,7 +22,7 @@ export function ResearchExperimentWorkspaceRunFindings({
     <ul aria-label={`Open problems for ${run.name}`} className="space-y-1 text-xs">
       {findings.slice(0, SHOWN).map((finding) => (
         <li key={finding.id} className="flex min-w-0 items-baseline gap-2">
-          <span className="flex w-1.5 shrink-0 translate-y-[-1px] items-center">
+          <span className="flex w-2 shrink-0 -translate-y-px items-center">
             <NotebookSeverityMarker severity={finding.severity} />
           </span>
           <span
@@ -34,7 +34,7 @@ export function ResearchExperimentWorkspaceRunFindings({
         </li>
       ))}
       {hidden > 0 ? (
-        <li className="pl-3.5 text-muted-foreground">{hidden} more in the notebook</li>
+        <li className="pl-4 text-muted-foreground">{hidden} more in the notebook</li>
       ) : null}
     </ul>
   )

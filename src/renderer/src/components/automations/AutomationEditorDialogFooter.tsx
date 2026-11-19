@@ -1,4 +1,3 @@
-import { Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { translate } from '@/i18n/i18n'
 
@@ -20,15 +19,14 @@ export function AutomationEditorDialogFooter({
   onSave
 }: AutomationEditorDialogFooterProps): React.JSX.Element {
   const saveLabel = isEditing
-    ? translate('auto.components.automations.AutomationEditorDialog.777548c2d6', 'Save Changes')
+    ? translate('auto.components.automations.AutomationEditorDialog.777548c2d6', 'Save changes')
     : isSaving
       ? translate('auto.components.automations.AutomationEditorDialog.a9d9dccf77', 'Save')
       : translate('auto.components.automations.AutomationEditorDialog.e46c1aa9ad', 'Create')
 
   return (
     <div className="flex items-center justify-between gap-3 border-t border-border/50 px-5 py-3">
-      <p className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-        <Sparkles className="size-3.5 shrink-0" />
+      <p className="flex min-w-0 items-center text-xs text-muted-foreground">
         <span className="truncate">
           {translate(
             'auto.components.automations.AutomationEditorDialog.e8c2a14f70',

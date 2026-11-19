@@ -103,7 +103,7 @@ export function NotificationSoundSection({
           <Label>
             {translate(
               'auto.components.settings.NotificationsPane.88686e6ca8',
-              'Notification Sound'
+              'Notification sound'
             )}
           </Label>
         </div>
@@ -144,11 +144,11 @@ export function NotificationSoundSection({
               {notificationSettings.customSoundPath
                 ? translate(
                     'auto.components.settings.NotificationsPane.76e02467b8',
-                    'Change Custom File'
+                    'Change custom file'
                   )
                 : translate(
                     'auto.components.settings.NotificationsPane.6e6df3a09a',
-                    'Choose Custom File'
+                    'Choose custom file'
                   )}
             </span>
           </SelectItem>

@@ -578,7 +578,7 @@ describe('NativeChatStructuredSession', () => {
     }
     expect(mocks.composerProps?.isWorking).toBe(true)
     // Dimmed monitor amber is the turn-owns-the-voice treatment.
-    expect(status.querySelector('.lucide-activity')?.classList).toContain('text-yellow-500/40')
+    expect(status.querySelector('.lucide-activity')?.classList).toContain('text-status-warning/40')
     fireEvent.click(screen.getByRole('button', { name: '1 monitor — monitoring' }))
     expect(screen.getByText('watcher')).toBeTruthy()
   })

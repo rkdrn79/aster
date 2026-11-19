@@ -89,7 +89,7 @@ export function TaskPageGitHubList({
         <div
           // Why: z-40 must beat the rows' sticky left cells (z-20); this stacking context's z sets the whole header's level.
           className={cn(
-            'sticky top-0 z-40 grid h-8 gap-3 border-b border-border/50 px-3 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground [&>span]:flex [&>span]:items-center',
+            'sticky top-0 z-40 grid h-8 gap-3 border-b border-border/50 px-3 text-[11px] font-medium text-muted-foreground [&>span]:flex [&>span]:items-center',
             GITHUB_TASK_HEADER_SURFACE_CLASS,
             githubTaskGridClass
           )}

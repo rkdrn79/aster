@@ -131,13 +131,13 @@ export function SourceControlEntryContextMenu({
         <ContextMenuSeparator />
         <ContextMenuItem onSelect={handleCopyPath} disabled={!absolutePath}>
           <Copy className="size-3.5" />
-          {translate('auto.components.right.sidebar.FileExplorerRow.b5d436aa30', 'Copy Path')}
+          {translate('auto.components.right.sidebar.FileExplorerRow.b5d436aa30', 'Copy path')}
         </ContextMenuItem>
         <ContextMenuItem onSelect={handleCopyRelativePath} disabled={!relativePath}>
           <Copy className="size-3.5" />
           {translate(
             'auto.components.right.sidebar.FileExplorerRow.66a29dde82',
-            'Copy Relative Path'
+            'Copy relative path'
           )}
         </ContextMenuItem>
         <ContextMenuSeparator />

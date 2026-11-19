@@ -40,7 +40,7 @@ it('offers GitHub release checks without promising automatic installation', () =
   useAppStore.setState({ updateStatus: { state: 'idle' } })
   render(<GeneralUpdateSettingsSection />)
 
-  expect(screen.getByRole('button', { name: 'Check for Updates' }).hasAttribute('disabled')).toBe(
+  expect(screen.getByRole('button', { name: 'Check for updates' }).hasAttribute('disabled')).toBe(
     false
   )
   expect(screen.getByText(/Aster checks GitHub Releases on launch/)).toBeTruthy()
@@ -66,8 +66,8 @@ it('offers the manual DMG when a GitHub release is available', () => {
 it('describes the available action as a download', () => {
   render(<GeneralUpdateSettingsSection />)
 
-  expect(screen.getByRole('button', { name: 'Download Update (1.4.200)' })).toBeTruthy()
-  expect(screen.getByText(/is available\. Click "Download Update" to download it\./)).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Download update (1.4.200)' })).toBeTruthy()
+  expect(screen.getByText(/is available\. Click "Download update" to download it\./)).toBeTruthy()
   expect(screen.queryByText(/download and install it/)).toBeNull()
 })
 
@@ -82,7 +82,7 @@ it('retries installation from the settings panel when a staged update is blocked
   })
   render(<GeneralUpdateSettingsSection />)
 
-  fireEvent.click(screen.getByRole('button', { name: 'Try Again' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
   expect(quitAndInstall).toHaveBeenCalledTimes(1)
 })
 
@@ -99,7 +99,7 @@ it.each([undefined, false] as const)(
     })
     render(<GeneralUpdateSettingsSection />)
 
-    expect(screen.queryByRole('button', { name: 'Try Again' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull()
     expect(quitAndInstall).not.toHaveBeenCalled()
   }
 )
@@ -117,7 +117,7 @@ it('gives actionable server guidance while keeping the install retry', () => {
   render(<GeneralUpdateSettingsSection />)
   expect(screen.getByText(/Stop the server from the terminal/)).toBeTruthy()
   expect(screen.queryByText(/Raw process listing/)).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Try Again' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
   expect(quitAndInstall).toHaveBeenCalledOnce()
 })
 
@@ -126,6 +126,6 @@ it('disables the restart button during preparation', () => {
     updateStatus: { state: 'downloaded', version: '1.4.200', installing: true }
   })
   render(<GeneralUpdateSettingsSection />)
-  const button = screen.getByRole('button', { name: 'Restart to Update (1.4.200)' })
+  const button = screen.getByRole('button', { name: 'Restart to update (1.4.200)' })
   expect(button.hasAttribute('disabled')).toBe(true)
 })

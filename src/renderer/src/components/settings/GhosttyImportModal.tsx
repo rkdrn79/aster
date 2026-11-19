@@ -166,7 +166,7 @@ export function GhosttyImportModal({
                 <Button onClick={() => void onApply()}>
                   {translate(
                     'auto.components.settings.GhosttyImportModal.9d3e56ca36',
-                    'Apply Changes'
+                    'Apply changes'
                   )}
                 </Button>
               )}

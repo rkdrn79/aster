@@ -78,3 +78,19 @@ export function parseCrossrefWork(json: unknown): DoiPaperMetadata | null {
     url: work.URL && /^https?:\/\//i.test(work.URL) ? work.URL : null
   }
 }
+
+const crossrefSearchSchema = z.object({
+  message: z.object({ items: z.array(z.unknown()).catch([]) })
+})
+
+/** Crossref's `/works?query…` reply as paper details, best match first. */
+export function parseCrossrefSearch(json: unknown): DoiPaperMetadata[] {
+  const parsed = crossrefSearchSchema.safeParse(json)
+  if (!parsed.success) {
+    return []
+  }
+  return parsed.data.message.items.flatMap((item) => {
+    const paper = parseCrossrefWork({ message: item })
+    return paper ? [paper] : []
+  })
+}

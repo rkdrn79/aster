@@ -24,7 +24,7 @@ export const getArtifactsSettingsSearchEntries = createLocalizedCatalog(() => [
     ]
   },
   {
-    title: translate('auto.components.settings.artifacts.showButton', 'Show Artifacts Button'),
+    title: translate('auto.components.settings.artifacts.showButton', 'Show Artifacts button'),
     description: translate(
       'auto.components.settings.artifacts.showButtonDescription',
       'Show the Artifacts shortcut in the sidebar.'

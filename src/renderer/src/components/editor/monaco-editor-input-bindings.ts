@@ -84,7 +84,7 @@ export function installMonacoEditorInputBindings(params: MonacoEditorInputBindin
   })
   const searchInFilesAction = editorInstance.addAction({
     id: 'orca.searchInFiles',
-    label: translate('auto.components.editor.MonacoEditor.fd68ae03b3', 'Search in Files'),
+    label: translate('auto.components.editor.MonacoEditor.fd68ae03b3', 'Search in files'),
     contextMenuGroupId: 'navigation',
     contextMenuOrder: 2,
     run: () => {

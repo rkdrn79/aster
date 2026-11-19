@@ -90,7 +90,7 @@ export function BranchEntryRow({
         )}
         <DiffLineCounts added={entry.added} removed={entry.removed} />
         <span
-          className="w-4 shrink-0 text-center text-[10px] font-bold"
+          className="w-4 shrink-0 text-center text-[10px] font-medium"
           style={{ color: STATUS_COLORS[entry.status] }}
         >
           {STATUS_LABELS[entry.status]}

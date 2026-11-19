@@ -21,7 +21,7 @@ export function ShortcutTerminalPolicyControl({
       id="terminal-shortcut-policy"
       title={translate(
         'auto.components.settings.ShortcutTerminalPolicyControl.c3a554288e',
-        'Shortcuts in Terminal'
+        'Shortcuts in terminal'
       )}
       description={translate(
         'auto.components.settings.ShortcutTerminalPolicyControl.0f55c6f15c',
@@ -33,7 +33,7 @@ export function ShortcutTerminalPolicyControl({
       <SettingsRow
         label={translate(
           'auto.components.settings.ShortcutTerminalPolicyControl.c3a554288e',
-          'Shortcuts in Terminal'
+          'Shortcuts in terminal'
         )}
         description={translate(
           'auto.components.settings.ShortcutTerminalPolicyControl.c43c7ff5f9',

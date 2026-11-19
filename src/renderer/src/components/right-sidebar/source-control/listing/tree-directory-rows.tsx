@@ -50,7 +50,7 @@ function SourceControlTreeDirectoryHeader({
         )}
         <span className="min-w-0 flex-1 truncate">{node.name}</span>
       </button>
-      <span className="w-4 shrink-0 text-center text-[10px] font-bold tabular-nums text-muted-foreground/80">
+      <span className="w-4 shrink-0 text-center text-[10px] font-medium tabular-nums text-muted-foreground/80">
         {node.fileCount}
       </span>
       {children}

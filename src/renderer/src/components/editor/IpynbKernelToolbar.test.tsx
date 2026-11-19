@@ -56,7 +56,7 @@ describe('kernel picker trust', () => {
     })
     renderToolbar(file)
 
-    togglePicker('Select Kernel')
+    togglePicker('Select kernel')
     await screen.findByText('/repo/.venv/bin/python')
     expect(listPythonEnvironments).toHaveBeenLastCalledWith({
       filePath: file,

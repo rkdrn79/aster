@@ -71,7 +71,7 @@ export function WorktreeJumpPaletteSurface({
         ref={controller.inputRef}
         placeholder={translate(
           'auto.components.WorktreeJumpPalette.27f10cca63',
-          'Search chats, terminals, workspaces, tasks, settings, and actions...'
+          'Search chats, terminals, workspaces, tasks, settings, and actions'
         )}
         value={controller.query}
         onValueChange={controller.emojiInput.handleValueChange}

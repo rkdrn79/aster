@@ -151,7 +151,7 @@ const PERMISSIONS: PermissionDefinition[] = [
     get actionLabel() {
       return translate(
         'auto.components.settings.DeveloperPermissionsPane.actionTriggerPrompt',
-        'Trigger Prompt'
+        'Trigger prompt'
       )
     },
     icon: <Workflow className="size-4" />
@@ -161,7 +161,7 @@ const PERMISSIONS: PermissionDefinition[] = [
     get label() {
       return translate(
         'auto.components.settings.DeveloperPermissionsPane.e7bb06007c',
-        'Local Network'
+        'Local network'
       )
     },
     get description() {
@@ -173,7 +173,7 @@ const PERMISSIONS: PermissionDefinition[] = [
     get actionLabel() {
       return translate(
         'auto.components.settings.DeveloperPermissionsPane.actionRequestAccess',
-        'Request Access'
+        'Request access'
       )
     },
     icon: <Network className="size-4" />
@@ -183,7 +183,7 @@ const PERMISSIONS: PermissionDefinition[] = [
     get label() {
       return translate(
         'auto.components.settings.DeveloperPermissionsPane.bf51e4a542',
-        'USB Devices'
+        'USB devices'
       )
     },
     get description() {
@@ -359,7 +359,7 @@ export function DeveloperPermissionsPane({
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium">{permission.label}</span>
                       <span
-                        className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${developerPermissionStatusClass(
+                        className={`rounded border px-1.5 py-0.5 text-[11px] font-medium ${developerPermissionStatusClass(
                           status
                         )}`}
                       >

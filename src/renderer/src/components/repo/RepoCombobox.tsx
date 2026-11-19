@@ -36,7 +36,7 @@ export default function RepoCombobox({
   value,
   onValueChange,
   onValueSelected,
-  placeholder = 'Select repo...',
+  placeholder = 'Select repo',
   triggerClassName,
   autoOpenOnMount = false,
   showStandaloneAddButton = true,
@@ -233,7 +233,7 @@ export default function RepoCombobox({
               ref={setInputNode}
               placeholder={translate(
                 'auto.components.repo.RepoCombobox.a0c48f5f29',
-                'Search projects/folders...'
+                'Search projects/folders'
               )}
               value={query}
               onValueChange={setQuery}

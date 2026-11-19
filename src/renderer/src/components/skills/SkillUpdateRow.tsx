@@ -182,7 +182,7 @@ export function SkillUpdateRow({
         </p>
       ) : null}
 
-      <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+      <CollapsibleContent className="overflow-hidden">
         <div className="flex flex-col gap-2 px-1.5 pb-2 pt-0.5">
           {group.locations.map((location) => (
             <div key={location.id} className="flex min-w-0 items-center gap-2">

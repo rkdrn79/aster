@@ -61,7 +61,7 @@ export function ResearchRebuttalNewDialog({
           </DialogDescription>
         </DialogHeader>
         <form id="rebuttal-new-form" className="space-y-3" onSubmit={(event) => void submit(event)}>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <Label htmlFor="rebuttal-new-name">Name</Label>
             <Input
               id="rebuttal-new-name"
@@ -73,7 +73,7 @@ export function ResearchRebuttalNewDialog({
             />
           </div>
           <div className="grid grid-cols-[1fr_8rem] gap-3">
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="rebuttal-new-venue">Venue</Label>
               <Input
                 id="rebuttal-new-venue"
@@ -83,7 +83,7 @@ export function ResearchRebuttalNewDialog({
                 onChange={(event) => setVenue(event.target.value)}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <Label htmlFor="rebuttal-new-limit">Reply limit</Label>
               <Input
                 id="rebuttal-new-limit"

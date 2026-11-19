@@ -39,7 +39,7 @@ export function LinuxPackageInstallRecoveryCard({
   // be resolved per render — at module scope they would freeze the whole card in English.
   const TITLE = translate(
     'auto.components.LinuxPackageInstallRecoveryCard.53e1559f99',
-    'Manual Install Required'
+    'Manual install required'
   )
   const SUMMARY = translate(
     'auto.components.LinuxPackageInstallRecoveryCard.a7ac6ec78b',
@@ -142,7 +142,7 @@ export function LinuxPackageInstallRecoveryCard({
   const copyAction = {
     label: translate(
       'auto.components.LinuxPackageInstallRecoveryCard.55c86654b7',
-      'Copy Install Command'
+      'Copy install command'
     ),
     pendingLabel: CHECKING_LABEL,
     isPending: pendingAction === 'copy',
@@ -150,7 +150,7 @@ export function LinuxPackageInstallRecoveryCard({
     onClick: handleCopyCommand
   }
   const showAction = {
-    label: translate('auto.components.LinuxPackageInstallRecoveryCard.e3de29c86a', 'Show Package'),
+    label: translate('auto.components.LinuxPackageInstallRecoveryCard.e3de29c86a', 'Show package'),
     pendingLabel: CHECKING_LABEL,
     isPending: pendingAction === 'show',
     disabled: pendingAction !== null,
@@ -158,7 +158,7 @@ export function LinuxPackageInstallRecoveryCard({
   }
   const officialReleaseAction = releaseUrl
     ? {
-        label: translate('auto.components.UpdateCard.47126bcf57', 'Download Manually'),
+        label: translate('auto.components.UpdateCard.47126bcf57', 'Download manually'),
         onClick: () => {
           setActionError(null)
           void window.api.shell.openUrl(releaseUrl).catch((error: unknown) => {

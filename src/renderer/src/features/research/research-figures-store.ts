@@ -10,12 +10,19 @@ import {
 import {
   figureWorkFolder,
   type FigureListing,
-  type FigurePublication,
-  type ListedFigure
+  type FigurePublication
 } from '../../../../research-harness/research-figures-locations.mjs'
 import { figureFileText } from './research-figure-document'
 import { withFigureTitle } from './research-figure-list-model'
 import { ensureFigureWorkFolder, readFigureListing } from './research-figure-listing'
+import {
+  firstSelection,
+  listedPlot,
+  parseFigureSelection,
+  stillListed,
+  type FigureSelection
+} from './research-figure-selection'
+import type { FigureTarget } from './research-figures-export'
 import {
   ProjectWriteConflict,
   projectOwnerKey,
@@ -24,7 +31,14 @@ import {
   type ProjectFileOwner
 } from './research-project-files'
 
-export type FigureSelection = { kind: 'figure'; slug: string } | { kind: 'file'; name: string }
+export {
+  firstSelection,
+  listedFigure,
+  listedPlot,
+  parseFigureSelection,
+  stillListed,
+  type FigureSelection
+} from './research-figure-selection'
 
 type FiguresState = {
   ownerKey: string | null
@@ -47,7 +61,7 @@ type FiguresState = {
   error: string | null
 }
 
-const EMPTY_LISTING: FigureListing = { figures: [], others: [], shadowed: [] }
+const EMPTY_LISTING: FigureListing = { figures: [], plots: [], others: [], shadowed: [] }
 const INITIAL: FiguresState = {
   ownerKey: null,
   owner: null,
@@ -77,20 +91,9 @@ function errorText(error: unknown): string {
 function readRemembered(ownerKey: string): FigureSelection | null {
   try {
     const saved: unknown = JSON.parse(localStorage.getItem(SELECTED_KEY) ?? '{}')
-    const entry: unknown = saved && typeof saved === 'object' ? Reflect.get(saved, ownerKey) : null
-    if (!entry || typeof entry !== 'object') {
-      return null
-    }
-    const kind: unknown = Reflect.get(entry, 'kind')
-    const value: unknown = Reflect.get(entry, kind === 'figure' ? 'slug' : 'name')
-    if (typeof value !== 'string') {
-      return null
-    }
-    return kind === 'figure'
-      ? { kind, slug: value }
-      : kind === 'file'
-        ? { kind, name: value }
-        : null
+    return parseFigureSelection(
+      saved && typeof saved === 'object' ? Reflect.get(saved, ownerKey) : null
+    )
   } catch {
     return null
   }
@@ -104,28 +107,6 @@ function remember(ownerKey: string, selection: FigureSelection): void {
   } catch {
     // Why: without storage the page opens the first figure next time.
   }
-}
-
-function stillListed(listing: FigureListing, selection: FigureSelection | null) {
-  if (!selection) {
-    return false
-  }
-  return selection.kind === 'figure'
-    ? listing.figures.some((figure) => figure.slug === selection.slug)
-    : listing.others.some((entry) => entry.name === selection.name)
-}
-
-function firstSelection(listing: FigureListing): FigureSelection | null {
-  return listing.figures[0]
-    ? { kind: 'figure', slug: listing.figures[0].slug }
-    : listing.others[0]
-      ? { kind: 'file', name: listing.others[0].name }
-      : null
-}
-
-/** The listed figure with this name: where it lives and what files it has. */
-export function listedFigure(listing: FigureListing, slug: string): ListedFigure | null {
-  return listing.figures.find((figure) => figure.slug === slug) ?? null
 }
 
 /** Lists the project's figures (working folder and manuscript's) and opens the last or the first. */
@@ -191,14 +172,77 @@ export function selectFigure(
   }
 }
 
-/** The figure a project shows, or remembers from last time; null when it has none open. */
+/**
+ * The figure or plot a project shows, or remembers from last time (whose chat the Figure agent
+ * uses); null when it has neither open.
+ */
 export function openFigureSlug(
   owner: Pick<ProjectFileOwner, 'hostId' | 'workspaceId'>
 ): string | null {
   const ownerKey = projectOwnerKey(owner)
   const state = useResearchFigures.getState()
   const selection = state.ownerKey === ownerKey ? state.selected : readRemembered(ownerKey)
-  return selection?.kind === 'figure' ? selection.slug : null
+  return selection?.kind === 'figure' || selection?.kind === 'plot' ? selection.slug : null
+}
+
+/** The plot this project's page shows, as the target of an agent turn; null when none is open. */
+export function openPlotTarget(
+  scope: Pick<ProjectFileOwner, 'hostId' | 'workspaceId'>
+): FigureTarget | null {
+  const { owner, ownerKey, selected, listing } = useResearchFigures.getState()
+  if (!owner || ownerKey !== projectOwnerKey(scope) || selected?.kind !== 'plot') {
+    return null
+  }
+  const plot = listedPlot(listing, selected.slug)
+  return plot ? { owner, folder: plot.folder, slug: plot.slug } : null
+}
+
+// Why bounded: a plot the agent writes much later must not take the page from what is open then.
+const EXPECT_MS = 10 * 60_000
+let expected: {
+  ownerKey: string
+  selection: FigureSelection
+  /** What was open when it was asked for; another pick since cancels the switch. */
+  from: string
+  until: number
+} | null = null
+
+/**
+ * Opens a figure or plot as soon as the list has it (a new plot is listed once the agent writes its
+ * script), unless the person opened something else meanwhile.
+ */
+export function expectFigureSelection(
+  owner: Pick<ProjectFileOwner, 'hostId' | 'workspaceId'>,
+  selection: FigureSelection
+): void {
+  expected = {
+    ownerKey: projectOwnerKey(owner),
+    selection,
+    from: JSON.stringify(useResearchFigures.getState().selected),
+    until: Date.now() + EXPECT_MS
+  }
+}
+
+/** The expected selection, once listed and still wanted; it is used up when returned. */
+function takeExpected(
+  ownerKey: string,
+  listing: FigureListing,
+  current: FigureSelection | null
+): FigureSelection | null {
+  if (!expected || expected.ownerKey !== ownerKey) {
+    return null
+  }
+  if (Date.now() > expected.until || JSON.stringify(current) !== expected.from) {
+    expected = null
+    return null
+  }
+  if (!stillListed(listing, expected.selection)) {
+    return null
+  }
+  const { selection } = expected
+  expected = null
+  remember(ownerKey, selection)
+  return selection
 }
 
 /** Picks up figures an agent or a plot script added, renamed or rewrote. */
@@ -225,14 +269,17 @@ export async function refreshFigureList(owner: ProjectFileOwner): Promise<void> 
   ) {
     return
   }
+  const wanted = takeExpected(projectOwnerKey(owner), next.listing, current.selected)
   useResearchFigures.setState({
     ...next,
     // Why: a figure deleted or renamed elsewhere leaves the first one open, not a missing file.
-    selected: stillListed(next.listing, current.selected)
-      ? current.selected
-      : stillListed(next.listing, selected)
-        ? selected
-        : firstSelection(next.listing)
+    selected:
+      wanted ??
+      (stillListed(next.listing, current.selected)
+        ? current.selected
+        : stillListed(next.listing, selected)
+          ? selected
+          : firstSelection(next.listing))
   })
 }
 

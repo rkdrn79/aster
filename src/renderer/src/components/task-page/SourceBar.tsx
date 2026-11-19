@@ -75,7 +75,7 @@ export function TaskPageSourceBar({
             <Button
               variant="ghost"
               size="icon"
-              className="size-7 rounded-full"
+              className="size-7"
               onClick={closeTaskPage}
               aria-label={translate('auto.components.TaskPage.1a06219d5c', 'Close tasks')}
             >
@@ -125,7 +125,7 @@ export function TaskPageSourceBar({
                   aria-label={sourceAvailabilityNotice?.label ?? source.label}
                   aria-pressed={active}
                   className={cn(
-                    'group flex h-8 w-8 items-center justify-center rounded-md border transition',
+                    'group flex h-8 w-8 items-center justify-center rounded-md border transition-colors',
                     active
                       ? 'border-foreground/40 bg-muted/70 text-foreground shadow-sm'
                       : 'border-border/40 bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-foreground',

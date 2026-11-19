@@ -18,9 +18,11 @@ import {
   type FiguresAgentScope
 } from './research-figures-agent-session'
 import { attachFigureTurnSession, beginFigureTurn, failFigureTurn } from './research-figure-turn'
+import { warmFigureCritic } from './research-figure-critic'
 import type { FigureTarget } from './research-figures-export'
 import { openFigureSlug } from './research-figures-store'
 import { projectAbsolutePath, type ProjectFileOwner } from './research-project-files'
+import { currentFigurePromptModes } from './research-figure-reference-library'
 
 /** How a new figure starts; everything but Blank asks the Figure agent right after creating it. */
 export type FigureStart = 'blank' | 'describe' | 'method' | 'template' | 'image' | 'plot'
@@ -55,12 +57,16 @@ export function newFigurePromptContext(input: {
       slug,
       scenePath: projectAbsolutePath(owner, figureFilePaths(folder, slug).scene),
       page: figurePage(newFigureScene(input.size).elements)
-    }
+    },
+    modes: currentFigurePromptModes(owner)
   }
 }
 
-/** The figure a request is about, as it was just before the send ("before send"). */
-export type FigureSendTrack = { target: FigureTarget; beforeText: string | null }
+/**
+ * The figure a request is about, as it was just before the send ("before send"); for a plot, its
+ * files are read from disk instead.
+ */
+export type FigureSendTrack = { target: FigureTarget; beforeText: string | null; plot?: boolean }
 
 /**
  * Sends a request as one tracked turn to its figure's own chat, like the quick actions: "before
@@ -74,6 +80,7 @@ async function sendTracked(
 ): Promise<string | null> {
   const id = beginFigureTurn({
     target: track?.target ?? null,
+    plot: track?.plot ?? false,
     request: input.request,
     prompt: input.prompt,
     scope,
@@ -98,7 +105,8 @@ export async function sendFigureChatText(
 ): Promise<string | null> {
   const message = buildFigureMessageContext(context)
   // Why the open figure last: its canvas may not be ready yet, and the chat is still its own.
-  const slug = track?.target.slug ?? context.figure?.slug ?? openFigureSlug(scope)
+  const slug =
+    track?.target.slug ?? context.figure?.slug ?? context.plot?.slug ?? openFigureSlug(scope)
   const sessionId = await openFigureChatSession(scope, slug)
   const prompt = sessionId
     ? withFigureMessageContext(sessionId, text, message)
@@ -117,12 +125,44 @@ function templatePrompt(context: FigurePromptContext, template: string): string 
   })
 }
 
+/**
+ * The New figure dialog's plot start: the person's words (or Plot from Runs without them), and
+ * the slug and size they chose, so the agent makes exactly that plot.
+ */
+export function plotStartPrompt(
+  prompt: string,
+  plot: { slug: string | null; words: string; size: string | null }
+): string {
+  const visible = plot.words ? 'Plot a distribution or trajectory.' : 'Plot results from the Runs.'
+  const make = plot.slug
+    ? ` Make it as the plot ${plot.slug}: \`node H/cli.mjs figures plot new --name "${plot.slug}" --slug ${plot.slug} --kind <kind>${plot.size ? ` --size ${plot.size}` : ''}\`.`
+    : ''
+  return prompt.replace(visible, `${plot.words ? `Plot: ${plot.words}` : visible}${make}`)
+}
+
 /** Asks the agent for the start the person picked; null once sent, else what went wrong. */
-export function sendFigureStart(
+export async function sendFigureStart(
   scope: FiguresAgentScope,
   context: FigurePromptContext,
   start: { kind: FigureStart; description: string; template: string },
-  /** The new figure; null for a plot, which is no drawing. */
+  /** The new figure, or the new plot (whose chat and History its slug keys). */
+  track: FigureSendTrack | null = null
+): Promise<string | null> {
+  const failure = await sendStart(scope, context, start, track)
+  if (
+    !failure &&
+    (start.kind === 'method' || start.kind === 'describe' || start.kind === 'template')
+  ) {
+    warmFigureCritic(scope, track?.plot ? null : (track?.target ?? null))
+  }
+  return failure
+}
+
+function sendStart(
+  scope: FiguresAgentScope,
+  context: FigurePromptContext,
+  start: { kind: FigureStart; description: string; template: string },
+  /** The new figure, or the new plot (whose chat and History its slug keys). */
   track: FigureSendTrack | null = null
 ): Promise<string | null> {
   const key = figureContextKey(context)
@@ -155,21 +195,20 @@ export function sendFigureStart(
         context.figure?.slug ?? null
       )
     case 'plot': {
-      const slug = context.figure?.slug
-      const prompt = buildFigureQuickPrompt({ ...context, figure: null }, 'plot')
+      const slug = track?.target.slug ?? context.figure?.slug ?? null
+      const page = context.figure?.page ?? null
+      const words = start.description.trim()
       return sendTracked(
         scope,
         {
-          request: 'Plot from Runs',
-          prompt: slug
-            ? prompt.replace(
-                'Plot results from the Runs.',
-                `Plot results from the Runs as ${slug}.py and ${slug}.pdf.`
-              )
-            : prompt
+          request: words ? `Plot: ${words}` : 'Plot from Runs',
+          prompt: plotStartPrompt(
+            buildFigureQuickPrompt({ ...context, figure: null }, words ? 'plot-dist' : 'plot'),
+            { slug, words, size: page ? `${page.widthIn}x${page.heightIn}` : null }
+          )
         },
-        null,
-        null
+        track,
+        slug
       )
     }
   }

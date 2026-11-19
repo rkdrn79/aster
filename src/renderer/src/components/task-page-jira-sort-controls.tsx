@@ -52,7 +52,7 @@ export function TaskPageJiraSortControls({
 
   return (
     <>
-      <div className="sticky top-0 z-10 grid h-8 flex-none grid-cols-(--jira-cols-md) @3xl:min-w-(--jira-min-md) items-center gap-3 border-b border-border/50 bg-background px-3 text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground @max-3xl:!hidden @5xl:grid-cols-(--jira-cols-lg) @5xl:min-w-(--jira-min-lg) @7xl:grid-cols-(--jira-cols-xl) @7xl:min-w-(--jira-min-xl)">
+      <div className="sticky top-0 z-10 grid h-8 flex-none grid-cols-(--jira-cols-md) @3xl:min-w-(--jira-min-md) items-center gap-3 border-b border-border/50 bg-background px-3 text-[11px] font-medium text-muted-foreground @max-3xl:!hidden @5xl:grid-cols-(--jira-cols-lg) @5xl:min-w-(--jira-min-lg) @7xl:grid-cols-(--jira-cols-xl) @7xl:min-w-(--jira-min-xl)">
         {columns.map((column) => (
           <button
             key={column.id}
@@ -61,7 +61,7 @@ export function TaskPageJiraSortControls({
             aria-label={orderBy === column.id ? `${column.label}, ${directionLabel}` : column.label}
             aria-pressed={orderBy === column.id}
             className={cn(
-              'flex items-center gap-1 rounded-sm text-left text-[11px] font-semibold tracking-[0.08em] uppercase select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none',
+              'flex items-center gap-1 rounded-sm text-left text-[11px] font-medium select-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none',
               (column.id === 'storyPoints' ||
                 column.id === 'originalEstimate' ||
                 column.id === 'remainingEstimate') &&
@@ -85,7 +85,7 @@ export function TaskPageJiraSortControls({
         data-testid="jira-mobile-sort-controls"
         className="hidden h-10 flex-none items-center gap-2 border-b border-border/50 bg-background px-3 @max-3xl:!flex"
       >
-        <span className="shrink-0 text-[11px] font-semibold tracking-[0.05em] text-muted-foreground uppercase">
+        <span className="shrink-0 text-[11px] font-medium text-muted-foreground">
           {sortByLabel}
         </span>
         <Select

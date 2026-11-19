@@ -24,7 +24,7 @@ function ResearchFigurePartsTab({
   if (!handle || !project || !context.slug) {
     return (
       <p className="p-6 text-center text-xs text-muted-foreground">
-        Open a figure to insert blocks, icons and templates.
+        Open a figure to insert blocks, icons and templates
       </p>
     )
   }

@@ -157,7 +157,7 @@ const NonGitFolderDialog = React.memo(function NonGitFolderDialog() {
       <DialogContent className="max-w-sm sm:max-w-sm" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="text-sm">
-            {translate('auto.components.sidebar.NonGitFolderDialog.e52454b7f6', 'Open as Folder')}
+            {translate('auto.components.sidebar.NonGitFolderDialog.e52454b7f6', 'Open as folder')}
           </DialogTitle>
           <DialogDescription className="text-xs">
             {translate(
@@ -179,7 +179,7 @@ const NonGitFolderDialog = React.memo(function NonGitFolderDialog() {
             {translate('auto.components.sidebar.NonGitFolderDialog.05b33a17a9', 'Cancel')}
           </Button>
           <Button onClick={handleConfirm}>
-            {translate('auto.components.sidebar.NonGitFolderDialog.e52454b7f6', 'Open as Folder')}
+            {translate('auto.components.sidebar.NonGitFolderDialog.e52454b7f6', 'Open as folder')}
           </Button>
         </DialogFooter>
       </DialogContent>

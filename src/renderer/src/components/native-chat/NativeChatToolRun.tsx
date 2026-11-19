@@ -1,9 +1,10 @@
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NativeChatExpandable } from './NativeChatExpandable'
 import { useNativeChatDisclosure } from './native-chat-disclosure-store'
 import { Check } from 'lucide-react'
+import { AnimatedCheck } from '@/components/ui/animated-check'
 import { cn } from '@/lib/utils'
 import { translate } from '@/i18n/i18n'
 import {
@@ -166,6 +167,13 @@ export function NativeChatToolRun({
     activeTurnIsWorking === true && !askIsActive
       ? trailing !== false
       : selectActiveToolCall(headerBlocks, { activeTurnIsWorking }) !== null
+  // The done mark draws itself only for a run that settled while shown; one that was already
+  // settled when it scrolled into view just shows its check.
+  const [wasLive, setWasLive] = useState(live)
+  if (live && !wasLive) {
+    setWasLive(true)
+  }
+  const settledHere = !live && wasLive
   // One sentence for the whole run, or the command itself when the run is one
   // call — the reader recognizes `git push` faster than "Ran 1 command".
   const runSentence = nativeChatToolRunSentence(headerBlocks, { live })
@@ -229,7 +237,7 @@ export function NativeChatToolRun({
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="group/tool-run flex min-h-6 w-full items-start gap-1.5 rounded-md py-0.5 text-left text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+          className="group/tool-run flex min-h-7 w-full items-start gap-2 rounded-md py-0.5 text-left text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           aria-expanded={open}
           aria-live="polite"
           data-native-chat-tool-run-state={live ? 'live' : 'settled'}
@@ -247,7 +255,8 @@ export function NativeChatToolRun({
             className={cn(
               'min-w-0 line-clamp-2 whitespace-normal break-words text-sm leading-relaxed transition-colors',
               live
-                ? 'max-w-[72%] shrink-0 animate-pulse text-chat-foreground motion-reduce:animate-none'
+                ? // A step stronger while the calls run. Still: the turn's activity line carries the one sweep.
+                  'max-w-[72%] shrink-0 text-chat-foreground'
                 : 'min-w-0 text-chat-foreground-faint group-hover/tool-run:text-chat-foreground'
             )}
           >
@@ -261,8 +270,14 @@ export function NativeChatToolRun({
               and never while live: between two calls nothing is running, and a
               mark that appeared then would flash on every call. */}
           {!live && runSucceeded ? (
-            <span className="flex h-[1lh] shrink-0 items-center">
-              <Check aria-hidden className="size-3 shrink-0 text-chat-foreground-faint" />
+            <span data-native-chat-tool-run-done="" className="flex h-[1lh] shrink-0 items-center">
+              {settledHere ? (
+                <span className="flex shrink-0 text-chat-foreground-faint">
+                  <AnimatedCheck className="size-4" />
+                </span>
+              ) : (
+                <Check aria-hidden className="size-4 shrink-0 text-chat-foreground-faint" />
+              )}
             </span>
           ) : null}
           {latestCallLabel ? (

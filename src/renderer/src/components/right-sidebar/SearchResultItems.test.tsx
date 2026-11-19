@@ -43,7 +43,7 @@ function findBadgeText(node: unknown): string {
       typeof entry.type === 'string' &&
       entry.type === 'span' &&
       typeof entry.props.className === 'string' &&
-      entry.props.className.includes('rounded-full')
+      entry.props.className.includes('tabular-nums')
     ) {
       text = String(entry.props.children)
     }

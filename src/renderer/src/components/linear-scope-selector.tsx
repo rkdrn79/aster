@@ -259,7 +259,7 @@ export function LinearScopeSelector({
             autoFocus
             placeholder={translate(
               'auto.components.linear.scope.selector.89f6580dbf',
-              'Search teams...'
+              'Search teams'
             )}
             value={query}
             onValueChange={setQuery}
@@ -268,7 +268,7 @@ export function LinearScopeSelector({
           <CommandList className="max-h-[360px] scrollbar-sleek">
             {workspaces.length > 1 ? (
               <div className="border-b border-border py-1">
-                <div className="px-3 pb-1 pt-1 text-[11px] font-medium uppercase text-muted-foreground">
+                <div className="px-3 pb-1 pt-1 text-[11px] font-medium text-muted-foreground">
                   {translate('auto.components.linear.scope.selector.05baa5ae90', 'Workspace')}
                 </div>
                 <CommandItem
@@ -314,7 +314,7 @@ export function LinearScopeSelector({
               </div>
             ) : null}
             <div className="border-b border-border py-1">
-              <div className="px-3 pb-1 pt-1 text-[11px] font-medium uppercase text-muted-foreground">
+              <div className="px-3 pb-1 pt-1 text-[11px] font-medium text-muted-foreground">
                 {translate('auto.components.linear.scope.selector.e1ae6bebb0', 'Teams')}
               </div>
               <CommandItem
@@ -390,7 +390,7 @@ export function LinearScopeSelector({
               closeSelector()
               onAddTeamAccess()
             }}
-            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-xs text-foreground transition hover:bg-accent hover:text-accent-foreground"
+            className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-xs text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
             <KeyRound className="size-3.5 text-muted-foreground" />
             <span>

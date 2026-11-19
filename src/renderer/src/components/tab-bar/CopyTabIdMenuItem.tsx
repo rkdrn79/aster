@@ -16,7 +16,7 @@ export function CopyTabIdMenuItem({ unifiedTabId }: { unifiedTabId: string }): R
   return (
     <DropdownMenuItem onSelect={() => void copyTabId()}>
       <Copy className="size-3.5" />
-      {translate('components.tab.bar.CopyTabIdMenuItem.copy', 'Copy Tab ID')}
+      {translate('components.tab.bar.CopyTabIdMenuItem.copy', 'Copy tab ID')}
     </DropdownMenuItem>
   )
 }

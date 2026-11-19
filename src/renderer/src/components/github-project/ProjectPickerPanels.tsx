@@ -16,9 +16,7 @@ export function ProjectPickerSection({
 }): React.JSX.Element {
   return (
     <div className="py-1">
-      <div className="px-2 pb-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-        {label}
-      </div>
+      <div className="px-2 pb-0.5 text-[10px] text-muted-foreground">{label}</div>
       {children}
     </div>
   )
@@ -107,10 +105,7 @@ export function ProjectViewPickStep({
           </div>
         ) : views.length === 0 ? (
           <div className="px-2 py-2 text-xs text-muted-foreground">
-            {translate(
-              'auto.components.github.project.ProjectPicker.9b36829267',
-              'No views found.'
-            )}
+            {translate('auto.components.github.project.ProjectPicker.9b36829267', 'No views found')}
           </div>
         ) : (
           views.map((view) => <ProjectViewPickerRow key={view.id} view={view} onPick={onPick} />)

@@ -60,18 +60,18 @@ it('clears failed detection, gates unresolved Start, and submits the displayed r
   const props = { open: true, request, onOpenChange: vi.fn() }
   mocks.detection.mockReturnValue({ ...detection, detectedIds: null, detectionFailed: true })
   const view = render(<AgentSessionContinuationDialog {...props} />, { wrapper: TooltipProvider })
-  expect(screen.getByText('Could not detect Agents on this workspace host.')).toBeTruthy()
+  expect(screen.getByText('Could not detect agents on this workspace host.')).toBeTruthy()
   mocks.detection.mockReturnValue({ ...detection, detectedIds: null, isLoading: true })
   view.rerender(<AgentSessionContinuationDialog {...props} request={{ ...request }} />)
-  expect(screen.queryByText('Could not detect Agents on this workspace host.')).toBeNull()
-  expect(screen.getByText('Detecting Agents on this workspace host…')).toBeTruthy()
-  fireEvent.click(screen.getByRole('button', { name: 'Start New Session' }))
+  expect(screen.queryByText('Could not detect agents on this workspace host.')).toBeNull()
+  expect(screen.getByText('Detecting agents on this workspace host…')).toBeTruthy()
+  fireEvent.click(screen.getByRole('button', { name: 'Start new session' }))
   expect(mocks.launch).not.toHaveBeenCalled()
   mocks.detection.mockReturnValue(detection)
   view.rerender(<AgentSessionContinuationDialog {...props} />)
   fireEvent.click(screen.getAllByRole('combobox')[0])
   fireEvent.click(screen.getByRole('option', { name: /Codex/ }))
-  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Start New Session' })))
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Start new session' })))
   expect(mocks.launch.mock.calls[0][0]).toMatchObject({
     initialCwd: '/repo/.',
     groupId: 'group-1',
@@ -83,7 +83,7 @@ it('clears failed detection, gates unresolved Start, and submits the displayed r
   view.rerender(<AgentSessionContinuationDialog {...props} open={false} />)
   view.rerender(<AgentSessionContinuationDialog {...props} />)
   expect(screen.getAllByRole('combobox')[0].textContent).not.toContain('(CLI)')
-  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Start New Session' })))
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Start new session' })))
   expect(mocks.launch.mock.calls.at(-1)?.[0].launchChoice.requestedSurface).toBeUndefined()
   view.rerender(
     <AgentSessionContinuationDialog
@@ -95,7 +95,7 @@ it('clears failed detection, gates unresolved Start, and submits the displayed r
   fireEvent.click(screen.getAllByRole('combobox')[0])
   expect(screen.getByText('No chat in a subfolder')).toBeTruthy()
   fireEvent.click(screen.getByRole('option', { name: 'Codex (CLI)' }))
-  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Start New Session' })))
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Start new session' })))
   expect(mocks.launch.mock.calls.at(-1)?.[0]).toMatchObject({
     initialCwd: '/repo/packages/app',
     launchChoice: { route: 'terminal-tui', requestedSurface: 'terminal' }

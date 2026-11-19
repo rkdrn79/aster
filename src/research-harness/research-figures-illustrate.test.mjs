@@ -87,6 +87,7 @@ test('the illustrative style: Nunito text, tinted rounded panels, coloured key p
 test('badges and icons are line art unless emoji is asked for', async () => {
   await withFigure(async (file) => {
     const fig = await openFigure(file)
+    fig.style(undefined, { look: 'preset' })
     fig.box({ id: 'enc', label: 'encoder', x: 40, y: 40, color: 'accent' })
     fig.box({ id: 'tgt', label: 'target', x: 240, y: 40 })
     fig.trainable('enc')

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Check, Shuffle, Undo2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { RAISED_CARD } from './research-surface-classes'
 import {
   regroupPhrases,
   type RebuttalArchivedGroup,
@@ -52,12 +54,9 @@ export function ResearchRebuttalRegroupNotice({
 
   if (!record.applied) {
     return (
-      <section
-        aria-label="Regroup concerns"
-        className="space-y-2 rounded-md border border-border bg-card p-2.5"
-      >
+      <section aria-label="Regroup concerns" className={cn(RAISED_CARD, 'space-y-3 p-3')}>
         <header className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-          <Shuffle className="size-3.5 text-muted-foreground" aria-hidden />
+          <Shuffle className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           <span className="font-medium">Regroup concerns</span>
           <span className="min-w-0 text-muted-foreground">
             {record.heldWhileTyping ? 'written while you were typing · ' : ''}
@@ -75,7 +74,7 @@ export function ResearchRebuttalRegroupNotice({
           </p>
         ) : null}
         {readOnly ? null : (
-          <div className="flex items-center justify-end gap-1.5">
+          <div className="flex items-center justify-end gap-2">
             <Button
               size="xs"
               variant="ghost"
@@ -86,7 +85,6 @@ export function ResearchRebuttalRegroupNotice({
             </Button>
             <Button
               size="xs"
-              variant="outline"
               disabled={busy}
               onClick={() => void run(() => actions.acceptRegroup(record.id))}
             >
@@ -104,10 +102,10 @@ export function ResearchRebuttalRegroupNotice({
   }
 
   return (
-    <div aria-label="Agent regroup" className="space-y-1.5">
-      <div className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-2xs text-muted-foreground">
-        <Shuffle className="size-3 shrink-0" aria-hidden />
-        <span className="min-w-0 truncate">
+    <div aria-label="Agent regroup" className="space-y-2">
+      <div className="flex w-fit max-w-full flex-wrap items-center gap-x-0.5 gap-y-0.5 rounded-lg bg-foreground/4 py-0.5 pr-0.5 pl-3 text-2xs text-muted-foreground">
+        <Shuffle className="mr-0.5 size-4 shrink-0" aria-hidden />
+        <span className="min-w-0 truncate pr-1">
           The agent {sentence}
           {record.request ? ` · ${record.request}` : ''} · {historyTimeText(record.at)}
         </span>

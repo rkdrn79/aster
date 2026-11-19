@@ -10,7 +10,7 @@ export function WorktreeContextMenuOverlays({ model }: { model: WorktreeContextM
         open={model.createGroupDialogOpen}
         title={translate(
           'auto.components.sidebar.WorktreeContextMenu.6664418e98',
-          'New Project Group'
+          'New project group'
         )}
         description={translate(
           'auto.components.sidebar.WorktreeContextMenu.c39c37676a',

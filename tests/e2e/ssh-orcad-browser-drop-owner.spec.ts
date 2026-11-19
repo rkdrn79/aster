@@ -144,7 +144,7 @@ test('managed Files drag cannot load a desktop same-path HTML file', async ({
     })
     await page.locator(`[data-worktree-host-identity="${remoteIdentity}"]:visible`).click()
     await openFileExplorer(page)
-    await page.getByRole('button', { name: 'Refresh Explorer', exact: true }).click()
+    await page.getByRole('button', { name: 'Refresh explorer', exact: true }).click()
     await expect(
       page.locator('[data-file-explorer-row]').filter({ hasText: 'REMOTE_DROP_READY.txt' })
     ).toBeVisible()

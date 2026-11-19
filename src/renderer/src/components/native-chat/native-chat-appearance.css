@@ -11,6 +11,9 @@
   --ring: var(--chat-focus-ring);
   /* Icons, gaps and row heights follow the text: 4px at the default 14px. */
   --spacing: calc(var(--chat-ui-size) / 3.5);
+  /* Hairlines are the text at 8%: the composer's edge matches the bubble's and the code's.
+     main.css mixes the edge from this on the same element. */
+  --chat-composer-border-mix: 8%;
   font-family: var(--chat-font-family, var(--font-sans));
 }
 
@@ -26,9 +29,48 @@
   font-family: var(--chat-code-font-family, var(--font-mono));
 }
 
+/* One icon set at one weight: lucide's 2px default reads heavy beside 14px text. Portalled
+   menus and popovers opened from the chat carry data-native-chat-surface. */
+:is(.native-chat-appearance, [data-native-chat-surface]) .lucide {
+  stroke-width: 1.5;
+}
+
+/* One easing for every transition in the chat, including utilities that name none. */
+:is(.native-chat-appearance, [data-native-chat-surface]) {
+  --default-transition-timing-function: var(--ease-out-quint);
+}
+
+/* An opened disclosure shows at its full height at once and fades in; height never animates. */
+@keyframes native-chat-reveal {
+  from {
+    opacity: 0;
+  }
+}
+
+[data-native-chat-reveal][data-state='open'] {
+  animation: native-chat-reveal 160ms var(--ease-out-quint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-native-chat-reveal][data-state='open'] {
+    animation: none;
+  }
+}
+
 /* Not inherited: the run box alone reads it, and an inherited one would restyle every member. */
 @property --native-chat-opened-detail {
   syntax: '<length>';
   inherits: false;
   initial-value: 0px;
+}
+
+/* A message's hover actions settle up into place as they fade in (native-chat-row-action.ts). */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .native-chat-row-actions {
+    translate: 0 2px;
+  }
+  .group:hover .native-chat-row-actions,
+  .group:has(:focus-visible) .native-chat-row-actions {
+    translate: 0 0;
+  }
 }

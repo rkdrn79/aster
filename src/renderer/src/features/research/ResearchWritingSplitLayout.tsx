@@ -215,7 +215,9 @@ export function ResearchWritingSplitLayout({
     const shown = wide && pair !== null
     return (
       <div
-        className={`tab-group-split-resize-handle is-vertical outline-none focus-visible:ring-2 focus-visible:ring-ring ${draggingDivider === index ? 'is-dragging' : ''}`}
+        // Why the variables: rest at the hairline tone like the Code layout's split handles, so
+        // the Writing panes read as panes rather than a ruled box; hover and drag still strengthen.
+        className={`tab-group-split-resize-handle is-vertical [--tab-group-split-divider:var(--border)] [--tab-group-split-divider-strong:var(--ring)] outline-none focus-visible:ring-2 focus-visible:ring-ring ${draggingDivider === index ? 'is-dragging' : ''}`}
         style={{ display: shown ? 'block' : 'none', order: index * 2 + 1 }}
         role="separator"
         tabIndex={shown ? 0 : -1}

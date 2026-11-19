@@ -88,7 +88,7 @@ export function SkillBundleInstallReview(props: {
         />
         {props.version.releaseNotes.trim() ? (
           <p className="break-words whitespace-pre-wrap rounded-lg border border-border/40 bg-muted/40 p-3 text-xs leading-5 text-muted-foreground">
-            <span className="font-semibold text-foreground">
+            <span className="font-medium text-foreground">
               {translate(
                 'auto.components.skills.SkillBundleInstallReview.01c5a11e09',
                 'Release notes:'
@@ -101,10 +101,10 @@ export function SkillBundleInstallReview(props: {
       </div>
 
       <div className="space-y-3 rounded-xl border border-border/70 bg-card/40 p-3.5">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="text-[11px] font-medium text-muted-foreground">
           {translate(
             'auto.components.skills.SkillInstallReviewContent.targetHeader',
-            'Installation Target'
+            'Installation target'
           )}
         </div>
         {props.children}

@@ -34,7 +34,7 @@ export function ReviewerRequestedList({
   if (reviewers.length === 0) {
     return (
       <div className="py-1 text-[12px] text-muted-foreground">
-        {translate('auto.components.PullRequestPage.d10b6d5209', 'No reviewers requested.')}
+        {translate('auto.components.PullRequestPage.d10b6d5209', 'No reviewers requested')}
       </div>
     )
   }

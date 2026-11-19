@@ -138,7 +138,7 @@ export default function SidebarAgentsList({
             }}
             placeholder={translate(
               'auto.components.activity.ActivityPrototypePage.795cbf26e2',
-              'Filter...'
+              'Filter'
             )}
             className="h-7 w-full text-[11px] shadow-none focus-visible:ring-0"
             aria-label={translate(

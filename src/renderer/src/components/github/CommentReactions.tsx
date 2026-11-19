@@ -93,7 +93,6 @@ export function CommentReactions({
               size="xs"
               aria-disabled={pendingContent !== null}
               className={cn(
-                'h-6 gap-1 rounded-full px-2 text-[12px] font-normal',
                 reaction.viewerHasReacted && 'border-ring bg-accent text-accent-foreground'
               )}
               aria-pressed={Boolean(reaction.viewerHasReacted)}
@@ -120,7 +119,7 @@ export function CommentReactions({
             </Button>
           ) : (
             <span
-              className="inline-flex h-6 items-center gap-1 rounded-full border border-border/60 bg-muted/35 px-2 text-[12px] leading-none text-foreground"
+              className="inline-flex h-6 items-center gap-1 rounded-md border border-border/60 bg-muted/35 px-2 text-[12px] leading-none text-foreground"
               aria-label={translate(
                 'auto.components.GitHubItemDialog.a18f669c7a',
                 '{{value0}} {{value1}} reaction{{value2}}',

@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { addAppKeyListener, removeAppKeyListener } from '@/lib/app-keyboard-router'
 import { ResearchFigureHistoryPanel } from './ResearchFigureHistoryPanel'
+import { ResearchPlotHistoryPanel } from './ResearchPlotHistoryPanel'
 import { onFigureCommand } from './research-figure-commands'
 import { openFigureSidePanelTab, registerFigureSidePanelTab } from './research-figure-side-panel'
 import {
@@ -18,7 +19,17 @@ registerFigureSidePanelTab({
   id: HISTORY_TAB_ID,
   label: 'History',
   order: 20,
-  render: () => <ResearchFigureHistoryPanel />
+  render: (context) =>
+    context.plot && context.folder ? (
+      <ResearchPlotHistoryPanel
+        key={context.plot}
+        owner={context.owner}
+        folder={context.folder}
+        slug={context.plot}
+      />
+    ) : (
+      <ResearchFigureHistoryPanel />
+    )
 })
 registerFigureCanvasShortcut({ label: 'History', keys: [FIGURE_MOD_KEY, 'Shift', 'H'] })
 

@@ -218,8 +218,8 @@ describe('parent picker context menu affordance', () => {
   })
 
   it('uses set/change labels based on valid parent presence', () => {
-    expect(getWorktreeParentPickerLabel(null)).toBe('Set Parent Worktree...')
-    expect(getWorktreeParentPickerLabel('parent-1')).toBe('Change Parent Worktree...')
+    expect(getWorktreeParentPickerLabel(null)).toBe('Set parent worktree...')
+    expect(getWorktreeParentPickerLabel('parent-1')).toBe('Change parent worktree...')
   })
 
   it('disables the parent picker while deleting or without candidates', () => {
@@ -269,7 +269,7 @@ describe('project removal from workspace context menus', () => {
   })
 })
 
-describe('planWorkspaceStatusAssignment (context-menu "Move to Status" routing)', () => {
+describe('planWorkspaceStatusAssignment (context-menu "Move to status" routing)', () => {
   // Why: this is the exact branch #10175 regressed on — the board must funnel
   // through the Linear-sync callback, the sidebar list must stay local-only. A
   // silent flip of either branch re-introduces the bug, so pin both here.

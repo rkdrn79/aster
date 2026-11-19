@@ -316,7 +316,7 @@ export function SlugDialogBody({
                 <button
                   type="button"
                   disabled={!row}
-                  className="text-xs italic text-muted-foreground hover:underline disabled:cursor-not-allowed disabled:no-underline"
+                  className="text-xs text-muted-foreground hover:underline disabled:cursor-not-allowed disabled:no-underline"
                   onClick={() => {
                     setBodyDraft('')
                     setEditingBody(true)
@@ -330,7 +330,7 @@ export function SlugDialogBody({
               )}
             </section>
             <section className="flex flex-col gap-3">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <h3 className="text-xs font-medium text-muted-foreground">
                 {translate(
                   'auto.components.github.project.slug.dialog.SlugDialogBody.598ad6a517',
                   'Comments'

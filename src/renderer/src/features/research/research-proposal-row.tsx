@@ -61,7 +61,7 @@ function ProposalCommand({ command }: { command: string }): React.JSX.Element {
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="mt-1 flex items-start gap-1">
-          <pre className="scrollbar-sleek max-h-40 min-w-0 flex-1 overflow-auto whitespace-pre-wrap break-all rounded-md bg-muted px-2 py-1 font-mono text-2xs">
+          <pre className="scrollbar-sleek max-h-40 min-w-0 flex-1 overflow-auto whitespace-pre-wrap break-all rounded-lg bg-muted/70 px-3 py-2 font-mono text-2xs dark:bg-muted/55">
             {command}
           </pre>
           <Button
@@ -82,7 +82,7 @@ function ProposalCommand({ command }: { command: string }): React.JSX.Element {
 async function copyCommand(command: string): Promise<void> {
   try {
     await navigator.clipboard.writeText(command)
-    toast.success('Command copied.')
+    toast.success('Command copied')
   } catch (cause) {
     toast.error(`Copy failed: ${researchErrorText(cause)}`)
   }
@@ -182,9 +182,9 @@ export function ResearchProposalRow({
         aria-label={`Proposal ${proposal.title}`}
         marker={
           proposal.needsCode ? (
-            <Code aria-hidden className="size-3.5" />
+            <Code aria-hidden className="size-4" />
           ) : (
-            <RotateCcw aria-hidden className="size-3.5" />
+            <RotateCcw aria-hidden className="size-4" />
           )
         }
         title={<span className="font-medium">{proposal.title}</span>}

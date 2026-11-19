@@ -35,23 +35,23 @@ function ResearchWorkspaceSwitcher(): React.JSX.Element {
     .join('\n')
 
   return (
-    <div className="mt-auto shrink-0 border-t border-worktree-sidebar-border p-2">
+    <div className="mt-auto shrink-0 p-2">
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left transition-colors duration-(--duration-fast) hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-accent"
             aria-label={`Workspace: ${name}`}
             title={tooltip || undefined}
           >
             <FolderOpen className="size-4 shrink-0 text-muted-foreground" aria-hidden />
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-medium">{name}</span>
+              <span className="block truncate text-[13px] font-medium">{name}</span>
               {detail ? (
-                <span className="block truncate text-xs text-muted-foreground">{detail}</span>
+                <span className="block truncate text-2xs text-muted-foreground">{detail}</span>
               ) : null}
             </span>
-            <ChevronsUpDown className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+            <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="start" className="w-64 max-w-[calc(100vw-1rem)]">

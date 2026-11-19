@@ -21,7 +21,7 @@ describe('RepositorySourceControlAiEnablement', () => {
       })
     )
 
-    expect(markup).toContain('Show Source Control AI actions')
+    expect(markup).toContain('Show source control AI actions')
     expect(markup).toContain('Controls whether Source Control AI buttons are shown')
     expect(markup).toContain('separate features follows those features&#x27; settings')
     expect(markup).toContain('Show')

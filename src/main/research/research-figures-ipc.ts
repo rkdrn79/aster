@@ -10,8 +10,8 @@ import {
   EXCALIDRAW_FONT_FOLDERS,
   embedSvgFonts,
   figurePdfPageHtml,
-  svgFontFamilies,
-  svgHasEmbeddedFonts
+  svgEmbeddedFamilies,
+  svgFontFamilies
 } from './research-figure-pdf-page'
 import { buildFigureTemplate, listFigureTemplates } from './research-figures-kit-ipc'
 
@@ -93,7 +93,10 @@ async function printFigurePdf(html: string, widthIn: number, heightIn: number): 
 /** The SVG with the app's fonts embedded, and a vector PDF exactly the figure's size. */
 export async function renderFigureExports(input: unknown): Promise<{ svg: string; pdf: string }> {
   const { svg, widthIn, heightIn } = renderRequestSchema.parse(input)
-  const portable = svgHasEmbeddedFonts(svg) ? svg : embedSvgFonts(svg, await fontFaces(svg))
+  // Why per family: the renderer embeds the paper look's faces; the bundled ones may still miss.
+  const embedded = svgEmbeddedFamilies(svg)
+  const missing = (await fontFaces(svg)).filter((face) => !embedded.has(face.family))
+  const portable = embedSvgFonts(svg, missing)
   const run = queue.then(() =>
     printFigurePdf(figurePdfPageHtml(portable, widthIn, heightIn), widthIn, heightIn)
   )

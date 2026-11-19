@@ -6,7 +6,12 @@ import {
   researchChatBranchName,
   researchChatBranchOf,
   researchChatBranchRoot,
-  withResearchChatBranch
+  researchChatCopyNumberLabel,
+  researchChatFamilyCopies,
+  researchChatIsSubtask,
+  researchSubtaskName,
+  withResearchChatBranch,
+  withResearchChatBranchChange
 } from './research-chat-branches'
 import { researchConversationHome } from './research-conversation-home'
 
@@ -55,14 +60,59 @@ describe('research chat branches', () => {
     expect(researchChatBranchFamily(document, SCOPE, 'a').sort()).toEqual(['a', 'b'])
   })
 
-  it('numbers a branch after its family, keeping the first chat’s name', () => {
-    expect(researchChatBranchName('Figure agent · Fig 1', 1)).toBe(
-      'Figure agent · Fig 1 · branch 2'
+  it('names copies as Claude Code does, numbered by kind, keeping the first chat’s name', () => {
+    expect(researchChatBranchName('Figure agent · Fig 1', 'branch', 0)).toBe(
+      'Figure agent · Fig 1 (branch 2)'
     )
-    expect(researchChatBranchName('Figure agent · Fig 1 · branch 2', 2)).toBe(
-      'Figure agent · Fig 1 · branch 3'
+    expect(researchChatBranchName('Figure agent · Fig 1 (branch 2)', 'fork', 0)).toBe(
+      'Figure agent · Fig 1 (fork 2)'
     )
-    expect(researchChatBranchName('  ', 1)).toBe('Chat · branch 2')
+    // A name from 1.1.3 loses its old suffix too.
+    expect(researchChatBranchName('Figure agent · Fig 1 · branch 2', 'branch', 1)).toBe(
+      'Figure agent · Fig 1 (branch 3)'
+    )
+    expect(researchChatBranchName('  ', 'branch', 0)).toBe('Chat (branch 2)')
+    expect(researchChatCopyNumberLabel('Notes (fork 3)')).toBe('fork 3')
+    expect(researchChatCopyNumberLabel('Notes · branch 2')).toBe('branch 2')
+    expect(researchChatCopyNumberLabel('Notes')).toBeNull()
+    expect(
+      researchSubtaskName('summarise  the\nablation results for the appendix table please')
+    ).toBe('Subtask: summarise the ablation results for the appendix…')
+  })
+
+  it('keeps subtasks out of the family, with their task and state on their own entry', () => {
+    let document = family()
+    document = withResearchChatBranch(document, SCOPE, 'f1', {
+      ...branch('root', '2026-11-13T04:00:00Z'),
+      kind: 'fork'
+    })
+    document = withResearchChatBranch(document, SCOPE, 's1', {
+      ...branch('root', '2026-11-13T05:00:00Z'),
+      kind: 'subtask',
+      task: 'check the ablation'
+    })
+    expect(researchChatBranchFamily(document, SCOPE, 'root')).toEqual([
+      'root',
+      'b2',
+      'b2a',
+      'b3',
+      'f1'
+    ])
+    expect(
+      researchChatBranchChildren(document, SCOPE, 'root', 'subtasks').map((c) => c.sessionId)
+    ).toEqual(['s1'])
+    expect(researchChatIsSubtask(document, SCOPE, 's1')).toBe(true)
+    expect(researchChatIsSubtask(document, SCOPE, 'f1')).toBe(false)
+    expect(researchChatFamilyCopies(document, SCOPE, 'b3', 'branch')).toBe(3)
+    expect(researchChatFamilyCopies(document, SCOPE, 'b3', 'fork')).toBe(1)
+    const done = withResearchChatBranchChange(document, SCOPE, 's1', { finishedAt: 't9' })
+    expect(researchChatBranchOf(done, SCOPE, 's1')).toMatchObject({
+      task: 'check the ablation',
+      finishedAt: 't9'
+    })
+    expect(withResearchChatBranchChange(document, SCOPE, 'missing', { finishedAt: 't9' })).toBe(
+      document
+    )
   })
 
   it("keeps a figure's branches on Figures while the figure is bound to any of them", () => {

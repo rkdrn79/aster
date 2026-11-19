@@ -18,6 +18,8 @@ import {
   workFiguresFolder
 } from './research-figures-folders.mjs'
 import { PREVIEW_WAIT_SECONDS, previewFigure } from './research-figures.mjs'
+import { plotFilePaths } from './research-figures-plot-files.mjs'
+import { freshPlot } from './research-figures-plot.mjs'
 
 export const PUBLISH_WAIT_SECONDS = PREVIEW_WAIT_SECONDS
 
@@ -70,9 +72,12 @@ export async function publishFigure(
   const target = paperCopyPath(source, slug)
   const listing = await listFigures(project)
   const figure = listing.figures.find((entry) => entry.slug === slug) ?? null
-  const plot = listing.others.find(
-    (entry) => entry.name === `${slug}.pdf` && entry.folder === workFiguresFolder(project)
-  )
+  const script = listing.plots.find((entry) => entry.slug === slug && entry.script) ?? null
+  const plot =
+    script ??
+    listing.others.find(
+      (entry) => entry.name === `${slug}.pdf` && entry.folder === workFiguresFolder(project)
+    )
   if (!figure && !plot) {
     const scene = `${workFiguresFolder(project)}/${slug}.excalidraw`
     throw new HarnessError('not_found', `No figure ${slug} (no ${scene})`)
@@ -80,11 +85,18 @@ export async function publishFigure(
   if (figure?.location === 'paper') {
     return { figure: slug, beside: true, pdf: figure.pdf }
   }
-  // Why wait: the PDF must show the current scene, and only Aster renders it.
+  // Why wait: the PDF must show the current scene, and only Aster renders it. A plot script
+  // is run again when it changed since its last run, and its bytes stand for the scene.
   const sceneSha256 = figure
     ? (await previewFigure(project, slug, { waitSeconds, pollMs })).sceneSha256
-    : null
-  const from = figure ? figureFilePaths(figure.folder, slug).pdf : plot.path
+    : script
+      ? (await freshPlot(project, slug)).state.sourceSha256
+      : null
+  const from = figure
+    ? figureFilePaths(figure.folder, slug).pdf
+    : script
+      ? plotFilePaths(script.folder, slug).pdf
+      : plot.path
   const bytes = await bytesOrNull(path.join(project, from))
   if (!bytes) {
     throw new HarnessError('not_found', `${from} is not written yet: open the figure in Aster.`)

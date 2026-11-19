@@ -34,8 +34,7 @@ export function AppearanceSection({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-xl border border-border/50 bg-card transition-colors',
-        open && 'border-ring/40'
+        'overflow-hidden rounded-2xl border border-border/70 bg-card dark:border-transparent'
       )}
     >
       <button
@@ -44,11 +43,9 @@ export function AppearanceSection({
         aria-controls={contentId}
         onClick={onToggle}
         disabled={toggleDisabled}
-        className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-accent/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-default disabled:hover:bg-transparent"
+        className="flex w-full items-center gap-3 px-5 py-3.5 text-left transition-colors duration-150 hover:bg-foreground/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/50 disabled:cursor-default disabled:hover:bg-transparent"
       >
-        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-secondary text-foreground [&_svg]:size-4">
-          {icon}
-        </span>
+        <span className="shrink-0 text-muted-foreground [&_svg]:size-4">{icon}</span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold">{title}</span>
           {!open ? (
@@ -57,23 +54,23 @@ export function AppearanceSection({
         </span>
         <ChevronRight
           className={cn(
-            'size-[18px] shrink-0 text-muted-foreground transition-transform',
+            'size-4 shrink-0 text-muted-foreground transition-transform duration-200 ease-out-quint motion-reduce:transition-none',
             open && 'rotate-90 text-foreground'
           )}
         />
       </button>
       <div
         className={cn(
-          'grid overflow-hidden transition-[grid-template-rows,opacity,border-color] duration-200 ease-out motion-reduce:transition-none',
+          'grid overflow-hidden transition-[opacity,border-color] duration-200 motion-reduce:transition-none',
           open
-            ? 'grid-rows-[1fr] border-t border-border/50 opacity-100'
+            ? 'grid-rows-[1fr] border-t border-border/60 opacity-100'
             : 'grid-rows-[0fr] border-t border-transparent opacity-0'
         )}
         aria-hidden={!open}
         inert={!open}
       >
         <div className="min-h-0 overflow-hidden">
-          <div id={contentId} role="region" className="px-4 pt-1 pb-4">
+          <div id={contentId} role="region" className="px-5 pt-1 pb-3">
             {children}
           </div>
         </div>

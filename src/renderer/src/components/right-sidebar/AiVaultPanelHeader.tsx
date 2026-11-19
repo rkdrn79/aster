@@ -81,12 +81,12 @@ export function AiVaultPanelHeader({
     <div className="shrink-0 border-b border-sidebar-border px-2.5 py-2">
       <div className="flex items-center gap-1.5">
         <div className="min-w-0 flex-1">
-          <div className="truncate text-xs font-semibold text-foreground">
+          <div className="truncate text-xs font-medium text-foreground">
             {/* Why: below 300px the header competes with fixed controls, so compact copy prevents overlap. */}
             <span className="@max-[300px]/ai-vault:hidden">
               {translate(
                 'auto.components.right.sidebar.AiVaultPanel.sessionHistory',
-                'Agent Session History'
+                'Agent session history'
               )}
             </span>
             <span className="hidden @max-[300px]/ai-vault:inline">
@@ -128,7 +128,7 @@ export function AiVaultPanelHeader({
             size="icon-xs"
             aria-label={translate(
               'auto.components.right.sidebar.AiVaultPanel.refreshSessionHistory',
-              'Refresh Session History'
+              'Refresh session history'
             )}
             onClick={onRefresh}
             disabled={searching && loading}

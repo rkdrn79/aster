@@ -125,7 +125,7 @@ export function ResearchLibraryPaperForm({
       onSubmit={(event) => void submit(event)}
       className="scrollbar-sleek flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-5"
     >
-      <h2 className="text-base font-semibold">{paper ? 'Edit paper' : 'Add paper manually'}</h2>
+      <h2 className="text-base font-medium">{paper ? 'Edit paper' : 'Add paper manually'}</h2>
       <div className="grid gap-4 lg:grid-cols-2">
         <label className="space-y-1 text-xs font-medium lg:col-span-2">
           Title

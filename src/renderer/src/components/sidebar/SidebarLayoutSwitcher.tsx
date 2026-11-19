@@ -9,8 +9,7 @@ import { setResearchUiEnabled } from '@/features/research/research-navigation'
 
 type SidebarLayout = 'research' | 'code'
 
-const SEGMENT_CLASS =
-  'h-6 flex-1 gap-1.5 rounded-[5px] px-2 text-xs text-muted-foreground hover:bg-transparent hover:text-worktree-sidebar-foreground data-[state=on]:bg-secondary data-[state=on]:text-secondary-foreground [&_svg:not([class*=size-])]:size-3.5'
+const SEGMENT_CLASS = 'flex-1 [&_svg:not([class*=size-])]:size-3.5'
 
 /** The same two-way switch tops the sidebar in both layouts, so the way back is always where you left. */
 export function SidebarLayoutSwitcher(): React.JSX.Element {
@@ -39,12 +38,13 @@ export function SidebarLayoutSwitcher(): React.JSX.Element {
     <div className="shrink-0 px-3 pt-3">
       <ToggleGroup
         type="single"
+        variant="segmented"
         size="xs"
         value={layout}
         disabled={saving}
         onValueChange={(next) => void switchTo(next)}
         aria-label={translate('sidebar.layoutSwitcher.label', 'Layout')}
-        className="flex w-full gap-0.5 rounded-md border border-worktree-sidebar-border p-0.5"
+        className="w-full"
       >
         <ToggleGroupItem value="research" className={SEGMENT_CLASS}>
           <FlaskConical aria-hidden />

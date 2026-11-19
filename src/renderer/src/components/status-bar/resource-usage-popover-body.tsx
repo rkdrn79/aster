@@ -59,13 +59,13 @@ export function renderResourceUsagePopoverBody({
   return (
     <div ref={setPopoverBodyNode} tabIndex={-1} className="flex h-[420px] flex-col outline-none">
       {(unifiedRepos.length > 0 || resourceSnapshot) && (
-        <div className="flex items-center justify-between px-3 py-1 bg-muted/30 border-b border-border/50 text-[10px] uppercase tracking-wide shrink-0">
+        <div className="flex items-center justify-between px-3 py-1 bg-muted/30 border-b border-border/50 text-[10px] shrink-0">
           <button
             type="button"
             onClick={() => setSortOption('name')}
             className={cn(
               'hover:text-foreground transition-colors',
-              sortOption === 'name' ? 'font-semibold text-foreground' : 'text-muted-foreground/80'
+              sortOption === 'name' ? 'font-medium text-foreground' : 'text-muted-foreground/80'
             )}
             aria-pressed={sortOption === 'name'}
           >
@@ -79,9 +79,7 @@ export function renderResourceUsagePopoverBody({
                 className={cn(
                   CPU_COLUMN_CLS,
                   'hover:text-foreground transition-colors',
-                  sortOption === 'cpu'
-                    ? 'font-semibold text-foreground'
-                    : 'text-muted-foreground/80'
+                  sortOption === 'cpu' ? 'font-medium text-foreground' : 'text-muted-foreground/80'
                 )}
                 aria-pressed={sortOption === 'cpu'}
               >
@@ -97,7 +95,7 @@ export function renderResourceUsagePopoverBody({
                   MEM_COLUMN_CLS,
                   'hover:text-foreground transition-colors',
                   sortOption === 'memory'
-                    ? 'font-semibold text-foreground'
+                    ? 'font-medium text-foreground'
                     : 'text-muted-foreground/80'
                 )}
                 aria-pressed={sortOption === 'memory'}

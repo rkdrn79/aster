@@ -61,8 +61,8 @@ export function PRFilesDiffToolbar({
           onClick={onToggleAllCollapsed}
         >
           {allSectionsCollapsed
-            ? translate('auto.components.PullRequestPage.eb722a5a8c', 'Expand All')
-            : translate('auto.components.PullRequestPage.dd94111c18', 'Collapse All')}
+            ? translate('auto.components.PullRequestPage.eb722a5a8c', 'Expand all')
+            : translate('auto.components.PullRequestPage.dd94111c18', 'Collapse all')}
         </Button>
         <Button
           type="button"
@@ -73,7 +73,7 @@ export function PRFilesDiffToolbar({
         >
           {sideBySide
             ? translate('auto.components.PullRequestPage.e5f4a24f78', 'Inline')
-            : translate('auto.components.PullRequestPage.1378d79e83', 'Side by Side')}
+            : translate('auto.components.PullRequestPage.1378d79e83', 'Side by side')}
         </Button>
       </div>
     </div>

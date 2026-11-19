@@ -91,7 +91,7 @@ export function DiffNotesPreviewPopover({
             {remainingCount === 1
               ? translate('auto.components.editor.CombinedDiffViewer.8ab3248fd8', 'note')
               : translate('auto.components.editor.CombinedDiffViewer.0fb870a0fe', 'notes')}{' '}
-            {translate('auto.components.editor.CombinedDiffViewer.35cc27aeb2', 'in Source Control')}
+            {translate('auto.components.editor.CombinedDiffViewer.35cc27aeb2', 'in source control')}
           </div>
         )}
       </div>
@@ -126,7 +126,7 @@ export function ClearDiffNotesDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-sm">
-            {translate('auto.components.editor.CombinedDiffViewer.948a5fd6c8', 'Clear Notes')}
+            {translate('auto.components.editor.CombinedDiffViewer.948a5fd6c8', 'Clear notes')}
           </DialogTitle>
           <DialogDescription className="text-xs">
             {translate('auto.components.editor.CombinedDiffViewer.84898c548d', 'Clear')}{' '}
@@ -156,7 +156,7 @@ export function ClearDiffNotesDialog({
             disabled={isClearingNotes || diffCommentCount === 0}
           >
             <Trash2 className="size-4" />
-            {translate('auto.components.editor.CombinedDiffViewer.948a5fd6c8', 'Clear Notes')}
+            {translate('auto.components.editor.CombinedDiffViewer.948a5fd6c8', 'Clear notes')}
           </Button>
         </DialogFooter>
       </DialogContent>

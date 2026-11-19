@@ -165,7 +165,7 @@ export function useSourceControlAi({
       toast.message(
         translate(
           'auto.components.right.sidebar.use.source.control.ai.cfafa92509',
-          'No unresolved conflicts to send.'
+          'No unresolved conflicts to send'
         )
       )
       return

@@ -67,7 +67,7 @@ afterEach(() => {
 it('keeps the primary button focused, full size, and a one-time delete', async () => {
   const { confirmButtonRef, onForceDelete } = renderFooter()
   expect(confirmButtonRef.current?.dataset.size).toBe('default')
-  expect(confirmButtonRef.current?.textContent).toBe('Force Delete')
+  expect(confirmButtonRef.current?.textContent).toBe('Force delete')
   await act(async () => confirmButtonRef.current?.click())
   expect(onForceDelete).toHaveBeenCalledOnce()
   expect(savePreference).not.toHaveBeenCalled()

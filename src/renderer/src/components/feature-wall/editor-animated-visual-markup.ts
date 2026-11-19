@@ -38,7 +38,7 @@ export function codeBlockHTML(): string {
   return `
     <div style="background: rgba(24,24,27,0.04); border: 1px solid rgba(24,24,27,0.10); border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; line-height: 1.55;">
       <div style="display: flex; align-items: center; justify-content: space-between; padding: 5px 9px; border-bottom: 1px solid rgba(24,24,27,0.10); background: rgba(24,24,27,0.04);">
-        <span style="font-size: 10px; font-weight: 600; color: rgb(113 113 122); letter-spacing: 0.02em;">typescript</span>
+        <span style="font-size: 10px; font-weight: 500; color: rgb(113 113 122);">typescript</span>
         <span style="display: inline-flex; align-items: center; gap: 4px; font-size: 9.5px; color: rgb(113 113 122);">
           <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="8" height="8" rx="1.4"/><path d="M3 11V4a1 1 0 0 1 1-1h7"/></svg>
           <span>Copy</span>

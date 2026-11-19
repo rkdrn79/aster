@@ -41,6 +41,19 @@ import {
   ResearchDeadlinesUpdateParams
 } from '../research/research-deadlines-api'
 import {
+  ResearchPlansApproveParams,
+  ResearchPlansBudgetParams,
+  ResearchPlansListParams,
+  ResearchPlansOverviewParams,
+  ResearchProposalsDecideParams,
+  ResearchProposalsListParams
+} from '../research/research-decisions-rpc'
+import {
+  ResearchLibraryReferenceParams,
+  ResearchLibraryTitleSearchParams
+} from '../research/research-library-rpc'
+import { researchLibraryDocumentSchema } from '../research/research-library'
+import {
   ResearchProjectLatexCompileParams,
   ResearchProjectReadParams,
   ResearchProjectRunLogTailParams,
@@ -1320,6 +1333,15 @@ export const RPC_PARAMS_BY_METHOD = {
   'researchDeadlines.update': ResearchDeadlinesUpdateParams,
   'researchGpu.status': ResearchGpuStatusParams,
   'researchGpu.submit': ResearchGpuSubmitParams,
+  'researchLibrary.lookupArxiv': ResearchLibraryReferenceParams,
+  'researchLibrary.lookupDoi': ResearchLibraryReferenceParams,
+  'researchLibrary.read': null,
+  'researchLibrary.save': researchLibraryDocumentSchema,
+  'researchLibrary.searchTitle': ResearchLibraryTitleSearchParams,
+  'researchPlans.approve': ResearchPlansApproveParams,
+  'researchPlans.budget': ResearchPlansBudgetParams,
+  'researchPlans.list': ResearchPlansListParams,
+  'researchPlans.overview': ResearchPlansOverviewParams,
   'researchProject.claimsAudit': ResearchProjectClaimsAuditParams,
   'researchProject.downloadArxivPdf': ResearchProjectDownloadArxivPdfParams,
   'researchProject.latexCompile': ResearchProjectLatexCompileParams,
@@ -1327,6 +1349,8 @@ export const RPC_PARAMS_BY_METHOD = {
   'researchProject.read': ResearchProjectReadParams,
   'researchProject.runLogTail': ResearchProjectRunLogTailParams,
   'researchProject.runRead': ResearchProjectRunReadParams,
+  'researchProposals.decide': ResearchProposalsDecideParams,
+  'researchProposals.list': ResearchProposalsListParams,
   'researchRun.status': ResearchRunStatusParams,
   'researchRun.watch': ResearchRunWatchParams,
   'researchRun.watchCancel': ResearchRunWatchCancelParams,

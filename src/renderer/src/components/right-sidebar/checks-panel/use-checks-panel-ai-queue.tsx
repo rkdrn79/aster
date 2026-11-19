@@ -70,7 +70,7 @@ export function useChecksPanelAiQueue(model: ChecksPanelAiQueueInput) {
       actionId: 'resolveConflicts',
       title: translate(
         'auto.components.right.sidebar.ChecksPanel.4ede779461',
-        'Resolve Review Conflicts With AI'
+        'Resolve review conflicts with AI'
       ),
       description: translate(
         'auto.components.right.sidebar.ChecksPanel.abf59262fb',
@@ -115,7 +115,7 @@ export function useChecksPanelAiQueue(model: ChecksPanelAiQueueInput) {
         toast.message(
           translate(
             'auto.components.right.sidebar.ChecksPanel.f316a8ca2b',
-            'No unresolved comments selected.'
+            'No unresolved comments selected'
           )
         )
         return
@@ -182,7 +182,7 @@ export function useChecksPanelAiQueue(model: ChecksPanelAiQueueInput) {
         actionId: 'resolveComments',
         title: translate(
           'auto.components.right.sidebar.ChecksPanel.d00ebdc402',
-          'Resolve {{value0}} Comments With AI',
+          'Resolve {{value0}} comments with AI',
           { value0: activeReview.provider === 'gitlab' ? 'MR' : 'PR' }
         ),
         // Why: only GitHub with a resolved PR target posts fixing replies; other providers

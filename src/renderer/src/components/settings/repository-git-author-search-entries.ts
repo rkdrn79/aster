@@ -6,7 +6,7 @@ import { translateSearchKeyword } from './settings-search-keywords'
 export function getRepositoryGitAuthorSearchEntries(repo: Repo): SettingsSearchEntry[] {
   return [
     {
-      title: translate('auto.components.settings.repository.search.eec3995dc6', 'Git AI Author'),
+      title: translate('auto.components.settings.repository.search.eec3995dc6', 'Git AI author'),
       description: translate(
         'auto.components.settings.repository.search.6cc5c65e64',
         'Project-specific git generation overrides.'
@@ -40,7 +40,7 @@ export function getRepositoryGitAuthorSearchEntries(repo: Repo): SettingsSearchE
       ]
     },
     {
-      title: translate('auto.components.settings.repository.search.31bd0a2420', 'MCP Configs'),
+      title: translate('auto.components.settings.repository.search.31bd0a2420', 'MCP configs'),
       description: translate(
         'auto.components.settings.repository.search.3c31801626',
         'Inspect project-level MCP server config files.'

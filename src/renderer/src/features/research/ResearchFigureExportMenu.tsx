@@ -75,7 +75,7 @@ export function ResearchFigureExportMenu({
     }
     try {
       await copyFigurePng(handle.api, effective)
-      toast.success('PNG copied to the clipboard.')
+      toast.success('PNG copied to the clipboard')
     } catch (cause) {
       toast.error(`Copy failed. ${errorText(cause)}`)
     }
@@ -87,12 +87,13 @@ export function ResearchFigureExportMenu({
         <Button
           size="xs"
           variant="ghost"
+          className="h-7"
           aria-label="Export"
           title={`Export (${isMac ? '⌘⇧E' : 'Ctrl+Shift+E'})`}
           disabled={disabled || busy}
         >
           <Download aria-hidden className={busy ? 'animate-pulse' : undefined} /> Export
-          <ChevronDown aria-hidden />
+          <ChevronDown aria-hidden className="opacity-60" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-60">

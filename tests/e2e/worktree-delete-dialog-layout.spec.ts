@@ -103,7 +103,7 @@ for (const scenario of ['single', 'children', 'batch', 'known-dirty'] as const) 
           : { worktreeId: parent.id, allowSkipConfirm: false }
       )
     }, scenario)
-    const dialog = page.getByRole('dialog', { name: /^Delete Workspace/ })
+    const dialog = page.getByRole('dialog', { name: /^Delete workspace/ })
     await expect(dialog).toBeVisible()
     await page.waitForTimeout(250)
     await expect(

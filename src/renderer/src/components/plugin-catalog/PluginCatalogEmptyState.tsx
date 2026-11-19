@@ -40,7 +40,7 @@ export function PluginCatalogEmptyState({
       </div>
       <h4
         className={cn(
-          'text-sm font-semibold tracking-tight',
+          'text-sm font-semibold',
           destructive ? 'text-destructive' : 'text-foreground'
         )}
       >

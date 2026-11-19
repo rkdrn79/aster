@@ -89,13 +89,13 @@ export function AddRemoteHostSshConfigPicker({
         }}
         placeholder={translate(
           'auto.components.sidebar.AddRemoteHostDialog.sshConfigPickerFilter',
-          'Filter hosts…'
+          'Filter hosts'
         )}
         autoFocus
         disabled={filterDisabled}
         aria-label={translate(
           'auto.components.sidebar.AddRemoteHostDialog.sshConfigPickerFilter',
-          'Filter hosts…'
+          'Filter hosts'
         )}
       />
 

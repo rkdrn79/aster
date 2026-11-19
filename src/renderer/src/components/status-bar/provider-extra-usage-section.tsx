@@ -138,7 +138,7 @@ export function ProviderExtraUsageSection({
       <div className={`font-medium ${textClass}`}>{label}</div>
       <div className={`h-[6px] w-full overflow-hidden rounded-full ${emptyBarClass}`}>
         <div
-          className={`h-full rounded-full ${barColor(spentPct)} transition-all duration-300`}
+          className={`h-full rounded-full ${barColor(spentPct)} transition-colors`}
           style={{ width: `${spentPct}%` }}
         />
       </div>

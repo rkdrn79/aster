@@ -130,8 +130,8 @@ describe('ActivityThreadContextMenu', () => {
     const thread = makeThread()
     openMenu(thread)
 
-    expect(screen.queryByRole('menuitem', { name: 'Mark Unread' })).toBeNull()
-    fireEvent.click(menuItem('Mark Read'))
+    expect(screen.queryByRole('menuitem', { name: 'Mark unread' })).toBeNull()
+    fireEvent.click(menuItem('Mark read'))
     expect(handlers.onMarkRead).toHaveBeenCalledWith(thread)
   })
 
@@ -139,23 +139,23 @@ describe('ActivityThreadContextMenu', () => {
     const thread = makeThread({ unread: false })
     openMenu(thread)
 
-    expect(screen.queryByRole('menuitem', { name: 'Mark Read' })).toBeNull()
-    fireEvent.click(menuItem('Mark Unread'))
+    expect(screen.queryByRole('menuitem', { name: 'Mark read' })).toBeNull()
+    fireEvent.click(menuItem('Mark unread'))
     expect(handlers.onMarkUnread).toHaveBeenCalledWith(thread)
   })
 
-  it('disables Mark Unread for the open thread', () => {
+  it('disables Mark unread for the open thread', () => {
     renderMenu(makeThread({ unread: false }), { canMarkUnread: () => false })
     fireEvent.contextMenu(screen.getByTestId('row'))
 
-    expect(menuItem('Mark Unread').hasAttribute('data-disabled')).toBe(true)
+    expect(menuItem('Mark unread').hasAttribute('data-disabled')).toBe(true)
   })
 
   it('lists copy actions flat instead of in a submenu', () => {
     openMenu(makeThread())
 
-    expect(menuItem('Copy Path')).toBeTruthy()
-    expect(menuItem('Copy Title')).toBeTruthy()
+    expect(menuItem('Copy path')).toBeTruthy()
+    expect(menuItem('Copy title')).toBeTruthy()
     expect(screen.queryByRole('menuitem', { name: 'Copy Branch' })).toBeNull()
   })
 
@@ -167,13 +167,13 @@ describe('ActivityThreadContextMenu', () => {
     expect(screen.getByTestId('row').hasAttribute('data-menu-open')).toBe(false)
   })
 
-  it('offers Go to Workspace only for threads with a real workspace', () => {
+  it('offers Go to workspace only for threads with a real workspace', () => {
     openMenu(makeThread(), false)
 
-    expect(screen.queryByRole('menuitem', { name: 'Go to Workspace' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'Go to workspace' })).toBeNull()
   })
 
-  it('offers Clear from List only for finished threads', () => {
+  it('offers Clear from list only for finished threads', () => {
     const done = makeThread({
       currentAgentState: null,
       paneEntry: {
@@ -188,12 +188,12 @@ describe('ActivityThreadContextMenu', () => {
     })
     openMenu(done)
 
-    fireEvent.click(menuItem('Clear from List'))
+    fireEvent.click(menuItem('Clear from list'))
     expect(mocks.clearActivityThread).toHaveBeenCalledWith(done)
     cleanup()
 
     openMenu(makeThread())
-    expect(screen.queryByRole('menuitem', { name: 'Clear from List' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'Clear from list' })).toBeNull()
   })
 
   it('acts on every target with counted labels and hides single-agent actions', () => {
@@ -203,12 +203,12 @@ describe('ActivityThreadContextMenu', () => {
     openBulkMenu([unreadA, readB, readC])
 
     expect(screen.queryByRole('menuitem', { name: 'Open' })).toBeNull()
-    expect(screen.queryByRole('menuitem', { name: 'Go to Workspace' })).toBeNull()
-    expect(screen.queryByRole('menuitem', { name: 'Copy Title' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'Go to workspace' })).toBeNull()
+    expect(screen.queryByRole('menuitem', { name: 'Copy title' })).toBeNull()
     expect(screen.getByText('Agent')).toBeTruthy()
 
     expect(screen.queryByRole('menuitem', { name: /Unread/ })).toBeNull()
-    fireEvent.click(menuItem('Mark 1 Agent Read'))
+    fireEvent.click(menuItem('Mark 1 agent read'))
     expect(handlers.onMarkManyRead).toHaveBeenCalledWith([unreadA])
   })
 
@@ -217,7 +217,7 @@ describe('ActivityThreadContextMenu', () => {
     const readB = makeThread({ paneKey: 'b', unread: false })
     openBulkMenu([openRow, readB], (thread) => thread.paneKey !== 'open')
 
-    fireEvent.click(menuItem('Mark 1 Agent Unread'))
+    fireEvent.click(menuItem('Mark 1 agent unread'))
     expect(handlers.onMarkManyUnread).toHaveBeenCalledWith([readB])
   })
 
@@ -227,7 +227,7 @@ describe('ActivityThreadContextMenu', () => {
     const doneB = makeDoneThread('b')
     openBulkMenu([doneA, working, doneB])
 
-    fireEvent.click(menuItem('Clear 2 Agents from List'))
+    fireEvent.click(menuItem('Clear 2 agents from list'))
     expect(mocks.clearCompletedActivity).toHaveBeenCalledWith([doneA, doneB])
     expect(mocks.clearActivityThread).not.toHaveBeenCalled()
   })
@@ -238,8 +238,8 @@ describe('ActivityThreadContextMenu', () => {
       () => false
     )
 
-    expect(menuItem('Mark Unread').hasAttribute('data-disabled')).toBe(true)
-    expect(menuItem('Clear from List').hasAttribute('data-disabled')).toBe(true)
+    expect(menuItem('Mark unread').hasAttribute('data-disabled')).toBe(true)
+    expect(menuItem('Clear from list').hasAttribute('data-disabled')).toBe(true)
   })
 
   it('shows the single-agent menu when the targets are just the clicked row', () => {
@@ -248,7 +248,7 @@ describe('ActivityThreadContextMenu', () => {
     fireEvent.contextMenu(screen.getByTestId('row'))
 
     expect(menuItem('Open')).toBeTruthy()
-    expect(menuItem('Mark Read')).toBeTruthy()
+    expect(menuItem('Mark read')).toBeTruthy()
   })
 
   it('announces itself to other menus on open and closes when another menu opens', () => {
@@ -268,8 +268,8 @@ describe('ActivityThreadContextMenu', () => {
 
   it('copies the path, then the title, of a real workspace like the workspace menu', () => {
     expect(getActivityThreadCopyTargets(makeThread(), true)).toEqual([
-      { key: 'path', label: 'Copy Path', value: '/repo/wt-1' },
-      { key: 'title', label: 'Copy Title', value: 'Fix the flaky test' }
+      { key: 'path', label: 'Copy path', value: '/repo/wt-1' },
+      { key: 'title', label: 'Copy title', value: 'Fix the flaky test' }
     ])
   })
 
@@ -279,7 +279,7 @@ describe('ActivityThreadContextMenu', () => {
     })
 
     expect(getActivityThreadCopyTargets(synthetic, false)).toEqual([
-      { key: 'title', label: 'Copy Title', value: 'Fix the flaky test' }
+      { key: 'title', label: 'Copy title', value: 'Fix the flaky test' }
     ])
   })
 })

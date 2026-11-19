@@ -1,5 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { INSET_WELL, REVEAL } from './research-surface-classes'
 import { localPointLabel } from '../../../../research-harness/research-rebuttal-model.mjs'
 import type {
   RebuttalArchivedGroup,
@@ -15,11 +17,11 @@ function excerpt(text: string): string {
 
 function GroupList({ title, groups }: { title: string; groups: Group[] }): React.JSX.Element {
   return (
-    <div className="min-w-0 space-y-1.5">
+    <div className="min-w-0 space-y-2">
       <p className="text-3xs font-medium text-muted-foreground">{title}</p>
       {groups.length ? (
         groups.map((group) => (
-          <div key={group.id} className="min-w-0 rounded-sm bg-background px-2 py-1">
+          <div key={group.id} className="min-w-0 rounded-lg bg-card px-3 py-2 shadow-raised">
             <p className="truncate text-xs">
               <span className="font-mono text-muted-foreground">{group.id}</span> {group.title}
             </p>
@@ -85,10 +87,10 @@ export function ResearchRebuttalRegroupChanges({
     )
   }))
   return (
-    <div className="space-y-2 rounded-md border border-border bg-muted/40 p-2.5">
+    <div className={cn(INSET_WELL, REVEAL, 'space-y-2 p-3')}>
       <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-2">
         <GroupList title="Before" groups={record.before.clusters} />
-        <ArrowRight className="mt-6 size-3.5 text-muted-foreground" aria-hidden />
+        <ArrowRight className="mt-7 size-4 text-muted-foreground" aria-hidden />
         <GroupList title="After" groups={record.after.clusters} />
       </div>
       <ul className="space-y-0.5 text-2xs leading-4 text-muted-foreground">
@@ -96,7 +98,7 @@ export function ResearchRebuttalRegroupChanges({
           <li key={line}>{line}</li>
         ))}
         {removed.map(({ id, entry }) => (
-          <li key={id} className="flex flex-wrap items-center gap-x-1.5">
+          <li key={id} className="flex flex-wrap items-center gap-x-2">
             {id}’s reply → archived with its group
             {entry && record.applied && !readOnly ? (
               <Button size="xs" variant="ghost" onClick={() => onRestore(entry.id)}>

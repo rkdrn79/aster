@@ -90,7 +90,7 @@ export function TaskPageJiraFilters({
                   setJiraRefreshNonce((n) => n + 1)
                 }}
                 className={cn(
-                  'rounded-md border px-2 py-1 text-xs transition',
+                  'rounded-md border px-2 py-1 text-xs transition-colors',
                   active
                     ? 'border-border/50 bg-foreground/90 text-background backdrop-blur-md'
                     : 'border-border/50 bg-transparent text-foreground hover:bg-muted/50'
@@ -111,7 +111,7 @@ export function TaskPageJiraFilters({
               setTaskResumeState({ jiraQuery: '' })
             }}
           >
-            {translate('jira.workspace.mode', 'Has Workspace')}
+            {translate('jira.workspace.mode', 'Has workspace')}
           </Button>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -260,7 +260,7 @@ export function TaskPageJiraFilters({
                   setJiraRefreshNonce((n) => n + 1)
                 }
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
             >
               <X className="size-4" />
             </button>

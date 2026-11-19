@@ -38,7 +38,7 @@ export function SkillsSourcesPopover({
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-96 p-0">
-        <p className="border-b border-border px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+        <p className="border-b border-border px-3 py-2 text-[11px] font-medium text-muted-foreground">
           {translate('auto.components.skills.sources.heading', 'Skill folders')}
         </p>
         <div className="scrollbar-sleek max-h-80 overflow-y-auto py-1">

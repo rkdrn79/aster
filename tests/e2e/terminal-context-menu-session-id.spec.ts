@@ -62,14 +62,14 @@ test('terminal pane context menu copies its agent session ID', async ({ orcaPage
   await openTerminalContextMenu(orcaPage)
 
   const identityItems = await orcaPage.getByRole('menuitem').allInnerTexts()
-  const sessionIdIndex = identityItems.indexOf('Copy Session ID')
+  const sessionIdIndex = identityItems.indexOf('Copy session ID')
   expect(identityItems.slice(sessionIdIndex, sessionIdIndex + 3)).toEqual([
-    'Copy Session ID',
+    'Copy session ID',
     'Copy Terminal ID',
     'Copy Pane ID'
   ])
 
-  const copyItem = orcaPage.getByRole('menuitem', { name: 'Copy Session ID', exact: true })
+  const copyItem = orcaPage.getByRole('menuitem', { name: 'Copy session ID', exact: true })
   await expect(copyItem).toBeVisible()
   await copyItem.click()
 

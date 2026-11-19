@@ -38,7 +38,7 @@ export function SettingsHostScopePicker({
     ? `${ENVIRONMENT_VALUE_PREFIX}${scopeEnvironmentId}`
     : LOCAL_VALUE
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-8 py-2 text-xs">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border/60 bg-muted/40 px-10 py-2 text-xs">
       <span className="font-medium text-foreground">
         {translate('auto.components.settings.SettingsHostScopePicker.label', 'Host')}
       </span>

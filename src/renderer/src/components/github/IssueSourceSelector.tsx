@@ -47,7 +47,7 @@ function segmentClass(state: PillState, disabled: boolean | undefined): string {
     // here would double-stroke the chip outline and look heavy. Active state
     // is expressed by a slightly darker inner background that sits one step
     // above the chip's own `bg-muted/40`.
-    'inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium transition',
+    'inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium transition-colors',
     state === 'active'
       ? 'bg-foreground/10 text-foreground'
       : 'bg-transparent text-muted-foreground hover:bg-foreground/5 hover:text-foreground',

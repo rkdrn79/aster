@@ -43,12 +43,12 @@ export function buildUpdateCardErrorModel({
   if (status.state !== 'error') {
     return installError
       ? {
-          title: translate('auto.components.UpdateCard.4cf109845a', 'Update Error'),
+          title: translate('auto.components.UpdateCard.4cf109845a', 'Update error'),
           summary: 'Could not restart to install the update.',
           detail: installError,
           releaseUrl: productReleaseUrl(cachedVersion),
           primaryAction: {
-            label: translate('auto.components.UpdateCard.2c2d3e03ca', 'Try Again'),
+            label: translate('auto.components.UpdateCard.2c2d3e03ca', 'Try again'),
             onClick: onInstallRetry
           }
         }
@@ -75,12 +75,12 @@ export function buildUpdateCardErrorModel({
   }
   if (status.retryAction === 'install' && status.retryable !== false) {
     return {
-      title: translate('auto.components.UpdateCard.4cf109845a', 'Update Error'),
+      title: translate('auto.components.UpdateCard.4cf109845a', 'Update error'),
       summary: status.message,
       detail: status.message,
       releaseUrl: productReleaseUrl(cachedVersion),
       primaryAction: {
-        label: translate('auto.components.UpdateCard.2c2d3e03ca', 'Try Again'),
+        label: translate('auto.components.UpdateCard.2c2d3e03ca', 'Try again'),
         onClick: onInstallRetry
       }
     }
@@ -88,8 +88,8 @@ export function buildUpdateCardErrorModel({
   if (isLocalBuild) {
     return {
       title: cachedVersion
-        ? translate('auto.components.UpdateCard.8cf17b10af', 'Local Build Error')
-        : translate('auto.components.UpdateCard.a4650b0dc4', 'Could Not Use Local Build'),
+        ? translate('auto.components.UpdateCard.8cf17b10af', 'Local build error')
+        : translate('auto.components.UpdateCard.a4650b0dc4', 'Could not use local build'),
       summary: cachedVersion
         ? translate(
             'auto.components.UpdateCard.b1e390250d',
@@ -101,7 +101,7 @@ export function buildUpdateCardErrorModel({
           ),
       detail: status.message,
       primaryAction: {
-        label: translate('auto.components.UpdateCard.37d45c9ec1', 'Choose Another Build'),
+        label: translate('auto.components.UpdateCard.37d45c9ec1', 'Choose another build'),
         onClick: onChooseLocalBuild
       }
     }
@@ -109,7 +109,7 @@ export function buildUpdateCardErrorModel({
   if (isHttp2ProtocolError(status.message)) {
     return {
       variant: 'http1Compatibility',
-      title: translate('auto.components.UpdateCard.1339b82cee', 'HTTP/2 Download Blocked'),
+      title: translate('auto.components.UpdateCard.1339b82cee', 'HTTP/2 download blocked'),
       summary: `${PRODUCT_NAME} can retry through HTTP/1.1 compatibility mode.`,
       explainer: translate(
         'auto.components.UpdateCard.90559b14e3',
@@ -118,7 +118,7 @@ export function buildUpdateCardErrorModel({
       detail: compatibilitySetupError ?? status.message,
       releaseUrl: productReleaseUrl(cachedVersion),
       primaryAction: {
-        label: translate('auto.components.UpdateCard.933c6fdf5b', 'Enable & Restart'),
+        label: translate('auto.components.UpdateCard.933c6fdf5b', 'Enable and restart'),
         pendingLabel: 'Restarting...',
         isPending: compatibilityRelaunching,
         onClick: onEnableHttp1Compatibility
@@ -128,7 +128,7 @@ export function buildUpdateCardErrorModel({
   if (isWindowsSignatureMismatchFailure(status.message)) {
     return {
       variant: 'security',
-      title: translate('auto.components.UpdateCard.5b309b19f3', "Update Wasn't Installed"),
+      title: translate('auto.components.UpdateCard.5b309b19f3', "Update wasn't installed"),
       summary: translate(
         'auto.components.UpdateCard.092f09fc14',
         "The installer's publisher doesn't match Aster, so we stopped the update. Don't install this download; check official releases for a corrected version."
@@ -140,7 +140,7 @@ export function buildUpdateCardErrorModel({
   }
   if (isWindowsSignatureCheckUnavailableFailure(status.message)) {
     return {
-      title: translate('auto.components.UpdateCard.e944c2de43', 'Update Verification Blocked'),
+      title: translate('auto.components.UpdateCard.e944c2de43', 'Update verification blocked'),
       summary: translate(
         'auto.components.UpdateCard.a05992a26b',
         "The signature check couldn't run — usually because antivirus software blocked it. Retry the download, or get the installer from our official releases."
@@ -148,13 +148,13 @@ export function buildUpdateCardErrorModel({
       detail: status.message,
       releaseUrl: productReleaseUrl(cachedVersion),
       primaryAction: {
-        label: translate('auto.components.UpdateCard.48565a32bc', 'Retry Download'),
+        label: translate('auto.components.UpdateCard.48565a32bc', 'Retry download'),
         onClick: onRetryDownload
       }
     }
   }
   return {
-    title: cachedVersion ? 'Update Error' : 'Update Check Failed',
+    title: cachedVersion ? 'Update error' : 'Update check failed',
     summary:
       cachedVersion && status.retryable === false
         ? status.message
@@ -166,7 +166,7 @@ export function buildUpdateCardErrorModel({
     primaryAction:
       cachedVersion && status.retryable !== false
         ? {
-            label: translate('auto.components.UpdateCard.48565a32bc', 'Retry Download'),
+            label: translate('auto.components.UpdateCard.48565a32bc', 'Retry download'),
             onClick: onRetryDownload
           }
         : !cachedVersion

@@ -78,7 +78,7 @@ export function AutomationListHostGroups({
     <>
       {groups.map((group) => (
         <section key={group.authorityKey} className="mb-2" data-authority-key={group.authorityKey}>
-          <div className="px-2 pb-1 text-[11px] font-medium uppercase text-muted-foreground">
+          <div className="px-2 pb-1 text-[11px] font-medium text-muted-foreground">
             {group.authorityLabel}
           </div>
           {group.hosts.map(({ entry, rows, hostRowCount }) => {

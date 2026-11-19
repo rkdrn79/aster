@@ -330,7 +330,7 @@ export function CrashReportDialogSurface({
             disabled={loading}
           >
             <Clipboard className="size-3.5" />
-            {translate('auto.components.crash.report.CrashReportDialog.50b00dc327', 'Copy Details')}
+            {translate('auto.components.crash.report.CrashReportDialog.50b00dc327', 'Copy details')}
           </Button>
           <Button
             type="button"
@@ -339,11 +339,11 @@ export function CrashReportDialogSurface({
             onClick={handleDismiss}
             disabled={submitting}
           >
-            {translate('auto.components.crash.report.CrashReportDialog.88fea8e84e', "Don't Send")}
+            {translate('auto.components.crash.report.CrashReportDialog.88fea8e84e', "Don't send")}
           </Button>
           <Button type="button" size="sm" onClick={handleSubmit} disabled={loading || submitting}>
             <Send className="size-3.5" />
-            {translate('auto.components.crash.report.CrashReportDialog.b4951cd27c', 'Send Report')}
+            {translate('auto.components.crash.report.CrashReportDialog.b4951cd27c', 'Send report')}
           </Button>
         </DialogFooter>
       </DialogContent>

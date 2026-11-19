@@ -74,7 +74,7 @@ export function RepositorySourceControlAiSection({
         <h3 className="text-sm font-semibold">
           {translate(
             'auto.components.settings.RepositorySourceControlAiSection.71b003b62b',
-            'Source Control AI'
+            'Source control AI'
           )}
         </h3>
         <p className="text-xs text-muted-foreground">{ownership.description}</p>

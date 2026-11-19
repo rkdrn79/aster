@@ -48,7 +48,7 @@ export function AutomationDeleteDialog({
           <DialogTitle className="text-sm">
             {translate(
               'auto.components.automations.AutomationsPage.080dcb5fbb',
-              'Delete Automation'
+              'Delete automation'
             )}
           </DialogTitle>
           <DialogDescription className="text-xs">
@@ -137,7 +137,7 @@ export function ExternalAutomationDeleteDialog({
           <DialogTitle className="text-sm">
             {translate(
               'auto.components.automations.AutomationsPage.9adfab2596',
-              'Delete External Automation'
+              'Delete external automation'
             )}
           </DialogTitle>
           <DialogDescription className="text-xs">

@@ -94,7 +94,7 @@ export function JiraIssueCell({
         <div className="flex min-w-0">
           <span
             className={cn(
-              'inline-flex max-w-full items-center rounded-full border px-2 py-0.5 text-[11px] font-medium',
+              'inline-flex max-w-full items-center rounded-sm border px-2 py-0.5 text-[11px] font-medium',
               getStatusTone(issue.status.categoryKey)
             )}
           >

@@ -85,7 +85,7 @@ describe('showDeleteWorktreeFailureToast', () => {
     expect(toast.dismiss).toHaveBeenCalledWith('delete-worktree-failure:|wt-1')
     expect(onViewChanges).toHaveBeenCalled()
 
-    clickButton(body, 'Force Delete')
+    clickButton(body, 'Force delete')
     expect(toast.dismiss).toHaveBeenCalledWith('delete-worktree-failure:|wt-1')
     expect(onForceDelete).toHaveBeenCalled()
   })
@@ -115,7 +115,7 @@ describe('showDeleteWorktreeFailureToast', () => {
 
     const body = renderToastBody('error')
     expect(body.textContent).toContain('permission denied')
-    expect(body.textContent).not.toContain('Force Delete')
+    expect(body.textContent).not.toContain('Force delete')
 
     clickButton(body, 'View')
     expect(toast.dismiss).toHaveBeenCalledWith('delete-worktree-failure:|wt-2')
@@ -124,7 +124,7 @@ describe('showDeleteWorktreeFailureToast', () => {
 
   // #19334: the archive-hook refusal is the one failure a user clears by waiving rather than by
   // fixing state, and the desktop is where most people meet it.
-  it('offers Delete Anyway when the archive hook refused the removal', () => {
+  it('offers Delete anyway when the archive hook refused the removal', () => {
     const onDeleteAnyway = vi.fn()
 
     showDeleteWorktreeFailureToast({
@@ -146,15 +146,15 @@ describe('showDeleteWorktreeFailureToast', () => {
     )
 
     const body = renderToastBody('error')
-    expect(body.textContent).toContain('Delete Anyway')
-    expect(body.textContent).not.toContain('Force Delete')
+    expect(body.textContent).toContain('Delete anyway')
+    expect(body.textContent).not.toContain('Force delete')
 
-    clickButton(body, 'Delete Anyway')
+    clickButton(body, 'Delete anyway')
     expect(toast.dismiss).toHaveBeenCalledWith('delete-worktree-failure:|wt-archive')
     expect(onDeleteAnyway).toHaveBeenCalled()
   })
 
-  it('does not offer Delete Anyway for an ordinary failure', () => {
+  it('does not offer Delete anyway for an ordinary failure', () => {
     showDeleteWorktreeFailureToast({
       error: 'permission denied',
       canForceDelete: false,
@@ -166,7 +166,7 @@ describe('showDeleteWorktreeFailureToast', () => {
       worktreeName: 'feature/plain'
     })
 
-    expect(renderToastBody('error').textContent).not.toContain('Delete Anyway')
+    expect(renderToastBody('error').textContent).not.toContain('Delete anyway')
   })
 
   it('offers neither force delete nor View for a locked workspace', () => {
@@ -188,7 +188,7 @@ describe('showDeleteWorktreeFailureToast', () => {
     expect(body.textContent).toContain(
       'Run git worktree unlock <worktree-path> from its repository, then retry deletion'
     )
-    expect(body.textContent).not.toContain('Force Delete')
+    expect(body.textContent).not.toContain('Force delete')
     expect(body.textContent).not.toContain('View')
     expect(onViewChanges).not.toHaveBeenCalled()
   })

@@ -32,7 +32,7 @@ export function MobileEmulatorAgentControlRow(): React.JSX.Element {
           <p className="text-sm font-semibold">
             {translate(
               'auto.components.settings.MobileEmulatorAgentControlRow.2a674aa810',
-              'Agent Mobile Emulator Control'
+              'Agent mobile emulator control'
             )}
           </p>
           <p className="text-xs text-muted-foreground">

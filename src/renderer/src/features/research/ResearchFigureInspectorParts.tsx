@@ -10,10 +10,8 @@ export function InspectorHeading({
   aside?: ReactNode
 }): React.JSX.Element {
   return (
-    <div className="flex items-center gap-2 px-3 pt-3 pb-1.5">
-      <h3 className="flex-1 text-2xs font-medium tracking-wide text-muted-foreground uppercase">
-        {children}
-      </h3>
+    <div className="flex items-center gap-2 px-3 pt-4 pb-2">
+      <h3 className="flex-1 text-2xs leading-4 font-medium text-muted-foreground">{children}</h3>
       {aside}
     </div>
   )
@@ -42,7 +40,7 @@ export function InspectorChip({
       aria-label={title ?? label}
       title={title ?? label}
       disabled={disabled}
-      className="flex h-7 min-w-0 items-center gap-1.5 rounded-md border border-border px-1.5 text-xs text-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 aria-pressed:border-foreground aria-pressed:bg-accent"
+      className="flex h-7 min-w-0 items-center gap-2 rounded-lg border border-border px-2 text-xs text-foreground transition-colors duration-(--duration-fast) hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 aria-pressed:border-foreground/70 aria-pressed:bg-accent"
       onClick={onClick}
     >
       {children}
@@ -69,7 +67,7 @@ export function InspectorAction({
       aria-label={label}
       title={label}
       disabled={disabled}
-      className="flex h-6 items-center gap-1 rounded-md px-1.5 text-xs text-foreground hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-3.5"
+      className="flex h-7 items-center gap-2 rounded-lg px-2 text-xs text-foreground transition-colors duration-(--duration-fast) hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:text-muted-foreground"
       onClick={onClick}
     >
       {children}
@@ -83,19 +81,25 @@ export function InspectorAction({
  */
 export function InspectorNumber({
   label,
+  name,
   value,
   step,
   bigStep,
   digits,
   disabled,
+  mixed,
   onCommit
 }: {
   label: string
+  /** The field's accessible name when the short label is not enough ("pt" twice). */
+  name?: string
   value: number | null
   step: number
   bigStep: number
   digits: number
   disabled?: boolean
+  /** The selection holds several values: the field stays editable and reads "Mixed". */
+  mixed?: boolean
   onCommit: (value: number) => void
 }): React.JSX.Element {
   const [draft, setDraft] = useState<string | null>(null)
@@ -108,13 +112,13 @@ export function InspectorNumber({
     setDraft(null)
   }
   return (
-    <label className="flex min-w-0 items-center gap-1 rounded-md border border-border px-1.5 text-xs focus-within:outline-2 focus-within:outline-ring">
+    <label className="flex h-7 min-w-0 items-center gap-1 rounded-lg bg-muted px-2 text-xs transition-shadow focus-within:outline-2 focus-within:outline-ring">
       <span className="w-3 shrink-0 text-muted-foreground">{label}</span>
       <input
-        aria-label={label}
+        aria-label={name ?? label}
         inputMode="decimal"
-        disabled={disabled || value === null}
-        placeholder="—"
+        disabled={disabled || (value === null && !mixed)}
+        placeholder={mixed ? 'Mixed' : '—'}
         value={shown}
         className="h-6 min-w-0 flex-1 bg-transparent text-right tabular-nums outline-none disabled:opacity-50"
         onChange={(event) => setDraft(event.target.value)}
@@ -137,5 +141,37 @@ export function InspectorNumber({
         }}
       />
     </label>
+  )
+}
+
+/** The Inspector's square icon button (align, line ends, label align); `pressed` marks a choice. */
+export const INSPECTOR_ICON_BUTTON =
+  'flex h-7 w-[26px] shrink-0 items-center justify-center rounded-lg transition-colors duration-150 hover:bg-accent focus-visible:outline-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-40 aria-pressed:bg-accent aria-pressed:text-foreground [&_svg]:size-3.5 [&_svg]:text-muted-foreground aria-pressed:[&_svg]:text-foreground'
+
+export function InspectorIconButton({
+  label,
+  pressed,
+  disabled,
+  children,
+  onClick
+}: {
+  label: string
+  pressed?: boolean
+  disabled?: boolean
+  children: ReactNode
+  onClick: () => void
+}): React.JSX.Element {
+  return (
+    <button
+      type="button"
+      className={INSPECTOR_ICON_BUTTON}
+      aria-label={label}
+      aria-pressed={pressed}
+      title={label}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </button>
   )
 }

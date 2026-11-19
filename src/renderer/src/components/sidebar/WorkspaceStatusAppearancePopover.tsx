@@ -61,7 +61,7 @@ export default function WorkspaceStatusAppearancePopover({
         data-workspace-status-appearance-popover=""
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
-        <div className="px-1 py-1 text-[11px] font-semibold text-muted-foreground">
+        <div className="px-1 py-1 text-[11px] font-medium text-muted-foreground">
           {translate(
             'auto.components.sidebar.WorkspaceStatusAppearancePopover.2ac106f6b2',
             'Color'
@@ -94,7 +94,7 @@ export default function WorkspaceStatusAppearancePopover({
           ))}
         </div>
 
-        <div className="mt-2 px-1 py-1 text-[11px] font-semibold text-muted-foreground">
+        <div className="mt-2 px-1 py-1 text-[11px] font-medium text-muted-foreground">
           {translate('auto.components.sidebar.WorkspaceStatusAppearancePopover.8be427206b', 'Icon')}
         </div>
         <div className="grid grid-cols-6 gap-1">

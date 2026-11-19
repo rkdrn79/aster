@@ -141,7 +141,7 @@ export function LinearAgentSkillGuide({
           <p className="text-xs text-muted-foreground">
             {translate(
               'auto.components.settings.LinearAgentSkillGuide.setupBody',
-              'All three are required for the full Tasks + agent loop. First-time path is also under Task Sources.'
+              'All three are required for the full Tasks + agent loop. First-time path is also under Task sources.'
             )}
           </p>
         </div>
@@ -246,7 +246,7 @@ export function LinearAgentSkillGuide({
           >
             {translate(
               'auto.components.settings.LinearAgentSkillGuide.openTaskSources',
-              'Task Sources'
+              'Task sources'
             )}
           </Button>
         </div>

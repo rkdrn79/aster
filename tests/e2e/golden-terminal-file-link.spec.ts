@@ -189,7 +189,7 @@ test('opens a terminal file link and observes an external edit @golden', async (
         async () => {
           const snapshot = await orcaPage.evaluate(() => window.__monacoEditorE2E?.snapshot())
           const reloadVisible = await orcaPage
-            .getByRole('button', { name: 'Reload from Disk' })
+            .getByRole('button', { name: 'Reload from disk' })
             .isVisible()
             .catch(() => false)
           return Boolean(snapshot?.valueTail.includes(changedMarker) || reloadVisible)

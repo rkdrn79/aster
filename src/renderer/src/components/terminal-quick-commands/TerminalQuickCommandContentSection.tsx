@@ -186,9 +186,7 @@ export function TerminalQuickCommandContentSection({
         )}
       >
         <div className="flex items-center justify-between gap-3 border-b border-border bg-muted/70 px-3 py-2">
-          <span className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
-            {commandFieldLabel}
-          </span>
+          <span className="text-[11px] font-medium text-muted-foreground">{commandFieldLabel}</span>
           {isAgentAction ? (
             <span className="shrink-0 text-[11px] text-muted-foreground">
               {translate(

@@ -42,11 +42,8 @@ export const ARRANGE: readonly (readonly ArrangeEntry[])[] = [
     { label: 'Group', shortcut: { key: 'g', mod: true }, min: 2 },
     { label: 'Ungroup', shortcut: { key: 'G', code: 'KeyG', mod: true, shift: true }, hint: false },
     { label: 'Duplicate', shortcut: { key: 'd', mod: true } },
-    {
-      label: 'Lock or unlock',
-      shortcut: { key: 'l', code: 'KeyL', mod: true, shift: true },
-      hint: false
-    }
+    // Why ⌥⌘L: ⌘⇧L (Excalidraw's lock) is "Use in paper" on the Figures page.
+    { label: 'Lock or unlock', shortcut: { key: 'l', code: 'KeyL', mod: true, alt: true } }
   ],
   [
     { label: 'Bring to front', shortcut: { key: ']', code: 'BracketRight', mod: true, ...front } },

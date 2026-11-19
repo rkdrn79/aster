@@ -92,7 +92,7 @@ function renderRow(
         onJumpToOriginalPane={overrides.onJumpToOriginalPane}
         showJumpToWorktree={false}
         onResume={overrides.onResume ?? vi.fn()}
-        resumeLabel="Resume in New Tab"
+        resumeLabel="Resume in new tab"
         resumeActions={{
           worktree: { worktreeId: null, disabled: true },
           newTab: { worktreeId: null, disabled: true }
@@ -177,10 +177,10 @@ describe('VaultSessionRow in the /resume picker', () => {
     const user = userEvent.setup()
 
     expect(await screen.findByText('Sub task')).toBeTruthy()
-    expect(screen.queryByTitle('View Log')).toBeNull()
+    expect(screen.queryByTitle('View log')).toBeNull()
     expect(screen.queryByRole('button', { name: /^Copy/ })).toBeNull()
     expect(screen.queryByTestId('ai-vault-session-more-actions')).toBeNull()
-    expect(screen.queryByRole('button', { name: 'Resume in New Tab' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Resume in new tab' })).toBeNull()
     expect(container.querySelector('[draggable="true"]')).toBeNull()
     const title = screen.getAllByText('A session')[0]
     fireEvent.contextMenu(title)
@@ -207,8 +207,8 @@ describe('VaultSessionRow native session actions', () => {
 
     const user = userEvent.setup()
     await user.click(screen.getByTestId('ai-vault-session-more-actions'))
-    expect(await screen.findByRole('menuitem', { name: 'Jump to Original Pane' })).toBeTruthy()
-    expect(screen.queryByRole('menuitem', { name: 'Resume in New Tab' })).toBeNull()
+    expect(await screen.findByRole('menuitem', { name: 'Jump to original pane' })).toBeTruthy()
+    expect(screen.queryByRole('menuitem', { name: 'Resume in new tab' })).toBeNull()
   })
 
   it('hides Delete for structured native sessions', async () => {
@@ -290,6 +290,6 @@ it('threads child resume through expanded parent details without resuming the pa
     subagentResume: resume
   })
   await act(async () => {})
-  fireEvent.click(screen.getByTitle('Resume in New Tab'))
+  fireEvent.click(screen.getByTitle('Resume in new tab'))
   expect(resume.onResume).toHaveBeenCalledExactlyOnceWith(child, 'folder:target')
 })

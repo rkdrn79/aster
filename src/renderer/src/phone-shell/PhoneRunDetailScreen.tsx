@@ -1,32 +1,13 @@
-import { useState } from 'react'
 import { FileWarning, RefreshCw } from 'lucide-react'
-import { formatMetricValue } from '@/features/research/research-experiment-workspace-summary-format'
 import { useDeadlineClock } from '@/features/research/use-deadline-clock'
 import { getIntlLocale } from '@/i18n/i18n'
-import type {
-  ResearchProjectMetricSeries,
-  ResearchProjectRunLogTailResult
-} from '../../../shared/research/research-project-api'
 import { runStateLabel } from './phone-run-summaries'
-import {
-  PhoneEmptyState,
-  PhoneScrollBody,
-  PhoneSection,
-  PhoneSectionNote,
-  PhoneStatusPill
-} from './PhoneListLayout'
+import { PhoneEmptyState, PhoneScrollBody, PhoneSection, PhoneStatusPill } from './PhoneListLayout'
+import { PhoneRunLog } from './PhoneRunLog'
+import { PhoneRunMedia } from './PhoneRunMedia'
+import { PhoneRunMetrics } from './PhoneRunMetrics'
 import { runStatePill } from './PhoneRunRow'
 import { usePhoneRunDetail, type PhoneRunRef } from './use-phone-run-detail'
-
-const LOG_LINES_COLLAPSED = 20
-
-function bestValue(series: ResearchProjectMetricSeries): number | null {
-  if (series.points.length === 0 || !series.direction) {
-    return null
-  }
-  const values = series.points.map((point) => point.value)
-  return series.direction === 'maximize' ? Math.max(...values) : Math.min(...values)
-}
 
 function formatStartTime(epochMs: number): string {
   return new Date(epochMs).toLocaleString(getIntlLocale(), {
@@ -38,77 +19,24 @@ function formatStartTime(epochMs: number): string {
 }
 
 function formatDuration(ms: number): string {
-  const minutes = Math.round(ms / 60_000)
-  if (minutes < 60) {
-    return `${minutes}m`
+  const seconds = Math.max(0, Math.floor(ms / 1000))
+  if (seconds < 3600) {
+    // Why seconds: a Run that just started should visibly tick, not sit at "0m".
+    return seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`
   }
+  const minutes = Math.floor(seconds / 60)
   const hours = Math.floor(minutes / 60)
   return hours < 48 ? `${hours}h ${minutes % 60}m` : `${Math.floor(hours / 24)}d ${hours % 24}h`
-}
-
-function MetricCell({ series }: { series: ResearchProjectMetricSeries }): React.JSX.Element {
-  const last = series.points.at(-1)
-  const best = bestValue(series)
-  return (
-    <div className="min-w-0 px-4 py-3.5">
-      <p className="truncate text-xs text-muted-foreground">
-        {series.split ? `${series.split} ${series.name}` : series.name}
-      </p>
-      <p className="mt-0.5 text-2xl leading-tight font-semibold tabular-nums">
-        {last ? formatMetricValue(last.value) : '—'}
-      </p>
-      <p className="mt-0.5 truncate text-xs text-muted-foreground tabular-nums">
-        {[
-          best !== null && last && best !== last.value ? `best ${formatMetricValue(best)}` : null,
-          last?.step !== null && last?.step !== undefined ? `step ${last.step}` : null
-        ]
-          .filter(Boolean)
-          .join(' · ') || `${series.count} points`}
-      </p>
-    </div>
-  )
-}
-
-function LogTail({
-  log,
-  error
-}: {
-  log: ResearchProjectRunLogTailResult | null
-  error: string | null
-}): React.JSX.Element {
-  const [expanded, setExpanded] = useState(false)
-  if (error && !log) {
-    return <PhoneSectionNote>{error}</PhoneSectionNote>
-  }
-  const lines = (log?.status === 'present' ? log.text : '').replace(/\n+$/, '').split('\n')
-  if (lines.length === 0 || (lines.length === 1 && !lines[0])) {
-    return <PhoneSectionNote>No log written yet</PhoneSectionNote>
-  }
-  const hidden = expanded ? 0 : Math.max(0, lines.length - LOG_LINES_COLLAPSED)
-  return (
-    <div className="bg-editor-surface">
-      <pre className="px-4 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere]">
-        {lines.slice(hidden).join('\n')}
-      </pre>
-      {hidden > 0 || expanded ? (
-        <button
-          type="button"
-          onClick={() => setExpanded((value) => !value)}
-          className="flex h-11 w-full items-center justify-center border-t border-border text-[13px] font-medium text-foreground active:bg-accent"
-        >
-          {expanded ? 'Show less' : `Show ${hidden} earlier lines`}
-        </button>
-      ) : null}
-    </div>
-  )
 }
 
 /** One Run from the host: where it stands, its metrics, and the end of its log. */
 export function PhoneRunDetailScreen({ runRef }: { runRef: PhoneRunRef }): React.JSX.Element {
   const detail = usePhoneRunDetail(runRef)
-  const now = useDeadlineClock(30_000)
+  // Why 1 s while live: the elapsed time is the first thing checked on a running Run.
+  const now = useDeadlineClock(detail.live ? 1_000 : 30_000)
   const manifest = detail.run?.manifest.status === 'present' ? detail.run.manifest.value : null
   const metrics = detail.run?.metrics.status === 'present' ? detail.run.metrics.value : null
+  const media = detail.run?.media.status === 'present' ? detail.run.media.value : null
   if (!detail.run && detail.runError) {
     return (
       <PhoneEmptyState icon={FileWarning} title="Run could not be read">
@@ -138,6 +66,8 @@ export function PhoneRunDetailScreen({ runRef }: { runRef: PhoneRunRef }): React
           )}
           {detail.loading ? (
             <span className="ml-auto text-xs text-muted-foreground">Reading…</span>
+          ) : detail.live ? (
+            <span className="ml-auto text-xs text-muted-foreground">Updates every 5 s</span>
           ) : null}
         </div>
         <p className="mt-2 text-[13px] text-muted-foreground tabular-nums">
@@ -150,16 +80,17 @@ export function PhoneRunDetailScreen({ runRef }: { runRef: PhoneRunRef }): React
         ) : null}
       </div>
       <PhoneSection label={metrics?.partial ? 'Metrics (newest rows)' : 'Metrics'}>
-        {metrics && metrics.series.length > 0 ? (
-          <div className="grid grid-cols-2 [&>*]:border-border [&>*:nth-child(n+3)]:border-t [&>*:nth-child(odd):not(:last-child)]:border-r [&>*:nth-child(odd):last-child]:col-span-2">
-            {metrics.series.map((series) => (
-              <MetricCell key={`${series.split ?? ''}/${series.name}`} series={series} />
-            ))}
-          </div>
-        ) : (
-          <PhoneSectionNote>No metrics recorded yet</PhoneSectionNote>
-        )}
+        <PhoneRunMetrics series={metrics?.series ?? []} />
       </PhoneSection>
+      {media && media.items.length > 0 ? (
+        <PhoneSection label="Images and samples">
+          <PhoneRunMedia
+            worktreeId={runRef.worktreeId}
+            items={media.items}
+            truncated={media.truncated}
+          />
+        </PhoneSection>
+      ) : null}
       <PhoneSection
         label={detail.log?.path ? (detail.log.path.split('/').at(-1) ?? 'Log') : 'Log'}
         trailing={
@@ -174,7 +105,7 @@ export function PhoneRunDetailScreen({ runRef }: { runRef: PhoneRunRef }): React
           </button>
         }
       >
-        <LogTail log={detail.log} error={detail.logError} />
+        <PhoneRunLog log={detail.log} error={detail.logError} />
       </PhoneSection>
     </PhoneScrollBody>
   )

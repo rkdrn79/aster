@@ -22,7 +22,7 @@ export function showDictationStartErrorToast(message: string): void {
       action: {
         label: translate(
           'auto.components.dictation.DictationController.bb7f599ee7',
-          'Open Settings'
+          'Open settings'
         ),
         onClick: openVoiceSettings
       }

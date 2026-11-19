@@ -69,7 +69,7 @@ export function WorkspaceCleanupFilterBar({
             <SlidersHorizontal className="size-3.5" />
             {translate('components.workspace.cleanup.browse.filters', 'Filters')}
             {activeFacetGroupCount > 0 ? (
-              <span className="ml-1 rounded-full bg-accent px-1.5 text-[11px] tabular-nums text-accent-foreground">
+              <span className="ml-1 text-[11px] tabular-nums text-muted-foreground">
                 {activeFacetGroupCount}
               </span>
             ) : null}

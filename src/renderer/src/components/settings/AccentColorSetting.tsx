@@ -34,11 +34,12 @@ function getAccentSwatches(): AccentSwatch[] {
 
 const CUSTOM_FILL =
   'conic-gradient(from 180deg, #e5484d, #f5a524, #46a758, #12a594, #3e63dd, #8e4ec6, #e5484d)'
+// Why ring-offset-card: the swatches sit on the settings card, so the gap must be the card's colour.
 const SWATCH_CLASS =
-  'block size-6 shrink-0 rounded-full border border-border/70 outline-none transition-shadow'
-const SELECTED_CLASS = 'ring-2 ring-foreground ring-offset-2 ring-offset-background'
+  'block size-6 shrink-0 rounded-full border border-black/10 outline-none transition-[box-shadow,transform] duration-150 ease-out-quint active:scale-95 motion-reduce:active:scale-100 dark:border-white/10'
+const SELECTED_CLASS = 'ring-2 ring-foreground ring-offset-2 ring-offset-card'
 const UNSELECTED_CLASS =
-  'hover:ring-1 hover:ring-muted-foreground hover:ring-offset-2 hover:ring-offset-background'
+  'hover:ring-1 hover:ring-muted-foreground/60 hover:ring-offset-2 hover:ring-offset-card'
 const FULL_HEX_INPUT = /^#?[0-9a-fA-F]{6}$/
 const PICKER_COMMIT_DELAY_MS = 150
 
@@ -136,7 +137,7 @@ export function AccentColorSetting({
                   <span className="relative block size-6 shrink-0">
                     <input
                       type="color"
-                      value={selected ?? '#161921'}
+                      value={selected ?? '#18181b'}
                       onChange={(event) => pickCustom(event.target.value)}
                       aria-label={translate(
                         'settings.appearance.accentColor.custom',

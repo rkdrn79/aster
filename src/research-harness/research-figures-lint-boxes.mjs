@@ -2,6 +2,7 @@
 // one more than about 60% empty), and a tinted background behind the whole figure that encodes
 // no group or role.
 import { elementBounds, isInside } from './research-figures-geometry.mjs'
+import { hexToOklch } from './research-figures-color-space.mjs'
 import { glyphBounds } from './research-figures-text.mjs'
 
 const SHAPES = new Set(['rectangle', 'ellipse', 'diamond'])
@@ -99,12 +100,23 @@ export function emptyBoxChecks(elements, add) {
  * contribution, pass.
  */
 export function backgroundChecks(elements, add) {
+  // Why outlined near-white grays pass: the colour rule asks for regions in white or very light
+  // gray with a thin neutral outline; that is the advice, not decoration (round 14 agents who
+  // followed it were told to change it). A gray block with no outline is still a background.
+  const quiet = (panel) => {
+    if (!/^#[0-9a-f]{6}$/i.test(panel.backgroundColor) || !visible(panel.strokeColor)) {
+      return false
+    }
+    const { L, C } = hexToOklch(panel.backgroundColor)
+    return L >= 0.95 && C <= 0.016
+  }
   const panels = elements.filter(
     (element) =>
       element.customData?.asterPanel &&
       SHAPES.has(element.type) &&
       visible(element.backgroundColor) &&
-      element.backgroundColor.toLowerCase() !== '#ffffff'
+      element.backgroundColor.toLowerCase() !== '#ffffff' &&
+      !quiet(element)
   )
   const drawn = elements
     .filter((element) => element.type !== 'frame' && !element.customData?.asterPanel)

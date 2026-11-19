@@ -1,0 +1,1889 @@
+{
+  "title": "MethodX: constant fan-in DST with dynamic neuron ablation",
+  "method": "MethodX: sparse-to-sparse dynamic sparse training with a constant fan-in constraint (every active neuron has exactly k incoming weights). Every ΔT steps, per layer: count each neuron's salient weights (layer top-K by weight or by gradient magnitude), ablate neurons with fewer than γ_sal·k salient weights (floor of one) and give their budget to the rest, recompute k′, prune the K smallest-magnitude weights layer-wide, and regrow each active neuron by gradient magnitude up to fan-in k′. ERK (or uniform) layer densities, sparse fan-in-scaled init, update fraction α cosine-decayed to zero at an end fraction, then the mask is frozen. Inference uses a condensed n_active × k values + indices representation with CPU and GPU kernels; a closed-form variance analysis of the output-norm ratio motivates the constraint.",
+  "scope": {
+    "compute": {
+      "gpuHours": 4032,
+      "wallclockDays": 42,
+      "hardware": "Training pool 4× A100 for 6 weeks (to be confirmed before S0; if V100s, ≈1,613 A100-h); V100 latency box and Xeon CPU separate from the training budget",
+      "source": "assumed"
+    },
+    "outOfScope": [
+      {
+        "item": "NLP and LLMs"
+      },
+      {
+        "item": "Detection and segmentation"
+      },
+      {
+        "item": "Fine-tuning or transfer from pretrained models"
+      },
+      {
+        "item": "Adversarial and corruption robustness",
+        "reason": "not claimed"
+      },
+      {
+        "item": "Quantization combined with sparsity"
+      },
+      {
+        "item": "Ampere/Hopper sparse tensor cores"
+      },
+      {
+        "item": "Training wall-clock speedups",
+        "reason": "needs a truly sparse training implementation, a separate engineering project; C6 is stated as algorithmic sparsity only"
+      }
+    ]
+  },
+  "claims": [
+    {
+      "id": "C1",
+      "text": "MethodX learns constant fan-in sparsity with sparse-to-sparse training; it is equivalent to RigL and non-inferior to GraNet up to very high sparsity, across ResNet, WRN, MobileNetV2 and ViT/DeiT",
+      "kind": "performance",
+      "weight": "main",
+      "evidence": ["Q1", "Q2"],
+      "status": "planned"
+    },
+    {
+      "id": "C2",
+      "text": "At very high sparsity unstructured DST implicitly ablates neurons; strict constant fan-in prevents this, and dynamic ablation restores accuracy because it makes width compatible with the constraint",
+      "kind": "mechanism",
+      "weight": "main",
+      "evidence": ["Q3"],
+      "status": "planned"
+    },
+    {
+      "id": "C3",
+      "text": "Neuron ablation can be enabled at all sparsities; the resulting width sparsity adds inference speed without hurting generalization",
+      "kind": "efficiency",
+      "weight": "main",
+      "evidence": ["Q4"],
+      "status": "planned"
+    },
+    {
+      "id": "C4",
+      "text": "The condensed representation is parameter- and memory-efficient and gives real speedups for batch-1 CPU and batched GPU inference compared with dense and with strong unstructured engines",
+      "kind": "efficiency",
+      "weight": "main",
+      "evidence": ["Q5", "Q6"],
+      "status": "planned"
+    },
+    {
+      "id": "C5",
+      "text": "Constant fan-in does not impair training dynamics: output-norm variance is no larger than unstructured, especially at high sparsity",
+      "kind": "analysis",
+      "weight": "secondary",
+      "evidence": ["Q7"],
+      "status": "planned"
+    },
+    {
+      "id": "C6",
+      "text": "Training is algorithmically fully sparse: sparse weights and optimizer state, and sparse forward/backward except for the dense gradient at update steps (no training wall-clock speedup claimed)",
+      "kind": "efficiency",
+      "weight": "secondary",
+      "evidence": ["QC6"],
+      "status": "planned"
+    },
+    {
+      "id": "C7",
+      "text": "On CIFAR, MethodX generalizes better than post-hoc constant fan-in projection and better than SR-STE N:M learning at equal sparsity",
+      "kind": "performance",
+      "weight": "secondary",
+      "evidence": ["QC7"],
+      "status": "planned"
+    },
+    {
+      "id": "C8",
+      "text": "Hardware N:M supports only one fixed ratio and uniform sparsity",
+      "status": "argued-only"
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q1",
+      "claim": "C1",
+      "text": "On R18/C100 and WRN-22-2/C10 (sparsity 80→90→95→98→99) and R50/IN (90→95→99), is MethodX top-1 equivalent to RigL (paired TOST, 90% CI inside ±δ) and non-inferior to GraNet (one-sided 95% lower bound > −δ) at each sparsity? The claimed range s* is the last sparsity passed before the first failure (fixed-sequence, ascending).",
+      "hypothesis": "s* ≥ 98% on both CIFAR architectures and s* = 99% on R50/IN",
+      "predictionIfFalse": "s* < 95% on any of the three; the 'very high sparsity' wording is dropped if s* < 98% on CIFAR or s* < 99% on ImageNet (a 99% failure caused only by a CI wider than δ is reported as inconclusive)",
+      "minEffect": "δ = 0.5 pp top-1"
+    },
+    {
+      "id": "Q2",
+      "claim": "C1",
+      "text": "Does the Q1 equivalence vs RigL hold on MobileNetV2/C100 and ViT-Tiny/C100 at {90, 95, 98}% (fixed-sequence), and on DeiT-S/IN at 90%?",
+      "hypothesis": "s* ≥ 95% on MobileNetV2 and ViT-Tiny, and equivalence holds on DeiT-S at 90%",
+      "predictionIfFalse": "Equivalence fails at 90% on any of them; C1 is narrowed to the families that pass and the failing family is reported as a limitation"
+    },
+    {
+      "id": "Q3",
+      "claim": "C2",
+      "text": "Does RigL implicitly ablate neurons, does strict constant fan-in lose accuracy at the highest sparsity, and is width compatibility the mechanism (width-oracle, RigL+abl, one-shot vs dynamic)?",
+      "hypothesis": "(a) RigL's zero-fan-in fraction rises with sparsity and is ≥ 5% at 99%; (b) strict is ≥ 1.0 pp worse than MethodX at the highest sparsity of each architecture (99% R18, WRN, R50/IN; 98% MobileNetV2); (c) the width-oracle recovers ≥ 75% of the strict→MethodX gap; (d) RigL+abl changes RigL by less than δ; (e) dynamic ablation beats one-shot at init by ≥ δ at 99%",
+      "predictionIfFalse": "Strict-vs-MethodX difference < 0.5 pp everywhere, or RigL ablates < 1% of neurons, or the width-oracle recovers < 25%; if RigL+abl ≥ RigL + δ, C2 is reworded (ablation is partly a general improvement); if one-shot is within δ of dynamic, report that one-shot suffices",
+      "minEffect": "1.0 pp strict-vs-MethodX"
+    },
+    {
+      "id": "Q4",
+      "claim": "C3",
+      "text": "Does a high-γ_sal setting remove many neurons at non-inferior accuracy, and does deleting ablated neurons speed up the same trained weights?",
+      "hypothesis": "On R18/C100 the val-selected high-γ_sal setting from A2 removes ≥ 10% of neurons at 90% sparsity; it is non-inferior to default MethodX (5 paired seeds, one-sided 95% lower bound > −δ) at 90% and 95%; on the same trained weights condensed+deleted runs ≥ 1.1× faster than condensed with zero rows, CI lower bound > 1.0",
+      "predictionIfFalse": "Non-inferiority fails, or the same-weights speedup is < 1.05×"
+    },
+    {
+      "id": "Q5",
+      "claim": "C4",
+      "text": "Is batch-1 CPU latency of the condensed model faster than dense (oneDNN/MKL) and than the best unstructured engine per layer (MKL inspector-executor CSR, XNNPACK sparse, torch.sparse CSR, same-toolchain CSR), on the same weights?",
+      "hypothesis": "Speedup ≥ 1.2× vs dense and vs the best unstructured engine at ≥ 90%, with the 95% bootstrap CI lower bound > 1.0",
+      "predictionIfFalse": "Speedup < 1.2× vs either at 90–95%"
+    },
+    {
+      "id": "Q6",
+      "claim": "C4",
+      "text": "Same question on V100 at batch {1, 8, 64, 256} vs cuBLAS dense, cuSPARSE CSR, Sputnik and a same-toolchain (Triton) CSR kernel",
+      "hypothesis": "Speedup ≥ 1.2× at ≥ 90% for batch ≥ 64",
+      "predictionIfFalse": "Speedup < 1.2×"
+    },
+    {
+      "id": "Q7",
+      "claim": "C5",
+      "text": "Does the analytic output-norm variance match Monte Carlo, and is constant fan-in no worse than unstructured in variance and static training?",
+      "hypothesis": "Analytic variance of ‖z^{l+1}‖²/‖z^l‖² matches MC within 5% relative error; Var(constant fan-in) ≤ Var(exact-count) ≤ Var(Bernoulli) at all tested sparsities; static random constant fan-in is no worse than static unstructured by more than δ",
+      "predictionIfFalse": "Var(constant fan-in) > Var(Bernoulli) beyond MC error at any sparsity ≥ 90%, or static constant fan-in is worse by more than δ"
+    },
+    {
+      "id": "QC6",
+      "claim": "C6",
+      "text": "Training cost of the sparse algorithm: theoretical training FLOPs and analytic training memory, plus measured masked-implementation step time and peak training memory (MethodX vs RigL vs dense)"
+    },
+    {
+      "id": "QC7",
+      "claim": "C7",
+      "text": "On R18/C100 and WRN/C10 at 90 and 98%, does MethodX beat post-hoc constant fan-in projection, SR-STE and Chase (95% CI of the paired difference excludes 0 and |diff| ≥ the minimum effect; Holm over 12)?"
+    }
+  ],
+  "methodComponents": [
+    {
+      "id": "M1",
+      "name": "constant fan-in constraint (exactly k incoming weights per active neuron)",
+      "ablation": "A-unstructured"
+    },
+    {
+      "id": "M2",
+      "name": "dynamic neuron ablation (γ_sal saliency threshold, budget redistributed)",
+      "ablation": "A-strict"
+    },
+    {
+      "id": "M3",
+      "name": "saliency count: union of layer top-K by weight and top-K by gradient magnitude",
+      "ablation": "A-saliency"
+    },
+    {
+      "id": "M4",
+      "name": "ablation threshold floor of one salient weight",
+      "ablation": "none",
+      "reason": "It is a guard; we log how often it binds (C4 logs)"
+    },
+    {
+      "id": "M5",
+      "name": "recompute constant fan-in k′ from surviving neurons",
+      "ablation": "none",
+      "reason": "Without it the freed budget is lost and sparsity drifts; k′ is logged per update"
+    },
+    {
+      "id": "M6",
+      "name": "layer-wide pruning of the K smallest-magnitude weights",
+      "ablation": "A-prune-scope"
+    },
+    {
+      "id": "M7",
+      "name": "per-neuron regrowth by gradient magnitude up to fan-in k′",
+      "ablation": "A-regrowth"
+    },
+    {
+      "id": "M8",
+      "name": "dense-gradient accumulation over mini-batches for regrowth",
+      "ablation": "A-grad-accum"
+    },
+    {
+      "id": "M9",
+      "name": "connectivity update schedule (ΔT, α cosine-decayed to the update-end fraction, then mask frozen)",
+      "ablation": "A-schedule"
+    },
+    {
+      "id": "M10",
+      "name": "layer-wise density distribution (ERK or uniform)",
+      "ablation": "A-distribution"
+    },
+    {
+      "id": "M11",
+      "name": "initialization scaled by the sparse fan-in",
+      "ablation": "A-init"
+    },
+    {
+      "id": "M12",
+      "name": "set of sparsified layers (first layer, attention projections)",
+      "ablation": "A-layer-set"
+    },
+    {
+      "id": "M13",
+      "name": "equal numbers of weights pruned and regrown",
+      "ablation": "none",
+      "reason": "It defines fixed-sparsity DST; the invariant is checked in S0.3"
+    },
+    {
+      "id": "M14",
+      "name": "condensed inference representation (values + indices; ablated neurons deleted; can run as narrower dense)",
+      "ablation": "A-format"
+    },
+    {
+      "id": "M15",
+      "name": "compiled CPU implementation and GPU kernels for constant fan-in layers",
+      "ablation": "none",
+      "reason": "No accuracy ablation; numerical equivalence is checked in S0.3 and engineering effort is controlled by same-toolchain CSR kernels"
+    }
+  ],
+  "baselines": [
+    {
+      "id": "B1",
+      "name": "RigL",
+      "role": "closest-prior",
+      "why": "Closest prior (unstructured DST) and equivalence target: MethodX is RigL plus constraints; re-run everywhere",
+      "reproduce": {
+        "cell": "S0.2",
+        "tolerance": "within ±0.5 pp of the published R18/C100 90% number (published-recipe run); RigL R50/IN 90% within 0.5 pp of the published number in S1.5"
+      },
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same epochs, batch size and LR schedule; global sparsity with ERK",
+        "tuning": {
+          "trials": 12,
+          "space": "ΔT {100, 500} × α {0.3, 0.5} × update-end {0.5, 0.75, 0.9}",
+          "selectionSplit": "val 5k (R18/C100 90%, T0)"
+        },
+        "notes": "ImageNet: authors' published ImageNet settings (T-IN); other architectures re-select the arm-specific knob on that architecture's val split (T-arch)"
+      }
+    },
+    {
+      "id": "B2",
+      "name": "GraNet",
+      "role": "strongest-recent",
+      "why": "Non-inferiority target for 'SOTA'; guards against matching only a weak RigL",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same epochs, batch size and LR schedule (uses more training FLOPs when initial density is above target; reported)",
+        "tuning": {
+          "trials": 12,
+          "space": "ΔT {100, 500} × α {0.3, 0.5} × initial density {target, 0.5, 0.8} (pruning-schedule end tied to update-end 0.75)",
+          "selectionSplit": "val 5k (R18/C100 90%, T0)"
+        },
+        "notes": "re-run on R18, WRN and R50/IN at 90/99% (3 seeds); ImageNet uses the authors' published settings"
+      }
+    },
+    {
+      "id": "B3",
+      "name": "Chase (channel-level DST)",
+      "role": "closest-prior",
+      "why": "Closest structured DST; tests whether block/channel DST loses accuracy",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same epochs, batch size and LR schedule",
+        "tuning": {
+          "trials": 12,
+          "space": "ΔT {100, 500} × α {0.3, 0.5} × channel-pruning ratio (3 values from the paper)",
+          "selectionSplit": "val 5k (R18/C100 90%, T0)"
+        },
+        "notes": "re-run on CIFAR; ImageNet numbers copied for context only, no test"
+      }
+    },
+    {
+      "id": "B4",
+      "name": "SR-STE with N = k, M = fan-in",
+      "role": "closest-prior",
+      "why": "Closest N:M learner (dense weights and gradients); C7",
+      "source": "rerun-official-code",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "same epochs, batch size and LR schedule",
+        "tuning": {
+          "trials": 12,
+          "space": "λ {2e-4, 6e-4, 2e-3}, with ΔT and α replaced by its own LR-warmup/decay pair",
+          "selectionSplit": "val 5k (R18/C100 90%, T0)"
+        },
+        "notes": "re-run on CIFAR; ImageNet 2:4/1:4 copied for context only"
+      }
+    },
+    {
+      "id": "B5",
+      "name": "Post-hoc constant fan-in projection of RigL (0.9× + 0.1× fine-tune)",
+      "why": "Structured-after-training: does learning the constraint during training matter",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "trainingBudget": "equal total epochs: RigL on a 0.9× schedule, projected, fine-tuned for 0.1×",
+        "tuning": {
+          "trials": 3,
+          "space": "fine-tune LR {1e-2, 1e-3, 1e-4} on top of the tuned RigL",
+          "selectionSplit": "val 5k (R18/C100 90%, T0)"
+        },
+        "notes": "re-run on CIFAR"
+      }
+    },
+    {
+      "id": "B6",
+      "name": "Static random constant fan-in (ERK)",
+      "role": "no-training-floor",
+      "why": "Lower bound; S0 sanity; re-run on CIFAR"
+    },
+    {
+      "id": "B7",
+      "name": "MethodX-strict (no ablation)",
+      "role": "ablated-self",
+      "why": "C2",
+      "fairness": {
+        "sameData": true,
+        "sameBackbone": true,
+        "tuning": {
+          "trials": 12,
+          "space": "ΔT {100, 500} × α {0.3, 0.5} × update-end {0.5, 0.75, 0.9}",
+          "selectionSplit": "val 5k (R18/C100 90%, T0)"
+        }
+      }
+    },
+    {
+      "id": "B8",
+      "name": "RigL+abl (same saliency rule and γ_sal applied to RigL)",
+      "why": "Ablation applied to the unstructured parent; C2(d); re-run on R18/C100"
+    },
+    {
+      "id": "B9",
+      "name": "One-shot init ablation + strict",
+      "why": "Cheap width-selection alternative; C2(e); re-run on R18/C100"
+    },
+    {
+      "id": "B10",
+      "name": "Width-oracle strict constant fan-in",
+      "role": "oracle",
+      "why": "Oracle intervention; C2(c); re-run on R18/C100"
+    },
+    {
+      "id": "B11",
+      "name": "Dense",
+      "role": "oracle",
+      "why": "Upper reference, accuracy ceiling; re-run (CIFAR 3 seeds; R50/IN and DeiT 1 seed, plus published)",
+      "reproduce": {
+        "cell": "S0.1",
+        "tolerance": "within ±0.5 pp of the published dense R18/C100 number (published recipe)"
+      }
+    }
+  ],
+  "notCompared": [
+    {
+      "name": "SET",
+      "reason": "cut; RigL covers the standard-recipe role"
+    },
+    {
+      "name": "Top-KAST and ITOP",
+      "reason": "RigL and GraNet cover the unstructured-DST family"
+    },
+    {
+      "name": "SNFS",
+      "reason": "needs dense momentum every step, so it is not sparse-to-sparse"
+    },
+    {
+      "name": "Block-sparse DST variants",
+      "reason": "Chase covers structured DST, and block kernels are not our target format"
+    },
+    {
+      "name": "Network Slimming / HRank channel pruning",
+      "reason": "dense-to-sparse at lower sparsity regimes; Chase and post-hoc projection cover 'structured after training'"
+    },
+    {
+      "name": "Chase and SR-STE re-run on ImageNet",
+      "reason": "budget; C7 is restricted to CIFAR"
+    },
+    {
+      "name": "GraNet on MobileNetV2 / ViT-Tiny / DeiT",
+      "reason": "budget; RigL is the generality equivalence target, and GraNet's SOTA role is tested on three architectures including ImageNet"
+    },
+    {
+      "name": "GraNet at equal training FLOPs",
+      "reason": "would require extending MethodX training; the equal-epoch comparison already favors GraNet (A11 is cut)"
+    },
+    {
+      "name": "Training duration sweep 1× vs 2× (A11)",
+      "reason": "cut"
+    },
+    {
+      "name": "Decomposing SR-STE vs MethodX into constraint handling vs dense training",
+      "reason": "C7 is worded as a comparison of whole methods, not a causal attribution"
+    },
+    {
+      "name": "DeepSparse",
+      "reason": "closed-source; couples sparsity with its own quantization and graph optimizations, so format effects cannot be isolated; MKL inspector-executor and XNNPACK sparse stand in"
+    },
+    {
+      "name": "Ampere 2:4 hardware",
+      "reason": "none available, and it supports only 50% sparsity"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "D1",
+      "name": "CIFAR-100 (ResNet-18)",
+      "role": "main",
+      "why": "main + development (pilot, tuning, ablations)",
+      "splits": {
+        "train": "45k",
+        "select": "val 5k (selection, all gates)",
+        "report": "test 10k"
+      }
+    },
+    {
+      "id": "D2",
+      "name": "CIFAR-10 (WRN-22-2)",
+      "role": "main",
+      "why": "second CNN family",
+      "splits": {
+        "train": "45k",
+        "select": "val 5k",
+        "report": "test 10k"
+      }
+    },
+    {
+      "id": "D3",
+      "name": "CIFAR-100 (MobileNetV2)",
+      "role": "stress",
+      "why": "generality: depthwise, small fan-in, failure case",
+      "splits": {
+        "train": "45k",
+        "select": "val 5k",
+        "report": "test 10k"
+      }
+    },
+    {
+      "id": "D4",
+      "name": "CIFAR-100 (ViT-Tiny/4)",
+      "why": "generality: transformer at three sparsities, attention-layer pilot",
+      "splits": {
+        "train": "45k",
+        "select": "val 5k",
+        "report": "test 10k"
+      }
+    },
+    {
+      "id": "D5",
+      "name": "ImageNet-1k (ResNet-50, DeiT-S)",
+      "role": "main",
+      "why": "headline",
+      "splits": {
+        "train": "train minus 10k minival",
+        "select": "minival 10k (selection, gates)",
+        "report": "official val 50k"
+      }
+    },
+    {
+      "id": "D6",
+      "name": "ImageNet-V2 (matched-frequency)",
+      "role": "heldout",
+      "splits": {
+        "report": "report only"
+      }
+    },
+    {
+      "id": "D7",
+      "name": "ciFAIR-10/100 test",
+      "role": "sanity",
+      "why": "CIFAR near-duplicates",
+      "splits": {
+        "report": "report only"
+      }
+    },
+    {
+      "id": "D8",
+      "name": "Synthetic Gaussian inputs for ReLU layers",
+      "role": "sanity",
+      "why": "sanity for C5 theory (MC simulation)"
+    }
+  ],
+  "metrics": [
+    {
+      "name": "top-1 test accuracy (Q1, Q2)",
+      "direction": "maximize",
+      "split": "test",
+      "primary": true,
+      "why": "standard for the claim"
+    },
+    {
+      "name": "s* per architecture (Q1, Q2)",
+      "direction": "maximize",
+      "primary": true
+    },
+    {
+      "name": "ImageNet-V2 top-1",
+      "direction": "maximize",
+      "split": "test",
+      "primary": false
+    },
+    {
+      "name": "accuracy vs training-FLOPs Pareto (all arms)",
+      "primary": false
+    },
+    {
+      "name": "Δtop-1 (MethodX − strict) at highest sparsity (Q3)",
+      "direction": "maximize",
+      "primary": true,
+      "why": "the mechanism needs both an accuracy effect and the structural phenomenon"
+    },
+    {
+      "name": "zero-fan-in fraction in RigL vs sparsity (Q3)",
+      "primary": true,
+      "why": "the mechanism needs both an accuracy effect and the structural phenomenon"
+    },
+    {
+      "name": "% of gap recovered by width-oracle; Δ(RigL+abl − RigL); Δ(dynamic − one-shot)",
+      "primary": false
+    },
+    {
+      "name": "% neurons removed at non-inferior accuracy (Q4)",
+      "direction": "maximize",
+      "primary": true,
+      "why": "width sparsity is the claimed benefit"
+    },
+    {
+      "name": "same-weights speedup (Q4)",
+      "direction": "maximize",
+      "primary": true,
+      "why": "width sparsity is the claimed benefit"
+    },
+    {
+      "name": "accuracy vs latency Pareto across γ_sal",
+      "primary": false
+    },
+    {
+      "name": "median latency, ms (Q5, Q6)",
+      "direction": "minimize",
+      "primary": true,
+      "why": "real-world speed claim"
+    },
+    {
+      "name": "speedup vs dense and vs best unstructured engine (Q5, Q6)",
+      "direction": "maximize",
+      "primary": true,
+      "why": "real-world speed claim"
+    },
+    {
+      "name": "weight + index bytes",
+      "direction": "minimize",
+      "primary": false
+    },
+    {
+      "name": "peak inference memory",
+      "direction": "minimize",
+      "primary": false
+    },
+    {
+      "name": "relative error of analytic vs MC variance (Q7)",
+      "direction": "minimize",
+      "primary": true,
+      "why": "the theory claim"
+    },
+    {
+      "name": "variance ratio constant fan-in / Bernoulli (≤ 1) (Q7)",
+      "direction": "minimize",
+      "primary": true,
+      "why": "the theory claim"
+    },
+    {
+      "name": "static-training top-1 difference; early-training gradient-norm curves",
+      "primary": false
+    },
+    {
+      "name": "theoretical training FLOPs (C6)",
+      "direction": "minimize",
+      "primary": true,
+      "why": "the 'fully sparse' claim"
+    },
+    {
+      "name": "analytic training memory of the sparse algorithm (C6)",
+      "direction": "minimize",
+      "primary": true,
+      "why": "the 'fully sparse' claim"
+    },
+    {
+      "name": "measured masked-implementation step time and peak training memory",
+      "direction": "minimize",
+      "primary": false
+    }
+  ],
+  "statistics": {
+    "seedsMain": 3,
+    "repeatUnit": "seed (one full training run; seed controls init, initial mask and data order, shared across arms so results are paired)",
+    "variance": "ci95",
+    "test": "paired TOST at α = 0.05 (90% CI inside ±δ) for equivalence; one-sided 95% lower bound > −δ for non-inferiority; 95% CI excludes 0 and |diff| ≥ min effect for better/worse; 95% bootstrap CI of the speedup ratio for latency",
+    "multipleComparisons": "C1: intersection–union with fixed-sequence testing over sparsities (no correction); C2: Holm over 4; C7: Holm over 12; ablations reported as CIs"
+  },
+  "hyperparameters": {
+    "selectionSplit": "val 5k (CIFAR) / minival 10k (ImageNet) for all gates, tuning and selections; never test",
+    "methodTrials": 12,
+    "baselineTrials": 12,
+    "tuningCostIncluded": true,
+    "saturationCheck": "best-validation-so-far vs trial index reported for every arm",
+    "sensitivity": [
+      {
+        "knob": "γ_sal",
+        "levels": [0.2, 0.3, 0.5, 0.7]
+      },
+      {
+        "knob": "ΔT",
+        "levels": [50, 200, 500]
+      },
+      {
+        "knob": "α",
+        "levels": [0.1, 0.5]
+      },
+      {
+        "knob": "update-end fraction",
+        "levels": [0.5, 0.9]
+      },
+      {
+        "knob": "gradient accumulation",
+        "levels": [1, 4, 16]
+      }
+    ]
+  },
+  "protocol": {
+    "checkpoint": "final epoch for all arms; no best-epoch selection on any split; mask frozen at the update-end fraction for every DST arm",
+    "evaluation": "single center crop (ImageNet 224, resize 256), fp32, no test-time augmentation, BatchNorm statistics from training (no recalibration)",
+    "postprocessing": "MethodX ablated neurons physically deleted before evaluation, with equivalence to masked evaluation asserted; other arms evaluated as masked-dense",
+    "reruns": "one run per seed per arm (no best-of-k); reruns only for NaN/inf loss or infrastructure failure, same rule for all arms, every rerun logged; poor but finite runs never rerun or discarded",
+    "sharedByAllArms": true
+  },
+  "matrix": [
+    {
+      "cell": "S0.0",
+      "stage": "S0",
+      "question": "QC6",
+      "purpose": "cost",
+      "tier": "must",
+      "factors": {
+        "measure": "per-run cost calibration; peak training memory; update-overhead gate",
+        "config": "1 epoch of each architecture × {dense, RigL, MethodX}, ≥ 10 update steps"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 4,
+        "source": "estimate"
+      },
+      "expect": "MethodX update overhead ≤ 1.10× RigL over a full epoch"
+    },
+    {
+      "cell": "S0.1",
+      "stage": "S0",
+      "purpose": "sanity",
+      "tier": "must",
+      "factors": {
+        "method": "dense (published recipe)",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "seeds": 3,
+      "cost": {
+        "total": 4.5,
+        "source": "estimate"
+      },
+      "expect": "within ±0.5 pp of the published number"
+    },
+    {
+      "cell": "S0.2",
+      "stage": "S0",
+      "question": "Q1",
+      "purpose": "sanity",
+      "tier": "must",
+      "factors": {
+        "method": "RigL (published recipe)",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18",
+        "sparsity": "90%"
+      },
+      "compareTo": ["S0.1"],
+      "seeds": 3,
+      "cost": {
+        "total": 4.5,
+        "source": "estimate"
+      },
+      "expect": "within ±0.5 pp of the published number"
+    },
+    {
+      "cell": "S0.3",
+      "stage": "S0",
+      "purpose": "sanity",
+      "tier": "must",
+      "factors": {
+        "check": "invariants, kernel equivalence, floor rows",
+        "method": "static constant fan-in / unstructured",
+        "sparsity": "90%"
+      },
+      "compareTo": ["S0.2"],
+      "seeds": 1,
+      "cost": {
+        "total": 3,
+        "source": "estimate"
+      },
+      "expect": "realized sparsity within 0.1% of target; every active MethodX neuron has fan-in exactly k′ after every update; prune count = grow count; condensed (CPU, Triton) vs masked ≤ 1e-5 max-abs in fp32"
+    },
+    {
+      "cell": "S0.C0",
+      "stage": "S0",
+      "question": ["Q5", "Q6"],
+      "purpose": "cost",
+      "tier": "must",
+      "factors": {
+        "measure": "latency on random constant fan-in masks (early C4 falsifier)",
+        "representations": "all",
+        "shapes": "R50 / MBv2 / DeiT"
+      },
+      "cost": {
+        "total": 0,
+        "source": "estimate"
+      },
+      "expect": "condensed beats dense and the best unstructured engine at ≥ 90% on random masks (batch-1 CPU)"
+    },
+    {
+      "cell": "S1.1",
+      "stage": "S1",
+      "question": ["Q1", "Q3"],
+      "purpose": "pilot",
+      "tier": "must",
+      "factors": {
+        "method": "{MethodX, strict, RigL}",
+        "sparsity": "90, 95, 98, 99%",
+        "dataset": "CIFAR-100 (val)",
+        "arch": "ResNet-18"
+      },
+      "seeds": 3,
+      "cost": {
+        "total": 54,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S1.2",
+      "stage": "S1",
+      "question": "Q3",
+      "purpose": "analysis",
+      "tier": "must",
+      "factors": {
+        "measure": "zero-fan-in fraction from S1.1 RigL checkpoints",
+        "compute": "CPU"
+      },
+      "cost": {
+        "total": 0,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S1.3",
+      "stage": "S1",
+      "question": "Q7",
+      "purpose": "analysis",
+      "tier": "must",
+      "factors": {
+        "measure": "variance theory vs MC",
+        "compute": "CPU"
+      },
+      "cost": {
+        "total": 0,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S1.4",
+      "stage": "S1",
+      "question": "Q2",
+      "purpose": "pilot",
+      "tier": "must",
+      "factors": {
+        "method": "{MethodX, RigL}",
+        "sparsity": "90, 98%",
+        "dataset": "CIFAR-100 (val)",
+        "arch": "ViT-Tiny/4",
+        "note": "attention-layer falsifier"
+      },
+      "seeds": 3,
+      "cost": {
+        "total": 24,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S1.T-IN",
+      "stage": "S1",
+      "question": "Q1",
+      "purpose": "tuning",
+      "tier": "must",
+      "factors": {
+        "method": "MethodX",
+        "γ_sal": "0.2, 0.3, 0.5",
+        "arch": "ResNet-50",
+        "dataset": "ImageNet minival",
+        "epochs": "20",
+        "sparsity": "95%"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 24,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S1.5",
+      "stage": "S1",
+      "question": "Q1",
+      "purpose": "pilot",
+      "tier": "must",
+      "factors": {
+        "method": "RigL 90% (repro), RigL 99%, MethodX 99%",
+        "arch": "ResNet-50",
+        "dataset": "ImageNet-1k",
+        "note": "ImageNet falsifier and repro, reused as seed 0 of M3"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 120,
+        "source": "estimate"
+      },
+      "expect": "RigL R50 90% within 0.5 pp of the published RigL number"
+    },
+    {
+      "cell": "S2.T0",
+      "stage": "S2",
+      "question": ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7"],
+      "purpose": "tuning",
+      "tier": "must",
+      "factors": {
+        "method": "6 DST arms + post-hoc fine-tune",
+        "grid": "12-config grid per arm",
+        "dataset": "CIFAR-100 (val)",
+        "arch": "ResNet-18",
+        "sparsity": "90%"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 110,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.T-arch",
+      "stage": "S2",
+      "question": ["Q1", "Q2"],
+      "purpose": "tuning",
+      "tier": "must",
+      "factors": {
+        "method": "arm-specific knob re-selection",
+        "config": "WRN 6 arms × 3; MBv2 and ViT 2 arms × 3"
+      },
+      "seeds": 1,
+      "cost": {
+        "total": 42,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M1",
+      "stage": "S2",
+      "question": ["Q1", "QC7"],
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18",
+        "arms": "{MethodX, RigL, GraNet} × 5 sparsities × 5 seeds; {Chase, SR-STE, post-hoc, static} × 5 sparsities × 3 seeds; dense × 3"
+      },
+      "seeds": 5,
+      "cost": {
+        "total": 207,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M2",
+      "stage": "S2",
+      "question": ["Q1", "QC7"],
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "dataset": "CIFAR-10",
+        "arch": "WRN-22-2",
+        "arms": "{MethodX, RigL, GraNet} × 5 sparsities × 5 seeds; {Chase, SR-STE, post-hoc, static} × {90, 98} × 3 seeds; dense × 3"
+      },
+      "seeds": 5,
+      "cost": {
+        "total": 102,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M-MB",
+      "stage": "S2",
+      "question": ["Q2", "Q3"],
+      "purpose": "generality",
+      "tier": "must",
+      "factors": {
+        "dataset": "CIFAR-100",
+        "arch": "MobileNetV2 (depthwise stress)",
+        "arms": "{MethodX, RigL} × {90, 95, 98} × 5 seeds; strict × {98} × 5, {90, 95} × 3"
+      },
+      "seeds": 5,
+      "cost": {
+        "total": 82,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M-ViT",
+      "stage": "S2",
+      "question": "Q2",
+      "purpose": "generality",
+      "tier": "must",
+      "factors": {
+        "dataset": "CIFAR-100",
+        "arch": "ViT-Tiny/4",
+        "arms": "{MethodX, RigL} × {90, 95, 98} × 5 seeds; MethodX with dense attention projections × {90, 98} × 3"
+      },
+      "seeds": 5,
+      "cost": {
+        "total": 72,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M3",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "dataset": "ImageNet-1k",
+        "arch": "ResNet-50",
+        "arms": "{MethodX, RigL} × {90, 95, 99} × 3 seeds; {80} × 1 (17 new runs + 3 from S1.5)"
+      },
+      "seeds": 3,
+      "cost": {
+        "total": 680,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M-GN",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "GraNet",
+        "dataset": "ImageNet-1k",
+        "arch": "ResNet-50",
+        "sparsity": "90, 99%"
+      },
+      "compareTo": ["S2.M3"],
+      "seeds": 3,
+      "cost": {
+        "total": 240,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M4",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "main",
+      "tier": "should",
+      "factors": {
+        "method": "dense",
+        "dataset": "ImageNet-1k",
+        "arch": "ResNet-50"
+      },
+      "compareTo": ["S2.M3"],
+      "seeds": 1,
+      "cost": {
+        "total": 40,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M5",
+      "stage": "S2",
+      "question": "Q2",
+      "purpose": "generality",
+      "tier": "should",
+      "factors": {
+        "method": "RigL, MethodX",
+        "dataset": "ImageNet-1k",
+        "arch": "DeiT-S (no distillation)",
+        "sparsity": "90%"
+      },
+      "seeds": 3,
+      "cost": {
+        "total": 600,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M6",
+      "stage": "S2",
+      "question": "Q2",
+      "purpose": "generality",
+      "tier": "should",
+      "factors": {
+        "method": "dense",
+        "dataset": "ImageNet-1k",
+        "arch": "DeiT-S"
+      },
+      "compareTo": ["S2.M5"],
+      "seeds": 1,
+      "cost": {
+        "total": 100,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S2.M7",
+      "stage": "S2",
+      "question": "Q1",
+      "purpose": "heldout",
+      "tier": "must",
+      "factors": {
+        "method": "eval only",
+        "dataset": "ImageNet-V2, ciFAIR"
+      },
+      "compareTo": ["S2.M1", "S2.M2", "S2.M3", "S2.M4", "S2.M5"],
+      "cost": {
+        "total": 2,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A1",
+      "stage": "S3",
+      "question": "Q3",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": {
+        "method": "strict",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18",
+        "sparsity": "5 sparsities"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 5,
+      "cost": {
+        "total": 37.5,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A1-W",
+      "stage": "S3",
+      "question": "Q3",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": {
+        "method": "strict",
+        "dataset": "CIFAR-10",
+        "arch": "WRN-22-2",
+        "sparsity": "5 sparsities"
+      },
+      "compareTo": ["S2.M2"],
+      "seeds": 5,
+      "cost": {
+        "total": 25,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A1-IN",
+      "stage": "S3",
+      "question": "Q3",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": {
+        "method": "strict",
+        "dataset": "ImageNet-1k",
+        "arch": "ResNet-50",
+        "sparsity": "99%"
+      },
+      "compareTo": ["S2.M3"],
+      "seeds": 3,
+      "cost": {
+        "total": 120,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.P1",
+      "stage": "S3",
+      "question": "Q3",
+      "purpose": "analysis",
+      "tier": "must",
+      "factors": {
+        "method": "width-oracle strict",
+        "sparsity": "95, 98, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S3.A1", "S2.M1"],
+      "seeds": 5,
+      "cost": {
+        "total": 22.5,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.P3",
+      "stage": "S3",
+      "question": "Q3",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": {
+        "method": "one-shot init ablation + strict",
+        "sparsity": "95, 98, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 5,
+      "cost": {
+        "total": 22.5,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.RA",
+      "stage": "S3",
+      "question": "Q3",
+      "purpose": "ablation",
+      "tier": "must",
+      "factors": {
+        "method": "RigL + explicit ablation",
+        "sparsity": "90, 95, 98, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 5,
+      "cost": {
+        "total": 30,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A2",
+      "stage": "S3",
+      "question": "Q4",
+      "purpose": "sensitivity",
+      "tier": "must",
+      "factors": {
+        "method": "MethodX",
+        "γ_sal": "0.2, 0.5, 0.7 (non-default)",
+        "sparsity": "80, 90, 95, 99%",
+        "selection": "val-scored",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 54,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A2-Q4",
+      "stage": "S3",
+      "question": "Q4",
+      "purpose": "main",
+      "tier": "must",
+      "factors": {
+        "method": "MethodX",
+        "γ_sal": "largest A2 γ_sal whose 90% val mean is within δ/2 of the default",
+        "sparsity": "90, 95%",
+        "seeds": "+2 on top of S3.A2 (→ 5)",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 2,
+      "cost": {
+        "total": 6,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.P2",
+      "stage": "S3",
+      "question": "Q7",
+      "purpose": "analysis",
+      "tier": "must",
+      "factors": {
+        "method": "static constant fan-in vs Bernoulli vs exact-count",
+        "sparsity": "90, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 18,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A3",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "should",
+      "factors": {
+        "variant": "per-neuron vs layer-wide prune",
+        "sparsity": "90, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 9,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A4",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "should",
+      "factors": {
+        "variant": "saliency definition: weight-only, gradient-only",
+        "sparsity": "90, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 18,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A5",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "should",
+      "factors": {
+        "variant": "random regrowth",
+        "sparsity": "90, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 9,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A6",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "should",
+      "factors": {
+        "variant": "ERK vs uniform",
+        "method": "MethodX, RigL",
+        "sparsity": "90, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 18,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A7",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "should",
+      "factors": {
+        "variant": "ΔT / α / end one-at-a-time sweeps (MethodX), 7 values",
+        "sparsity": "90%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 31.5,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A10",
+      "stage": "S3",
+      "question": "Q7",
+      "purpose": "ablation",
+      "tier": "should",
+      "factors": {
+        "variant": "init scaling: dense-fan-in init",
+        "sparsity": "90, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 9,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A8",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "could",
+      "factors": {
+        "variant": "gradient accumulation {4, 16} (restore ladder)",
+        "sparsity": "90%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 0,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S3.A9",
+      "stage": "S3",
+      "purpose": "ablation",
+      "tier": "could",
+      "factors": {
+        "variant": "first layer sparse (restore ladder)",
+        "sparsity": "90, 99%",
+        "dataset": "CIFAR-100",
+        "arch": "ResNet-18"
+      },
+      "compareTo": ["S2.M1"],
+      "seeds": 3,
+      "cost": {
+        "total": 0,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S4.C1",
+      "stage": "S4",
+      "question": "Q5",
+      "purpose": "cost",
+      "tier": "must",
+      "factors": {
+        "measure": "CPU latency and memory, trained weights",
+        "representations": "all",
+        "sparsity": "all trained sparsities"
+      },
+      "cost": {
+        "total": 0,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S4.C2",
+      "stage": "S4",
+      "question": "Q6",
+      "purpose": "cost",
+      "tier": "must",
+      "factors": {
+        "measure": "V100 latency, trained weights",
+        "batch": "1, 8, 64, 256",
+        "representations": "dense, cuSPARSE, Sputnik, same-toolchain CSR, condensed"
+      },
+      "cost": {
+        "total": 0,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S4.C3",
+      "stage": "S4",
+      "question": "Q4",
+      "purpose": "analysis",
+      "tier": "should",
+      "factors": {
+        "method": "MethodX, high γ_sal (largest T-IN γ_sal within δ/2 of the best on minival)",
+        "dataset": "ImageNet-1k",
+        "arch": "ResNet-50",
+        "sparsity": "90%",
+        "note": "width/speed trade-off, indicative"
+      },
+      "compareTo": ["S2.M3"],
+      "seeds": 1,
+      "cost": {
+        "total": 40,
+        "source": "estimate"
+      }
+    },
+    {
+      "cell": "S4.C4",
+      "stage": "S4",
+      "question": ["Q3", "Q4"],
+      "purpose": "analysis",
+      "tier": "must",
+      "factors": {
+        "measure": "checkpoint analyses and slices"
+      },
+      "cost": {
+        "total": 10,
+        "source": "estimate"
+      }
+    }
+  ],
+  "ablations": [
+    {
+      "id": "A-unstructured",
+      "component": "M1",
+      "structure": "swap",
+      "default": "main comparison",
+      "levels": ["unstructured (RigL)"],
+      "cells": ["S2.M1", "S2.M2", "S2.M3", "S2.M4", "S2.M5", "S2.M-MB", "S2.M-ViT"]
+    },
+    {
+      "id": "A-strict",
+      "component": "M2",
+      "structure": "remove",
+      "default": "MethodX with dynamic ablation",
+      "levels": ["strict constant fan-in (all sparsities)"],
+      "cells": ["S3.A1", "S3.A1-W", "S3.A1-IN", "S2.M-MB"]
+    },
+    {
+      "id": "A-oneshot",
+      "component": "M2",
+      "structure": "swap",
+      "levels": ["steps 1–5 run once at step 0, then strict"],
+      "budget": "{95, 98, 99}%",
+      "cells": ["S3.P3"]
+    },
+    {
+      "id": "A-rigl-abl",
+      "component": "M2",
+      "structure": "add-on-top",
+      "levels": ["RigL+abl (same saliency rule and γ_sal)"],
+      "budget": "{90, 95, 98, 99}%",
+      "cells": ["S3.RA"]
+    },
+    {
+      "id": "A-gamma",
+      "component": "M2",
+      "structure": "sweep",
+      "default": "T0 / T-arch selection",
+      "levels": ["0.2", "0.3", "0.5", "0.7"],
+      "budget": "at {80, 90, 95, 99}%; per-architecture 3-value selection on validation",
+      "cells": ["S3.A2", "S2.T-arch", "S1.T-IN"]
+    },
+    {
+      "id": "A-saliency",
+      "component": "M3",
+      "structure": "swap",
+      "default": "union of top-K weight and top-K gradient",
+      "levels": ["weight-only", "gradient-only"],
+      "budget": "90/99%, R18/C100, ≥ 3 seeds",
+      "cells": ["S3.A4"]
+    },
+    {
+      "id": "A-prune-scope",
+      "component": "M6",
+      "structure": "swap",
+      "default": "layer-wide prune of K smallest",
+      "levels": ["per-neuron prune"],
+      "budget": "90/99%, R18/C100, ≥ 3 seeds",
+      "cells": ["S3.A3"]
+    },
+    {
+      "id": "A-regrowth",
+      "component": "M7",
+      "structure": "swap",
+      "default": "gradient-magnitude regrowth",
+      "levels": ["random regrowth"],
+      "budget": "90/99%, R18/C100, ≥ 3 seeds",
+      "cells": ["S3.A5"]
+    },
+    {
+      "id": "A-grad-accum",
+      "component": "M8",
+      "structure": "sweep",
+      "default": "1",
+      "levels": ["1", "4", "16"],
+      "budget": "restore ladder",
+      "cells": ["S3.A8"]
+    },
+    {
+      "id": "A-schedule",
+      "component": "M9",
+      "structure": "sweep",
+      "default": "T0",
+      "levels": ["ΔT {50, 200, 500}", "α {0.1, 0.5}", "end {0.5, 0.9}"],
+      "budget": "one-at-a-time, 90%, R18/C100, ≥ 3 seeds",
+      "cells": ["S3.A7"]
+    },
+    {
+      "id": "A-distribution",
+      "component": "M10",
+      "structure": "swap",
+      "default": "ERK",
+      "levels": ["uniform (MethodX and RigL)"],
+      "cells": ["S3.A6"]
+    },
+    {
+      "id": "A-init",
+      "component": "M11",
+      "structure": "swap",
+      "default": "sparse fan-in init",
+      "levels": ["dense-fan-in init"],
+      "cells": ["S3.A10"]
+    },
+    {
+      "id": "A-layer-set",
+      "component": "M12",
+      "structure": "swap",
+      "default": "attention sparse; first layer dense",
+      "levels": ["ViT attention projections dense (MethodX)", "first layer sparse on CNNs"],
+      "cells": ["S2.M-ViT", "S3.A9"]
+    },
+    {
+      "id": "A-format",
+      "component": "M14",
+      "structure": "swap",
+      "levels": ["dense", "CSR engines", "narrower dense", "zero-row condensed"],
+      "budget": "same weights",
+      "cells": ["S0.C0", "S4.C1", "S4.C2"]
+    }
+  ],
+  "costMeasurements": [
+    {
+      "id": "K0",
+      "what": ["batch-1 CPU latency on random constant fan-in masks"],
+      "methods": ["all representations"],
+      "protocol": "R50 / MBv2 / DeiT layer shapes; latency depends only on structure",
+      "cell": "S0.C0"
+    },
+    {
+      "id": "K1",
+      "what": ["median batch-1 latency and IQR", "bootstrap CI on the speedup"],
+      "methods": [
+        "dense (oneDNN/MKL)",
+        "MKL inspector-executor CSR",
+        "XNNPACK sparse (1×1 conv and linear)",
+        "torch.sparse CSR",
+        "same-toolchain CSR",
+        "structured-only (narrower dense)",
+        "condensed with zero rows",
+        "condensed + deleted"
+      ],
+      "protocol": "Xeon; performance governor, turbo fixed; threads {1, all physical cores}, pinned; 100 warm-up + 1,000 timed batch-1 iterations; same compiler, PyTorch version and thread settings, same weights per sparsity; every linear and conv layer of ResNet-50, MobileNetV2 and DeiT-S at all trained sparsities plus end-to-end",
+      "cell": "S4.C1"
+    },
+    {
+      "id": "K2",
+      "what": ["GPU latency"],
+      "methods": [
+        "dense (cuBLAS)",
+        "cuSPARSE CSR",
+        "Sputnik",
+        "same-toolchain (Triton) CSR",
+        "structured-only (narrower dense)",
+        "condensed with zero rows",
+        "condensed + deleted"
+      ],
+      "protocol": "V100; batch {1, 8, 64, 256}; CUDA-event timing; 50 warm-up + 500 timed iterations; clocks locked",
+      "cell": "S4.C2"
+    },
+    {
+      "id": "K3",
+      "what": ["representation bytes", "parameter count", "peak RSS / peak allocated"],
+      "methods": ["all representations"],
+      "cell": "S4.C1"
+    },
+    {
+      "id": "K4",
+      "what": [
+        "theoretical FLOPs per step incl. dense-gradient steps every ΔT with accumulation",
+        "analytic memory of the sparse algorithm (values, indices, optimizer state, transient dense gradient of one layer)",
+        "measured step time and peak training memory of the masked implementation"
+      ],
+      "methods": ["MethodX", "RigL", "GraNet", "SR-STE", "dense"],
+      "protocol": "measured in S0.0 and from per-step logs throughout every M1 run; update-step overhead gate (MethodX ≤ 1.10× RigL) over ≥ 1 full epoch with ≥ 10 update steps",
+      "cell": "S0.0"
+    }
+  ],
+  "analysis": [
+    {
+      "id": "N1",
+      "kind": "failure-cases",
+      "question": "Accuracy-sensitive layers (first conv, downsample convs, small-fan-in layers); MobileNetV2 depthwise layers (per-layer k, how often k hits the floor of 1, per-layer ablation); the 98–99% regime; ViT attention vs MLP layers; ImageNet classes with the largest MethodX − RigL loss by WordNet superclass; examples where MethodX is wrong and RigL right, and the reverse",
+      "cells": ["S4.C4"]
+    },
+    {
+      "id": "N2",
+      "kind": "slices",
+      "question": "By layer type (conv, depthwise, linear, attention), by layer fan-in, by depth",
+      "cells": ["S4.C4"]
+    },
+    {
+      "id": "N3",
+      "kind": "mechanism-probe",
+      "question": "C2: per-layer RigL fan-in histograms and zero-fan-in fraction vs sparsity; correlation with the strict gap across layers and sparsities; width-oracle; one-shot vs dynamic; RigL+abl; MethodX ablation trajectory and Jaccard overlap with the neurons RigL kills at matched seed",
+      "cells": ["S1.2", "S3.P1", "S3.P3", "S3.RA", "S4.C4"]
+    },
+    {
+      "id": "N4",
+      "kind": "mechanism-probe",
+      "question": "C3: neurons ablated vs sparsity × γ_sal, with accuracy and same-weights latency (accuracy-vs-latency Pareto)",
+      "cells": ["S3.A2"]
+    },
+    {
+      "id": "N5",
+      "kind": "mechanism-probe",
+      "question": "C5: analytic vs MC variance (10⁴ samples, widths 64–4096, sparsity 0.5–0.99, three sparsity types); empirical norm ratio at init in R18 and R50 layers; static training and early gradient-norm curves; init-scaling swap",
+      "cells": ["S1.3", "S3.P2", "S3.A10"]
+    }
+  ],
+  "leakageChecks": [
+    {
+      "what": "no pretrained weights",
+      "how": "all models train from scratch; DeiT-S without distillation"
+    },
+    {
+      "what": "CIFAR test near-duplicates",
+      "how": "report on the ciFAIR test set and flag any arm whose ranking changes"
+    },
+    {
+      "what": "ImageNet minival excluded from training",
+      "how": "asserted by image-ID hash in every run"
+    },
+    {
+      "what": "ImageNet-V2 overlap with training data",
+      "how": "perceptual-hash check against the training list; report the overlap count"
+    },
+    {
+      "what": "no gate, tuning or selection on test",
+      "how": "val/minival only (T0, T-arch, T-IN, γ_sal for Q4 and C3, S1 gates); config hash logged before each test evaluation; test computed once at the end for every cell"
+    },
+    {
+      "what": "logged exception: reproduction gates use published test numbers",
+      "how": "S0.1/S0.2 and S1.5 compare fixed published-recipe dense and RigL runs against published test numbers; no MethodX test number is read before the freeze"
+    }
+  ],
+  "humanEval": {
+    "needed": false,
+    "reason": "All metrics are automatic"
+  },
+  "stages": [
+    {
+      "id": "S0",
+      "name": "Sanity and calibration (days 1–2)",
+      "budgetGpuHours": 16,
+      "gate": "S0.0 costs fed into the budget ladders and MethodX update overhead ≤ 1.10× RigL over a full epoch; dense and RigL R18/C100 90% within ±0.5 pp of published; realized sparsity within 0.1% of target; every active neuron has fan-in exactly k′ after every update; prune count = grow count; condensed vs masked ≤ 1e-5 max-abs in fp32; static floor ≥ 1 pp below RigL at 90% on val; C0: condensed beats dense and the best unstructured engine at ≥ 90% on random masks"
+    },
+    {
+      "id": "S1",
+      "name": "Falsifiers (days 2–6): S1.1 + S1.4 + S1.2/S1.3 → code freeze → T-IN → S1.5",
+      "budgetGpuHours": 222,
+      "gate": "Gates G1–G6 on val/minival (see decision points); RigL R50 90% within 0.5 pp of the published number"
+    },
+    {
+      "id": "S2",
+      "name": "Main (days 4–36, parallel ImageNet/DeiT and CIFAR tracks)",
+      "budgetGpuHours": 2277
+    },
+    {
+      "id": "S3",
+      "name": "Ablations and mechanism",
+      "budgetGpuHours": 430
+    },
+    {
+      "id": "S4",
+      "name": "Cost and analysis",
+      "budgetGpuHours": 50,
+      "gate": "Speed gate (Q5, Q6): speedup ≥ 1.2× with CI lower bound > 1 vs dense and vs the best unstructured engine"
+    }
+  ],
+  "decisionPoints": [
+    {
+      "after": "S0",
+      "if": "costs overrun (ImageNet/DeiT per-run costs beyond 1.37× the planning values, or the projected finish is late)",
+      "then": "apply the cut ladder in order: (1) C3; (2) R50/IN 80% points; (3) M4 and M6 dense → published numbers; (4) M-GN 99% → copied for context; (5) M3 95% → 1 seed, indicative; (6) drop M5 DeiT-S"
+    },
+    {
+      "after": "S0",
+      "if": "calibrated costs are at or below plan and the projected finish is ≤ day 38",
+      "then": "apply the restore ladder: (1) A8 + A9; (2) DeiT-S 95%, MethodX and RigL, 1 seed each; (3) Chase R50/IN 90%, 1 seed, context"
+    },
+    {
+      "if": "the training pool turns out to be V100s (≈1,613 A100-h)",
+      "then": "V100 rescope: keep S0, S1.1, S1.4, T-IN, T-arch, T0 on an 8-config grid, M1, M2 without secondary baselines, M-MB, M-ViT without the attention variant, M7, R50/IN MethodX and RigL at {90, 99} × 3, A1-IN, A1, A1-W, P1, P3, RA, P2, A2 at {90, 99} + A2-Q4, C4; drop DeiT-S, GraNet on ImageNet, ImageNet 80/95%, ImageNet dense, C3, A3–A7, A10 (1,608 with reserve)"
+    },
+    {
+      "after": "S0",
+      "if": "the static floor is not ≥ 1 pp below RigL at 90% on val",
+      "then": "shift the sparsity grid to {95, 98, 99, 99.5}"
+    },
+    {
+      "after": "S0",
+      "if": "C0: condensed is slower than the alternatives (< 1.0×) at 95% on random masks",
+      "then": "rescope C4 now to the regime where it wins and prioritize kernel work before S4"
+    },
+    {
+      "after": "S0",
+      "if": "a sanity gate fails",
+      "then": "debug with at most 2 attempts; if RigL is still off by more than 0.5 pp, switch both arms to the official RigL code or report the gap explicitly"
+    },
+    {
+      "after": "S1",
+      "if": "G1: the upper bound of (MethodX − RigL) is < −δ at 90% or 95%",
+      "then": "rewrite C1 as 'within X pp'; restrict R50/IN to {90, 99}; cancel M5/M6; no MethodX-only retuning"
+    },
+    {
+      "after": "S1",
+      "if": "G2: the upper bound of (MethodX − strict) is < 0.5 pp at both 98% and 99%",
+      "then": "cut P1, P3 and RA (75 GPU-h to reserve); A1-IN still runs and decides C2"
+    },
+    {
+      "after": "S1",
+      "if": "G3: RigL's zero-fan-in fraction is < 1% at 99%",
+      "then": "drop the C2 mechanism claim; cut P1 and P3; keep RA"
+    },
+    {
+      "after": "S1",
+      "if": "G4: analytic variance is more than 5% from MC",
+      "then": "fix the derivation before P2"
+    },
+    {
+      "after": "S1",
+      "if": "G5: the upper bound of the ViT (MethodX − RigL) gap is < −δ at 90%",
+      "then": "release M5/M6 (700 GPU-h) to the restore ladder; report the transformer failure as a limitation",
+      "else": "launch DeiT-S (M5/M6) after S1.5"
+    },
+    {
+      "after": "S1",
+      "if": "G6: MethodX − RigL at 99% on minival is < −2.0 pp (1 seed)",
+      "then": "cap ImageNet C1 at 95%; still run the M3 99% seeds for A1-IN pairing"
+    },
+    {
+      "after": "S1",
+      "if": "G6: the code hash is unchanged after S1.5",
+      "then": "reuse the S1.5 runs as M3 seed 0",
+      "else": "rerun them from the reserve"
+    },
+    {
+      "after": "S1",
+      "if": "the selected high γ_sal for C3 equals the default",
+      "then": "skip C3"
+    },
+    {
+      "after": "S3",
+      "if": "C2 decision: strict-vs-MethodX is ≥ 1.0 pp with Holm significance on ≥ 3 of 4 architectures including R50/IN",
+      "then": "keep the C2 claim",
+      "else": "rewrite C2 descriptively, with no causal claim"
+    },
+    {
+      "after": "S3",
+      "if": "P1 recovery: the width-oracle recovers < 25% of the gap",
+      "then": "width is not the mechanism (25–75% is reported as partial)"
+    },
+    {
+      "after": "S3",
+      "if": "RA: RA ≥ RigL + δ",
+      "then": "reword C2: ablation is partly a general gain"
+    },
+    {
+      "after": "S3",
+      "if": "γ_sal sensitivity: the accuracy range across γ_sal at 95% exceeds 2 pp",
+      "then": "report it as a limitation, with the per-architecture selection rule"
+    },
+    {
+      "after": "S4",
+      "if": "speed gate: speedup < 1.2× or CI lower bound ≤ 1 vs dense or the best unstructured engine",
+      "then": "restrict the claim to the regime where it holds and report the crossover sparsity; report all rows"
+    },
+    {
+      "after": "end of week 4",
+      "if": "the projected finish is later than day 40",
+      "then": "apply cut-ladder steps 1–3"
+    }
+  ],
+  "stoppingRules": [
+    "Rerun only on NaN/inf or infrastructure failure, for all arms, once; two failures block the cell and the failure is reported",
+    "Never extend seeds or the tuning budget for one arm only",
+    "A gate stops or rewrites work only on clear evidence (the 90% CI upper bound of the relevant difference falls below the threshold); no arm receives extra tuning on failure"
+  ],
+  "risks": [
+    {
+      "text": "Training hardware class is unconfirmed",
+      "mitigation": "pre-specified V100 rescope; claims narrow as stated there"
+    },
+    {
+      "text": "Per-run costs are planning values",
+      "mitigation": "S0.0 calibrates them; overruns beyond 1.37× on ImageNet trigger the cut ladder"
+    },
+    {
+      "text": "Wall-clock slack is about 4 days",
+      "mitigation": "parallel tracks, early DeiT start, week-4 check"
+    },
+    {
+      "text": "ImageNet tuning is asymmetric: RigL and GraNet use author-tuned settings, MethodX a γ_sal from a 20-epoch proxy that may not transfer to 100 epochs",
+      "mitigation": "conservative toward the baselines"
+    },
+    {
+      "text": "DeiT γ_sal is transferred from ViT-Tiny/C100 and not tuned on ImageNet"
+    },
+    {
+      "text": "ImageNet paired SD above about 0.25 pp can make the 3-seed TOST CI exceed δ; MobileNetV2 and ViT-Tiny are marginal at 5 seeds",
+      "mitigation": "report such results as inconclusive, not non-equivalence"
+    },
+    {
+      "text": "The fixed-sequence order is fixed in advance, so an unexpected failure at a low sparsity blocks claims at all higher sparsities"
+    },
+    {
+      "text": "GraNet uses more FLOPs, so the equal-epoch comparison favors GraNet",
+      "mitigation": "training FLOPs are reported"
+    },
+    {
+      "text": "Copied numbers (Chase and SR-STE on ImageNet, GraNet under the cut ladder) use different protocols and full-train splits",
+      "mitigation": "context only, not used in any test"
+    },
+    {
+      "text": "Residual engineering-effort confound in latency",
+      "mitigation": "same-toolchain CSR kernels; report against both vendor and same-toolchain kernels"
+    },
+    {
+      "text": "The ImageNet Q4 point (C3) is a separate 1-seed training run where width and accuracy co-vary",
+      "mitigation": "the causal speed claim rests on the same-weights comparison"
+    },
+    {
+      "text": "MobileNetV2 depthwise layers (fan-in 9) may hit the k = 1 floor at 98%",
+      "mitigation": "reported per layer; it is the intended failure probe"
+    },
+    {
+      "text": "S1.5 reuse depends on the code hash staying unchanged",
+      "mitigation": "otherwise the 120 GPU-h are rerun from the reserve"
+    }
+  ]
+}

@@ -207,6 +207,7 @@ export function useFigureMathEditing(
     open,
     apply,
     cancel: close,
+    editMath,
     newMath,
     typesetSelectedText,
     onKey,

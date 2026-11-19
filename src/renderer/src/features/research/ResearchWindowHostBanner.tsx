@@ -20,11 +20,11 @@ function RuntimeHostBanner({ environmentId }: { environmentId: string }): React.
       role="status"
       className={
         offline
-          ? 'flex shrink-0 items-center gap-2 border-b border-border px-3 py-1.5 text-xs text-status-warning'
-          : 'flex shrink-0 items-center gap-2 border-b border-border px-3 py-1.5 text-xs text-muted-foreground'
+          ? 'flex shrink-0 items-center gap-2 border-b border-border px-3 py-2 text-xs text-status-warning'
+          : 'flex shrink-0 items-center gap-2 border-b border-border px-3 py-2 text-xs text-muted-foreground'
       }
     >
-      <WifiOff className="size-3.5" aria-hidden />
+      <WifiOff className="size-4" aria-hidden />
       <span className="min-w-0 truncate">
         {notice.text}
         {offline ? ' Pages here will work again once it reconnects.' : ''}
@@ -59,9 +59,9 @@ function SshHostBanner({
   return (
     <p
       role="status"
-      className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-1.5 text-xs text-status-warning"
+      className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2 text-xs text-status-warning"
     >
-      <WifiOff className="size-3.5" aria-hidden />
+      <WifiOff className="size-4" aria-hidden />
       <span className="min-w-0 truncate">
         {label} is not connected. Pages here will work again once it reconnects.
       </span>

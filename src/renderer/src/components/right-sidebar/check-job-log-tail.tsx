@@ -140,7 +140,7 @@ export function CheckJobLogTail({
   return (
     <div className="mt-3 min-w-0">
       <div className="mb-1.5 flex min-w-0 items-center gap-2">
-        <div className="min-w-0 flex-1 text-3xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <div className="min-w-0 flex-1 text-3xs font-medium text-muted-foreground">
           {translate(
             'auto.components.right.sidebar.checks.panel.content.d713f500b2',
             'Log excerpt'
@@ -184,7 +184,7 @@ export function CheckJobLogTail({
       ) : job.logState !== 'error' ? (
         <p className="text-xs text-muted-foreground">
           {job.logState === 'empty'
-            ? translate('githubChecks.logsEmpty', 'No log output was returned.')
+            ? translate('githubChecks.logsEmpty', 'No log output was returned')
             : running && job.logState !== 'available'
               ? translate('githubChecks.logsNotYetAvailable', 'Log output is not available yet.')
               : job.logState === 'not_requested'
@@ -192,7 +192,7 @@ export function CheckJobLogTail({
                     'githubChecks.logsNotRequested',
                     "Log excerpt wasn't requested. At most five failed-job excerpts are loaded per check."
                   )
-                : translate('githubChecks.noLogExcerpt', 'No log excerpt is available.')}
+                : translate('githubChecks.noLogExcerpt', 'No log excerpt is available')}
         </p>
       ) : null}
     </div>

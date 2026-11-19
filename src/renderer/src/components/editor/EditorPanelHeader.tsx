@@ -123,7 +123,7 @@ export function EditorPanelHeader({
                 onClick={onOpenPreviewToSide}
                 aria-label={translate(
                   'auto.components.editor.EditorPanelHeader.fb8331694e',
-                  'Open Preview to the Side'
+                  'Open preview to the side'
                 )}
               >
                 <Eye size={14} />
@@ -132,7 +132,7 @@ export function EditorPanelHeader({
             <TooltipContent side="bottom" sideOffset={4}>
               {translate(
                 'auto.components.editor.EditorPanelHeader.fb8331694e',
-                'Open Preview to the Side'
+                'Open preview to the side'
               )}
             </TooltipContent>
           </Tooltip>
@@ -183,7 +183,7 @@ export function EditorPanelHeader({
           showFileScope
           triggerLabel="AI notes"
           triggerCount={fileDiffComments.length}
-          triggerClassName="h-6 shrink-0 gap-1 rounded-full border border-border/70 bg-muted/40 px-2 text-[11px] font-medium leading-none text-foreground/80 hover:bg-accent hover:text-foreground"
+          triggerClassName="h-6 shrink-0 gap-1 rounded-md border border-border/70 bg-muted/40 px-2 text-[11px] font-medium leading-none text-foreground/80 hover:bg-accent hover:text-foreground"
           iconClassName="size-3"
         />
       )}
@@ -292,7 +292,7 @@ export function EditorPanelHeader({
                 disabled={isMarkdownTableOfContentsDisabled}
                 aria-label={translate(
                   'auto.components.editor.EditorPanelHeader.5447c4f68f',
-                  'Table of Contents'
+                  'Table of contents'
                 )}
                 aria-pressed={showMarkdownTableOfContents}
               >
@@ -303,11 +303,11 @@ export function EditorPanelHeader({
               {isMarkdownTableOfContentsDisabled
                 ? translate(
                     'auto.components.editor.EditorPanelHeader.146cb5473c',
-                    'Table of Contents is available in rich or preview mode'
+                    'Table of contents is available in rich or preview mode'
                   )
                 : translate(
                     'auto.components.editor.EditorPanelHeader.5447c4f68f',
-                    'Table of Contents'
+                    'Table of contents'
                   )}
             </TooltipContent>
           </Tooltip>

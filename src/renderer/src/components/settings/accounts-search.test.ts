@@ -27,10 +27,10 @@ describe('getAccountsPaneSearchEntries', () => {
     const titles = entries.map((entry) => entry.title)
     expect(
       titles.filter((title) =>
-        ['Antigravity Accounts', 'Cursor Usage', 'GLM Coding Plan'].includes(title)
+        ['Antigravity accounts', 'Cursor usage', 'GLM Coding Plan'].includes(title)
       )
-    ).toEqual(['Antigravity Accounts', 'Cursor Usage', 'GLM Coding Plan'])
-    expect(entries.find((entry) => entry.title === 'Antigravity Accounts')?.keywords).toEqual(
+    ).toEqual(['Antigravity accounts', 'Cursor usage', 'GLM Coding Plan'])
+    expect(entries.find((entry) => entry.title === 'Antigravity accounts')?.keywords).toEqual(
       expect.arrayContaining(['antigravity', 'agy', 'google', 'accounts'])
     )
     expect(entries.find((entry) => entry.title === 'GLM Coding Plan')?.keywords).toEqual(
@@ -44,7 +44,7 @@ describe('getAccountsMiniMaxSearchEntries', () => {
     const entries = getAccountsMiniMaxSearchEntries()
     expect(entries).toHaveLength(1)
     const [entry] = entries
-    expect(entry.title).toBe('MiniMax Usage')
+    expect(entry.title).toBe('MiniMax usage')
     expect(entry.description.toLowerCase()).toContain('cookie')
     expect(entry.description.toLowerCase()).toContain('api key')
   })
@@ -61,14 +61,14 @@ describe('getAccountsMiniMaxSearchEntries', () => {
   it('is included in the rolled-up pane search entries', () => {
     const allEntries = getAccountsPaneSearchEntries()
     const titles = allEntries.map((entry) => entry.title)
-    expect(titles).toContain('MiniMax Usage')
+    expect(titles).toContain('MiniMax usage')
   })
 })
 
 describe('getAccountsOpencodeSearchEntries', () => {
   it('tells search to paste the full Cookie header including the console session', () => {
     const cookieEntry = getAccountsOpencodeSearchEntries().find(
-      (entry) => entry.title === 'OpenCode Go Session Cookie'
+      (entry) => entry.title === 'OpenCode Go session cookie'
     )
 
     expect(cookieEntry).toBeDefined()

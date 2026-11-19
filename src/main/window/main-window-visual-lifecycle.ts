@@ -95,10 +95,11 @@ export function installMacosVisibilityRepaint(window: BrowserWindow): void {
   })
 }
 
-// Why: titlebar content center sits ~18 CSS px from top (×zoom); traffic lights are ~12px tall, so top edge = center − 6.
-export const TITLEBAR_CSS_CENTER = 18
+// Why: the sidebar panel's 36px header starts below the 8px shell gap (app-shell.css), so its
+// centre is 26 CSS px from the top (×zoom); traffic lights are ~12px tall, so top edge = centre − 6.
+export const TITLEBAR_CSS_CENTER = 26
 export const TRAFFIC_LIGHT_RADIUS = 6
-export const TRAFFIC_LIGHT_X = 16
+export const TRAFFIC_LIGHT_X = 20
 export const MIN_WIDTH = 600
 export const MIN_HEIGHT = 400
 

@@ -251,7 +251,7 @@ export function getProviderUsageErrorMessage(p: ProviderRateLimits): string {
       case 'missing-credentials':
         return translate(
           'accounts.claude.usageSignInMessage',
-          'The selected Claude account needs you to sign in again. Open Settings > AI Provider Accounts, or choose System default.'
+          'The selected Claude account needs you to sign in again. Open Settings > AI provider accounts, or choose System default.'
         )
       case 'server':
       case 'parse':

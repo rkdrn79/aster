@@ -137,7 +137,7 @@ export const getSourceOptions = createLocalizedCatalog((): SourceOption[] => [
 export const getJiraPresets = createLocalizedCatalog((): JiraPreset[] => [
   { id: 'assigned', label: translate('auto.components.TaskPage.1301d376f1', 'Assigned') },
   { id: 'reported', label: translate('auto.components.TaskPage.bd9965df51', 'Reported') },
-  { id: 'all', label: translate('auto.components.TaskPage.4b6e40e42c', 'All Open') },
+  { id: 'all', label: translate('auto.components.TaskPage.4b6e40e42c', 'All open') },
   { id: 'done', label: translate('auto.components.TaskPage.18451e99df', 'Done') }
 ])
 
@@ -154,7 +154,7 @@ export const getLinearModeOptions = createLocalizedCatalog(
     { id: 'views', label: translate('auto.components.TaskPage.e78ec261ed', 'Views') },
     {
       id: 'in-orca',
-      label: translate('auto.components.TaskPage.linearModeHasWorktree', 'Has Workspace')
+      label: translate('auto.components.TaskPage.linearModeHasWorktree', 'Has workspace')
     }
   ]
 )

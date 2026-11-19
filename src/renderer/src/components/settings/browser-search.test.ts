@@ -33,14 +33,14 @@ describe('browser settings search copy', () => {
     expect(description).not.toMatch(/\{\{.+?\}\}/)
 
     const linkRoutingEntry = getBrowserPaneSearchEntries({ isMac: true }).find(
-      (entry) => entry.title === 'Link Routing'
+      (entry) => entry.title === 'Link routing'
     )
     expect(linkRoutingEntry?.description).toBe(getBrowserLinkRoutingDescription({ isMac: true }))
     expect(linkRoutingEntry?.keywords).toContain('cmd')
     expect(linkRoutingEntry?.keywords).not.toContain('ctrl')
 
     const defaultZoomEntry = getBrowserPaneSearchEntries({ isMac: true }).find(
-      (entry) => entry.title === 'Default Zoom'
+      (entry) => entry.title === 'Default zoom'
     )
     expect(defaultZoomEntry?.keywords).toContain('zoom')
   })
@@ -54,7 +54,7 @@ describe('browser settings search copy', () => {
     expect(description).not.toMatch(/\{\{.+?\}\}/)
 
     const linkRoutingEntry = getBrowserPaneSearchEntries({ isMac: false }).find(
-      (entry) => entry.title === 'Link Routing'
+      (entry) => entry.title === 'Link routing'
     )
     expect(linkRoutingEntry?.description).toBe(getBrowserLinkRoutingDescription({ isMac: false }))
     expect(linkRoutingEntry?.keywords).toContain('ctrl')
@@ -96,14 +96,14 @@ describe('browser link routing modifier copy', () => {
   // reordered or inserted entry silently shows the wrong row for a search.
   it('keeps the search entry order BrowserPane indexes by position', () => {
     expect(getBrowserPaneSearchEntries({ isMac: true }).map((entry) => entry.title)).toEqual([
-      'Default Home Page',
-      'Default Search Engine',
-      'Default Zoom',
-      'Link Routing',
+      'Default home page',
+      'Default search engine',
+      'Default zoom',
+      'Link routing',
       'Hold Shift to open in Aster',
       'Terminal URL clicks',
-      'Localhost Worktree Labels',
-      'Session & Cookies',
+      'Localhost worktree labels',
+      'Session and cookies',
       'Remote server workspaces',
       'SSH workspaces',
       'Browser identity',

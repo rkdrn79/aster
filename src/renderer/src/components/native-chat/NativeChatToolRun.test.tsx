@@ -378,10 +378,8 @@ describe('NativeChatToolRun', () => {
     expect(header).toHaveTextContent('cat package.json')
     expect(header).not.toHaveTextContent('date')
     expect(header).not.toHaveTextContent('pwd')
-    expect(screen.getByText('Running 3 commands')).toHaveClass(
-      'animate-pulse',
-      'motion-reduce:animate-none'
-    )
+    // The live sentence reads a step stronger but stays still; the activity line carries the sweep.
+    expect(screen.getByText('Running 3 commands')).not.toHaveClass('text-shimmer')
     expect(header.querySelector('.lucide-check')).toBeNull()
     expect(container.querySelector('.animate-spin')).toBeNull()
   })
@@ -463,8 +461,9 @@ describe('NativeChatToolRun', () => {
     expect(header).toHaveAttribute('data-native-chat-tool-run-state', 'settled')
     expect(header).toHaveTextContent('Ran 2 commands')
     expect(header).not.toHaveTextContent('Running')
-    expect(header.querySelector('.lucide-check')).toBeInTheDocument()
-    expect(header.querySelector('.animate-pulse')).toBeNull()
+    // It settled while shown, so its check draws itself once.
+    expect(header.querySelector('[data-native-chat-tool-run-done] svg')).toBeInTheDocument()
+    expect(header.querySelector('.text-shimmer')).toBeNull()
   })
 
   it('settles a run the agent has moved past even while its last call still reports', () => {
@@ -482,7 +481,7 @@ describe('NativeChatToolRun', () => {
     const header = runHeader(container)
     expect(header).toHaveAttribute('data-native-chat-tool-run-state', 'settled')
     expect(header).not.toHaveTextContent('Running')
-    expect(header.querySelector('.animate-pulse')).toBeNull()
+    expect(header.querySelector('.text-shimmer')).toBeNull()
     // Still not a stated success: the call has not finished.
     expect(header.querySelector('.lucide-check')).toBeNull()
   })
@@ -504,8 +503,9 @@ describe('NativeChatToolRun', () => {
     expect(settledRow.querySelector('.lucide-check')).toBeInTheDocument()
     // Windowing remounts settled rows on scroll; a mark that faded in would replay.
     expect(settledRow.querySelector('.lucide-check')).not.toHaveClass('animate-in')
-    expect(settledRow.querySelector('.animate-pulse')).toBeNull()
-    expect(container.querySelector('.animate-pulse')).toBeNull()
+    expect(settledRow.querySelector('.lucide-check')).not.toHaveClass('animate-check-in')
+    expect(settledRow.querySelector('.text-shimmer')).toBeNull()
+    expect(container.querySelector('.text-shimmer')).toBeNull()
   })
 
   it('refuses the completion mark to a collapsed run whose call failed', () => {

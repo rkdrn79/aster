@@ -327,7 +327,9 @@ function MachineNode({
       label={
         <>
           <Monitor className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <span className="min-w-0 truncate text-[13px] font-bold">{name}</span>
+          <span data-resume-kind="machine" className="min-w-0 truncate text-[13px] font-semibold">
+            {name}
+          </span>
           {parseExecutionHostId(hostId)?.kind === 'ssh' && (
             <WorktreeHostContextBadge
               label={translate('auto.components.NativeChatResumeOnRestartModal.sshHost', 'SSH')}

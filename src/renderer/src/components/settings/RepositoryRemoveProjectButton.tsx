@@ -39,7 +39,7 @@ export function RepositoryRemoveProjectButton({
 }) {
   const [confirmingRemove, setConfirmingRemove] = useState<string | null>(null)
   const removeProjectLabel =
-    confirmingRemove === repo.id ? 'Confirm Remove Project' : 'Remove Project'
+    confirmingRemove === repo.id ? 'Confirm remove project' : 'Remove project'
 
   const handleRemoveProject = (repoId: string) => {
     if (confirmingRemove === repoId) {
@@ -53,7 +53,7 @@ export function RepositoryRemoveProjectButton({
 
   return (
     <SearchableSetting
-      title={translate('auto.components.settings.RepositoryPane.0909e5d650', 'Remove Project')}
+      title={translate('auto.components.settings.RepositoryPane.0909e5d650', 'Remove project')}
       description={getRemoveProjectDescription(removalScope)}
       keywords={[repo.displayName, 'delete', 'project', 'repository']}
       className="absolute top-0 right-0 z-10 w-auto max-w-none"

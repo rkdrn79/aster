@@ -173,7 +173,7 @@ export function SkillSharePublishedLink({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-3 rounded-md border border-border p-3">
-        <div className="flex size-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+        <div className="flex shrink-0 text-muted-foreground">
           <Check className="size-4" />
         </div>
         <p className="min-w-0 flex-1 truncate font-mono text-xs">{shareUrl}</p>

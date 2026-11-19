@@ -36,6 +36,8 @@ import { useRuntimeGraphSync } from './app-shell/use-runtime-graph-sync'
 import { useWindowVisibilityEffects } from './app-shell/use-window-visibility-effects'
 import { SpaceWindowStatePublisher } from './components/workspace-space/SpaceWindowStatePublisher'
 import { ResearchWindowStatePublisher } from './features/research/ResearchWindowStatePublisher'
+import { ResearchSubtaskDelivery } from './features/research/ResearchSubtaskDelivery'
+import { ResearchSubtaskInspectDialog } from './features/research/ResearchSubtaskStrip'
 import { PlainSshTerminalPanels } from './components/plain-ssh-terminal/PlainSshTerminalPanels'
 import { installActiveWorktreeRemovalSuccessor } from './lib/active-worktree-removal-successor'
 import { RecoverableRenderErrorBoundary } from './components/error-boundaries/RecoverableRenderErrorBoundary'
@@ -110,6 +112,8 @@ function App(): React.JSX.Element {
             <AppBackgroundServices />
             <SpaceWindowStatePublisher />
             <ResearchWindowStatePublisher />
+            <ResearchSubtaskDelivery />
+            <ResearchSubtaskInspectDialog />
             {phoneShell ? (
               <RecoverableRenderErrorBoundary
                 boundaryId="app.phone-shell"

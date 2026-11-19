@@ -94,7 +94,7 @@ describe('reference session associations', () => {
     expect(screen.queryByRole('checkbox')).toBeNull()
     expect(screen.queryByText('Used for checks')).toBeNull()
     expect(screen.queryByRole('button', { name: /Use .* for checks/ })).toBeNull()
-    const disclosure = screen.getByRole('button', { name: 'Sessions & terminals for PR #23 · 1' })
+    const disclosure = screen.getByRole('button', { name: 'Sessions and terminals for PR #23 · 1' })
     fireEvent.keyDown(disclosure, { key: 'Enter' })
     expect(parentKeyDown).not.toHaveBeenCalled()
     fireEvent.click(disclosure)
@@ -118,7 +118,7 @@ describe('reference session associations', () => {
         />
       </TooltipProvider>
     )
-    expect(screen.queryByRole('button', { name: /Sessions & terminals/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: /Sessions and terminals/ })).toBeNull()
     expect(screen.queryByRole('checkbox')).toBeNull()
   })
   it('opens a related live tab and describes evidence without implying authorship', () => {

@@ -101,7 +101,7 @@ export function ResumeFailureGuidanceLine({
   return (
     <div className="mb-1 flex items-center gap-2 rounded-md border border-status-warning-border bg-status-warning-background px-2 py-1.5 text-[11px]">
       <span className="min-w-0 flex-1">
-        <span className="font-semibold">
+        <span className="font-medium">
           {translate('auto.components.NativeChatResumeOutcomeRow.toResume', 'To resume:')}
         </span>{' '}
         {guidance.text}

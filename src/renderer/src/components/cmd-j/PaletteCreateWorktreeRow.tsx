@@ -105,11 +105,11 @@ export function PaletteCreateWorktreeRow({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-baseline gap-2">
-              <span className="shrink-0 font-mono text-[12px] font-semibold text-muted-foreground">
+              <span className="shrink-0 font-mono text-[12px] font-medium text-muted-foreground">
                 {linearIssue?.identifier ?? linearIdentifier}
               </span>
               {linearIssue ? (
-                <span className="truncate text-[14px] font-semibold tracking-[-0.01em] text-foreground">
+                <span className="truncate text-[14px] font-medium text-foreground">
                   {linearIssue.title}
                 </span>
               ) : null}
@@ -131,10 +131,10 @@ export function PaletteCreateWorktreeRow({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-baseline gap-2">
-              <span className="shrink-0 font-mono text-[12px] font-semibold text-muted-foreground">
+              <span className="shrink-0 font-mono text-[12px] font-medium text-muted-foreground">
                 {taskUrlPreview.identifier}
               </span>
-              <span className="truncate text-[14px] font-semibold tracking-[-0.01em] text-foreground">
+              <span className="truncate text-[14px] font-medium text-foreground">
                 {taskUrlPreview.subtitle}
               </span>
             </div>
@@ -157,7 +157,7 @@ export function PaletteCreateWorktreeRow({
             <Plus size={13} aria-hidden="true" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-[14px] font-semibold tracking-[-0.01em] text-foreground">
+            <div className="text-[14px] font-medium text-foreground">
               {translate(
                 'auto.components.WorktreeJumpPalette.95be6587d3',
                 'Create worktree "{{value0}}"',

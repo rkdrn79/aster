@@ -32,15 +32,15 @@ export function NativeChatInstallHero(props: {
           failed={card.tone === 'failed'}
           large
         />
-        <h2 className="mt-4 text-sm font-semibold text-chat-foreground-strong">{card.title}</h2>
+        <h2 className="mt-4 text-sm font-medium text-chat-foreground-strong">{card.title}</h2>
         {card.detail ? (
-          <p className="mt-1.5 text-balance text-sm text-chat-foreground-faint">{card.detail}</p>
+          <p className="mt-2 text-balance text-sm text-chat-foreground-faint">{card.detail}</p>
         ) : null}
         {progress ? (
           <div className="mt-3 w-full">
             <Progress
               value={progress.percent ?? 100}
-              className="h-1.5"
+              className="h-1"
               aria-label={translate('components.managed-runtime.progress', '{{agent}} download', {
                 agent: agentLabel
               })}
@@ -62,14 +62,14 @@ export function NativeChatInstallHero(props: {
                 key={step.label}
                 aria-current={step.state === 'current' ? 'step' : undefined}
                 className={cn(
-                  'flex items-center gap-1.5',
+                  'flex items-center gap-2',
                   step.state === 'current'
                     ? 'font-medium text-chat-foreground-strong'
                     : 'text-chat-foreground-faint'
                 )}
               >
                 {step.state === 'done' ? (
-                  <Check className="size-3" />
+                  <Check className="size-4" />
                 ) : (
                   <span
                     className={cn(

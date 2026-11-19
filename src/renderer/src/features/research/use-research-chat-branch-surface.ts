@@ -27,8 +27,10 @@ import {
 import {
   openResearchChatHere,
   useResearchChatBranchPending,
-  type ResearchChatBranchRequest
+  type ResearchChatBranchRequest,
+  type ResearchChatCopyRequest
 } from './research-chat-branch-run'
+import type { NativeChatRewindSurface } from '@/components/native-chat/use-native-chat-rewind'
 import { researchChatTabLabel, runResearchChatBranch } from './research-chat-branch-actions'
 
 const EMPTY_TABS: readonly Tab[] = []
@@ -65,11 +67,13 @@ export function useResearchChatBranchSurface(
     status: string
     isWorking: boolean
     journalItems: readonly AgentJournalRenderItem[]
+    rewind: { surface: NativeChatRewindSurface | undefined }
   },
   messages: readonly NativeChatMessage[]
 ): NativeChatBranchSurface {
   const { tabId, sessionId, agent, target } = pane
   const { isWorking, journalItems } = controller
+  const rewindSurface = controller.rewind.surface
   const navigation = useContext(NativeChatBranchNavigationContext)
   const hostId = executionHostIdForStructuredTarget(target)
   const scope = useMemo(() => (workspaceId ? { hostId, workspaceId } : null), [hostId, workspaceId])
@@ -124,7 +128,7 @@ export function useResearchChatBranchSurface(
         openResearchChatHere(scope, id)
       }
     }
-    const run = (request: ResearchChatBranchRequest): void => {
+    const run = (request: ResearchChatBranchRequest, copy?: ResearchChatCopyRequest): void => {
       if (!scope || disabledReason) {
         if (disabledReason) {
           toast.error(disabledReason)
@@ -132,7 +136,7 @@ export function useResearchChatBranchSurface(
         return
       }
       const label = tab ? researchChatTabLabel(tab) : 'Chat'
-      void runResearchChatBranch({ ...scope, sessionId, agent, label, target }, request, open)
+      void runResearchChatBranch({ ...scope, sessionId, agent, label, target }, request, open, copy)
     }
     const item = (id: string) => journalItems.find((candidate) => candidate.itemId === id)
     const edit = (id: string): ResearchChatBranchRequest => {
@@ -143,29 +147,40 @@ export function useResearchChatBranchSurface(
         ...(body?.kind === 'message' ? { edit: { itemId: id, blocks: body.blocks } } : {})
       }
     }
+    // Through an agent's reply; the person's message asked again, or with images, left to send.
+    const from = (id: string): ResearchChatBranchRequest => {
+      if (!openers.has(id)) {
+        return { at: 'through', beforeItemId: next.get(id) ?? null }
+      }
+      const resend = textOnly(item(id))
+      if (resend === null) {
+        toast.message('This message has images, so it waits in the new chat to send')
+      }
+      return resend === null ? edit(id) : { at: 'message', beforeItemId: id, resend }
+    }
+    const latestOpener = [...openers].findLast(
+      (id) => rewindSurface?.eligibleItemIds?.has(id) ?? true
+    )
     return {
       disabledReason,
       earlierDisabledReason: researchChatBranchEarlierBlock(agent),
       openerIds: openers,
       isLatest: (id) => !openers.has(id) && (next.get(id) ?? null) === null,
-      branchFrom: (id) => {
-        if (!openers.has(id)) {
-          run({ at: 'through', beforeItemId: next.get(id) ?? null })
-          return
-        }
-        // The person's message is asked again; one with images waits in the composer instead.
-        const resend = textOnly(item(id))
-        if (resend === null) {
-          toast.message('This message has images, so it waits in the new chat to send.')
-        }
-        run(resend === null ? edit(id) : { at: 'message', beforeItemId: id, resend })
-      },
+      branchFrom: (id) => run(from(id)),
+      forkFrom: (id) => run(from(id), { kind: 'fork' }),
       editAndBranch: (id) => run(edit(id)),
-      branchChat: () => run({ at: 'through', beforeItemId: null })
+      branchChat: (name) => run({ at: 'through', beforeItemId: null }, { kind: 'branch', name }),
+      forkChat: (prompt) => run({ at: 'through', beforeItemId: null }, { kind: 'fork', prompt }),
+      subtask: (task) => run({ at: 'through', beforeItemId: null }, { kind: 'subtask', task }),
+      rewindLatest:
+        rewindSurface && latestOpener && !rewindSurface.disabledReason
+          ? (confirm) => void rewindSurface.request(latestOpener, confirm)
+          : null
     }
   }, [
     agent,
     disabledReason,
+    rewindSurface,
     journalItems,
     navigation,
     next,

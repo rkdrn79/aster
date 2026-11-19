@@ -115,12 +115,12 @@ describe('WorktreeList lineage child card renderer', () => {
     expect(markup).not.toContain('No workspaces found')
   })
 
-  it('shows Clear Filters when repo filters exclude an empty ungrouped project', async () => {
+  it('shows Clear filters when repo filters exclude an empty ungrouped project', async () => {
     setEmptyUngroupedProjectState(['another-repo'])
     const markup = await renderWorktreeListMarkup()
 
     expect(markup).toContain('No workspaces found')
-    expect(markup).toContain('Clear Filters')
+    expect(markup).toContain('Clear filters')
     expect(markup).not.toContain('empty-project')
   })
 })

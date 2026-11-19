@@ -108,7 +108,7 @@ export function getCrashReportSubmitFailureNotice(
     ]
       .filter((part): part is string => Boolean(part))
       .join(' '),
-    actionLabel: translate('auto.components.crash.report.submit.notice.copyDetails', 'Copy Details')
+    actionLabel: translate('auto.components.crash.report.submit.notice.copyDetails', 'Copy details')
   }
 }
 

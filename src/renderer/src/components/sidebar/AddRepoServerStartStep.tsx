@@ -233,7 +233,7 @@ export function AddRepoServerPathStartStep({
           >
             {translate(
               'auto.components.sidebar.AddRepoServerStartStep.8da4d1a5be',
-              'Add Git Project'
+              'Add Git project'
             )}
           </Button>
           <Button
@@ -244,7 +244,7 @@ export function AddRepoServerPathStartStep({
           >
             {translate(
               'auto.components.sidebar.AddRepoServerStartStep.e1710bf831',
-              'Open as Folder'
+              'Open as folder'
             )}
           </Button>
         </div>
@@ -297,7 +297,7 @@ function AddRepoServerStartAction({
         <Icon className="size-5" />
       </span>
       <span className="min-w-0">
-        <span className="block text-[13px] font-semibold leading-5 text-foreground">{title}</span>
+        <span className="block text-[13px] font-medium leading-5 text-foreground">{title}</span>
         <span className="mt-0.5 block text-[11px] font-normal leading-4 text-muted-foreground">
           {description}
         </span>

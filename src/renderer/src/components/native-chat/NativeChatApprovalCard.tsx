@@ -1,7 +1,13 @@
 import { SecuritySurface } from '@/components/ui/security-surface'
 import { useRef } from 'react'
 import { ShieldQuestion, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import {
+  ToolApprovalActions,
+  ToolApprovalCard,
+  ToolApprovalHeader,
+  ToolApprovalWell
+} from '@/components/ai/tool-approval'
 import { translate } from '@/i18n/i18n'
 import type { CommentMarkdownLinkClickHandler } from '@/components/sidebar/CommentMarkdown'
 import { NativeChatMarkdown } from './NativeChatMarkdown'
@@ -14,6 +20,7 @@ import { NativeChatCodeBlock } from './NativeChatCodeBlock'
 import type { ChatApproval } from './native-chat-interactive-prompt'
 import { NativeChatPromptCollapseToggle } from './NativeChatPromptCollapse'
 import { useNativeChatPromptCardFocus } from './use-native-chat-prompt-card-focus'
+import { nativeChatApprovalCommandLine } from './native-chat-approval-command'
 
 export type NativeChatApprovalCardProps = {
   approval: ChatApproval
@@ -58,13 +65,20 @@ export function NativeChatApprovalCard({
     approval.detail
   )
   useNativeChatPromptCardFocus(cardRef, shouldFocus)
+  // A shell call reads as its command line, the way a terminal shows it.
+  const commandLine = nativeChatApprovalCommandLine(approval.detail, approval.description)
   const escape = onCancel ?? (isSubmitting ? undefined : onCollapse)
+
+  // The primary answer (the first option) is the ink pill at the right edge; the others are
+  // quiet and come before it, so reading order and tab order match what the eye sees.
+  const indexed = approval.options.map((option, index) => ({ option, index }))
+  const ordered = [...indexed.slice(1), ...indexed.slice(0, 1)]
 
   return (
     <SecuritySurface>
       <div className="min-h-0 shrink overflow-hidden bg-chat-canvas">
         <div className="mx-auto flex h-full min-h-0 max-h-full w-full max-w-(--chat-content-max-width) px-3 pt-2 pb-1 sm:px-4">
-          <div
+          <ToolApprovalCard
             ref={cardRef}
             data-native-chat-prompt-card-focus={shouldFocus || undefined}
             data-native-chat-approval-card="true"
@@ -78,38 +92,54 @@ export function NativeChatApprovalCard({
                 escape()
               }
             }}
-            className="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-hidden rounded-lg border border-input bg-card px-4 py-3 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="min-h-0 w-full flex-1"
           >
-            <div className="flex shrink-0 items-start gap-2">
-              <ShieldQuestion className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0 flex-1">
-                <p className="line-clamp-2 break-words text-sm font-semibold text-foreground">
-                  {approval.title}
-                </p>
-              </div>
-              {onCancel ? (
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  aria-label={translate('components.native-chat.approval.cancel', 'Cancel')}
-                  className="flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <X className="size-4" />
-                </button>
-              ) : onCollapse ? (
-                <NativeChatPromptCollapseToggle
-                  expanded
-                  disabled={isSubmitting}
-                  onToggle={onCollapse}
-                />
-              ) : null}
-            </div>
+            <ToolApprovalHeader
+              icon={<ShieldQuestion />}
+              title={approval.title}
+              trailing={
+                onCancel ? (
+                  <button
+                    type="button"
+                    onClick={onCancel}
+                    aria-label={translate('components.native-chat.approval.cancel', 'Cancel')}
+                    className="press-scale flex size-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <X className="size-4" />
+                  </button>
+                ) : onCollapse ? (
+                  <NativeChatPromptCollapseToggle
+                    expanded
+                    disabled={isSubmitting}
+                    onToggle={onCollapse}
+                  />
+                ) : null
+              }
+            />
             {hasContext ? (
               <div
                 data-native-chat-approval-content="true"
                 tabIndex={0}
-                className="min-h-0 max-h-72 shrink space-y-2 overflow-auto text-sm text-muted-foreground scrollbar-sleek focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                className="min-h-0 max-h-72 shrink space-y-2 overflow-auto text-sm text-muted-foreground scrollbar-sleek focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring rounded"
               >
+                {approval.detail && !isPlanApprovalSubject(approval.subject) ? (
+                  <ToolApprovalWell
+                    data-native-chat-approval-detail="true"
+                    data-native-chat-code-content
+                    className="text-chat-code"
+                  >
+                    {commandLine !== null ? (
+                      <>
+                        <span aria-hidden className="mr-2 select-none text-muted-foreground">
+                          $
+                        </span>
+                        {commandLine}
+                      </>
+                    ) : (
+                      approval.detail
+                    )}
+                  </ToolApprovalWell>
+                ) : null}
                 {approval.description ? (
                   <p className="whitespace-pre-wrap break-words">{approval.description}</p>
                 ) : null}
@@ -151,14 +181,6 @@ export function NativeChatApprovalCard({
                       </p>
                     ) : null}
                   </div>
-                ) : approval.detail ? (
-                  <div
-                    data-native-chat-approval-detail="true"
-                    data-native-chat-code-content
-                    className="whitespace-pre-wrap break-words font-mono text-chat-code"
-                  >
-                    {approval.detail}
-                  </div>
                 ) : null}
                 {newerSubject ? (
                   <p data-native-chat-approval-needs-newer-orca="true" className="break-words">
@@ -170,25 +192,21 @@ export function NativeChatApprovalCard({
                 ) : null}
               </div>
             ) : null}
-            <div data-native-chat-approval-actions="true" className="flex shrink-0 flex-wrap gap-2">
-              {approval.options.map((opt, i) => (
-                <button
-                  key={`${opt.label}-${i}`}
+            <ToolApprovalActions data-native-chat-approval-actions="true">
+              {ordered.map(({ option, index }) => (
+                <Button
+                  key={`${option.label}-${index}`}
                   type="button"
+                  size="sm"
+                  variant={index === 0 ? 'default' : 'ghost'}
                   disabled={newerSubject || isSubmitting}
-                  onClick={() => onChoose(opt.send)}
-                  className={cn(
-                    'rounded-md px-4 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
-                    i === 0
-                      ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                      : 'border border-border bg-background text-foreground hover:bg-accent'
-                  )}
+                  onClick={() => onChoose(option.send)}
                 >
-                  {opt.label}
-                </button>
+                  {option.label}
+                </Button>
               ))}
-            </div>
-          </div>
+            </ToolApprovalActions>
+          </ToolApprovalCard>
         </div>
       </div>
     </SecuritySurface>

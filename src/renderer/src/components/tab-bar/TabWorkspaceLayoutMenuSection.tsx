@@ -65,7 +65,7 @@ export function TabWorkspaceLayoutMenuSection({
           <Columns2 className="size-3.5 shrink-0" />
           {translate(
             'auto.components.tab.bar.TabWorkspaceLayoutMenuSection.moveToPaneColumn',
-            'Move Tab to Split'
+            'Move tab to split'
           )}
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent className={TAB_CONTEXT_SUBMENU_CONTENT_CLASS}>

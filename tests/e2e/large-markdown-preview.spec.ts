@@ -179,7 +179,7 @@ for (const width of [1920, 1280]) {
     ).not.toBeInViewport()
     await orcaPage.getByRole('button', { name: 'Close search', exact: true }).click()
     expect(await preview.locator('*').count()).toBeLessThan(4000)
-    await orcaPage.getByRole('button', { name: 'Table of Contents', exact: true }).click()
+    await orcaPage.getByRole('button', { name: 'Table of contents', exact: true }).click()
     const toc = orcaPage.getByRole('complementary', { name: 'Table of contents', exact: true })
     await expect(toc.getByRole('button', { name: 'Section 0', exact: true })).toBeVisible()
     expect(await toc.locator('.markdown-toc-row').count()).toBeLessThan(100)

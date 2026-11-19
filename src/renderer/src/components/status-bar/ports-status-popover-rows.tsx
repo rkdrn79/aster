@@ -90,7 +90,7 @@ export function PortRow({
   const canStop = canStopWorkspacePort(port)
   const openBrowserLabel = translate(
     'auto.components.status.bar.ports.status.popover.rows.085f4f0334',
-    'Open in Browser'
+    'Open in browser'
   )
 
   const handleOpen = useCallback(
@@ -208,7 +208,7 @@ export function PortRow({
 
   return (
     <div className="group/port grid min-w-0 grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2 rounded-md px-2 py-1.5 hover:bg-accent/50">
-      <span className="select-text font-mono text-[12px] font-semibold tabular-nums text-foreground">
+      <span className="select-text font-mono text-[12px] font-medium tabular-nums text-foreground">
         {port.port}
       </span>
       <div className="min-w-0 space-y-0.5">
@@ -244,7 +244,7 @@ export function PortRow({
             <PortAction
               label={translate(
                 'auto.components.status.bar.ports.status.popover.rows.0e72c8d9fb',
-                'Stop Process'
+                'Stop process'
               )}
               disabled={!canStop}
               onClick={handleStop}
@@ -294,7 +294,7 @@ export function WorkspaceGroupRows({
           <PortAction
             label={translate(
               'auto.components.status.bar.ports.status.popover.rows.a49ea79246',
-              'Go to Worktree'
+              'Go to worktree'
             )}
             onClick={handleGoToWorkspace}
             disabled={group.ports.length === 0}

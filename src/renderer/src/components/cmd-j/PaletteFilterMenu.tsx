@@ -38,7 +38,7 @@ function CategoryRoot({
             >
               <span className="min-w-0 flex-1 truncate text-foreground">{group.heading}</span>
               {selectedCount > 0 ? (
-                <span className="rounded-full bg-primary/85 px-1.5 text-[10px] font-semibold tabular-nums text-primary-foreground">
+                <span className="shrink-0 text-[11px] font-medium tabular-nums text-foreground">
                   {selectedCount}
                 </span>
               ) : (
@@ -172,9 +172,7 @@ export default function PaletteFilterMenu({
           <ListFilter className="size-3.5" aria-hidden="true" />
           <span>{translate('worktreeJumpPalette.filter.label', 'Filter')}</span>
           {active ? (
-            <span className="rounded-full bg-primary/85 px-1.5 text-[10px] font-semibold tabular-nums text-primary-foreground">
-              {selectionCount}
-            </span>
+            <span className="text-xs tabular-nums text-muted-foreground">{selectionCount}</span>
           ) : null}
         </Button>
       </PopoverTrigger>

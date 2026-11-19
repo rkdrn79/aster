@@ -53,6 +53,7 @@ test('text under 7 pt is flagged on single- and double-column pages alike', asyn
 test('🔥 alone is badge noise; beside ❄️ it says something', async () => {
   await withFigure(async (file) => {
     const fig = await openFigure(file)
+    fig.style(undefined, { look: 'preset' })
     fig.box({ id: 'enc', label: 'encoder', x: 40, y: 40 })
     fig.box({ id: 'tgt', label: 'target', x: 240, y: 40 })
     fig.trainable('enc')

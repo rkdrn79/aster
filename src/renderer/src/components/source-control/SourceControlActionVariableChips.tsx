@@ -38,9 +38,7 @@ function SourceControlVariableSample({
 }): React.JSX.Element {
   return (
     <div className="space-y-1">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
-      </div>
+      <div className="text-[11px] font-medium text-muted-foreground">{label}</div>
       <pre className="rounded-sm bg-background/60 p-2 whitespace-pre-wrap break-words font-mono text-[11px] leading-relaxed">
         {value ||
           translate(

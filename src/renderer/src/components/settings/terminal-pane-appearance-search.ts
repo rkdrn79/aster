@@ -7,7 +7,7 @@ export const getTerminalPaneAppearanceSearchEntries = createLocalizedCatalog(() 
   {
     title: translate(
       'auto.components.settings.terminal.search.72bbcbd1dd',
-      'Inactive Pane Opacity'
+      'Inactive pane opacity'
     ),
     description: translate(
       'auto.components.settings.terminal.search.18dd5026c6',
@@ -20,7 +20,7 @@ export const getTerminalPaneAppearanceSearchEntries = createLocalizedCatalog(() 
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.2d5ab88b7c', 'Divider Thickness'),
+    title: translate('auto.components.settings.terminal.search.2d5ab88b7c', 'Divider thickness'),
     description: translate(
       'auto.components.settings.terminal.search.e58d4040d0',
       'Thickness of the pane divider line.'
@@ -35,7 +35,7 @@ export const getTerminalPaneAppearanceSearchEntries = createLocalizedCatalog(() 
 
 export const getTerminalPaneInteractionSearchEntries = createLocalizedCatalog(() => [
   {
-    title: translate('auto.components.settings.terminal.search.scrollSpeed.title', 'Scroll Speed'),
+    title: translate('auto.components.settings.terminal.search.scrollSpeed.title', 'Scroll speed'),
     description: translate(
       'auto.components.settings.terminal.search.scrollSpeed.description',
       'Tune normal terminal scrollback, fast modifier scrolling, and full-screen TUI wheel speed.'
@@ -54,7 +54,7 @@ export const getTerminalPaneInteractionSearchEntries = createLocalizedCatalog(()
   {
     title: translate(
       'auto.components.settings.terminal.search.ask_before_closing_running_terminals_title',
-      'Ask Before Closing Running Terminals'
+      'Ask before closing running terminals'
     ),
     description: translate(
       'auto.components.settings.terminal.search.ask_before_closing_running_terminals_description',
@@ -74,7 +74,7 @@ export const getTerminalPaneInteractionSearchEntries = createLocalizedCatalog(()
     ]
   },
   {
-    title: translate('auto.components.settings.terminal.search.c6178a2b4d', 'Focus Follows Mouse'),
+    title: translate('auto.components.settings.terminal.search.c6178a2b4d', 'Focus follows mouse'),
     description: translate(
       'auto.components.settings.terminal.search.17cc3ea102',
       "Hovering a terminal pane activates it without needing to click. Mirrors Ghostty's focus-follows-mouse setting. Selections and window switching stay safe."

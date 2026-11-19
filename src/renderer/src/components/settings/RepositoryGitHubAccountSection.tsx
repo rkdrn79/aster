@@ -169,7 +169,7 @@ export function RepositoryGitHubAccountSection({
     <SearchableSetting
       title={translate(
         'auto.components.settings.RepositoryGitHubAccountSection.title',
-        'GitHub Account'
+        'GitHub account'
       )}
       description={translate(
         'auto.components.settings.RepositoryGitHubAccountSection.description',
@@ -195,7 +195,7 @@ export function RepositoryGitHubAccountSection({
           <div className="text-sm font-semibold">
             {translate(
               'auto.components.settings.RepositoryGitHubAccountSection.title',
-              'GitHub Account'
+              'GitHub account'
             )}
           </div>
           <p className="text-xs text-muted-foreground">

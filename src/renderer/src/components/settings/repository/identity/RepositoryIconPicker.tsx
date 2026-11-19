@@ -182,7 +182,7 @@ export function RepositoryIconPicker({
         />
         <div className="min-w-0 flex-1">
           <Label className="text-sm font-semibold">
-            {translate('auto.components.settings.RepositoryIconPicker.4e2a14f967', 'Repo Icon')}
+            {translate('auto.components.settings.RepositoryIconPicker.4e2a14f967', 'Repo icon')}
           </Label>
           <div className="mt-1 truncate text-xs text-muted-foreground">{currentIconLabel}</div>
         </div>

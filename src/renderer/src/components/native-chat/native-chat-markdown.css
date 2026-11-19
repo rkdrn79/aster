@@ -77,7 +77,7 @@
   .native-chat-markdown[data-word-fade] :is([data-word], a, :not(pre) > code, .katex),
   .native-chat-markdown[data-block-fade] > :is(pre, div, table, hr) {
     /* WORD_FADE_MS in use-native-chat-paced-text.ts waits this long for the last words. */
-    transition: opacity 300ms ease-out;
+    transition: opacity 300ms var(--ease-out-quint);
 
     @starting-style {
       opacity: 0;

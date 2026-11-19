@@ -36,7 +36,7 @@ export function WorkspaceSpaceManagerOverview({
   if (!analysis && !isScanning) {
     return (
       <div className="flex min-h-80 flex-col items-center justify-center rounded-lg border border-border bg-card px-6 py-10 text-center">
-        <div className="mb-5 flex size-12 items-center justify-center rounded-lg border border-border bg-muted/40">
+        <div className="mb-4">
           <HardDrive className="size-6 text-muted-foreground" />
         </div>
         <h2 className="text-lg font-semibold text-foreground">

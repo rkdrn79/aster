@@ -79,7 +79,7 @@ export function EditorPanelActionsMenu({
         <DropdownMenuCheckboxItem checked={wordWrapChecked} onCheckedChange={onToggleWordWrap}>
           {translate(
             'auto.components.editor.EditorPanelMarkdownActionsMenu.1eef809708',
-            'Word Wrap'
+            'Word wrap'
           )}
         </DropdownMenuCheckboxItem>
         {isDiffSurface ? (
@@ -89,7 +89,7 @@ export function EditorPanelActionsMenu({
           >
             {translate(
               'auto.components.editor.EditorPanelMarkdownActionsMenu.4dedd55efa',
-              'Show Whitespace'
+              'Show whitespace'
             )}
           </DropdownMenuCheckboxItem>
         ) : null}
@@ -98,7 +98,7 @@ export function EditorPanelActionsMenu({
             checked={markdownFrontmatterVisible}
             onCheckedChange={onToggleMarkdownFrontmatter}
           >
-            {translate('auto.components.editor.EditorContent.e4b074749d', 'Front Matter')}
+            {translate('auto.components.editor.EditorContent.e4b074749d', 'Front matter')}
           </DropdownMenuCheckboxItem>
         ) : null}
         {shouldShowMarkdownExportAction ? <DropdownMenuSeparator /> : null}

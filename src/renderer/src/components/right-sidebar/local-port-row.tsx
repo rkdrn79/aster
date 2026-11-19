@@ -19,7 +19,6 @@ const LOCAL_PORT_MENU_CONTENT_CLASS =
   '!rounded-md !border-border/60 !bg-popover !text-popover-foreground !shadow-[0_10px_24px_rgba(0,0,0,0.18)] !backdrop-blur-none'
 const LOCAL_PORT_MENU_ITEM_CLASS =
   'rounded-md focus:bg-accent focus:text-accent-foreground dark:focus:bg-accent'
-const LOCAL_PORT_MENU_LABEL_CLASS = 'px-2 py-1 text-[11px] font-semibold text-muted-foreground'
 
 export function LocalPortRow({
   port,
@@ -86,7 +85,7 @@ export function LocalPortRow({
         : 'Unassigned'
   const openBrowserLabel = translate(
     'auto.components.right.sidebar.PortsPanel.b22b128b2a',
-    'Open in Browser'
+    'Open in browser'
   )
   const confidenceLabel =
     port.kind === 'workspace' ? (port.owner.confidence === 'cwd' ? 'cwd' : 'command') : null
@@ -183,14 +182,14 @@ export function LocalPortRow({
                     onClick={handleStopButtonClick}
                     aria-label={translate(
                       'auto.components.right.sidebar.PortsPanel.f9528da632',
-                      'Stop Process'
+                      'Stop process'
                     )}
                   >
                     <Trash2 size={13} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="top" sideOffset={4}>
-                  {translate('auto.components.right.sidebar.PortsPanel.f9528da632', 'Stop Process')}
+                  {translate('auto.components.right.sidebar.PortsPanel.f9528da632', 'Stop process')}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -198,9 +197,7 @@ export function LocalPortRow({
         </TooltipProvider>
       </div>
       <ContextMenuContent className={LOCAL_PORT_MENU_CONTENT_CLASS}>
-        <ContextMenuLabel
-          className={LOCAL_PORT_MENU_LABEL_CLASS}
-        >{`:${port.port}`}</ContextMenuLabel>
+        <ContextMenuLabel>{`:${port.port}`}</ContextMenuLabel>
         {onOpenInBrowser && (
           <ContextMenuItem
             className={LOCAL_PORT_MENU_ITEM_CLASS}
@@ -212,7 +209,7 @@ export function LocalPortRow({
         )}
         <ContextMenuItem className={LOCAL_PORT_MENU_ITEM_CLASS} onSelect={handleCopy}>
           <Copy size={13} />
-          {translate('auto.components.right.sidebar.PortsPanel.792baeb7ed', 'Copy Address')}
+          {translate('auto.components.right.sidebar.PortsPanel.792baeb7ed', 'Copy address')}
         </ContextMenuItem>
         <ContextMenuItem
           className={LOCAL_PORT_MENU_ITEM_CLASS}
@@ -221,14 +218,14 @@ export function LocalPortRow({
           }}
         >
           <Copy size={13} />
-          {translate('auto.components.right.sidebar.PortsPanel.bdac206faf', 'Copy Details')}
+          {translate('auto.components.right.sidebar.PortsPanel.bdac206faf', 'Copy details')}
         </ContextMenuItem>
         <ContextMenuItem
           className={LOCAL_PORT_MENU_ITEM_CLASS}
           onSelect={() => onShowDetails(port)}
         >
           <Info size={13} />
-          {translate('auto.components.right.sidebar.PortsPanel.a223459512', 'Show Details')}
+          {translate('auto.components.right.sidebar.PortsPanel.a223459512', 'Show details')}
         </ContextMenuItem>
         <ContextMenuSeparator />
         <ContextMenuItem
@@ -238,7 +235,7 @@ export function LocalPortRow({
           onSelect={() => onStop(port)}
         >
           <Trash2 size={13} />
-          {translate('auto.components.right.sidebar.PortsPanel.f9528da632', 'Stop Process')}
+          {translate('auto.components.right.sidebar.PortsPanel.f9528da632', 'Stop process')}
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>

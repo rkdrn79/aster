@@ -82,7 +82,7 @@ export function GeneralWorkspaceSettingsSection({
       <SearchableSetting
         title={translate(
           'auto.components.settings.GeneralWorkspaceSettingsSection.ba3480642f',
-          'Nest Workspaces'
+          'Nest workspaces'
         )}
         description={translate(
           'auto.components.settings.GeneralWorkspaceSettingsSection.4fbf910ded',
@@ -93,7 +93,7 @@ export function GeneralWorkspaceSettingsSection({
         <SettingsSwitchRow
           label={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.ba3480642f',
-            'Nest Workspaces'
+            'Nest workspaces'
           )}
           description={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.4fbf910ded',
@@ -111,7 +111,7 @@ export function GeneralWorkspaceSettingsSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.9f380934cf',
-            'Ask Before Deleting Workspaces'
+            'Ask before deleting workspaces'
           )}
           description={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.5734db82af',
@@ -122,7 +122,7 @@ export function GeneralWorkspaceSettingsSection({
           <SettingsSwitchRow
             label={translate(
               'auto.components.settings.GeneralWorkspaceSettingsSection.9f380934cf',
-              'Ask Before Deleting Workspaces'
+              'Ask before deleting workspaces'
             )}
             description={translate(
               'auto.components.settings.GeneralWorkspaceSettingsSection.28bc3d085e',
@@ -142,7 +142,7 @@ export function GeneralWorkspaceSettingsSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.ea98373cd8',
-            'Ask Before Deleting Automations'
+            'Ask before deleting automations'
           )}
           description={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.d2dd2ca2e3',
@@ -153,7 +153,7 @@ export function GeneralWorkspaceSettingsSection({
           <SettingsSwitchRow
             label={translate(
               'auto.components.settings.GeneralWorkspaceSettingsSection.ea98373cd8',
-              'Ask Before Deleting Automations'
+              'Ask before deleting automations'
             )}
             description={translate(
               'auto.components.settings.GeneralWorkspaceSettingsSection.824b98a0d9',
@@ -173,7 +173,7 @@ export function GeneralWorkspaceSettingsSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.31e300af1c',
-            'Ask Before Deleting Artifacts'
+            'Ask before deleting artifacts'
           )}
           description={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.fb29a73a17',
@@ -184,7 +184,7 @@ export function GeneralWorkspaceSettingsSection({
           <SettingsSwitchRow
             label={translate(
               'auto.components.settings.GeneralWorkspaceSettingsSection.31e300af1c',
-              'Ask Before Deleting Artifacts'
+              'Ask before deleting artifacts'
             )}
             description={translate(
               'auto.components.settings.GeneralWorkspaceSettingsSection.bf46474e33',
@@ -208,7 +208,7 @@ export function GeneralWorkspaceSettingsSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.008f92085f',
-            'Open In Apps'
+            'Open in apps'
           )}
           description={translate(
             'auto.components.settings.GeneralWorkspaceSettingsSection.3d538a98f7',

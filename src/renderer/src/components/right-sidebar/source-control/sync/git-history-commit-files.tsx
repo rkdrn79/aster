@@ -52,7 +52,7 @@ function CommitFileRow({
         {dirPath && <span className="ml-1.5 text-[11px] text-muted-foreground">{dirPath}</span>}
       </span>
       <span
-        className="w-4 shrink-0 text-center text-[10px] font-bold"
+        className="w-4 shrink-0 text-center text-[10px] font-medium"
         style={{ color: STATUS_COLORS[status] }}
       >
         {STATUS_LABELS[status]}

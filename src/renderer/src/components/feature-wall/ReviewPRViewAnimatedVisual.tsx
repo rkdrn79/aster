@@ -40,7 +40,7 @@ const SIDEBAR_TABS: readonly {
     get label() {
       return translate(
         'auto.components.feature.wall.ReviewPRViewAnimatedVisual.d7f80060ca',
-        'Source Control'
+        'Source control'
       )
     }
   },
@@ -160,7 +160,7 @@ export function ReviewPRViewAnimatedVisual(props: { reducedMotion: boolean }): J
               <span className="ravpr-open">
                 {translate(
                   'auto.components.feature.wall.ReviewPRViewAnimatedVisual.dfe313e0c9',
-                  'OPEN'
+                  'Open'
                 )}
               </span>
             </div>

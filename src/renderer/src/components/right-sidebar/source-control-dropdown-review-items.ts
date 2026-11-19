@@ -46,11 +46,11 @@ export function buildHostedReviewDropdownItems(
       case 'default_branch':
         return 'Switch to a feature branch'
       case 'no_upstream':
-        return 'Publish Branch'
+        return 'Publish branch'
       case 'needs_push':
         return 'Push first'
       case 'needs_sync':
-        return shouldForcePushWithLease ? 'Force Push first' : 'Sync first'
+        return shouldForcePushWithLease ? 'Force push first' : 'Sync first'
       case 'auth_required':
         return `${createReviewCopy.authInstruction} in this environment`
       case 'unsupported_provider':
@@ -94,7 +94,7 @@ export function buildHostedReviewDropdownItems(
   const pushCreatePR: DropdownItem = {
     kind: 'push_create_pr',
     label: shouldForcePushWithLease
-      ? `Force Push before ${createReviewCopy.shortLabel}`
+      ? `Force push before ${createReviewCopy.shortLabel}`
       : `Push before ${createReviewCopy.shortLabel}`,
     title: canPushAndCreate
       ? shouldForcePushWithLease

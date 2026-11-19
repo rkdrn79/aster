@@ -21,7 +21,7 @@ export function TerminalPaneAppearanceSection({
       <SettingsSubsectionHeader
         title={translate(
           'auto.components.settings.TerminalAppearanceSection.e1a5c25555',
-          'Terminal Panes'
+          'Terminal panes'
         )}
       />
 
@@ -29,7 +29,7 @@ export function TerminalPaneAppearanceSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalAppearanceSection.a6fdd6a3b1',
-            'Inactive Pane Opacity'
+            'Inactive pane opacity'
           )}
           description={translate(
             'auto.components.settings.TerminalAppearanceSection.db632cb50e',
@@ -40,7 +40,7 @@ export function TerminalPaneAppearanceSection({
           <NumberField
             label={translate(
               'auto.components.settings.TerminalAppearanceSection.a6fdd6a3b1',
-              'Inactive Pane Opacity'
+              'Inactive pane opacity'
             )}
             // Why: clarify which panes get dimmed; tightened per the copy audit.
             description={translate(
@@ -63,7 +63,7 @@ export function TerminalPaneAppearanceSection({
         <SearchableSetting
           title={translate(
             'auto.components.settings.TerminalAppearanceSection.f27a99978d',
-            'Divider Thickness'
+            'Divider thickness'
           )}
           description={translate(
             'auto.components.settings.TerminalAppearanceSection.a14a427ae4',
@@ -74,7 +74,7 @@ export function TerminalPaneAppearanceSection({
           <NumberField
             label={translate(
               'auto.components.settings.TerminalAppearanceSection.f27a99978d',
-              'Divider Thickness'
+              'Divider thickness'
             )}
             description=""
             value={paneStyleOptions.dividerThicknessPx}

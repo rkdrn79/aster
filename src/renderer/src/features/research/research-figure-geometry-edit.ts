@@ -48,6 +48,14 @@ export function selectionUnits(
   })
 }
 
+/** True for a moved element, or a label bound inside a moved box (Excalidraw's container text). */
+function movesWith(element: ExcalidrawElement, ids: ReadonlySet<string>): boolean {
+  return (
+    ids.has(element.id) ||
+    (element.type === 'text' && element.containerId !== null && ids.has(element.containerId))
+  )
+}
+
 export function translate(
   elements: readonly ExcalidrawElement[],
   ids: ReadonlySet<string>,
@@ -58,7 +66,7 @@ export function translate(
     return [...elements]
   }
   return elements.map((element) =>
-    ids.has(element.id)
+    movesWith(element, ids)
       ? newElementWith(element, { x: element.x + dx, y: element.y + dy })
       : element
   )

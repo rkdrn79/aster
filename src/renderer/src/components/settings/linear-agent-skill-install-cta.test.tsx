@@ -114,7 +114,7 @@ describe('LinearAgentSkillInstallCta', () => {
     expect(rendered.textContent).toContain('aster-linear')
     expect(rendered.textContent).toContain('Not installed')
     expect(rendered.textContent).toContain(
-      'Full guided setup (connect + skill + visibility) is under Settings → Task Sources.'
+      'Full guided setup (connect + skill + visibility) is under Settings → Task sources.'
     )
     expect(rendered.textContent).toContain(`${CLI_NAME} skills install --skill aster-linear`)
   })

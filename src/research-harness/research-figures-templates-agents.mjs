@@ -3,7 +3,7 @@
 // ReAct-style trajectory panel. Each fills a box (`w`, `h`, or `fit: { w, h }`) and returns its
 // part ids, so arrows and labels can join them.
 import { measureText } from './research-figures-text.mjs'
-import { figureStyle, styleColor } from './research-figures-style.mjs'
+import { pageStyle, styleColor } from './research-figures-style.mjs'
 
 const round = (value) => Math.round(value * 10) / 10
 
@@ -11,7 +11,7 @@ const round = (value) => Math.round(value * 10) / 10
 function tone(fig, name) {
   const fallback = { good: 'green', bad: 'rose' }[name] ?? name
   try {
-    styleColor(figureStyle(fig.page?.style, fig.page?.accent), name)
+    styleColor(pageStyle(fig.page), name)
     return name
   } catch {
     return fallback
@@ -55,7 +55,7 @@ function reflexion(fig, spec) {
   }
   // Why widths from the labels: each box holds its two lines, and a column's boxes share a
   // centre so the arrows between them run straight.
-  const family = figureStyle(fig.page?.style, fig.page?.accent).fontFamily
+  const family = pageStyle(fig.page).fontFamily
   const fits = (name) =>
     Math.max(
       ...String(labels[name])
@@ -133,13 +133,16 @@ function reflexion(fig, spec) {
   }
   if (spec.loopIcon !== false) {
     const cy = rows[1] - vgap / 2
-    fig.icon('repeat', {
-      id: `${id}-loop`,
-      cx: round(x + w / 2),
-      cy: round(cy),
-      size: 22,
-      color: 'accent-ink'
-    })
+    // Why no sign in the paper look: the label names the loop; a repeat icon is clip-art there.
+    if (pageStyle(fig.page).look !== 'paper') {
+      fig.icon('repeat', {
+        id: `${id}-loop`,
+        cx: round(x + w / 2),
+        cy: round(cy),
+        size: 22,
+        color: 'accent-ink'
+      })
+    }
     if (spec.loopLabel !== false) {
       fig.text({
         id: `${id}-loop-label`,
@@ -426,7 +429,7 @@ function trajectory(fig, spec) {
   const size = spec.size ?? 14
   const pad = spec.pad ?? 10
   const lineH = round(size * 1.3)
-  const style = figureStyle(fig.page?.style, fig.page?.accent)
+  const style = pageStyle(fig.page)
   const family = style.fontFamily
   const counts = {}
   const steps = (spec.steps ?? []).map((step) => {

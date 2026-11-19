@@ -72,13 +72,13 @@ export function PullPolicyRemoteActionNotice({
           </span>
           <div className="min-w-0 space-y-1">
             <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-              <span className="text-xs font-semibold text-foreground">
+              <span className="text-xs font-medium text-foreground">
                 {translate(
                   'auto.components.right.sidebar.pull.policy.notice.title',
                   'Pull needs a policy'
                 )}
               </span>
-              <span className="shrink-0 rounded-full bg-destructive/10 px-1.5 py-px text-[10px] leading-4 font-semibold text-destructive">
+              <span className="shrink-0 rounded-sm bg-destructive/10 px-1.5 py-px text-[10px] leading-4 font-medium text-destructive">
                 {translate('auto.components.right.sidebar.pull.policy.notice.diverged', 'Diverged')}
               </span>
             </div>
@@ -102,9 +102,7 @@ export function PullPolicyRemoteActionNotice({
               >
                 <div className="flex min-w-0 items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <div className="text-[11px] leading-4 font-semibold text-foreground">
-                      {label}
-                    </div>
+                    <div className="text-[11px] leading-4 font-medium text-foreground">{label}</div>
                     <p className="text-[11px] leading-4 text-muted-foreground">{description}</p>
                   </div>
                   <Tooltip>

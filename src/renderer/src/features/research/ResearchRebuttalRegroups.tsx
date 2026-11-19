@@ -1,6 +1,8 @@
 import { Archive } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { NOTICE_CARD, SECTION_TITLE } from './research-surface-classes'
 import type {
   RebuttalArchivedGroup,
   RebuttalRegroup
@@ -40,7 +42,7 @@ export function ResearchRebuttalRegroupList({
     return null
   }
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       {records.map((record) => (
         <ResearchRebuttalRegroupNotice
           key={`${record.id}:${record.applied}`}
@@ -69,15 +71,18 @@ export function ResearchRebuttalRemovedGroups({
     return null
   }
   return (
-    <section aria-label="Removed groups" className="space-y-1.5">
-      <h3 className="text-xs font-semibold">Removed groups</h3>
+    <section aria-label="Removed groups" className="space-y-2">
+      <h3 className={SECTION_TITLE}>Removed groups</h3>
       <ul className="space-y-1">
         {archive.map((entry) => (
           <li
             key={entry.id}
-            className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs"
+            className={cn(
+              NOTICE_CARD,
+              'flex min-h-9 flex-wrap items-center gap-x-2 gap-y-1 py-1 pr-1 pl-3 text-xs'
+            )}
           >
-            <Archive className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+            <Archive className="size-4 shrink-0 text-muted-foreground" aria-hidden />
             <span className="min-w-0 flex-1 truncate">
               <span className="font-mono text-muted-foreground">{entry.cluster.id}</span>{' '}
               {entry.cluster.title}

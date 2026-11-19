@@ -13,7 +13,7 @@ export function getStateTone(item: GitHubWorkItem): string {
 export function getSolidStateTone(item: GitHubWorkItem): string {
   if (item.type === 'pr') {
     if (item.state === 'merged') {
-      return 'bg-purple-600 text-white'
+      return 'bg-foreground text-background'
     }
     if (item.state === 'draft') {
       return 'bg-slate-500 text-white'

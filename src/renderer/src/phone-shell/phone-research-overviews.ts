@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import { create } from 'zustand'
+import { installWindowVisibilityInterval } from '@/lib/window-visibility-interval'
 import { readResearchProjectOnHost } from '@/features/research/research-project-host-reads'
 import type { ResearchProjectReadResult } from '../../../shared/research/research-project-api'
 
 const STALE_AFTER_MS = 15_000
+const LIVE_POLL_MS = 10_000
 
 export type PhoneResearchOverview =
   | { status: 'loading' }
@@ -70,4 +72,37 @@ export function usePhoneResearchOverviewRefresh(worktreeIds: readonly string[]):
       void refreshPhoneResearchOverview(worktreeId)
     }
   }, [key])
+}
+
+function hasRunningRun(overview: PhoneResearchOverview | undefined): boolean {
+  return (
+    overview?.status === 'ready' &&
+    overview.result.experiments.some((experiment) =>
+      experiment.runs.some((run) => run.state === 'running')
+    )
+  )
+}
+
+/** Re-reads, every 10 s while visible, the overviews that list a running Run, so lists stay live. */
+export function usePhoneLiveOverviewPolling(worktreeIds: readonly string[]): void {
+  const key = worktreeIds.join('\0')
+  const live = usePhoneResearchOverviews((state) =>
+    (key ? key.split('\0') : []).filter((id) => hasRunningRun(state.byWorktreeId[id])).join('\0')
+  )
+  useEffect(() => {
+    const ids = live ? live.split('\0') : []
+    if (ids.length === 0) {
+      return
+    }
+    let first = true
+    return installWindowVisibilityInterval({
+      run: () => {
+        if (!first) {
+          ids.forEach((id) => void refreshPhoneResearchOverview(id, true))
+        }
+        first = false
+      },
+      intervalMs: LIVE_POLL_MS
+    })
+  }, [live])
 }

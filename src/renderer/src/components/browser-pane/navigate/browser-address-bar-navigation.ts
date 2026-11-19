@@ -39,7 +39,7 @@ export function resolveBrowserAddressBarSubmission(
       description: fileUrlUnsupported
         ? translate(
             'auto.components.browser.pane.BrowserPane.fileUrlUnsupported',
-            'This browser tab cannot open local files. Use "Open Preview to the Side" on the file instead.'
+            'This browser tab cannot open local files. Use "Open preview to the side" on the file instead.'
           )
         : translate(
             'auto.components.browser.pane.BrowserPane.87eb75f7d2',

@@ -13,7 +13,7 @@ function ActiveChip({
   onRemove: () => void
 }): React.JSX.Element {
   return (
-    <span className="inline-flex h-[22px] items-center gap-1 rounded-full border border-border bg-muted/55 pr-1 pl-2 text-[11px]">
+    <span className="inline-flex h-6 items-center gap-1 rounded-md border border-border bg-muted/55 pr-1 pl-2 text-[11px]">
       {label}
       <button
         type="button"
@@ -21,7 +21,7 @@ function ActiveChip({
         aria-label={translate('dashboardPopout.filters.remove', 'Remove {{label}} filter', {
           label
         })}
-        className="rounded-full text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <X className="size-3" />
       </button>
@@ -50,7 +50,7 @@ export function AgentDashboardFilterChips({
 }): React.JSX.Element {
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-1 border-b border-border px-3 py-2">
-      <span className="mr-0.5 text-[10px] font-semibold uppercase tracking-[0.05em] text-muted-foreground">
+      <span className="mr-0.5 text-[11px] font-medium text-muted-foreground">
         {translate('dashboardPopout.filters.active', 'Filters')}
       </span>
       {filters.projects.map((id) => (

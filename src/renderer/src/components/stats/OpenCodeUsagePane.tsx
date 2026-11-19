@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Activity, Brain, Coins, DatabaseZap, FolderKanban, Sparkles } from 'lucide-react'
+import { Activity, Brain, Coins, DatabaseZap, FolderKanban, Hash } from 'lucide-react'
 import type {
   OpenCodeUsageRange,
   OpenCodeUsageScope
@@ -72,7 +72,7 @@ export function OpenCodeUsagePane(): React.JSX.Element {
 
   const title = translate(
     'auto.components.stats.OpenCodeUsagePane.bea80ceae0',
-    'OpenCode Usage Tracking'
+    'OpenCode usage tracking'
   )
   const enableLabel = translate(
     'auto.components.stats.OpenCodeUsagePane.f04131b3be',
@@ -168,7 +168,7 @@ export function OpenCodeUsagePane(): React.JSX.Element {
           <StatCard
             label={translate('auto.components.stats.OpenCodeUsagePane.d637a892ed', 'Input tokens')}
             value={formatTokens(summary?.inputTokens ?? 0)}
-            icon={<Sparkles className="size-4" />}
+            icon={<Hash className="size-4" />}
           />
           <StatCard
             label={translate('auto.components.stats.OpenCodeUsagePane.7aa4d8ce35', 'Output tokens')}
@@ -191,7 +191,7 @@ export function OpenCodeUsagePane(): React.JSX.Element {
           <StatCard
             label={translate(
               'auto.components.stats.OpenCodeUsagePane.7e9433469a',
-              'Sessions / Events'
+              'Sessions / events'
             )}
             value={`${(summary?.sessions ?? 0).toLocaleString()} / ${(summary?.events ?? 0).toLocaleString()}`}
             icon={<FolderKanban className="size-4" />}

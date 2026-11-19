@@ -191,7 +191,7 @@ import {
       }
 
       const sectionControls = controlsOf('The PR is CLEAN.')
-      expect(sectionControls.closest('.border-l-2')).not.toBeNull()
+      expect(sectionControls.closest('.border-l')).not.toBeNull()
       expect(sectionControls).not.toHaveClass('-mb-5')
       expect(controlsOf('Delegated; nothing to fix.')).toHaveClass('-mb-5')
     })

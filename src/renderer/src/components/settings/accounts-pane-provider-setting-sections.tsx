@@ -101,7 +101,7 @@ export function renderOpenCodeAccountsSection(model: AccountsPaneSectionModel): 
       <SearchableSetting
         title={translate(
           'auto.components.settings.AccountsPane.36223200ac',
-          'OpenCode Go Session Cookie'
+          'OpenCode Go session cookie'
         )}
         description={translate(
           'auto.components.settings.AccountsPane.0335bd31d5',
@@ -164,7 +164,7 @@ export function renderOpenCodeAccountsSection(model: AccountsPaneSectionModel): 
       <SearchableSetting
         title={translate(
           'auto.components.settings.AccountsPane.02cb127710',
-          'OpenCode Go Workspace ID'
+          'OpenCode Go workspace ID'
         )}
         description={translate(
           'auto.components.settings.AccountsPane.d70a5287a4',

@@ -17,7 +17,7 @@ const KEYWORDS = [
 function getTitle(): string {
   return translate(
     'auto.components.settings.GeneralEditorSettingsSection.collapseUnchangedTitle',
-    'Collapse Unchanged Regions'
+    'Collapse unchanged regions'
   )
 }
 

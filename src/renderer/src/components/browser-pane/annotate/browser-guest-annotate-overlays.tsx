@@ -169,13 +169,13 @@ export function BrowserGuestAnnotateOverlays({
         <DropdownMenuContent align="start" sideOffset={4}>
           <DropdownMenuItem onSelect={handleGrabCopy}>
             <Copy className="size-3.5" />
-            {translate('auto.components.browser.pane.BrowserPane.c2ef0359b9', 'Copy Contents')}
+            {translate('auto.components.browser.pane.BrowserPane.c2ef0359b9', 'Copy contents')}
             <DropdownMenuShortcut>C</DropdownMenuShortcut>
           </DropdownMenuItem>
           {grab.payload?.screenshot?.dataUrl?.startsWith('data:image/png;base64,') ? (
             <DropdownMenuItem onSelect={handleGrabCopyScreenshot}>
               <Image className="size-3.5" />
-              {translate('auto.components.browser.pane.BrowserPane.1ded0d3168', 'Copy Screenshot')}
+              {translate('auto.components.browser.pane.BrowserPane.1ded0d3168', 'Copy screenshot')}
               <DropdownMenuShortcut>S</DropdownMenuShortcut>
             </DropdownMenuItem>
           ) : null}

@@ -20,16 +20,14 @@ export function ResearchComputeLinkList({
   return (
     <section className="space-y-2" aria-label="Linked project folders">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-2xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Linked project folders
-        </h2>
+        <h2 className="text-[15px] font-medium">Linked project folders</h2>
         <Button variant="ghost" size="xs" onClick={onAdd}>
           <Plus aria-hidden />
           Link a folder
         </Button>
       </div>
       {links.length ? (
-        <ul className="divide-y divide-border rounded-lg border border-border text-xs">
+        <ul className="divide-y divide-border rounded-xl bg-card text-xs shadow-raised">
           {links.map((link) => (
             <li key={link.id} className="flex items-center gap-3 px-4 py-2">
               <span className="w-40 shrink-0 truncate font-medium">{projectName(link)}</span>

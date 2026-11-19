@@ -141,7 +141,7 @@ describe('client-hosted screenshot markup', () => {
     const backdrop = overlay()!.querySelector('img')!
     expect(backdrop.src).toBe(image.dataUrl)
     fireEvent.load(backdrop)
-    fireEvent.click(screen.getByRole('button', { name: 'Copy Markup' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy markup' }))
     await waitFor(() =>
       expect(mocks.clipboard).toHaveBeenCalledWith('data:image/png;base64,Y29tcG9zaXRl')
     )

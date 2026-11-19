@@ -24,7 +24,7 @@ export function NativeChatReasoningBody({
   return (
     <div
       data-native-chat-message-tone="faint"
-      className="scrollbar-sleek mt-1 max-h-80 overflow-y-auto pl-5.5 text-chat-foreground-faint"
+      className="scrollbar-sleek mt-1 ml-1.75 max-h-80 overflow-y-auto border-l border-chat-code-border pl-4 text-chat-foreground-faint"
     >
       <NativeChatMarkdown
         rowKey={rowKey}
@@ -48,7 +48,7 @@ export function NativeChatReasoningChevron(): React.JSX.Element {
   return (
     <ChevronRight
       aria-hidden
-      className="size-3.5 shrink-0 text-chat-foreground-faint transition-all can-hover:opacity-0 group-hover/reasoning:opacity-100 group-focus-visible/reasoning:opacity-100 group-has-[:focus-visible]/reasoning:opacity-100 group-data-[state=open]/reasoning:rotate-90 group-data-[state=open]/reasoning:opacity-100 motion-reduce:transition-none"
+      className="size-4 shrink-0 text-chat-foreground-faint transition-[opacity,rotate] can-hover:opacity-0 group-hover/reasoning:opacity-100 group-focus-visible/reasoning:opacity-100 group-has-[:focus-visible]/reasoning:opacity-100 group-data-[state=open]/reasoning:rotate-90 group-data-[state=open]/reasoning:opacity-100 motion-reduce:transition-none"
     />
   )
 }

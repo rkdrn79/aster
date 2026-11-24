@@ -9,6 +9,10 @@ export type FindingFix = 'mark-failed' | 'choose-baseline' | 'open-writing'
 const CLAIM_TEXT = /^Claim (\S+) "([\s\S]*)": ([\s\S]*)$/u
 const TOO_FEW_SEEDS = /^(\d+) Runs? with this config apart from the seed; the brief asks for (\d+)/u
 const STALE_FOR = /has not been updated for (.+)$/u
+const RECORDED_ON = /^Recorded on (\S+);/u
+const NESTED_REPOSITORY = /nested repository (\S+) recorded/u
+const RUN_COUNT = /^(\d+) Runs? /u
+const SUPERSEDED_OUTCOME = /^(.*?); a later attempt/u
 
 const OPENS_WITH_PATH = /^\S*[./]/u
 
@@ -43,6 +47,34 @@ function ruleTitle(
       return text.startsWith('Cancelled')
         ? { title: `Run ${run} was cancelled`, summary: text }
         : { title: `Run ${run} failed`, summary: text }
+    case 'run.superseded':
+      return {
+        title: `Run ${run} was retried and a later attempt succeeded`,
+        summary: `${SUPERSEDED_OUTCOME.exec(text)?.[1] ?? text}; ${names[1] ?? 'the later attempt'} has the same name and succeeded`
+      }
+    case 'run.foreign-host': {
+      const host = RECORDED_ON.exec(finding.text)?.[1] ?? 'another host'
+      return {
+        title: `Run ${run} was recorded on ${host}; this host can't observe it`,
+        summary:
+          'Its folder, log and outputs stay on that machine. Refresh the records from there to see how it ended.'
+      }
+    }
+    case 'run.seed-split':
+      return { title: `Run ${run} records seeds as splits`, summary: text }
+    case 'repro.code-not-project': {
+      const nested = NESTED_REPOSITORY.exec(finding.text)?.[1]
+      const count = Number(RUN_COUNT.exec(finding.text)?.[1] ?? finding.runs.length)
+      const runs = count === 1 ? `Run ${run}` : `${count} Runs`
+      return {
+        title: nested
+          ? `${runs} recorded the commit of ${nested}, not this project's`
+          : `${runs} recorded a commit that is not in this project's history`,
+        summary: nested
+          ? 'They launched inside that nested repository, so their project commit and uncommitted changes are unknown.'
+          : text
+      }
+    }
     case 'run.harness-exited':
       return {
         title: `Run ${run} is marked running, but its launcher exited`,

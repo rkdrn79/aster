@@ -14,6 +14,7 @@ import { enterResearchWorkspace, selectResearchInsideProject } from './research-
 import { useResearchActiveProject } from './research-home-projects'
 import { canCreateResearchWorktree, openResearchNewWorktree } from './research-new-worktree'
 import { useRemoteHostLabel } from './research-host-label'
+import { researchWindowSideId } from './research-window-surface'
 
 export function ResearchWorkspaceShortcut(): React.JSX.Element | null {
   const insideProject = useAppStore(selectResearchInsideProject)
@@ -78,17 +79,20 @@ function ResearchWorkspaceSwitcher(): React.JSX.Element {
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            disabled={!canCreateWorktree}
-            onSelect={() => {
-              if (workspace) {
-                openResearchNewWorktree(workspace)
-              }
-            }}
-          >
-            <GitBranchPlus aria-hidden />
-            New isolated copy…
-          </DropdownMenuItem>
+          {/* Why not in a side: making a copy is the main window's dialog. */}
+          {researchWindowSideId() ? null : (
+            <DropdownMenuItem
+              disabled={!canCreateWorktree}
+              onSelect={() => {
+                if (workspace) {
+                  openResearchNewWorktree(workspace)
+                }
+              }}
+            >
+              <GitBranchPlus aria-hidden />
+              New isolated copy…
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onSelect={() => useAppStore.getState().openModal('worktree-palette')}>
             <Search aria-hidden />
             Search all workspaces…

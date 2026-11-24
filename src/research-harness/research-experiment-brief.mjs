@@ -337,3 +337,24 @@ export async function updateExperimentBrief(projectPath, experiment, patch, { by
   })
   return { experiment: slug, brief }
 }
+
+/**
+ * What stage an Experiment is in. A status someone set wins; a brief left at the default `planned`
+ * follows its records: a Run running, Runs to analyze, or a recorded conclusion. Mirrors
+ * researchExperimentStatusView in the app.
+ */
+export function derivedExperimentStatus(brief, runStates) {
+  const stored = brief?.status ?? 'planned'
+  if (stored !== 'planned') {
+    return { status: stored, derived: false }
+  }
+  if (typeof brief?.conclusion === 'string' && brief.conclusion.trim()) {
+    return { status: 'concluded', derived: true }
+  }
+  if (runStates.includes('running')) {
+    return { status: 'running', derived: true }
+  }
+  return runStates.length
+    ? { status: 'analyzing', derived: true }
+    : { status: stored, derived: false }
+}

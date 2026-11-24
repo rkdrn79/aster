@@ -17,7 +17,7 @@ export type PreparedResearchSlurmRunLink = {
 
 /** Checks the Run exists on the host before anything is submitted for it. */
 export async function prepareResearchSlurmRunLink(
-  target: SshTarget,
+  target: Pick<SshTarget, 'id' | 'label'>,
   runSpecifier: string,
   projectPath: string
 ): Promise<PreparedResearchSlurmRunLink> {
@@ -52,7 +52,7 @@ export async function prepareResearchSlurmRunLink(
 
 /** Records the job against its Run and writes `job` and `execution` into run.json. */
 export async function linkSubmittedJobToRun(
-  target: SshTarget,
+  target: Pick<SshTarget, 'id' | 'label'>,
   prepared: PreparedResearchSlurmRunLink,
   result: ResearchSlurmActionResult,
   jobId: string

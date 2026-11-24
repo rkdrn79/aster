@@ -14,11 +14,14 @@ export function ResearchLogPanel({
   log,
   error,
   failed = false,
+  absentNote = null,
   onOpenFull
 }: {
   path: string
   log: ResearchTextTail | null
   error: string | null
+  /** Why there is no log to show: not on this host, none yet, or empty. */
+  absentNote?: string | null
   /** A failed Run's log names its error lines in the heading. */
   failed?: boolean
   /** Opens the whole file in the editor; absent where no editor can reach it. */
@@ -68,7 +71,9 @@ export function ResearchLogPanel({
         ? log.truncated
           ? ' · last 256 KiB'
           : ''
-        : ' · unavailable'
+        : absentNote
+          ? ''
+          : ' · unavailable'
 
   return (
     <section aria-label="Run log">
@@ -89,6 +94,11 @@ export function ResearchLogPanel({
         ) : null}
       </div>
       {error ? <p className="mt-1 text-xs text-destructive">{error}</p> : null}
+      {absentNote && !log ? (
+        <p role="status" className="mt-1 text-xs text-muted-foreground">
+          {absentNote}
+        </p>
+      ) : null}
       {log ? (
         <>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -156,7 +166,7 @@ export function ResearchLogPanel({
                 ))
               ) : (
                 <span className="block px-3">
-                  {search ? 'No matching lines.' : 'The log is empty.'}
+                  {search ? 'No matching lines.' : (absentNote ?? 'The log is empty.')}
                 </span>
               )}
             </pre>

@@ -28,7 +28,8 @@ type Props = {
   workspaceId: string
   hostId: string | null
   onShowSection: (page: ResearchWindowPage) => void
-  onOpenInMain: () => void
+  /** Absent in a side: it already sits in the main window. */
+  onOpenInMain?: () => void
 }
 
 /**
@@ -136,12 +137,14 @@ export function ResearchWindowPalette({
             ))}
           </CommandGroup>
         ) : null}
-        <CommandGroup heading="Window">
-          <CommandItem value="open in main window" onSelect={() => run(onOpenInMain)}>
-            <ExternalLink aria-hidden />
-            Open in main window
-          </CommandItem>
-        </CommandGroup>
+        {onOpenInMain ? (
+          <CommandGroup heading="Window">
+            <CommandItem value="open in main window" onSelect={() => run(onOpenInMain)}>
+              <ExternalLink aria-hidden />
+              Open in main window
+            </CommandItem>
+          </CommandGroup>
+        ) : null}
       </CommandList>
     </CommandDialog>
   )

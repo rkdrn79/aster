@@ -6,7 +6,9 @@ const {
   isTrustedUIRendererMock,
   isResearchPageWindowRendererMock,
   mainWebContents,
-  getTrustedUIRendererWebContentsMock
+  getTrustedUIRendererWebContentsMock,
+  researchSideIdOfMock,
+  surfaceContents
 } = vi.hoisted(() => {
   const map = new Map<string, (...args: unknown[]) => unknown>()
   return {
@@ -18,7 +20,9 @@ const {
     isTrustedUIRendererMock: vi.fn(() => true),
     isResearchPageWindowRendererMock: vi.fn(() => true),
     mainWebContents: { send: vi.fn() },
-    getTrustedUIRendererWebContentsMock: vi.fn()
+    getTrustedUIRendererWebContentsMock: vi.fn(),
+    researchSideIdOfMock: vi.fn((): string | null => null),
+    surfaceContents: [{ send: vi.fn() }, { send: vi.fn() }]
   }
 })
 
@@ -32,10 +36,11 @@ vi.mock('./ui', () => ({
   isTrustedUIRenderer: isTrustedUIRendererMock
 }))
 vi.mock('../window/research-page-window', () => ({
-  getResearchPageWindows: vi.fn(() => [{}]),
+  getResearchSurfaceContents: vi.fn(() => surfaceContents),
   isResearchPageWindowRenderer: isResearchPageWindowRendererMock,
   openResearchPageWindow: vi.fn()
 }))
+vi.mock('../window/research-side-guests', () => ({ researchSideIdOf: researchSideIdOfMock }))
 vi.mock('../window/focus-existing-window', () => ({ safelyRevealWindow: vi.fn() }))
 
 import { BrowserWindow } from 'electron'
@@ -221,5 +226,56 @@ describe('research window tab actions', () => {
     })
 
     expect(safelyRevealWindow).toHaveBeenCalledWith(window)
+  })
+})
+
+describe('project sides', () => {
+  beforeEach(() => {
+    handlers.clear()
+    mainWebContents.send.mockClear()
+    getTrustedUIRendererWebContentsMock.mockReturnValue(mainWebContents)
+    isTrustedUIRendererMock.mockReturnValue(true)
+    researchSideIdOfMock.mockReturnValue(null)
+    registerResearchPageWindowHandlers(Object.create(null))
+  })
+
+  it('hands the main window a side request tagged with the side main knows it as', () => {
+    researchSideIdOfMock.mockReturnValue('side-a')
+    callHandler('researchWindow:sideCommand', { kind: 'page', page: 'research-writing' })
+    expect(mainWebContents.send).toHaveBeenCalledWith('researchWindow:sideCommand', 'side-a', {
+      kind: 'page',
+      page: 'research-writing'
+    })
+  })
+
+  it('passes on the project a side picked for itself', () => {
+    researchSideIdOfMock.mockReturnValue('side-a')
+    callHandler('researchWindow:sideCommand', {
+      kind: 'replace',
+      workspaceId: 'repo::/w',
+      hostId: 'runtime:gpu'
+    })
+    expect(mainWebContents.send).toHaveBeenCalledWith('researchWindow:sideCommand', 'side-a', {
+      kind: 'replace',
+      workspaceId: 'repo::/w',
+      hostId: 'runtime:gpu'
+    })
+  })
+
+  it('drops side requests from anything that is not a side, and malformed ones', () => {
+    callHandler('researchWindow:sideCommand', { kind: 'close' })
+    researchSideIdOfMock.mockReturnValue('side-a')
+    callHandler('researchWindow:sideCommand', { kind: 'page', page: 'settings' })
+    callHandler('researchWindow:sideCommand', { kind: 'delete-workspace' })
+    callHandler('researchWindow:sideCommand', { kind: 'replace', workspaceId: '' })
+    callHandler('researchWindow:sideCommand', { kind: 'replace', workspaceId: 'w', hostId: 7 })
+    expect(mainWebContents.send).not.toHaveBeenCalled()
+  })
+
+  it('supplies every project window and side with the published state', () => {
+    callHandler('researchWindow:publishState', { repos: [] })
+    for (const contents of surfaceContents) {
+      expect(contents.send).toHaveBeenCalledWith('researchWindow:state', { repos: [] })
+    }
   })
 })

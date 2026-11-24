@@ -22,12 +22,14 @@ import type { RuntimeFileOperationArgs } from '@/runtime/runtime-file-client-typ
 import { useNativeChatWorkRun } from './use-native-chat-work-run'
 import { useNativeChatRowNavigation } from './use-native-chat-row-navigation'
 
-/** What a user message says about its delivery: that nothing has confirmed it yet, quietly in
- *  place of its time, or that it did not go through, with its own Retry when the surface can send
- *  it again. */
+/** What a user message says about its delivery: that nothing has confirmed it yet (or that the
+ *  sender is asking the host whether it arrived), quietly in place of its time; that the host holds
+ *  it for after the agent's current step; or that it did not go through, with its own Retry when
+ *  the surface can send it again. */
 export type NativeChatDeliveryNotice =
-  | { sending: true; text?: never; onDismiss?: never }
-  | { sending?: never; text: string; onDismiss?: () => void }
+  | { sending: true; confirming?: true; queued?: never; text?: never; onDismiss?: never }
+  | { queued: true; sending?: never; confirming?: never; text?: never; onDismiss?: never }
+  | { sending?: never; confirming?: never; queued?: never; text: string; onDismiss?: () => void }
 
 export type MessageRowProps = {
   message: NativeChatMessage

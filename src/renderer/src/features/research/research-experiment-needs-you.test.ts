@@ -68,4 +68,20 @@ describe('Experiment Needs you', () => {
     })
     expect(items).toEqual([])
   })
+
+  it('leaves a failed attempt a later same-named Run fixed in All findings', () => {
+    const items = experimentNeedsYou({
+      ...input,
+      findings: [
+        findingRecord('rule:run.superseded:exp/broken', {
+          check: 'run.superseded',
+          severity: 'info',
+          runs: ['exp/broken', 'exp/cand']
+        })
+      ],
+      proposals: [],
+      dismissedRuns: new Set(['run:attached'])
+    })
+    expect(items).toEqual([])
+  })
 })

@@ -23,8 +23,9 @@ import {
   readResearchComputeLinks,
   saveResearchComputeLinks
 } from './research-compute-links-repository'
-import { runResearchComputeCommand } from './research-compute-transport'
+import { runResearchComputeCommand, type ResearchComputeVia } from './research-compute-transport'
 import { readResearchGpuPolicy, saveResearchGpuPolicy } from './research-gpu-policy-repository'
+import { pushChangedResearchGpuPolicies } from './research-gpu-policy-push'
 import {
   dispatchAllHeldResearchGpuJobs,
   releaseAllHeldResearchGpuJobs,
@@ -37,6 +38,9 @@ import {
   transferResearchProject
 } from './research-project-transfer'
 import { registerResearchRunWatchIpcHandlers } from './research-run-watch-ipc'
+import { researchRunHostQuerySchema } from '../../shared/research/research-run-host'
+import { authorizedResearchRunHostQuery } from './research-run-host-ipc'
+import { observeResearchRunHosts } from './research-run-host'
 import { startResearchRunWatchService } from './research-run-watch-service'
 
 const COMPUTE_PROBE_TIMEOUT_MS = 25_000
@@ -81,7 +85,7 @@ export async function sampleResearchComputeHost({
     return { ...base, status: 'not-connected' }
   }
   if (result.status !== 'ok') {
-    return { ...base, via: result.via, status: 'error', message: result.message }
+    return { ...base, via: sampleVia(result.via), status: 'error', message: result.message }
   }
   const parsed = parseResearchComputeProbeOutput(result.stdout)
   if (projectFolders) {
@@ -90,7 +94,12 @@ export async function sampleResearchComputeHost({
       resolvedPaths: parsed.resolvedWorkspacePaths
     })
   }
-  return { ...base, via: result.via, ...parsed }
+  return { ...base, via: sampleVia(result.via), ...parsed }
+}
+
+/** The desktop samples hosts over SSH; `local` only happens inside orcad. */
+function sampleVia(via: ResearchComputeVia): ResearchComputeSample['via'] {
+  return via === 'local' ? null : via
 }
 
 async function runSlurmAction(
@@ -155,8 +164,15 @@ export function registerResearchComputeIpcHandlers(): void {
     }
     // A raised limit can free room for held jobs right away.
     void dispatchAllHeldResearchGpuJobs()
+    // Agents on those servers ask their own orcad, which holds a copy of its host's limits.
+    pushChangedResearchGpuPolicies(previous, saved)
     return saved
   })
+  ipcMain.handle('researchCompute:observeRunHosts', async (_event, input: unknown) =>
+    observeResearchRunHosts(
+      await authorizedResearchRunHostQuery(researchRunHostQuerySchema.parse(input))
+    )
+  )
   startResearchGpuDispatcher()
   registerResearchRunWatchIpcHandlers()
   startResearchRunWatchService(() => mainProcessState.runtime)

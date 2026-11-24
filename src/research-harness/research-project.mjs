@@ -377,6 +377,7 @@ export async function createRun(projectPath, options, launch = null) {
     ...(launch?.execution ? { execution: launch.execution } : {}),
     code,
     ...(launch?.launch ? { launch: launch.launch } : {}),
+    ...(launch?.job ? { job: launch.job } : {}),
     ...(launch?.agent ? { agent: launch.agent } : {}),
     metrics: { path: 'metrics.jsonl', ...(definitions ? { definitions } : {}) },
     ...(options.datasetId

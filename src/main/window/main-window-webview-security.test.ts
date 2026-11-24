@@ -6,8 +6,17 @@ const mocks = vi.hoisted(() => ({
   installNavigationPolicy: vi.fn(),
   isAllowedPartition: vi.fn(),
   attachRouteGuest: vi.fn(),
-  registerPluginGuard: vi.fn()
+  registerPluginGuard: vi.fn(),
+  admitResearchSide: vi.fn((_preferences: unknown, _src: string) => false),
+  claimResearchSide: vi.fn((_guest: unknown) => false)
 }))
+
+vi.mock('./research-side-guests', () => ({
+  admitResearchSideAttach: mocks.admitResearchSide,
+  claimResearchSideGuest: mocks.claimResearchSide
+}))
+vi.mock('./research-page-window', () => ({ notifyIfNoResearchSurfaces: vi.fn() }))
+vi.mock('../ipc/ui', () => ({ getTrustedUIRendererWebContents: () => null }))
 
 vi.mock('../browser/browser-manager', () => ({
   browserManager: { attachGuestPolicies: mocks.attachGuestPolicies }
@@ -119,6 +128,45 @@ describe('main window webview security', () => {
     })
     expect(preferences).not.toHaveProperty('preloadURL')
     expect(String(preferences.preload)).toMatch(/browser-window-close-preload\.js$/)
+  })
+})
+
+describe('project side admission', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.admitResearchSide.mockReturnValue(false)
+    mocks.claimResearchSide.mockReturnValue(false)
+  })
+
+  it('lets a project side attach without the browser policy, and nothing else that way', () => {
+    const { handlers } = installOnFakeWindow()
+    const fire = (name: string, ...args: unknown[]): void => {
+      Reflect.apply(handlers[name] ?? (() => undefined), undefined, args)
+    }
+    mocks.isAllowedPartition.mockReturnValue(false)
+    mocks.admitResearchSide.mockReturnValue(true)
+    const preventDefault = vi.fn()
+    const params = { src: 'file:///app/out/renderer/research-window.html?side=s', preload: 'x.js' }
+
+    fire('will-attach-webview', { preventDefault }, {}, params)
+
+    expect(preventDefault).not.toHaveBeenCalled()
+    expect(params).not.toHaveProperty('preload')
+
+    mocks.admitResearchSide.mockReturnValue(false)
+    fire('will-attach-webview', { preventDefault }, {}, { src: 'file:///tmp/other.html' })
+    expect(preventDefault).toHaveBeenCalledOnce()
+  })
+
+  it('keeps a claimed side out of browser tab routing', () => {
+    const { handlers } = installOnFakeWindow()
+    mocks.claimResearchSide.mockReturnValueOnce(true)
+    Reflect.apply(handlers['did-attach-webview'] ?? (() => undefined), undefined, [
+      {},
+      { session: 'default' }
+    ])
+    expect(mocks.attachGuestPolicies).not.toHaveBeenCalled()
+    expect(mocks.attachRouteGuest).not.toHaveBeenCalled()
   })
 })
 

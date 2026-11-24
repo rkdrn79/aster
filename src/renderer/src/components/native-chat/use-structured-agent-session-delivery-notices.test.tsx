@@ -4,6 +4,7 @@ import { cleanup, renderHook } from '@testing-library/react'
 import { afterEach, expect, it } from 'vitest'
 import type { AgentJournalSubmission } from '../../../../shared/agent-session-journal-types'
 import { DISPATCH_REJECTED_CANCELLED } from '../../../../shared/structured-agent-session-dispatch-rejection'
+import { agentJournalSubmissionKey } from '../../../../shared/agent-session-journal-item-key'
 import { useStructuredAgentSessionDeliveryNotices } from './use-structured-agent-session-delivery-notices'
 
 afterEach(cleanup)
@@ -109,4 +110,75 @@ it('keeps the notice of a row that did not change when another one does', () => 
 
   expect(result.current.size).toBe(2)
   expect(result.current.get('orca:lost')).toBe(lost)
+})
+
+function heldForNextStep(clientMessageId: string, handedOverAt?: number): AgentJournalSubmission {
+  return {
+    clientMessageId,
+    fence: 1,
+    payloadFingerprint: clientMessageId,
+    dispatchState: 'pending',
+    providerItemId: null,
+    reason: null,
+    submittedAt: 5,
+    resolvedAt: null,
+    handoverRecorded: true,
+    ...(handedOverAt === undefined ? {} : { handedOverAt })
+  }
+}
+
+// A message the host accepted while the agent works waits for its current step: it says so,
+// instead of reading as lost.
+it('says a message the host holds while the agent works is queued for after the current step', () => {
+  const { result, rerender } = renderHook(
+    ({ isWorking, submissions }: { isWorking: boolean; submissions: AgentJournalSubmission[] }) =>
+      useStructuredAgentSessionDeliveryNotices({
+        pending: EMPTY,
+        submissions,
+        journalItems: EMPTY,
+        agentName: 'Claude',
+        startFailures: EMPTY,
+        isWorking
+      }),
+    { initialProps: { isWorking: true, submissions: [heldForNextStep('m')] } }
+  )
+  expect(result.current.get(agentJournalSubmissionKey('m'))).toEqual({ queued: true })
+  // A batch that changes nothing about it keeps the same map.
+  const before = result.current
+  rerender({ isWorking: true, submissions: [heldForNextStep('m')] })
+  expect(result.current).toBe(before)
+  // Handed over, or an agent at rest that hands it over at once: nothing to say.
+  rerender({ isWorking: true, submissions: [heldForNextStep('m', 9)] })
+  expect(result.current.has(agentJournalSubmissionKey('m'))).toBe(false)
+  rerender({ isWorking: false, submissions: [heldForNextStep('m')] })
+  expect(result.current.has(agentJournalSubmissionKey('m'))).toBe(false)
+})
+
+it('says a send nobody answered is being checked, not still sending', () => {
+  const entry = {
+    clientMessageId: 'c',
+    sessionId: 'session-1',
+    body: { kind: 'message' as const, role: 'user' as const, blocks: [] },
+    previewUris: [],
+    queuedAt: 1,
+    phase: 'sending' as const,
+    issued: true
+  }
+  const { result, rerender } = renderHook(
+    ({ confirming }: { confirming: boolean }) =>
+      useStructuredAgentSessionDeliveryNotices({
+        pending: [confirming ? { ...entry, confirming: true as const } : entry],
+        submissions: EMPTY,
+        journalItems: EMPTY,
+        agentName: 'Claude',
+        startFailures: EMPTY
+      }),
+    { initialProps: { confirming: false } }
+  )
+  expect(result.current.get(agentJournalSubmissionKey('c'))).toEqual({ sending: true })
+  rerender({ confirming: true })
+  expect(result.current.get(agentJournalSubmissionKey('c'))).toEqual({
+    sending: true,
+    confirming: true
+  })
 })

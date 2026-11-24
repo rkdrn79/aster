@@ -9,6 +9,7 @@ import { useAppStore } from '../store'
 import { isResearchPage, useResearchHomeAtStartup } from '@/features/research/research-navigation'
 import { useResearchPaletteShortcut } from '@/components/cmd-j/use-research-palette-shortcut'
 import { useResearchProjectSwitcherShortcut } from '@/features/research/use-research-project-switcher-shortcut'
+import { useResearchSplitCommands } from '@/features/research/use-research-split-commands'
 import { FLOATING_TERMINAL_WORKTREE_ID } from '../../../shared/constants'
 import { selectActiveTerminalChromeState } from '../store/active-terminal-chrome-selector'
 import { useCompactViewport, useLeftSidebarDocked } from './use-compact-viewport'
@@ -42,6 +43,7 @@ export function useAppChromeLayout() {
   useResearchHomeAtStartup()
   useResearchPaletteShortcut(researchUiEnabled)
   useResearchProjectSwitcherShortcut(researchUiEnabled)
+  useResearchSplitCommands(researchUiEnabled)
   const activePendingCreationId = useAppStore((s) => s.activePendingCreationId)
   // Why: the creation surface owns the tab strip from the first pending frame; gating on the delayed loader flag swapped the tab bar mid-create.
   const activePendingCreationExists = useAppStore(
@@ -147,8 +149,16 @@ export function useAppChromeLayout() {
     sidebarOpen
   ])
 
+  // Why: projects beside the main one show on its project pages and Home; Settings and other
+  // full pages take the whole area while the sides wait, out of sight.
+  const researchSplitVisible =
+    researchUiEnabled &&
+    !creationLayoutActive &&
+    !compactViewport &&
+    (isResearchPage(activeView) || activeView === 'terminal')
   return {
     researchUiEnabled,
+    researchSplitVisible,
     activeView,
     compactViewport,
     activeWorktreeId,

@@ -111,4 +111,33 @@ describe('SSH Run reads', () => {
     expect(read.manifest).toBeNull()
     expect(read.metrics.stat).toBeNull()
   })
+
+  it('says a log that is there but unreadable could not be read, instead of empty', () => {
+    const read = parseRemoteResearchRunRead(
+      [
+        `${mark}-stat\tmanifest\t-\t-`,
+        `${mark}-stat\tmetrics\t-\t-`,
+        `${mark}-stat\tlog\t120\t1700000000`,
+        `${mark}-file\tmanifest`,
+        '',
+        `${mark}-end`,
+        `${mark}-file\tlog`,
+        `${mark}-error\tlog\tpermission denied`,
+        '',
+        `${mark}-end`
+      ].join('\n'),
+      request,
+      nonce
+    )
+    expect(read.log.stat?.size).toBe(120)
+    expect(read.log.text).toBe('')
+    expect(read.log.error).toBe('permission denied')
+    expect(read.metrics.error).toBeUndefined()
+  })
+
+  it('asks the host to mark an unreadable file rather than hide the error', () => {
+    const command = buildRemoteResearchRunReadCommand(location, request, nonce)
+    expect(command).toContain(`printf '${mark}-error\\tlog\\tpermission denied\\n'`)
+    expect(command).not.toMatch(/tail -c 64 '[^']*train\.log' 2>\/dev\/null;/u)
+  })
 })

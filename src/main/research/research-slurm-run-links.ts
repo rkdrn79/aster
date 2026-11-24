@@ -101,7 +101,8 @@ export async function writeSlurmJobIntoManifest(
       scheduler: 'slurm',
       jobId: link.jobId,
       host: link.hostLabel ?? link.targetId,
-      submittedAt: link.submittedAt,
+      // Why: for a job `run exec` found itself in, submittedAt is only when tracking began.
+      ...(link.origin === 'run-exec' ? {} : { submittedAt: link.submittedAt }),
       state: link.state,
       observedAt: link.observedAt,
       reason: link.reason,
@@ -133,6 +134,33 @@ export async function recordResearchSlurmRunLink(
     )
   }))
   return recorded
+}
+
+/**
+ * Starts following jobs `run exec` recorded from inside SLURM, unless already followed. Returns
+ * the links now open for them; the next tracking pass reads their state.
+ */
+export async function adoptResearchSlurmRunLinks(
+  links: readonly ResearchSlurmRunLink[]
+): Promise<ResearchSlurmRunLink[]> {
+  if (!links.length) {
+    return []
+  }
+  let adopted: ResearchSlurmRunLink[] = []
+  await linksStore.update((document) => {
+    const fresh = links.filter((link) => !document.links.some((entry) => sameLink(entry, link)))
+    adopted = fresh
+    return fresh.length
+      ? { ...document, links: [...document.links, ...fresh].slice(-MAX_LINKS) }
+      : document
+  })
+  if (adopted.length) {
+    void trackLinkedResearchSlurmJobs()
+  }
+  const document = await linksStore.read()
+  return document.links.filter(
+    (entry) => !entry.closedAt && links.some((link) => sameLink(entry, link))
+  )
 }
 
 /** The link after one observation; null observation means the job was not listed. */

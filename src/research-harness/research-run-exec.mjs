@@ -6,6 +6,7 @@ import path from 'node:path'
 import { StringDecoder } from 'node:string_decoder'
 import { agentIdentityFromEnvironment } from './research-agent-identity.mjs'
 import { CODE_PATCH_FILE, captureLaunchCode } from './research-code-capture.mjs'
+import { slurmJobFromEnvironment } from './research-run-job.mjs'
 import { HarnessError } from './research-harness-error.mjs'
 import { experimentPaths, experimentSlug } from './research-layout.mjs'
 import {
@@ -149,6 +150,7 @@ export async function execRun(projectPath, options, io) {
       },
       code: captured.code,
       launch,
+      job: slurmJobFromEnvironment(process.env, startedAt),
       agent: agentIdentityFromEnvironment(),
       files: captured.patch ? { [CODE_PATCH_FILE]: captured.patch } : {}
     }

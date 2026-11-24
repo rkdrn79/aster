@@ -19585,7 +19585,9 @@
       "rewindCommand": {
         "description": "Go back to your last message in this chat",
         "unavailable": "This chat can't go back."
-      }
+      },
+      "messageQueuedBehindStep": "Queued — sends after the current step",
+      "messageConfirmingDelivery": "Checking delivery…"
     },
     "tab": {
       "bar": {

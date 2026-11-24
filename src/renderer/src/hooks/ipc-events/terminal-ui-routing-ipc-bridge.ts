@@ -13,6 +13,7 @@ import { resolveWindowTabIdForHostTab } from './host-session-tab-target'
 import { revealWorkspaceSurface } from '@/lib/workspace-surface-reveal'
 import { focusTerminalInitiatedTab } from './terminal-command-state'
 import { applyRuntimePaneTitle } from './terminal-pane-title-ipc-bridge'
+import { revealWorkspaceInResearchSide } from '@/features/research/research-split-store'
 
 type RuntimeTerminalSplitRequest = SplitTerminalPaneDetail & { worktreeId?: string }
 
@@ -154,6 +155,13 @@ export function registerTerminalUiRoutingIpcBridge(unsubs: (() => void)[]): void
     window.api.ui.onFocusEditorTab(({ tabId, worktreeId, userInitiated }) => {
       const localTabId = resolveWindowTabIdForHostTab(worktreeId, tabId)
       const store = useAppStore.getState()
+      // Why: a chat of a project open beside the main one opens in that side's Chats.
+      if (
+        userInitiated &&
+        revealWorkspaceInResearchSide(worktreeId, store.activeWorktreeId, localTabId)
+      ) {
+        return
+      }
       const tab = (store.unifiedTabsByWorktree[worktreeId] ?? []).find(
         (item) => item.id === localTabId
       )

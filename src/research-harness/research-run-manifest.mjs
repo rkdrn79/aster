@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import os from 'node:os'
 import { readFile } from 'node:fs/promises'
 import { readCatalog } from './research-catalog.mjs'
@@ -86,14 +87,29 @@ export function processIsAlive(pid) {
   }
 }
 
-/** Only a same-host PID check is proof that a harness is gone; other hosts stay unknown. */
+/**
+ * The host that recorded a Run when this host cannot observe it: another host launched it and its
+ * cwd is not here (records copied from another cluster). A shared filesystem keeps a Run local.
+ */
+export function launchedElsewhere(manifest) {
+  const launch = manifest?.launch
+  if (typeof launch?.host !== 'string' || !launch.host || launch.host === os.hostname()) {
+    return null
+  }
+  return typeof launch.cwd === 'string' && launch.cwd && existsSync(launch.cwd) ? null : launch.host
+}
+
+/**
+ * Only a same-host PID check is proof that a harness is gone. Another host stays `unknown`, or
+ * `foreign` when nothing here can observe the Run.
+ */
 export function harnessLiveness(manifest) {
   const launch = manifest?.launch
   if (manifest?.execution?.state !== 'running' || launch?.by !== HARNESS_SOURCE) {
     return null
   }
   if (launch.host !== os.hostname()) {
-    return 'unknown'
+    return launchedElsewhere(manifest) ? 'foreign' : 'unknown'
   }
   return processIsAlive(launch.harnessPid ?? launch.pid) ? 'alive' : 'exited'
 }
@@ -107,6 +123,7 @@ export function runStatusSummary(manifest) {
     startedAt: manifest?.launch?.startedAt ?? null,
     finishedAt: manifest?.launch?.finishedAt ?? null,
     durationMs: manifest?.launch?.durationMs ?? null,
-    liveness: harnessLiveness(manifest)
+    liveness: harnessLiveness(manifest),
+    recordedOn: launchedElsewhere(manifest)
   }
 }

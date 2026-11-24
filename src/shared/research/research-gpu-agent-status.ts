@@ -21,4 +21,8 @@ export type ResearchGpuAgentServerStatus = {
   error: string | null
 }
 
-export type ResearchGpuAgentStatus = { servers: ResearchGpuAgentServerStatus[] }
+export type ResearchGpuAgentStatus = {
+  servers: ResearchGpuAgentServerStatus[]
+  /** Where limits are set when none apply here; absent from older Aster. */
+  note?: string | null
+}

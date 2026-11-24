@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import {
   AppWindow,
   ChartLine,
+  Columns2,
   FolderOpen,
   FolderTree,
   Palette,
@@ -51,6 +52,7 @@ import { folderWorkspaceKey } from '../../../../shared/workspace-scope'
 import { enterResearchWorkspace } from './research-navigation'
 import { translate } from '@/i18n/i18n'
 import { startResearchAdoptInBackground } from './research-adopt-conversation'
+import { canOpenResearchSides, openResearchProjectBeside } from './research-split-open'
 
 // Index-aligned with REPO_COLORS, which names them only in comments.
 const COLOR_NAMES = ['Gray', 'Red', 'Orange', 'Yellow', 'Green', 'Teal', 'Purple', 'Pink']
@@ -261,6 +263,12 @@ export function ResearchProjectMenuItems({
         </DropdownMenuSubContent>
       </DropdownMenuSub>
       <DropdownMenuSeparator />
+      {canOpenResearchSides() ? (
+        <DropdownMenuItem onSelect={() => openResearchProjectBeside(primary)}>
+          <Columns2 aria-hidden />
+          Open to the Side
+        </DropdownMenuItem>
+      ) : null}
       {canOpenResearchPageWindows() ? (
         <DropdownMenuItem onSelect={() => openResearchProjectInNewWindow(primary)}>
           <AppWindow aria-hidden />

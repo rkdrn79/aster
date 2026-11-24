@@ -30,7 +30,24 @@ function slurmJob(manifest: ResearchRunManifest | null): string | null {
     return null
   }
   const scheduler = job.scheduler === 'slurm' ? 'SLURM job' : 'Job'
-  return `${scheduler} ${job.jobId} · ${job.state.replaceAll('_', ' ')}`
+  const where = [job.cluster, job.node].filter(Boolean).join(' · ')
+  // Why no state: `run exec` saw the job running when it started; only tracking sees it end.
+  return job.recordedBy === 'aster-harness'
+    ? `${scheduler} ${job.jobId}${where ? ` · ${where}` : ''}`
+    : `${scheduler} ${job.jobId} · ${job.state.replaceAll('_', ' ')}`
+}
+
+/** `third_party/lewam at 83c4703`: repositories other than the project's the cwd sat in. */
+function nestedCode(manifest: ResearchRunManifest | null): string | null {
+  const nested = manifest?.code?.nested ?? []
+  return nested.length
+    ? nested
+        .map(
+          (repository) =>
+            `${repository.path} at ${repository.commit?.slice(0, 7) ?? 'no commit'}${repository.dirty ? ' + uncommitted changes' : ''}`
+        )
+        .join(', ')
+    : null
 }
 
 /** Names a Run file by its place in the project; the full path stays on hover. */
@@ -91,6 +108,7 @@ export function ResearchRunDetails({
         ) : null}
       </span>
     ],
+    ['Nested repository', nestedCode(manifest)],
     ['Scheduler', slurmJob(manifest)],
     ['Metrics file', projectFile(run, run.sourcePath)],
     ['Log', projectFile(run, run.logPath)],

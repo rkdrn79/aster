@@ -1,10 +1,12 @@
 import { BrowserWindow, ipcMain, screen } from 'electron'
 import { getTrustedUIRendererWebContents, isTrustedUIRenderer } from './ui'
 import {
-  getResearchPageWindows,
+  getResearchSurfaceContents,
   isResearchPageWindowRenderer,
   openResearchPageWindow
 } from '../window/research-page-window'
+import { researchSideIdOf } from '../window/research-side-guests'
+import { parseResearchSideCommand } from '../../shared/research-side-split'
 import { safelyRevealWindow } from '../window/focus-existing-window'
 import { createMainWindowRequests } from './research-window-main-requests'
 import {
@@ -61,7 +63,8 @@ export function registerResearchPageWindowHandlers(
     'researchWindow:reportLaunchChatResult',
     'researchWindow:runAction',
     'researchWindow:reportActionResult',
-    'researchWindow:hasOpenWindows'
+    'researchWindow:hasOpenWindows',
+    'researchWindow:sideCommand'
   ]) {
     ipcMain.removeHandler(channel)
   }
@@ -86,8 +89,8 @@ export function registerResearchPageWindowHandlers(
     if (!isTrustedUIRenderer(event.sender)) {
       return
     }
-    for (const window of getResearchPageWindows()) {
-      window.webContents.send('researchWindow:state', state)
+    for (const contents of getResearchSurfaceContents()) {
+      contents.send('researchWindow:state', state)
     }
   })
   ipcMain.handle('researchWindow:requestState', (event): void => {
@@ -173,6 +176,14 @@ export function registerResearchPageWindowHandlers(
   )
   // Why: a main window that just reloaded forgot which windows it was supplying.
   ipcMain.handle('researchWindow:hasOpenWindows', (event): boolean => {
-    return isTrustedUIRenderer(event.sender) && getResearchPageWindows().length > 0
+    return isTrustedUIRenderer(event.sender) && getResearchSurfaceContents().length > 0
+  })
+  // Why through main: a side is a guest of the main window, and only main knows which side it is.
+  ipcMain.handle('researchWindow:sideCommand', (event, input: unknown): void => {
+    const sideId = researchSideIdOf(event.sender)
+    const command = parseResearchSideCommand(input)
+    if (sideId && command) {
+      getTrustedUIRendererWebContents()?.send('researchWindow:sideCommand', sideId, command)
+    }
   })
 }

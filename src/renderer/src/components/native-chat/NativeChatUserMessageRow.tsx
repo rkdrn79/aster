@@ -25,6 +25,20 @@ import { NATIVE_CHAT_ROW_ACTIONS_REVEAL } from './native-chat-row-action'
 
 const USER_META_REVEAL = NATIVE_CHAT_ROW_ACTIONS_REVEAL
 
+/** The words under a message whose delivery is not settled yet, in place of its time. */
+function deliveryCaption(notice: NativeChatDeliveryNotice | undefined): string | null {
+  if (notice?.queued) {
+    return translate(
+      'components.native-chat.messageQueuedBehindStep',
+      'Queued — sends after the current step'
+    )
+  }
+  if (notice?.confirming) {
+    return translate('components.native-chat.messageConfirmingDelivery', 'Checking delivery…')
+  }
+  return notice?.sending ? translate('components.native-chat.messageSending', 'Sending…') : null
+}
+
 /** Under a user message: copy + timestamp, revealed together like the agent controls row. Until
  *  confirmed, a quiet "Sending…" stays visible in the time's place and copy keeps its own reveal,
  *  so the row keeps its height when it clears. Image-only prompts have no text to copy. */
@@ -32,31 +46,32 @@ function UserMessageMeta({
   markdown,
   timestamp,
   sending,
+  caption,
   rewind,
   branchItemId
 }: {
   markdown: string
   timestamp: number | null
   sending: boolean
+  /** Stays in the time's place: "Sending…", or what the delivery is waiting on. */
+  caption: string | null
   rewind?: { itemId: string; surface: NativeChatRewindSurface }
   branchItemId?: string
 }): React.JSX.Element | null {
-  if (!markdown && timestamp === null && !sending && !rewind && !branchItemId) {
+  if (!markdown && timestamp === null && !caption && !rewind && !branchItemId) {
     return null
   }
   return (
     <div
-      // Hover-only once sent, so find skips it; "Sending…" stays on screen and stays findable.
-      data-native-chat-find-skip={sending ? undefined : true}
-      className={cn('flex select-none items-center gap-1', !sending && USER_META_REVEAL)}
+      // Hover-only once sent, so find skips it; a caption stays on screen and stays findable.
+      data-native-chat-find-skip={caption ? undefined : true}
+      className={cn('flex select-none items-center gap-1', !caption && USER_META_REVEAL)}
     >
       {markdown ? (
-        <NativeChatCopyButton text={markdown} className={sending ? USER_META_REVEAL : undefined} />
+        <NativeChatCopyButton text={markdown} className={caption ? USER_META_REVEAL : undefined} />
       ) : null}
-      {sending ? (
-        <span className="text-xs whitespace-nowrap text-chat-foreground-faint">
-          {translate('components.native-chat.messageSending', 'Sending…')}
-        </span>
+      {caption ? (
+        <span className="text-xs whitespace-nowrap text-chat-foreground-faint">{caption}</span>
       ) : (
         <NativeChatMessageTimestamp timestamp={timestamp} focusable />
       )}
@@ -99,6 +114,7 @@ export function NativeChatUserMessageRow({
   // left-aligned under its sender rather than as their bubble.
   const from = message.from
   const sending = deliveryNotice?.sending === true
+  const caption = deliveryCaption(deliveryNotice)
   // Aster's machine context folds into chips so the person's request stays the visible message.
   const split = useMemo(() => splitAsterContext(markdown), [markdown])
   const visible = split ? split.request : markdown
@@ -180,6 +196,7 @@ export function NativeChatUserMessageRow({
         markdown={markdown}
         timestamp={message.timestamp}
         sending={sending}
+        caption={caption}
         {...(rewind ? { rewind: { itemId: message.id, surface: rewind } } : {})}
         {...(branchable ? { branchItemId: message.id } : {})}
       />

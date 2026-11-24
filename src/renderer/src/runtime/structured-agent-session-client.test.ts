@@ -125,7 +125,10 @@ describe('callStructuredAgentSession rewind capability', () => {
     expect(mocks.call).toHaveBeenCalledWith({ kind: 'local' }, 'agentSession.rewind', params, {
       timeoutMs: 195_000
     })
-    expect(mocks.call).toHaveBeenCalledWith(target, 'agentSession.send', params)
+    // A send waits as long as its own budget for the host's answer.
+    expect(mocks.call).toHaveBeenCalledWith(target, 'agentSession.send', params, {
+      timeoutMs: 30_000
+    })
   })
 })
 

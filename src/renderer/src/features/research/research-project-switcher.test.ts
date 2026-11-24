@@ -141,4 +141,15 @@ describe('projectSwitcherKeyIntent', () => {
     expect(projectSwitcherKeyIntent(key({ key: 'ArrowDown', metaKey: true }), 'darwin')).toBeNull()
     expect(projectSwitcherKeyIntent(key({ metaKey: true, isComposing: true }), 'darwin')).toBeNull()
   })
+
+  it('opens the highlighted project to the side on Cmd+\\, whatever the layout types there', () => {
+    expect(
+      projectSwitcherKeyIntent(key({ key: '\\', code: 'Backslash', metaKey: true }), 'darwin')
+    ).toBe('open-beside')
+    // A Korean layout types ₩ on the same key.
+    expect(
+      projectSwitcherKeyIntent(key({ key: '₩', code: 'Backslash', ctrlKey: true }), 'linux')
+    ).toBe('open-beside')
+    expect(projectSwitcherKeyIntent(key({ key: '\\', code: 'Backslash' }), 'darwin')).toBeNull()
+  })
 })

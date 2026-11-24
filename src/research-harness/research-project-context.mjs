@@ -3,7 +3,7 @@ import path from 'node:path'
 import { contextAnalyses } from './research-analysis.mjs'
 import { auditClaims, readClaimsLedger } from './research-claims.mjs'
 import { readCatalog } from './research-catalog.mjs'
-import { readExperimentBrief } from './research-experiment-brief.mjs'
+import { derivedExperimentStatus, readExperimentBrief } from './research-experiment-brief.mjs'
 import { experimentSlug, loopLedgerPath, runPaths, runReference } from './research-layout.mjs'
 import { readLoopLedger } from './research-loop-ledger.mjs'
 import { readMetricSeries, summarizeMetricSeries } from './research-metric-events.mjs'
@@ -178,9 +178,11 @@ export async function projectContext(
     const entries = group.runs ?? []
     runCount += entries.length
     const runs = []
+    const states = []
     for (const [index, entry] of entries.entries()) {
       const { manifest, row } = await loadRun(project, group.slug, entry)
       byState[row.state] = (byState[row.state] ?? 0) + 1
+      states.push(row.state)
       if ((experiment && group.slug !== experiment) || index < entries.length - limit) {
         continue
       }
@@ -197,11 +199,16 @@ export async function projectContext(
       continue
     }
     const analyses = await contextAnalyses(project, group.slug).catch(() => null)
+    const brief = await readExperimentBrief(project, group.slug).catch(() => null)
+    const status = derivedExperimentStatus(brief, states)
     experiments.push({
       slug: group.slug,
       name: group.name,
       runCount: entries.length,
-      brief: await readExperimentBrief(project, group.slug).catch(() => null),
+      // Why both: `brief.status` is what was set; `status` is what Aster shows.
+      status: status.status,
+      statusFrom: status.derived ? 'runs' : 'brief',
+      brief,
       runs,
       loop: await loopSummary(project, group.slug).catch(() => null),
       analyses: analyses?.items ?? [],

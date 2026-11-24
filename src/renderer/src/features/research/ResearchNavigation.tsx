@@ -29,19 +29,24 @@ import { ResearchComputeProjectDot } from './ResearchComputeProjectDot'
 import { ResearchSidebarAgentConversations } from './ResearchSidebarAgentConversations'
 import { RESEARCH_CONVERSATION_DRAG_TYPE } from './research-conversation-drag'
 import { useResearchSidebarSections } from './research-sidebar-sections'
-import { ResearchProjectRowMenu } from './ResearchProjectRowMenu'
 import { ResearchPageWindowMenu } from './ResearchPageWindowMenu'
-import { ResearchProjectSwitcher, ResearchProjectSwitcherButton } from './ResearchProjectSwitcher'
 import { researchPageDragProps } from './research-page-window-open'
+import { ResearchNavigationProjectRow } from './ResearchNavigationProjectRow'
+import { ResearchSideWorkbenchChats } from './ResearchSideWorkbenchChats'
+import { researchWindowSideId } from './research-window-surface'
 
 export function ResearchNavigation(): React.JSX.Element {
   const insideProject = useAppStore(selectResearchInsideProject)
   return insideProject ? <ResearchProjectNavigation /> : <ResearchHomeNavigation />
 }
 
-/** Inside one project: only the research surfaces that belong to it. */
+/**
+ * Inside one project: only the research surfaces that belong to it. A project side shows the
+ * same list for its own project; its Workbench is its chats, and it has no way back to Home.
+ */
 function ResearchProjectNavigation(): React.JSX.Element {
   useTranslation()
+  const inSide = researchWindowSideId() !== null
   const [experimentActionsHost, setExperimentActionsHost] = useState<HTMLSpanElement | null>(null)
   const activeView = useAppStore((state) => state.activeView)
   const activeWorkspaceId = useAppStore((state) => state.activeWorktreeId)
@@ -83,16 +88,14 @@ function ResearchProjectNavigation(): React.JSX.Element {
       className="scrollbar-sleek min-h-0 flex-1 space-y-3 overflow-y-auto p-3"
     >
       <div className="space-y-1">
-        <Button variant="ghost" size="xs" onClick={() => openResearchHome()}>
-          <ArrowLeft aria-hidden />
-          {translate('research.navigation.back', 'Projects')}
-        </Button>
+        {inSide ? null : (
+          <Button variant="ghost" size="xs" onClick={() => openResearchHome()}>
+            <ArrowLeft aria-hidden />
+            {translate('research.navigation.back', 'Projects')}
+          </Button>
+        )}
         {project ? (
-          <ResearchProjectRowMenu project={project} showTrigger className="gap-1">
-            <ResearchProjectSwitcher>
-              <ResearchProjectSwitcherButton project={project} />
-            </ResearchProjectSwitcher>
-          </ResearchProjectRowMenu>
+          <ResearchNavigationProjectRow project={project} />
         ) : (
           <div className="flex items-center gap-2 px-2 text-worktree-sidebar-foreground">
             <ResearchComputeProjectDot color={null} />
@@ -130,7 +133,13 @@ function ResearchProjectNavigation(): React.JSX.Element {
           id="research-workbench-conversations"
           className={workbenchOpen ? 'ml-4 border-l border-worktree-sidebar-border pl-2' : 'hidden'}
         >
-          {workbenchOpen ? <ResearchWorkspaceChats /> : null}
+          {workbenchOpen ? (
+            inSide ? (
+              <ResearchSideWorkbenchChats />
+            ) : (
+              <ResearchWorkspaceChats />
+            )
+          ) : null}
         </div>
         <div className="flex min-w-0 items-center gap-1">
           <ResearchPageWindowMenu page="research-experiments">

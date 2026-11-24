@@ -5,6 +5,8 @@ import type { AppState } from '@/store/types'
 import { activateAndRevealWorkspace } from '@/lib/worktree-activation'
 import type { ResearchHomeWorkspace } from './research-home-projects'
 import { installResearchHistory, resumeResearchLocation } from './research-history-store'
+import { restoreResearchSplitMainProject } from './research-split-persistence'
+import { researchWindowSideId } from './research-window-surface'
 
 export type ResearchPage =
   | 'research-writing'
@@ -50,6 +52,10 @@ export function openResearchView(view: 'terminal' | ResearchPage): void {
 
 /** Leaves the open project; its terminals and chats keep running in the background. */
 export function openResearchHome(view: 'terminal' | ResearchHomePage = 'terminal'): void {
+  // Why: a project side always shows a project; Home belongs to the main column.
+  if (researchWindowSideId()) {
+    return
+  }
   const state = useAppStore.getState()
   if (state.activeWorktreeId !== null) {
     state.setActiveWorktree(null)
@@ -73,6 +79,7 @@ export function useResearchHomeAtStartup(): void {
     startupHomeSettled = true
     if (researchUiEnabled) {
       openResearchHome()
+      restoreResearchSplitMainProject(enterResearchWorkspace)
     }
   }, [restored, researchUiEnabled])
 }
@@ -81,6 +88,15 @@ export function useResearchHomeAtStartup(): void {
 export function enterResearchWorkspace(
   workspace: Pick<ResearchHomeWorkspace, 'id' | 'executionHostId'>
 ): void {
+  // Why: a side is pinned to its project; the main window reopens the side on the one picked.
+  if (researchWindowSideId()) {
+    void window.api.researchWindow.sideCommand({
+      kind: 'replace',
+      workspaceId: workspace.id,
+      hostId: workspace.executionHostId ?? null
+    })
+    return
+  }
   const opened = activateAndRevealWorkspace(workspace.id, {
     navigationIntent: 'user-open',
     ...(workspace.executionHostId ? { executionHostId: workspace.executionHostId } : {})

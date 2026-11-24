@@ -4,6 +4,11 @@ import { isBackgroundLaunch, showWindowWithoutStealingFocus } from './foreground
 import { installPrivilegedWindowNavigationPolicy } from './privileged-window-navigation'
 import { attachEditableContextMenu } from './editable-context-menu-window'
 import { attachResearchWindowShortcuts } from './research-page-window-shortcuts'
+import {
+  getResearchSideGuests,
+  isResearchSideFocusedOn,
+  isResearchSideGuest
+} from './research-side-guests'
 import { sendToTrustedUIRenderer } from '../ipc/ui'
 import type { Store } from '../persistence'
 import type { KeybindingOverrides } from '../../shared/keybindings'
@@ -26,7 +31,9 @@ function syncResearchWindowTrafficLights(window: BrowserWindow, zoomLevel: numbe
   if (process.platform !== 'darwin' || window.isDestroyed()) {
     return
   }
-  const y = Math.round(TITLEBAR_CSS_CENTER * uiZoomFactorFromLevel(zoomLevel) - TRAFFIC_LIGHT_RADIUS)
+  const y = Math.round(
+    TITLEBAR_CSS_CENTER * uiZoomFactorFromLevel(zoomLevel) - TRAFFIC_LIGHT_RADIUS
+  )
   window.setWindowButtonPosition({ x: TRAFFIC_LIGHT_X, y })
 }
 // One window per project: opening another of its pages brings that window to the page.
@@ -46,6 +53,18 @@ export function getResearchPageWindows(): BrowserWindow[] {
   return liveWindows()
 }
 
+/** Every renderer the main window supplies with state: project windows and project sides. */
+export function getResearchSurfaceContents(): WebContents[] {
+  return [...liveWindows().map((window) => window.webContents), ...getResearchSideGuests()]
+}
+
+/** Tells the main window to stop supplying state once no project window or side is left. */
+export function notifyIfNoResearchSurfaces(): void {
+  if (getResearchSurfaceContents().length === 0) {
+    sendToTrustedUIRenderer('researchWindow:allClosed', null)
+  }
+}
+
 /** Sends a View menu zoom to the focused project window; false when none has focus. */
 export function zoomResearchPageWindowIfFocused(direction: 'in' | 'out' | 'reset'): boolean {
   const focused = liveWindows().find((window) => window.isFocused())
@@ -57,16 +76,21 @@ export function zoomResearchPageWindowIfFocused(direction: 'in' | 'out' | 'reset
   return true
 }
 
-/** Whether the focused window is the project window for this workspace, on any host. */
+/** Whether the focused project window, or the focused side of the main window, shows this workspace. */
 export function isResearchPageWindowFocusedOn(workspaceId: string): boolean {
-  return [...windows.entries()].some(
-    ([key, window]) =>
-      key.endsWith(`\0${workspaceId}`) && !window.isDestroyed() && window.isFocused()
+  return (
+    [...windows.entries()].some(
+      ([key, window]) =>
+        key.endsWith(`\0${workspaceId}`) && !window.isDestroyed() && window.isFocused()
+    ) || isResearchSideFocusedOn(workspaceId)
   )
 }
 
+/** A project window, or a project side embedded in the main window: both render the same page. */
 export function isResearchPageWindowRenderer(sender: WebContents): boolean {
-  return liveWindows().some((window) => window.webContents === sender)
+  return (
+    liveWindows().some((window) => window.webContents === sender) || isResearchSideGuest(sender)
+  )
 }
 
 /** Places the window's title bar under the point where the page was dropped, kept on that display. */
@@ -159,9 +183,7 @@ export function openResearchPageWindow(
     if (windows.get(key) === window) {
       windows.delete(key)
     }
-    if (liveWindows().length === 0) {
-      sendToTrustedUIRenderer('researchWindow:allClosed', null)
-    }
+    notifyIfNoResearchSurfaces()
   })
 
   const query = researchWindowQuery(target)

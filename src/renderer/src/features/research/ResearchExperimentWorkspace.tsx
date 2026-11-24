@@ -25,18 +25,31 @@ import { ResearchExperimentPageTabs } from './ResearchExperimentPageTabs'
 import { experimentPage } from './research-experiment-page'
 import { useResearchExperimentPageShortcut } from './use-research-experiment-page-shortcut'
 import { ResearchWandbExperimentLink } from './ResearchWandbLinks'
+import { researchExperimentStatusView } from '../../../../shared/research/research-experiment-status'
 
 function StatusChip({ workspace }: { workspace: ExperimentWorkspace }): React.JSX.Element | null {
   const brief = workspace.brief.brief
-  if (!brief || briefIsEmpty(brief)) {
+  if (!brief || (briefIsEmpty(brief) && !workspace.runs.length)) {
     return null
   }
+  const view = researchExperimentStatusView(
+    brief,
+    workspace.runs.map((run) => workspace.statusOf(run).state)
+  )
   return (
-    <Badge variant="secondary" className="align-middle">
-      {brief.status === 'running' ? (
+    <Badge
+      variant="secondary"
+      className="align-middle"
+      title={
+        view.derived
+          ? "Follows this Experiment's Runs and conclusion. Set a status in the brief to override it."
+          : undefined
+      }
+    >
+      {view.status === 'running' ? (
         <span aria-hidden className="size-1.5 rounded-full bg-status-success" />
       ) : null}
-      {BRIEF_STATUS_LABELS[brief.status]}
+      {BRIEF_STATUS_LABELS[view.status]}
     </Badge>
   )
 }

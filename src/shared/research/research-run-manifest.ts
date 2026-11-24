@@ -32,11 +32,17 @@ export const researchRunJobSchema = z.object({
   scheduler: z.enum(['slurm', 'local']),
   jobId: z.string().trim().min(1).max(128),
   host: z.string().trim().min(1).max(512),
-  submittedAt: z.iso.datetime({ offset: true }),
+  /** Known when Aster submitted the job; a `run exec` inside a job only sees it running. */
+  submittedAt: z.iso.datetime({ offset: true }).optional(),
   state: z.enum(RESEARCH_RUN_JOB_STATES),
   observedAt: z.iso.datetime({ offset: true }),
   reason: z.string().max(500).nullable().optional(),
-  exitCode: z.number().int().nullable().optional()
+  exitCode: z.number().int().nullable().optional(),
+  /** `SLURM_CLUSTER_NAME` and `SLURMD_NODENAME` as `run exec` saw them inside the job. */
+  cluster: z.string().trim().min(1).max(200).optional().catch(undefined),
+  node: z.string().trim().min(1).max(200).optional().catch(undefined),
+  /** `aster-harness` when `run exec` wrote the block from inside the job, before any tracking. */
+  recordedBy: z.string().trim().min(1).max(64).optional().catch(undefined)
 })
 export type ResearchRunJob = z.infer<typeof researchRunJobSchema>
 
@@ -67,7 +73,19 @@ export const researchRunManifestSchema = z.object({
       capturedBy: optionalText.catch(undefined),
       patch: z.string().nullable().optional().catch(undefined),
       patchSha256: optionalText.catch(undefined),
-      patchTruncated: z.boolean().optional().catch(undefined)
+      patchTruncated: z.boolean().optional().catch(undefined),
+      /** Repositories other than the project's that held the launch cwd, e.g. `third_party/x`. */
+      nested: z
+        .array(
+          z.object({
+            path: z.string().min(1).max(4096),
+            commit: z.string().nullable(),
+            dirty: z.boolean().nullable()
+          })
+        )
+        .max(20)
+        .optional()
+        .catch(undefined)
     })
     .optional(),
   launch: z

@@ -137,11 +137,52 @@ function truncatedAtFileBoundary(diff, budget) {
   return { text: cut > 0 ? text.slice(0, cut + 1) : '', truncated: true }
 }
 
+async function repositoryToplevel(directory) {
+  const text = gitText(directory, ['rev-parse', '--show-toplevel'])
+  return text ? realpath(text).catch(() => null) : null
+}
+
+/** `third_party/x` for a repository inside the project, else its absolute path. */
+function nestedRepositoryPath(toplevel, projectRoot) {
+  const relative = path.relative(projectRoot, toplevel)
+  return relative && !relative.startsWith('..') && !path.isAbsolute(relative)
+    ? relative.split(path.sep).join('/')
+    : toplevel
+}
+
+/** HEAD and dirty flag of the cwd's own repository, when it is not the project's. */
+function nestedRepository(toplevel, projectRoot) {
+  const status = runGit(toplevel, ['status', '--porcelain=v1', '--untracked-files=normal'])
+  return {
+    path: nestedRepositoryPath(toplevel, projectRoot),
+    commit: gitText(toplevel, ['rev-parse', '--verify', '--quiet', 'HEAD']),
+    dirty: status ? status.output.length > 0 : null
+  }
+}
+
+function nestedHeaderLines(nested) {
+  return nested.map(
+    (repository) =>
+      `# nested repository: ${repository.path} at ${repository.commit ?? 'no commit'}${
+        repository.dirty ? ' with uncommitted changes (not in this patch)' : ''
+      }`
+  )
+}
+
 /**
- * Records the code a launch runs: HEAD, dirty flag, and for a dirty tree a patch of tracked
- * changes plus small untracked text files. Never writes to the user's repository.
+ * Records the code a launch runs: the project repository's HEAD, dirty flag, and for a dirty tree
+ * a patch of tracked changes plus small untracked text files. A cwd inside another repository
+ * (a vendored `third_party/x` checkout or submodule) is listed in `code.nested`, never mistaken
+ * for the project's code. Never writes to the user's repository.
  */
 export async function captureLaunchCode(cwd, project, capturedAt) {
+  const projectRoot = await realpath(project)
+  const [toplevel, cwdToplevel] = await Promise.all([
+    repositoryToplevel(projectRoot),
+    repositoryToplevel(cwd)
+  ])
+  const nested =
+    cwdToplevel && cwdToplevel !== toplevel ? [nestedRepository(cwdToplevel, projectRoot)] : []
   const empty = {
     code: {
       commit: null,
@@ -150,17 +191,15 @@ export async function captureLaunchCode(cwd, project, capturedAt) {
       capturePhase: 'at_launch',
       capturedBy: HARNESS_SOURCE,
       patch: null,
-      patchSha256: null
+      patchSha256: null,
+      nested
     },
     patch: null
   }
-  const toplevelText = gitText(cwd, ['rev-parse', '--show-toplevel'])
-  if (!toplevelText) {
+  if (!toplevel) {
     return empty
   }
-  const toplevel = await realpath(toplevelText)
   const commit = gitText(toplevel, ['rev-parse', '--verify', '--quiet', 'HEAD'])
-  const projectRoot = await realpath(project)
   const excluded = await recordPathsOutsideCode(projectRoot)
   const pathspecs = codePathspecs(toplevel, projectRoot, excluded)
   const status = runGit(toplevel, [
@@ -209,6 +248,7 @@ export async function captureLaunchCode(cwd, project, capturedAt) {
     `# captured-at: ${capturedAt}`,
     `# excluded: ${excluded.map((item) => (item.directory ? `${item.path}/` : item.path)).join(', ')}`,
     ...(trackedTruncated ? ['# tracked diff truncated at the 5 MiB patch limit'] : []),
+    ...nestedHeaderLines(nested),
     `# untracked files: ${untrackedFiles.length}`,
     ...untracked.listed,
     ''
@@ -222,5 +262,78 @@ export async function captureLaunchCode(cwd, project, capturedAt) {
       ...(trackedTruncated ? { patchTruncated: true } : {})
     },
     patch
+  }
+}
+
+async function isDirectory(target) {
+  return lstat(target).then(
+    (details) => details.isDirectory(),
+    () => false
+  )
+}
+
+const MAX_MAPPED_SEGMENTS = 6
+
+/**
+ * Answers where a recorded commit came from, for Runs captured before `code.nested` existed: their
+ * `code.commit` is the HEAD of whatever repository held the cwd. Results are cached per lookup.
+ */
+export function createCodeOriginLookup(project) {
+  let roots = null
+  const commits = new Map()
+  const nested = new Map()
+  const projectRoots = async () => {
+    if (!roots) {
+      const projectRoot = await realpath(project)
+      roots = { projectRoot, toplevel: await repositoryToplevel(projectRoot) }
+    }
+    return roots
+  }
+  const nestedFor = async (cwd) => {
+    const { projectRoot, toplevel } = await projectRoots()
+    const here = await realpath(cwd).catch(() => null)
+    if (here) {
+      const cwdToplevel = await repositoryToplevel(here)
+      return cwdToplevel && cwdToplevel !== toplevel
+        ? nestedRepositoryPath(cwdToplevel, projectRoot)
+        : null
+    }
+    // Why map the tail: a Run recorded on another machine names a cwd that does not exist here,
+    // but `<project>/third_party/x` usually does.
+    const segments = cwd.split(/[\\/]+/u).filter(Boolean)
+    for (let count = 1; count < Math.min(segments.length, MAX_MAPPED_SEGMENTS + 1); count += 1) {
+      const candidate = path.join(projectRoot, ...segments.slice(-count))
+      if (!(await isDirectory(candidate))) {
+        continue
+      }
+      const candidateToplevel = await repositoryToplevel(candidate)
+      if (candidateToplevel && candidateToplevel !== toplevel) {
+        return nestedRepositoryPath(candidateToplevel, projectRoot)
+      }
+    }
+    return null
+  }
+  return {
+    /** True or false once the project is a git repository; null when it is not. */
+    async commitInProject(commit) {
+      const { toplevel } = await projectRoots()
+      if (!toplevel || typeof commit !== 'string' || !/^[0-9a-f]{7,64}$/iu.test(commit)) {
+        return null
+      }
+      if (!commits.has(commit)) {
+        commits.set(commit, runGit(toplevel, ['cat-file', '-e', `${commit}^{commit}`]) !== null)
+      }
+      return commits.get(commit)
+    },
+    /** The repository other than the project's that holds `cwd`, as `third_party/x`, or null. */
+    async nestedRepositoryFor(cwd) {
+      if (typeof cwd !== 'string' || !cwd) {
+        return null
+      }
+      if (!nested.has(cwd)) {
+        nested.set(cwd, await nestedFor(cwd).catch(() => null))
+      }
+      return nested.get(cwd)
+    }
   }
 }

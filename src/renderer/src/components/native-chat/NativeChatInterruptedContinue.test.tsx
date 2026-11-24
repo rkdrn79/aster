@@ -38,7 +38,17 @@ vi.mock('@/lib/structured-agent-session-launch-label', () => ({
   structuredAgentLabel: () => 'Codex'
 }))
 vi.mock('@/runtime/structured-agent-session-client', () => ({
-  callStructuredAgentSession: mocks.call
+  // A send nobody confirmed is checked against the host's tail, which holds nothing here.
+  callStructuredAgentSession: (...args: unknown[]) =>
+    args[1] === 'agentSession.history'
+      ? Promise.resolve({
+          ok: true,
+          page: { items: [], submissions: [], hasOlder: false, window: { newest: null } }
+        })
+      : mocks.call(...args)
+}))
+vi.mock('@/runtime/runtime-host-contact-regained', () => ({
+  subscribeRuntimeHostContactRegained: () => () => {}
 }))
 vi.mock('@/runtime/structured-agent-session-host-capability', () => ({
   useStructuredAgentSessionHostCapabilityState: () => mocks.capability
@@ -54,6 +64,7 @@ vi.mock('./use-structured-agent-session-host-label', () => ({
 }))
 
 import type { NativeChatStructuredComposerTransport } from './native-chat-composer-types'
+import { STRUCTURED_AGENT_SESSION_SEND_ABSENT_RECHECK_MS } from './structured-agent-session-send-confirmation'
 import { useStructuredAgentSessionSends } from './use-structured-agent-session-sends'
 import {
   getStructuredAgentSessionSendNotice,
@@ -464,8 +475,11 @@ it('keeps the draft through Continue admission, refusal, uncertainty and recorde
   await waitFor(() => expect(mocks.call).toHaveBeenCalledTimes(2))
   expect(mocks.call.mock.calls[1][2]).not.toHaveProperty('usageLimitContinuationOfTurnItemId')
   await act(async () => answer.reject(new Error('connection lost')))
-  await waitFor(() =>
-    expect(screen.getByTestId('error')).toHaveTextContent('Check the chat before trying again.')
+  // The host is asked twice, a moment apart, before the send counts as unconfirmed.
+  await waitFor(
+    () =>
+      expect(screen.getByTestId('error')).toHaveTextContent('Check the chat before trying again.'),
+    { timeout: STRUCTURED_AGENT_SESSION_SEND_ABSENT_RECHECK_MS + 2_000 }
   )
   expect(screen.getByTestId('error')).not.toHaveTextContent('was not sent')
   expect(readNativeChatComposerDraft(scope)).toMatchObject(draft)

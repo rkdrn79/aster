@@ -11,6 +11,12 @@ import type {
 import type { SshTarget } from '../../shared/ssh-types'
 import { listRegisteredSshTargets } from '../ssh/targets/ssh-target-registry'
 import { readResearchGpuPolicy } from './research-gpu-policy-repository'
+import {
+  GPU_LIMITS_WHERE,
+  localGpuServer,
+  missingGpuServerMessage,
+  type ResearchGpuServer
+} from './research-gpu-local-server'
 import { linkSubmittedJobToRun, prepareResearchSlurmRunLink } from './research-slurm-run-submit'
 import {
   lastResearchGpuDispatch,
@@ -32,19 +38,41 @@ export function findResearchSshServer(query: string): SshTarget | undefined {
   )
 }
 
+/** An SSH host on the desktop, or this server itself inside orcad. */
+async function findResearchGpuServer(query: string): Promise<ResearchGpuServer | undefined> {
+  const target = findResearchSshServer(query)
+  return target ? { id: target.id, label: target.label } : localGpuServer(query)
+}
+
 export async function readResearchGpuAgentStatus({
   server
 }: z.infer<typeof ResearchGpuStatusParams>): Promise<ResearchGpuAgentStatus> {
   const policy = await readResearchGpuPolicy()
-  const target = server ? findResearchSshServer(server) : undefined
+  const target = server ? await findResearchGpuServer(server) : undefined
   if (server && !target) {
-    throw new Error(`No SSH host named "${server}". Use the label shown in Aster > Compute.`)
+    throw new Error(await missingGpuServerMessage(server))
   }
   const hosts = policy.hosts.filter((host) => !target || host.targetId === target.id)
+  const here = await localGpuServer()
   if (target && !hosts.length) {
-    throw new Error(`No GPU limits are set for ${target.label}. Set them in Aster > Compute.`)
+    throw new Error(
+      target.id === here?.id
+        ? `No GPU limits for this server have reached it from Aster yet. ${GPU_LIMITS_WHERE} Aster sends them here when it connects.`
+        : `No GPU limits are set for ${target.label}. ${GPU_LIMITS_WHERE}`
+    )
+  }
+  if (!hosts.length) {
+    return {
+      servers: [],
+      note: here
+        ? `No GPU limits for this server have reached it from Aster yet. ${GPU_LIMITS_WHERE} Aster sends them here when it connects; until then, ask the user before taking GPUs.`
+        : `No GPU limits are set yet. ${GPU_LIMITS_WHERE}`
+    }
   }
   const labels = new Map(listRegisteredSshTargets().map((entry) => [entry.id, entry.label]))
+  if (here) {
+    labels.set(here.id, here.label)
+  }
   const servers = await Promise.all(
     hosts.map(async (host) => {
       const read = await readResearchGpuHostBudget(host.targetId, true)
@@ -74,16 +102,16 @@ export async function readResearchGpuAgentStatus({
       }
     })
   )
-  return { servers }
+  return { servers, note: null }
 }
 
 /** `orca gpu submit`: the dialog's budget-aware sbatch, addressed by host and project names. */
 export async function submitResearchGpuAgentJob(
   params: z.infer<typeof ResearchGpuSubmitParams>
 ): Promise<ResearchSlurmActionResult> {
-  const target = findResearchSshServer(params.server)
+  const target = await findResearchGpuServer(params.server)
   if (!target) {
-    throw new Error(`No SSH host named "${params.server}". Use the label shown in Aster > Compute.`)
+    throw new Error(await missingGpuServerMessage(params.server))
   }
   const policy = await readResearchGpuPolicy()
   const projects = policy.projects.filter((project) => project.targetId === target.id)
@@ -93,7 +121,7 @@ export async function submitResearchGpuAgentJob(
   if (!project) {
     const names = projects.map((entry) => entry.projectName).join(', ') || 'none yet'
     throw new Error(
-      `"${params.project}" has no GPU limits on ${target.label} (configured: ${names}). Set them in Aster > Compute.`
+      `"${params.project}" has no GPU limits on ${target.label} (configured: ${names}). ${GPU_LIMITS_WHERE}`
     )
   }
   if (Boolean(params.script) === Boolean(params.command)) {

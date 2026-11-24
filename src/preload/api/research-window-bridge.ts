@@ -5,6 +5,7 @@ import type {
   ResearchWindowTarget
 } from '../../shared/research-page-window'
 import type { TuiAgent } from '../../shared/tui-agent'
+import type { ResearchSideCommand } from '../../shared/research-side-split'
 import type {
   ResearchWindowAction,
   ResearchWindowActionResult
@@ -50,6 +51,16 @@ export type ResearchWindowApi = {
   onRunAction: (callback: (action: ResearchWindowAction, requestId: string) => void) => () => void
   /** Research window: show this section, when the project's window was opened again. */
   onShowPage: (callback: (page: unknown) => void) => () => void
+  /** Project side: open this chat of the side's project, as a notification click asks. */
+  onShowChat: (callback: (tabId: unknown) => void) => () => void
+  /** Project side: whether the main window gave this side the keyboard. */
+  onSideFocused: (callback: (focused: unknown) => void) => () => void
+  /** Project side: room to keep clear on the right for the main window's controls. */
+  onSideInset: (callback: (px: unknown) => void) => () => void
+  /** Project side: asks the main window it sits in to focus, close or move it. */
+  sideCommand: (command: ResearchSideCommand) => Promise<void>
+  /** Main window: a project side asked for something; `command` is checked by main. */
+  onSideCommand: (callback: (sideId: string, command: ResearchSideCommand) => void) => () => void
 }
 
 function subscribe<T extends unknown[]>(
@@ -87,5 +98,11 @@ export const researchWindowApi: ResearchWindowApi = {
     ),
   onRunAction: (callback) =>
     subscribe<[ResearchWindowAction, string]>('researchWindow:runAction', callback),
-  onShowPage: (callback) => subscribe<[unknown]>('researchWindow:showPage', callback)
+  onShowPage: (callback) => subscribe<[unknown]>('researchWindow:showPage', callback),
+  onShowChat: (callback) => subscribe<[unknown]>('researchWindow:showChat', callback),
+  onSideInset: (callback) => subscribe<[unknown]>('researchWindow:sideInset', callback),
+  onSideFocused: (callback) => subscribe<[unknown]>('researchWindow:sideFocused', callback),
+  sideCommand: (command) => ipcRenderer.invoke('researchWindow:sideCommand', command),
+  onSideCommand: (callback) =>
+    subscribe<[string, ResearchSideCommand]>('researchWindow:sideCommand', callback)
 }

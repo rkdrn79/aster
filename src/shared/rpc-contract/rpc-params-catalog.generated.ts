@@ -536,7 +536,11 @@ import {
   RepoSparsePresetSave,
   RepoUpdate
 } from './repo-params'
-import { ResearchGpuStatusParams, ResearchGpuSubmitParams } from './research-gpu-params'
+import {
+  ResearchGpuHostPolicyParams,
+  ResearchGpuStatusParams,
+  ResearchGpuSubmitParams
+} from './research-gpu-params'
 import {
   ResearchRunStatusParams,
   ResearchRunWatchCancelParams,
@@ -1331,6 +1335,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'researchCompute.status': null,
   'researchDeadlines.read': ResearchDeadlinesReadParams,
   'researchDeadlines.update': ResearchDeadlinesUpdateParams,
+  'researchGpu.applyHostPolicy': ResearchGpuHostPolicyParams,
   'researchGpu.status': ResearchGpuStatusParams,
   'researchGpu.submit': ResearchGpuSubmitParams,
   'researchLibrary.lookupArxiv': ResearchLibraryReferenceParams,

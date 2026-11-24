@@ -1,6 +1,8 @@
 import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCompactViewport, useLeftSidebarDocked } from '@/app-shell/use-compact-viewport'
+import { ResearchSplitButton } from './ResearchSplitButton'
+import { isResearchWindowSurface } from './research-window-surface'
 
 type ResearchPageHeaderProps = {
   title: string
@@ -54,8 +56,9 @@ export function ResearchPageHeader({
           style={{ width: 'calc(var(--window-controls-width, 0px) + 2.5rem)' }}
         />
       )}
-      {compactViewport ? (
+      {compactViewport && !isResearchWindowSurface() ? (
         // Why: on a phone only the first row clears the floating controls, so wrapped actions get the full width.
+        // A narrow project window or side lays out like a phone but has no controls floating there.
         <div
           aria-hidden
           className="h-7 shrink-0"
@@ -70,11 +73,10 @@ export function ResearchPageHeader({
           <span className="min-w-0 truncate text-sm text-muted-foreground">{context}</span>
         ) : null}
       </div>
-      {actions ? (
-        <div data-research-page-actions="" className="flex min-w-0 flex-wrap items-center gap-2">
-          {actions}
-        </div>
-      ) : null}
+      <div data-research-page-actions="" className="flex min-w-0 flex-wrap items-center gap-2">
+        {actions}
+        <ResearchSplitButton />
+      </div>
     </header>
   )
 }

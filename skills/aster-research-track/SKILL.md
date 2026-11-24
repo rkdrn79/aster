@@ -61,7 +61,7 @@ node H/cli.mjs run exec --preflight --experiment <slug> --name "<what varies>" \
   --metric-def loss:minimize --metric-def acc:maximize -- python train.py --lr 3e-4
 ```
 
-It creates the Run, records git HEAD, dirty flag and `code.patch`, host, argv, and your agent identity, tees output to `train.log`, records metric lines in `metrics.jsonl`, and writes the observed exit to `run.json`. Its exit code is the command's. Never launch an experiment without it when you start the process yourself.
+It creates the Run, records the project repository's HEAD, dirty flag and `code.patch` (a `--cwd` inside a nested repository such as `third_party/x` is listed under `code.nested`, never taken for the project's code), host, argv, the SLURM job it runs in, and your agent identity, tees output to `train.log`, records metric lines in `metrics.jsonl`, and writes the observed exit to `run.json`. Its exit code is the command's. Never launch an experiment without it when you start the process yourself.
 
 - Make the script print metrics, one line per observation (stdout or stderr):
 
@@ -84,6 +84,7 @@ It creates the Run, records git HEAD, dirty flag and `code.patch`, host, argv, a
 
 - Long runs: start it in the background and note the `[aster] started <experiment>/<run>` line on stderr. If `aster research --help` lists `watch`, sleep with `aster research watch --run <ref> --on exit --notify self` instead of polling. Otherwise check `run show <ref>` or `run list --state running` at sensible intervals.
 - One Run is one execution attempt. Reruns and seeds get new Runs. Agent completion is not Run success; only the recorded exit is.
+- A metric's `split` names data (`train`, `val`, `test`), never a seed: put the seed in the config and the Run name (`--name "C seed 42"`). A rerun keeps the name; Aster numbers repeats as attempts and marks a failed attempt superseded once a later one succeeds.
 
 ## When you cannot wrap the process
 
@@ -168,6 +169,7 @@ When Aster starts you as the research agent of one Experiment (an Experiment cha
   Write only what the file shows. Pass `--supersedes` when a newer analysis replaces an older one. `context` lists the latest analyses; read them before redoing one.
 
 - **Explain failures** from evidence: `run show <ref> --log-lines 50`, metrics, and config. Record the cause with `quality add` and propose the fix.
+- **Status.** Aster shows an Experiment as Running while one of its Runs runs and as Analyzing once Runs have ended, until its brief says otherwise. When the stage changes for another reason, set it with `brief set --experiment <slug> --status planned|running|analyzing|concluded|abandoned`. Put the takeaway in an analysis and your report and ask the user to record the conclusion; once they do, the Experiment shows Concluded.
 - The conclusion (`brief.conclusion`), finding decisions, and proposal decisions are the user's.
 
 ## Experiment design

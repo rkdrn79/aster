@@ -3,12 +3,34 @@ import type { AgentJournalSubmission } from '../../../../shared/agent-session-jo
 
 const mocks = vi.hoisted(() => ({
   call: vi.fn(),
+  // The tail a send nobody confirmed is checked against; holds nothing unless a test says so.
+  check: vi.fn(async (..._args: unknown[]): Promise<unknown> => ({
+    ok: true,
+    page: { items: [], submissions: [], queuedMessages: [], hasOlder: false, window: {} }
+  })),
   compatible: vi.fn(async (): Promise<void> => undefined),
   handBack: vi.fn((): boolean => true)
 }))
 
+/** The fence read asks for one row; the check of a send nobody confirmed asks for a tail. */
+function readsTail(method: unknown, params: unknown): boolean {
+  return (
+    method === 'agentSession.history' &&
+    typeof params === 'object' &&
+    params !== null &&
+    'limit' in params &&
+    params.limit !== 1
+  )
+}
+
 vi.mock('@/runtime/structured-agent-session-client', () => ({
-  callStructuredAgentSession: mocks.call
+  callStructuredAgentSession: (...args: unknown[]) =>
+    readsTail(args[1], args[2]) ? mocks.check(...args) : mocks.call(...args),
+  readStructuredAgentSessionItem: async () => null,
+  supportsStructuredAgentSessionItemDetail: async () => true
+}))
+vi.mock('@/runtime/runtime-host-contact-regained', () => ({
+  subscribeRuntimeHostContactRegained: () => () => {}
 }))
 vi.mock('@/runtime/runtime-rpc-client', () => ({
   ensureRuntimeEnvironmentCompatible: mocks.compatible
@@ -34,6 +56,15 @@ import {
 import { noteStructuredAgentSessionFence } from './structured-agent-session-send-attempt'
 import { RuntimeRpcCallError } from '@/runtime/runtime-rpc-result'
 import { PRODUCT_NAME } from '../../../../shared/product-brand'
+import {
+  STRUCTURED_AGENT_SESSION_SEND_ABSENT_RECHECK_MS,
+  STRUCTURED_AGENT_SESSION_SEND_CONFIRM_WINDOW_MS
+} from './structured-agent-session-send-confirmation'
+
+/** Lets the sender ask the host twice about a send nobody confirmed. */
+async function afterChecks(): Promise<void> {
+  await vi.advanceTimersByTimeAsync(STRUCTURED_AGENT_SESSION_SEND_ABSENT_RECHECK_MS)
+}
 
 const SESSION = 'session-1'
 const target = { kind: 'local' } as const
@@ -108,6 +139,7 @@ describe('structured agent session message sender', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     mocks.call.mockReset()
+    mocks.check.mockClear()
     mocks.handBack.mockClear()
     mocks.compatible.mockReset()
     mocks.compatible.mockResolvedValue(undefined)
@@ -160,15 +192,19 @@ describe('structured agent session message sender', () => {
     ['recorded', (calls: Deferred[], id: string) => calls[0].resolve(okSubmission(id, 'accepted'))],
     ['refused', (calls: Deferred[]) => calls[0].resolve(refusedSend)],
     [
-      'past its deadline',
-      () => vi.advanceTimersByTimeAsync(STRUCTURED_AGENT_SESSION_SEND_BUDGET_MS)
+      'past its deadline and the check window',
+      () =>
+        vi.advanceTimersByTimeAsync(
+          STRUCTURED_AGENT_SESSION_SEND_BUDGET_MS + STRUCTURED_AGENT_SESSION_SEND_CONFIRM_WINDOW_MS
+        )
     ],
     ['dropped', () => dropStructuredAgentSessionSends(SESSION)],
     [
       'stopped, then unanswered',
-      (calls: Deferred[]) => {
+      async (calls: Deferred[]) => {
         stopStructuredAgentSessionSends(SESSION)
         calls[0].reject(new Error('timeout'))
+        await afterChecks()
       }
     ]
   ] as const)('frees the chat for the next send once its send is %s', async (_how, end) => {
@@ -279,6 +315,7 @@ describe('structured agent session message sender', () => {
     })
     mocks.call.mockRejectedValue(thrown)
     const a = send('a')
+    await afterChecks()
     expect(await a.outcome).toBe('unconfirmed')
     const notice = getStructuredAgentSessionSendNotice(SESSION) ?? ''
     expect(notice).toContain(`${PRODUCT_NAME} couldn't confirm your message reached the agent`)
@@ -452,7 +489,9 @@ describe('structured agent session message sender', () => {
   // The line explains text in the composer; notes sent from outside the chat keep their own text.
   it("keeps the chat's line when notes are sent from outside it", async () => {
     mocks.call.mockRejectedValueOnce(new Error('connection closed'))
-    expect(await send('a').outcome).toBe('unconfirmed')
+    const a = send('a')
+    await afterChecks()
+    expect(await a.outcome).toBe('unconfirmed')
     const line = getStructuredAgentSessionSendNotice(SESSION)
     expect(line).toContain(`${PRODUCT_NAME} couldn't confirm your message reached the agent`)
     mocks.call.mockResolvedValue(refusedSend)
@@ -495,10 +534,12 @@ describe('structured agent session message sender', () => {
   })
 
   // A send makes one request: a dropped or unanswered one comes back at once, never sent again.
-  it('gives back at once, as unconfirmed, a send whose request threw, and never sends it again', async () => {
+  it('gives back as unconfirmed a send whose request threw once the host holds no such message, and never sends it again', async () => {
     mocks.call.mockRejectedValue(new Error('connection closed'))
     const a = send('a')
+    await afterChecks()
     expect(await a.outcome).toBe('unconfirmed')
+    expect(mocks.check).toHaveBeenCalledTimes(2)
     expect(phases()).toEqual([])
     expect(mocks.handBack).toHaveBeenCalledTimes(1)
     expect(getStructuredAgentSessionSendNotice(SESSION)).toContain(
@@ -541,6 +582,7 @@ describe('structured agent session message sender', () => {
         })
       )
       const a = send('a')
+      await afterChecks()
       expect(await a.outcome).toBe('unconfirmed')
       expect(getStructuredAgentSessionSendNotice(SESSION)).toContain(
         `${PRODUCT_NAME} couldn't confirm your message reached the agent`
@@ -556,6 +598,7 @@ describe('structured agent session message sender', () => {
     })
     mocks.call.mockRejectedValueOnce(new Error('connection closed'))
     const a = send('a')
+    await afterChecks()
     expect(await a.outcome).toBe('unconfirmed')
     expect(structuredAgentSessionSendOut(SESSION)).toBe(false)
     expect(phases()).toEqual([])
@@ -617,6 +660,7 @@ describe('structured agent session message sender', () => {
     stopStructuredAgentSessionSends(SESSION)
     expect(structuredAgentSessionSendOut(SESSION)).toBe(true)
     calls[0].reject(new Error('timeout'))
+    await afterChecks()
     expect(await a.outcome).toBe('unconfirmed')
     expect(getStructuredAgentSessionSendNotice(SESSION)).toContain(
       `${PRODUCT_NAME} couldn't confirm your message reached the agent. Check the chat`
@@ -796,6 +840,7 @@ describe('a send whose fate is unknown never freezes the chat', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     mocks.call.mockReset()
+    mocks.check.mockClear()
     mocks.handBack.mockClear()
     mocks.compatible.mockReset()
     mocks.compatible.mockResolvedValue(undefined)
@@ -806,13 +851,14 @@ describe('a send whose fate is unknown never freezes the chat', () => {
     vi.useRealTimers()
   })
 
-  it('holds the chat no longer than the deadline of a send nobody answers', async () => {
+  it('holds the chat no longer than the deadline and the check window of a send nobody answers', async () => {
     deferredCalls()
     const a = send('a')
     await vi.advanceTimersByTimeAsync(STRUCTURED_AGENT_SESSION_SEND_BUDGET_MS - 1)
     expect(phases()).toEqual(['a:sending'])
     expect(structuredAgentSessionSendOut(SESSION)).toBe(true)
-    await vi.advanceTimersByTimeAsync(1)
+    // Its request is still out: the host is asked, and asked again until the window ends.
+    await vi.advanceTimersByTimeAsync(STRUCTURED_AGENT_SESSION_SEND_CONFIRM_WINDOW_MS + 1)
     expect(await a.outcome).toBe('unconfirmed')
     expect(structuredAgentSessionSendOut(SESSION)).toBe(false)
     // The next message goes out at once, and the first is never sent again.
@@ -832,6 +878,7 @@ describe('a send whose fate is unknown never freezes the chat', () => {
       }
     })
     const a = send('a')
+    await afterChecks()
     expect(await a.outcome).toBe('unconfirmed')
     expect(getStructuredAgentSessionSendNotice(SESSION)).toContain(
       `${PRODUCT_NAME} couldn't confirm your message reached the agent. Check the chat`

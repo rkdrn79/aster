@@ -21,8 +21,12 @@ import { ResearchLogPanel } from './ResearchLogPanel'
 import {
   effectiveRunStatusFacts,
   runStatusFactsFromManifest,
+  withRecordedHost,
   type ResearchRunStatusFacts
 } from './research-run-status-label'
+import { observeResearchRunHosts, type ResearchRunHostView } from './research-run-hosts'
+import { ResearchRunHostBadge } from './ResearchRunHostBadge'
+import { researchRunLogNote } from '../../../../shared/research/research-run-host'
 import { ResearchRunStatusLine } from './ResearchRunStatusLine'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
@@ -74,6 +78,7 @@ export type ResearchMetricSourceHealth = {
 export function RunInspector({
   run,
   live,
+  hostFacts,
   watched,
   findings,
   notes,
@@ -84,6 +89,8 @@ export function RunInspector({
   run: ResearchRunRecord
   /** run.json status as the research harness last read it, with launcher liveness. */
   live: ResearchRunStatusFacts | null
+  /** What this host observed: whether it can see the Run at all, and how its log stands. */
+  hostFacts: ResearchRunHostView | null
   /** `Watched: …` when an agent set a `research watch` on this Run. */
   watched: string | null
   /** Open quality findings for this Run. */
@@ -114,6 +121,8 @@ export function RunInspector({
     setError(null)
     onSourceHealthChange(run.id, { state: 'checking', observedAt: lastSuccessfulReadAt.current })
     try {
+      // Why beside the reads: the log may appear, and a Run's host may become reachable.
+      void observeResearchRunHosts([run])
       const [nextObservation, nextLog, nextConfig, nextManifest] = await Promise.all([
         observeResearchRun(run).then(
           (value) => ({ value, error: null }),
@@ -200,11 +209,16 @@ export function RunInspector({
     }
   }, [refresh])
 
-  const status = effectiveRunStatusFacts(
-    run,
-    live ?? (manifest ? runStatusFactsFromManifest(manifest) : null)
+  const status = withRecordedHost(
+    effectiveRunStatusFacts(run, live ?? (manifest ? runStatusFactsFromManifest(manifest) : null)),
+    hostFacts?.recordedOn
   )
-  const running = status.state === 'running' && status.liveness !== 'exited'
+  const recordedOn = status.recordedOn ?? null
+  // Why not a Run recorded elsewhere: nothing here changes, so polling over SSH only costs.
+  const running = status.state === 'running' && status.liveness !== 'exited' && !recordedOn
+  const logNote = researchRunLogNote(hostFacts?.log ?? null, recordedOn, running)
+  // Why: an editor tab on a log that is not on this host would only show an error.
+  const logOpenable = Boolean(run.logPath) && hostFacts?.log.state !== 'missing'
   useEffect(() => {
     if (!running) {
       return
@@ -249,6 +263,15 @@ export function RunInspector({
           {attachedFile ? (
             <p className="mt-0.5 text-xs text-muted-foreground">{ATTACHED_FILE_NOTE}</p>
           ) : null}
+          {recordedOn ? (
+            <div className="mt-2 space-y-1">
+              <ResearchRunHostBadge host={recordedOn} />
+              <p className="text-xs text-muted-foreground">
+                Its log, outputs and checkpoints stay on {recordedOn}, so Aster does not poll it
+                here. Refresh the records from that machine to see how it ended.
+              </p>
+            </div>
+          ) : null}
           {wandb.warning ? (
             <p className="mt-0.5 text-xs text-muted-foreground">W&B: {wandb.warning}</p>
           ) : null}
@@ -258,7 +281,7 @@ export function RunInspector({
           busy={busy}
           onRefresh={() => void refresh()}
           onDetach={onDetach}
-          onOpenLog={logPath ? () => openRunFile(run, logPath) : null}
+          onOpenLog={logPath && logOpenable ? () => openRunFile(run, logPath) : null}
           wandbUrl={wandb.url}
         />
       </div>
@@ -358,9 +381,10 @@ export function RunInspector({
           key={run.id}
           path={logPath}
           log={log}
-          error={logError}
+          error={logNote && !log?.text ? null : logError}
+          absentNote={logNote}
           failed={status.state === 'failed'}
-          onOpenFull={() => openRunFile(run, logPath)}
+          onOpenFull={logOpenable ? () => openRunFile(run, logPath) : undefined}
         />
       ) : null}
       {attachedFile ? null : <ResearchRunMediaSection run={run} />}

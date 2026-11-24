@@ -35,17 +35,26 @@ function saveKeys(keys: readonly string[]): void {
   }
 }
 
+/**
+ * This window's keys plus what another window saved since: a project side or project window
+ * claims its own project's editors in the same storage, and must not drop the main window's.
+ */
+function currentKeys(): string[] {
+  const { keys } = useResearchWritingEditors.getState()
+  return [...new Set([...readStoredKeys(), ...keys])]
+}
+
 export function claimEditorForWriting(worktreeId: string, fileId: string): void {
   const key = editorKey(worktreeId, fileId)
-  const { keys } = useResearchWritingEditors.getState()
-  if (!keys.includes(key)) {
-    saveKeys([...keys, key].slice(-MAX_KEYS))
+  const keys = currentKeys()
+  if (!keys.includes(key) || !useResearchWritingEditors.getState().keys.includes(key)) {
+    saveKeys([...keys.filter((entry) => entry !== key), key].slice(-MAX_KEYS))
   }
 }
 
 export function releaseEditorToWorkbench(worktreeId: string, fileId: string): void {
   const key = editorKey(worktreeId, fileId)
-  const { keys } = useResearchWritingEditors.getState()
+  const keys = currentKeys()
   if (keys.includes(key)) {
     saveKeys(keys.filter((entry) => entry !== key))
   }

@@ -10,8 +10,13 @@ import { agentSessionWriteNoticeText } from './agent-session-write-notice-text'
 import type { NativeChatDeliveryNotice } from './NativeChatMessageRow'
 import type { StructuredAgentSessionPendingSend } from './structured-agent-session-pending-sends'
 
-/** One shared value, so a rebuilt map re-renders no row still sending. */
+/** Shared values, so a rebuilt map re-renders no row whose caption stayed the same. */
 const STRUCTURED_AGENT_SESSION_DELIVERY_SENDING: NativeChatDeliveryNotice = { sending: true }
+const STRUCTURED_AGENT_SESSION_DELIVERY_CONFIRMING: NativeChatDeliveryNotice = {
+  sending: true,
+  confirming: true
+}
+const STRUCTURED_AGENT_SESSION_DELIVERY_QUEUED: NativeChatDeliveryNotice = { queued: true }
 const NO_COMMANDS: ReadonlySet<string> = new Set()
 
 export {
@@ -34,16 +39,23 @@ export function structuredAgentSessionDeliveryNotices(args: {
   startFailures: readonly AgentSessionFailureFact[]
   /** The loaded commands, from `structuredAgentSessionCommandItemIds`: they report their own. */
   commandItemIds?: ReadonlySet<string>
+  /** Rows the host accepted and holds for after the agent's current step, read while it works. */
+  heldItemIds?: ReadonlySet<string>
 }): ReadonlyMap<string, NativeChatDeliveryNotice> {
   const { agentName, submissions } = args
   const notices = new Map<string, NativeChatDeliveryNotice>()
+  for (const id of args.heldItemIds ?? NO_COMMANDS) {
+    notices.set(id, STRUCTURED_AGENT_SESSION_DELIVERY_QUEUED)
+  }
   // A row under the id is the host's to describe, before the sender settles from it.
   const recorded = new Set(submissions.map((submission) => submission.clientMessageId))
   for (const entry of args.pending) {
     if (entry.phase === 'sending' && !recorded.has(entry.clientMessageId)) {
       notices.set(
         agentJournalSubmissionKey(entry.clientMessageId),
-        STRUCTURED_AGENT_SESSION_DELIVERY_SENDING
+        entry.confirming
+          ? STRUCTURED_AGENT_SESSION_DELIVERY_CONFIRMING
+          : STRUCTURED_AGENT_SESSION_DELIVERY_SENDING
       )
     }
   }

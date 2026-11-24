@@ -10,7 +10,9 @@ import { printResult } from '../format'
 
 function formatGpuStatus(status: ResearchGpuAgentStatus): string {
   if (!status.servers.length) {
-    return 'No GPU limits set. Set them in Aster > Compute.'
+    return (
+      status.note ?? 'No GPU limits apply here yet. Set limits in Aster → Compute → GPU allocation.'
+    )
   }
   return status.servers
     .map((server) => {

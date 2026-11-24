@@ -133,7 +133,16 @@ export const useChatPapers = create<ChatPapersState>(() => ({ ...readPersisted()
 
 function persist(change: (state: Persisted) => Persisted): void {
   const current = useChatPapers.getState()
-  const next = pruned(change({ v: 1, chats: current.chats, requests: current.requests }))
+  // Why read back first: a project side or window saves its own chats under the same key, and a
+  // write from this window's copy alone would drop what it saved since.
+  const stored = readPersisted()
+  const next = pruned(
+    change({
+      v: 1,
+      chats: { ...current.chats, ...stored.chats },
+      requests: { ...current.requests, ...stored.requests }
+    })
+  )
   useChatPapers.setState(next)
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))

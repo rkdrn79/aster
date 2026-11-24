@@ -322,4 +322,21 @@ describe('what a user message says about its delivery', () => {
     expect(screen.getByRole('time').parentElement).toBe(meta)
     expect(meta).toHaveClass('can-hover:opacity-0')
   })
+
+  // Accepted, held for the agent's next step: it waits, and says so where the time would be.
+  it('says a message the host holds is queued for after the current step, not lost', () => {
+    renderUser({ queued: true })
+    const queued = screen.getByText('Queued — sends after the current step')
+    expect(queued).toHaveClass('text-xs', 'text-chat-foreground-faint')
+    expect(queued.parentElement).not.toHaveClass('can-hover:opacity-0')
+    expect(screen.queryByRole('time')).toBeNull()
+    expect(screen.queryByText('Sending…')).toBeNull()
+  })
+
+  it('says it is checking delivery while the sender asks the host about a lost reply', () => {
+    renderUser({ sending: true, confirming: true })
+    expect(screen.getByText('Checking delivery…')).toBeInTheDocument()
+    expect(screen.queryByText('Sending…')).toBeNull()
+    expect(screen.queryByRole('time')).toBeNull()
+  })
 })

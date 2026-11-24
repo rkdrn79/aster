@@ -135,7 +135,10 @@ const STRUCTURED_AGENT_SESSION_METHOD_TIMEOUT_MS: ReadonlyMap<string, number> = 
   // A waiting catalog read lasts as long as the host's listing: Claude's is 60 s, after up to 15 s
   // for an account switch to settle and 5 s of login-shell environment.
   ['agentSession.modelCatalog', 90_000],
-  ['agentSession.sleepWorkspace', 120_000]
+  ['agentSession.sleepWorkspace', 120_000],
+  // A send's own budget: the remote default (15 s) also covers waiting for the link, so a slow but
+  // live host would answer after the request had already given up on it.
+  ['agentSession.send', 30_000]
 ])
 
 export async function callStructuredAgentSession<TResult>(

@@ -2,6 +2,10 @@ import { ipcRenderer } from 'electron'
 import type { ResearchComputeLinksDocument } from '../../shared/research/research-compute-links'
 import type { ResearchGpuPolicy } from '../../shared/research/research-gpu-policy'
 import type {
+  ResearchRunHostObservation,
+  ResearchRunHostQuery
+} from '../../shared/research/research-run-host'
+import type {
   ResearchProjectTransferPreview,
   ResearchProjectTransferRequest,
   ResearchProjectTransferResult
@@ -30,6 +34,8 @@ export type ResearchComputeApi = {
   ) => Promise<ResearchProjectTransferResult>
   readGpuPolicy: () => Promise<ResearchGpuPolicy>
   saveGpuPolicy: (policy: ResearchGpuPolicy) => Promise<ResearchGpuPolicy>
+  /** Which Runs this host can observe, their log state, and SLURM jobs Aster now follows. */
+  observeRunHosts: (query: ResearchRunHostQuery) => Promise<ResearchRunHostObservation>
 }
 
 export const researchComputeApi: ResearchComputeApi = {
@@ -41,5 +47,6 @@ export const researchComputeApi: ResearchComputeApi = {
   previewTransfer: (request) => ipcRenderer.invoke('researchCompute:previewTransfer', request),
   transferProject: (request) => ipcRenderer.invoke('researchCompute:transferProject', request),
   readGpuPolicy: () => ipcRenderer.invoke('researchCompute:readGpuPolicy'),
-  saveGpuPolicy: (policy) => ipcRenderer.invoke('researchCompute:saveGpuPolicy', policy)
+  saveGpuPolicy: (policy) => ipcRenderer.invoke('researchCompute:saveGpuPolicy', policy),
+  observeRunHosts: (query) => ipcRenderer.invoke('researchCompute:observeRunHosts', query)
 }

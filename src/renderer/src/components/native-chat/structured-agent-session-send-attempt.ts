@@ -78,6 +78,10 @@ export type StructuredAgentSessionSendAttempt =
       cursor: AgentJournalCursor | null
       /** The refusal a thrown answer carried: what the host said, though it proves nothing. */
       thrownRefusal: AgentSessionWriteFailure | null
+      /** The host holds it as a card on its queue. */
+      queued: boolean
+      /** A thrown answer's RPC code, for the trace. */
+      thrownCode?: string
     }
   /** It failed before its request went out, so nothing was sent: why, in the composer's words. */
   | { kind: 'not-sent'; parts: AgentSessionWriteNoticePart[] }
@@ -170,6 +174,13 @@ export async function attemptStructuredAgentSessionSend(args: {
     thrownRefusal:
       answer.kind === 'thrown' && readAgentSessionErrorRefusal(answer.error)
         ? agentSessionThrownFailure(answer.error, answer.rpcCode)
-        : null
+        : null,
+    queued: value !== null && 'queued' in value,
+    ...(answer.kind === 'thrown'
+      ? {
+          thrownCode:
+            answer.rpcCode ?? (answer.error instanceof Error ? answer.error.name : 'thrown')
+        }
+      : {})
   }
 }

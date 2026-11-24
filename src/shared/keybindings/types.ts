@@ -87,6 +87,8 @@ export type KeybindingActionId =
   | 'research.commandPalette'
   | 'research.projectSwitcher'
   | 'research.previousProject'
+  | 'research.split.openBeside'
+  | 'research.split.focusNext'
   | 'browser.back'
   | 'browser.forward'
   | 'browser.reload'

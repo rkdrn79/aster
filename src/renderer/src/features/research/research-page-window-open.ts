@@ -6,8 +6,11 @@ import type {
   ResearchWindowTarget
 } from '../../../../shared/research-page-window'
 import { selectResearchWorkspaceContext } from './research-workspace-context'
+import { isResearchWindowSurface } from './research-window-surface'
 
 export const RESEARCH_PAGE_DRAG_TYPE = 'application/x-aster-research-page'
+/** The dragged project and page, for the main window's "open to the side" edge to read on drop. */
+export const RESEARCH_SPLIT_DRAG_TYPE = 'application/x-aster-research-target'
 
 type WindowOpenOptions = { fromDrag?: boolean }
 
@@ -17,9 +20,16 @@ type ResearchWindowDragProps = {
   onDragEnd?: (event: DragEvent<HTMLElement>) => void
 }
 
-/** Only the desktop app opens windows; a phone or browser client has one page at a time. */
+/**
+ * Only the desktop app's main window opens windows: a phone or browser client has one page at a
+ * time, and main refuses the request from a project window or side.
+ */
 export function canOpenResearchPageWindows(): boolean {
-  return typeof window.api?.researchWindow?.openWindow === 'function' && !isWebClientLocation()
+  return (
+    typeof window.api?.researchWindow?.openWindow === 'function' &&
+    !isWebClientLocation() &&
+    !isResearchWindowSurface()
+  )
 }
 
 function openResearchWindow(
@@ -78,9 +88,14 @@ function researchWindowDragProps(
     onDragStart: (event) => {
       event.dataTransfer.effectAllowed = 'move'
       event.dataTransfer.setData(RESEARCH_PAGE_DRAG_TYPE, page)
+      const target = resolveTarget()
+      if (target) {
+        event.dataTransfer.setData(RESEARCH_SPLIT_DRAG_TYPE, JSON.stringify(target))
+      }
     },
     onDragEnd: (event) => {
-      // Why: nothing here took the drop; main opens the window only if the pointer left this one.
+      // Why: nothing here took the drop (the side edge would have); main opens the window only if
+      // the pointer left this one.
       if (event.dataTransfer.dropEffect === 'none') {
         openResearchWindow(resolveTarget(), { fromDrag: true })
       }

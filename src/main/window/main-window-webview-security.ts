@@ -22,6 +22,11 @@ import {
 import { isDocPreviewSession } from '../browser/doc-preview-protocol'
 import { registerHostFrameNavigationGuard } from './host-frame-navigation-guard'
 import { installPrivilegedWindowNavigationPolicy } from './privileged-window-navigation'
+import { admitResearchSideAttach, claimResearchSideGuest } from './research-side-guests'
+import { notifyIfNoResearchSurfaces } from './research-page-window'
+import { getTrustedUIRendererWebContents } from '../ipc/ui'
+import type { Store } from '../persistence'
+import type { KeybindingOverrides } from '../../shared/keybindings'
 
 /**
  * Why a separate admission rule: `normalizeBrowserNavigationUrl` answers only for
@@ -37,7 +42,13 @@ function isAdmissibleDocPreviewAttach(partition: string, src: string): boolean {
   return target !== null && getDocPreviewGrant(target.grantId) !== null
 }
 
-export function installMainWindowWebviewSecurity(mainWindow: BrowserWindow): void {
+export function installMainWindowWebviewSecurity(
+  mainWindow: BrowserWindow,
+  sides: {
+    store: Store | null
+    getKeybindings?: () => KeybindingOverrides | undefined
+  } = { store: null }
+): void {
   installPrivilegedWindowNavigationPolicy(mainWindow.webContents)
   // Why here and on every fresh shell document: the renderer holds the only record of which
   // preview owns which grant, and a reload throws that record away. Grants it can no longer
@@ -74,6 +85,11 @@ export function installMainWindowWebviewSecurity(mainWindow: BrowserWindow): voi
     // profile partitions — the renderer owns their URLs, no main-side grants.
     const isLocalSshPartition = isLocalSshBrowserPartition(partition)
     const isDocPreviewAttach = isAdmissibleDocPreviewAttach(partition, src)
+    // Why first: a project side is this app's own page, not a browsing guest; it gets the app preload.
+    if (!isDocPreviewAttach && admitResearchSideAttach(webPreferences, src)) {
+      delete params.preload
+      return
+    }
 
     // Why: fail closed — deny any src or partition not in the registry allowlist so a renderer bug can't smuggle preload/Node into an unprivileged guest.
     if (
@@ -110,6 +126,16 @@ export function installMainWindowWebviewSecurity(mainWindow: BrowserWindow): voi
   })
 
   mainWindow.webContents.on('did-attach-webview', (_event, guest) => {
+    if (
+      claimResearchSideGuest(guest, mainWindow, {
+        ...sides,
+        sendToMain: (sideId, command) =>
+          getTrustedUIRendererWebContents()?.send('researchWindow:sideCommand', sideId, command),
+        onClosed: notifyIfNoResearchSurfaces
+      })
+    ) {
+      return
+    }
     if (isDocPreviewSession(guest.session)) {
       // Why: preview guests never join browser-tab routing, popups or auth-identity tracking; the
       // workspace-doc profile is what refuses all three. The attach is also the point a live window

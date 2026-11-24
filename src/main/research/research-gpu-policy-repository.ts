@@ -13,3 +13,4 @@ const policyStore = createResearchJsonDocumentStore({
 
 export const readResearchGpuPolicy = policyStore.read
 export const saveResearchGpuPolicy = policyStore.save
+export const updateResearchGpuPolicy = policyStore.update

@@ -91,6 +91,24 @@ export const KEYBINDING_DEFINITION_CORE_4: readonly KeybindingDefinition[] = [
     }
   },
   {
+    id: 'research.split.openBeside',
+    title: 'Open a project to the side',
+    group: 'Research',
+    scope: 'research',
+    searchKeywords: ['shortcut', 'research', 'project', 'split', 'side', 'beside', 'columns'],
+    // Why: terminal splits own Mod+D; Mod+Backslash is the editor-split chord and is free here.
+    defaultBindings: platformBindings(['Mod+Backslash'])
+  },
+  {
+    id: 'research.split.focusNext',
+    title: 'Focus the next project side',
+    group: 'Research',
+    scope: 'research',
+    searchKeywords: ['shortcut', 'research', 'project', 'split', 'side', 'focus', 'next'],
+    // Why: Mod+] moves between terminal panes but is Research history here; Shift picks sides.
+    defaultBindings: platformBindings(['Mod+Shift+Backslash'])
+  },
+  {
     id: 'sidebar.childWorkspaces.toggle',
     title: 'Toggle Child Workspaces',
     group: 'Global',

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { RESEARCH_GPU_PRIORITIES } from '../research/research-gpu-policy'
 import {
   OptionalBoolean,
   OptionalPositiveInt,
@@ -31,3 +32,33 @@ export const ResearchGpuSubmitParams = z.object({
   /** sbatch --test-only: the start estimate and budget verdict, without creating a job. */
   dryRun: OptionalBoolean
 })
+
+/**
+ * The desktop's GPU limits for the SSH host this orcad runs on, pushed when the desktop connects
+ * and whenever the limits change; `host: null` clears them. Projects are keyed as on the desktop.
+ */
+export const ResearchGpuHostPolicyParams = z
+  .object({
+    /** The host's name in Aster, which agents on the server may pass as `--server`. */
+    label: z.string().trim().min(1).max(200),
+    host: z
+      .object({
+        maxGpus: z.number().int().min(0).max(1024),
+        autoRelease: z.boolean()
+      })
+      .strict()
+      .nullable(),
+    projects: z
+      .array(
+        z
+          .object({
+            projectKey: z.string().min(1).max(600),
+            projectName: z.string().trim().min(1).max(120),
+            maxGpus: z.number().int().min(0).max(1024).nullable(),
+            priority: z.enum(RESEARCH_GPU_PRIORITIES)
+          })
+          .strict()
+      )
+      .max(2000)
+  })
+  .strict()

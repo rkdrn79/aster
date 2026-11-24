@@ -72,7 +72,6 @@ export const LOCAL_STORAGE_MODULE_DISPOSITIONS: Record<string, WslMoveFieldDispo
       'src/renderer/src/components/sidebar/LinearAgentSkillSetupPrompt.tsx',
       'src/renderer/src/components/sidebar/mobile-sidebar-onboarding-badge.ts',
       'src/renderer/src/components/sidebar/SeveredTerminalDaemonBanner.tsx',
-      'src/renderer/src/components/sidebar/SidebarToolbar.tsx',
       'src/renderer/src/components/terminal-pane/terminal-freeze-breadcrumbs.ts',
       'src/renderer/src/components/terminal-pane/terminal-render-desync-trigger.ts',
       'src/renderer/src/components/terminal-pane/terminal-startup-timing.ts',
@@ -80,6 +79,7 @@ export const LOCAL_STORAGE_MODULE_DISPOSITIONS: Record<string, WslMoveFieldDispo
       'src/renderer/src/lib/feature-education-telemetry.ts',
       'src/renderer/src/lib/orchestration-setup-state.ts',
       'src/renderer/src/lib/terminal-shortcut-capture-notification.tsx',
+      'src/renderer/src/phone-shell/PhoneHomeScreenCard.tsx',
       'src/renderer/src/web/preload-api/web-keybindings-api.ts',
       'src/renderer/src/web/preload-api/web-onboarding-api.ts',
       'src/renderer/src/web/preload-api/web-preferences-store.ts',
@@ -93,6 +93,49 @@ export const LOCAL_STORAGE_MODULE_DISPOSITIONS: Record<string, WslMoveFieldDispo
     ].map((path) => [
       path,
       notApplicableDisposition(62, 'Global preference or web-client storage.')
+    ])
+  ),
+  // Aster's research layout: preferences, and views keyed by workspace or Experiment id, which a
+  // moved project reopens on their defaults.
+  ...Object.fromEntries(
+    [
+      'src/renderer/src/features/research/ResearchEvidenceCheck.tsx',
+      'src/renderer/src/features/research/ResearchPhoneAccessDialog.tsx',
+      'src/renderer/src/features/research/ResearchRebuttalPage.tsx',
+      'src/renderer/src/features/research/research-chat-papers-mode.ts',
+      'src/renderer/src/features/research/research-chat-papers-store.ts',
+      'src/renderer/src/features/research/research-compute-refresh-interval.ts',
+      'src/renderer/src/features/research/research-compute-selected-hosts.ts',
+      'src/renderer/src/features/research/research-deadline-group-state.ts',
+      'src/renderer/src/features/research/research-delegation-dismissals.ts',
+      'src/renderer/src/features/research/research-experiment-dismissed-runs.ts',
+      'src/renderer/src/features/research/research-figure-editor-config.ts',
+      'src/renderer/src/features/research/research-figure-modes.ts',
+      'src/renderer/src/features/research/research-figure-side-panel.tsx',
+      'src/renderer/src/features/research/research-figures-layout-mode.ts',
+      'src/renderer/src/features/research/research-figures-store.ts',
+      'src/renderer/src/features/research/research-library-pane-widths.ts',
+      'src/renderer/src/features/research/research-location.ts',
+      'src/renderer/src/features/research/research-notebook-draft.ts',
+      'src/renderer/src/features/research/research-reading-language.ts',
+      'src/renderer/src/features/research/research-rebuttal-store.ts',
+      'src/renderer/src/features/research/research-rebuttal-translation-view.ts',
+      'src/renderer/src/features/research/research-side-pane-width.ts',
+      'src/renderer/src/features/research/research-side-sidebar.ts',
+      'src/renderer/src/features/research/research-sidebar-sections.ts',
+      'src/renderer/src/features/research/research-split-persistence.ts',
+      'src/renderer/src/features/research/research-writing-editor-ownership.ts',
+      'src/renderer/src/features/research/research-writing-files-visibility.ts',
+      'src/renderer/src/features/research/research-writing-pane-ratios.ts',
+      'src/renderer/src/features/research/research-writing-project.ts',
+      'src/renderer/src/features/research/use-figure-inspector.ts',
+      'src/renderer/src/features/research/use-rebuttal-auto-translate.ts'
+    ].map((path) => [
+      path,
+      notApplicableDisposition(
+        62,
+        'Research layout state on this device; views reopen on defaults.'
+      )
     ])
   )
 }

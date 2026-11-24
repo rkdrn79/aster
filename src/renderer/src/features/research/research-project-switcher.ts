@@ -125,16 +125,24 @@ export function previousResearchProject<T extends Pick<ResearchHomeProject, 'key
 type KeyInput = Pick<
   KeyboardEvent,
   'key' | 'metaKey' | 'ctrlKey' | 'altKey' | 'shiftKey' | 'isComposing'
->
+> &
+  Partial<Pick<KeyboardEvent, 'code'>>
 
 /** Keys the switcher handles itself; arrows, Enter and Escape belong to the list and popover. */
 export function projectSwitcherKeyIntent(
   event: KeyInput,
   platform: NodeJS.Platform
-): 'open-in-new-window' | null {
-  if (event.isComposing || event.key !== 'Enter' || event.altKey || event.shiftKey) {
+): 'open-in-new-window' | 'open-beside' | null {
+  if (event.isComposing || event.altKey || event.shiftKey) {
     return null
   }
   const mod = platform === 'darwin' ? event.metaKey && !event.ctrlKey : event.ctrlKey
-  return mod ? 'open-in-new-window' : null
+  if (!mod) {
+    return null
+  }
+  // Why the code too: the backslash key types ₩ or ¥ on Korean and Japanese layouts.
+  if (event.key === '\\' || event.code === 'Backslash') {
+    return 'open-beside'
+  }
+  return event.key === 'Enter' ? 'open-in-new-window' : null
 }

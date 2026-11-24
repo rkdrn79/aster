@@ -82,6 +82,48 @@ describe('finding presentation', () => {
     )
   })
 
+  it('explains Runs from another host, nested repositories, seed splits and retries', () => {
+    const names = (reference: string): string =>
+      ({ 'exp/a': 'seed 42', 'exp/b': 'seed 42' })[reference] ?? reference
+    expect(
+      findingPresentation(
+        rule(
+          'run.foreign-host',
+          "Recorded on node05; this host (elice) can't observe it because its folder /data/x is not here",
+          { runs: ['exp/a'] }
+        ),
+        names
+      ).title
+    ).toBe("Run seed 42 was recorded on node05; this host can't observe it")
+    expect(
+      findingPresentation(
+        rule(
+          'repro.code-not-project',
+          "72 Runs launched inside the nested repository third_party/lewam recorded its HEAD (83c4703) as code.commit, not the project's",
+          { runs: ['exp/a', 'exp/b'] }
+        ),
+        names
+      ).title
+    ).toBe("72 Runs recorded the commit of third_party/lewam, not this project's")
+    expect(
+      findingPresentation(
+        rule(
+          'run.superseded',
+          'Exited with code 1 after 1 min; a later attempt with the same name, exp/b, succeeded',
+          { runs: ['exp/a', 'exp/b'], severity: 'info' }
+        ),
+        names
+      )
+    ).toEqual({
+      title: 'Run seed 42 was retried and a later attempt succeeded',
+      summary: 'Exited with code 1 after 1 min; seed 42 has the same name and succeeded'
+    })
+    expect(
+      findingPresentation(rule('run.seed-split', 'Metrics use seed-like split names'), runName)
+        .title
+    ).toBe('Run lr 1e-3 records seeds as splits')
+  })
+
   it('offers the fix that resolves the finding', () => {
     expect(findingFix(rule('run.harness-exited', 'x'))).toBe('mark-failed')
     expect(findingFix(rule('compare.baseline-missing', 'x'))).toBe('choose-baseline')

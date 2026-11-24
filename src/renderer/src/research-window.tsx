@@ -27,9 +27,21 @@ import { ResearchSubtaskInspectDialog } from './features/research/ResearchSubtas
 import { isResearchPage } from './features/research/research-navigation'
 import { isResearchWindowState } from './features/research/research-window-state'
 import {
+  markResearchWindowSide,
   markResearchWindowSurface,
+  openChatInResearchWindow,
   setResearchWindowChatsSection
 } from './features/research/research-window-surface'
+import { researchSideIdFromSearch } from '../../shared/research-side-split'
+import {
+  useResearchSideControlsInset,
+  useResearchSideReports
+} from './features/research/use-research-side-reports'
+import { ResearchSideSidebar } from './features/research/ResearchSideSidebar'
+import { useFollowResearchSideFocus } from './features/research/ResearchNavigationProjectRow'
+import { hydrateResearchSideSidebar } from './features/research/research-side-sidebar'
+import { researchSidePageForView } from './features/research/research-side-page'
+import { useResearchProjectSwitcherShortcut } from './features/research/use-research-project-switcher-shortcut'
 import { ResearchWindowHostBanner } from './features/research/ResearchWindowHostBanner'
 import { ResearchWindowRemoteServices } from './features/research/ResearchWindowRemoteServices'
 import { ResearchWindowPalette } from './features/research/ResearchWindowPalette'
@@ -39,7 +51,13 @@ import { replaceRuntimeEnvironmentRevisions } from './runtime/runtime-environmen
 import { disableStructuredAgentLaunchPersistence } from './lib/structured-agent-session-launch-persistence'
 import { useResearchWindowEditServices } from './features/research/use-research-window-edit-services'
 
-function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React.JSX.Element {
+function ResearchWindowRoot({
+  target,
+  sideId
+}: {
+  target: ResearchWindowTarget
+  sideId: string | null
+}): React.JSX.Element {
   const { t } = useTranslation()
   const settings = useAppStore((state) => state.settings)
   const activeView = useAppStore((state) => state.activeView)
@@ -54,12 +72,19 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
   const [ready, setReady] = useState(false)
   const [waitingForMain, setWaitingForMain] = useState(false)
   const [section, setSection] = useState<ResearchWindowPage>(target.page)
-  const showSection = useCallback((page: ResearchWindowPage): void => {
-    setSection(page)
-    if (page !== 'research-chats') {
-      useAppStore.setState({ activeView: page })
-    }
-  }, [])
+  const showSection = useCallback(
+    (page: ResearchWindowPage): void => {
+      setSection(page)
+      if (page !== 'research-chats') {
+        useAppStore.setState({ activeView: page })
+      } else if (sideId) {
+        // Why: a side's Chats are its Workbench, as its sidebar names them.
+        useAppStore.setState({ activeView: 'terminal' })
+      }
+    },
+    [sideId]
+  )
+  useResearchProjectSwitcherShortcut(sideId !== null)
 
   useEffect(() => {
     setResearchWindowChatsSection(() => showSection('research-chats'))
@@ -85,7 +110,11 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
     }
     useAppStore.setState({
       ...pinned,
-      ...(target.page === 'research-chats' ? {} : { activeView: target.page })
+      ...(target.page !== 'research-chats'
+        ? { activeView: target.page }
+        : sideId
+          ? { activeView: 'terminal' as const }
+          : {})
     })
     const offState = api.onState((value) => {
       if (!isResearchWindowState(value)) {
@@ -98,7 +127,7 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
     })
     void api.requestState()
     return offState
-  }, [target])
+  }, [target, sideId])
 
   // Why: the main window can be reloading when this opens or reopens; keep asking until it answers.
   useEffect(() => {
@@ -130,12 +159,31 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
   }, [settings?.theme, settings?.appFontFamily, settings?.accentColor])
 
   // An Experiment opened inside the window keeps the Experiments section current.
-  const currentPage: ResearchWindowPage =
-    section === 'research-chats' ? section : isResearchWindowPage(activeView) ? activeView : section
+  const currentPage: ResearchWindowPage = sideId
+    ? researchSidePageForView(activeView, section)
+    : section === 'research-chats'
+      ? section
+      : isResearchWindowPage(activeView)
+        ? activeView
+        : section
+  // A side's sidebar opens its Workbench (its chats) as the main window's does: by the view.
+  const showChats = sideId ? activeView === 'terminal' : section === 'research-chats'
   const pageLabel = RESEARCH_WINDOW_PAGE_LABELS[currentPage]
   const openInMain = useCallback(
     () => void window.api.researchWindow.revealInMain({ ...target, page: currentPage }),
     [target, currentPage]
+  )
+  useResearchSideReports(sideId, currentPage)
+  useResearchSideControlsInset(sideId)
+  useFollowResearchSideFocus(sideId)
+  useEffect(
+    () =>
+      window.api.researchWindow.onShowChat((tabId) => {
+        if (typeof tabId === 'string') {
+          openChatInResearchWindow(target.workspaceId, tabId)
+        }
+      }),
+    [target.workspaceId]
   )
   useEffect(() => {
     document.title = projectName
@@ -154,15 +202,31 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
         {/* Why: the Writing editor saves through this; the main window's lives in its terminal view. */}
         <EditorAutosaveController />
         <ConfirmationDialogProvider>
-          {/* Why the shell: like the main window, the page is an inset panel under a title bar. */}
-          <div className="flex h-screen min-h-0 flex-col bg-shell text-foreground">
-            <ResearchWindowTopBar
-              title={projectName ?? pageLabel}
-              currentPage={currentPage}
-              onShowSection={showSection}
-              onOpenInMain={openInMain}
-            />
-            <main className="mx-2 mb-2 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-background">
+          {/* Why the shell: like the main window, the page is an inset panel under a title bar.
+              A side shows its project's sidebar panel beside its page panel instead. */}
+          <div
+            className={
+              sideId
+                ? 'flex h-screen min-h-0 gap-2 bg-shell text-foreground'
+                : 'flex h-screen min-h-0 flex-col bg-shell text-foreground'
+            }
+          >
+            {sideId && ready ? <ResearchSideSidebar /> : null}
+            {sideId ? null : (
+              <ResearchWindowTopBar
+                title={projectName ?? pageLabel}
+                currentPage={currentPage}
+                onShowSection={showSection}
+                onOpenInMain={openInMain}
+              />
+            )}
+            <main
+              className={
+                sideId
+                  ? 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-background'
+                  : 'mx-2 mb-2 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-[14px] bg-background'
+              }
+            >
               {ready ? <ResearchWindowHostBanner /> : null}
               {!ready ? (
                 <p role="status" className="p-6 text-sm text-muted-foreground">
@@ -170,10 +234,12 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
                     ? t('research.window.waitingForMain', 'Waiting for the main window…')
                     : t('research.window.loading', 'Loading…')}
                 </p>
-              ) : section === 'research-chats' ? (
+              ) : showChats ? (
                 <ResearchWindowChats target={target} />
               ) : isResearchPage(activeView) ? (
                 <ResearchPreviewPage page={activeView} />
+              ) : section === 'research-chats' ? (
+                <ResearchWindowChats target={target} />
               ) : (
                 <ResearchPreviewPage page={section} />
               )}
@@ -186,7 +252,7 @@ function ResearchWindowRoot({ target }: { target: ResearchWindowTarget }): React
             workspaceId={target.workspaceId}
             hostId={hostId}
             onShowSection={showSection}
-            onOpenInMain={openInMain}
+            onOpenInMain={sideId ? undefined : openInMain}
           />
         ) : null}
         <Toaster closeButton toastOptions={{ className: 'font-sans text-sm' }} />
@@ -204,13 +270,16 @@ if (!target) {
   throw new Error('Research window opened without a page.')
 }
 markResearchWindowSurface(target)
+const windowSideId = researchSideIdFromSearch(window.location.search)
+markResearchWindowSide(windowSideId)
+hydrateResearchSideSidebar()
 // Why: launches started here go through the main window, whose records would read as stale here.
 disableStructuredAgentLaunchPersistence()
 document.title = `${RESEARCH_WINDOW_PAGE_LABELS[target.page]} — ${PRODUCT_NAME}`
 getOrCreateRendererRoot(root, import.meta.hot?.data).render(
   <StrictMode>
     <I18nProvider>
-      <ResearchWindowRoot target={target} />
+      <ResearchWindowRoot target={target} sideId={windowSideId} />
     </I18nProvider>
   </StrictMode>
 )

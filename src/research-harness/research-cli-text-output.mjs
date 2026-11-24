@@ -153,7 +153,11 @@ export const textOutput = {
     for (const experiment of result.experiments) {
       lines.push(
         '',
-        `Experiment ${experiment.slug} "${experiment.name}" — ${experiment.runCount} runs`
+        `Experiment ${experiment.slug} "${experiment.name}" — ${experiment.runCount} runs${
+          experiment.status
+            ? ` · ${experiment.status}${experiment.statusFrom === 'runs' ? ' (from its Runs; brief set --status to change)' : ''}`
+            : ''
+        }`
       )
       if (experiment.brief) {
         lines.push('  brief:', ...briefTextLines(experiment.brief, '    '))

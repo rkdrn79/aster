@@ -1,5 +1,4 @@
 import { lstat, readFile, realpath } from 'node:fs/promises'
-import path from 'node:path'
 import { auditClaims, readClaimsLedger } from './research-claims.mjs'
 import { readCatalog } from './research-catalog.mjs'
 import { readExperimentBrief } from './research-experiment-brief.mjs'
@@ -12,110 +11,30 @@ import {
   runReference
 } from './research-layout.mjs'
 import { readMetricSeries, selectMetricValue } from './research-metric-events.mjs'
-import { harnessLiveness, readRunManifest, resolveRunReference } from './research-run-manifest.mjs'
+import { readRunManifest, resolveRunReference } from './research-run-manifest.mjs'
 import { compareRecordedConditions } from './research-run-conditions.mjs'
-import { readLogFacts } from './research-run-log-facts.mjs'
 import { readRunOutputSampleIds, runOutputsPath } from './research-run-outputs.mjs'
+import {
+  INACTIVE_STATES,
+  MAX_RUNS,
+  fileEvidence,
+  finding,
+  metricLabel,
+  plural
+} from './research-checks-common.mjs'
+import { codeOriginFindings, createRunCheckContext, runFindings } from './research-checks-run.mjs'
 
-/** Rule check IDs and their severity (plan §1 A). Judgment calls are left to agent reviews. */
-export const RULE_CHECKS = {
-  'run.failed': 'fail',
-  'run.harness-exited': 'warn',
-  'run.stale': 'warn',
-  'run.no-metrics': 'warn',
-  'run.primary-metric-missing': 'warn',
-  'run.non-finite': 'warn',
-  'repro.commit-unknown': 'info',
-  'repro.patch-truncated': 'warn',
-  'repro.capture-not-at-launch': 'info',
-  'repro.config-missing': 'info',
-  'compare.baseline-missing': 'warn',
-  'compare.condition-mismatch': 'fail',
-  'compare.condition-unknown': 'info',
-  'compare.step-mismatch': 'warn',
-  'stats.too-few-seeds': 'warn',
-  'output.sample-mismatch': 'warn',
-  'claims.mismatch': 'fail',
-  'claims.missing-evidence': 'fail',
-  'claims.stale': 'warn'
-}
+export { RULE_CHECKS } from './research-checks-common.mjs'
+
 const SEVERITY_ORDER = { fail: 0, warn: 1, info: 2 }
-const STALE_AFTER_MS = 10 * 60_000
 const STEP_TOLERANCE = 0.1
 const MAX_OUTPUTS_BYTES = 5 * 1024 * 1024
 const MAX_CONFIG_BYTES = 1024 * 1024
-const MAX_RUNS = 6
-const MAX_SAMPLES = 50
-const MAX_EVIDENCE = 12
-const MAX_TEXT = 2000
 const SAMPLE_EVIDENCE = 8
 const CLAIM_CHECKS = {
   mismatch: 'claims.mismatch',
   'missing-evidence': 'claims.missing-evidence',
   stale: 'claims.stale'
-}
-const INACTIVE_STATES = new Set(['failed', 'cancelled'])
-
-function projectRelative(project, target) {
-  return path.relative(project, target).split(path.sep).join('/')
-}
-
-async function isFile(target) {
-  return lstat(target).then(
-    (details) => details.isFile(),
-    () => false
-  )
-}
-
-function pickField(source, field) {
-  let value = source
-  for (const key of field.split('.')) {
-    value = value && typeof value === 'object' ? value[key] : undefined
-  }
-  return value ?? null
-}
-
-function manifestEvidence(run, field) {
-  return { kind: 'manifest', run: run.ref, field, value: pickField(run.manifest, field) }
-}
-
-function fileEvidence(project, target, line = null) {
-  return { kind: 'file', path: projectRelative(project, target), line }
-}
-
-function plural(count, word) {
-  return `${count} ${word}${count === 1 ? '' : 's'}`
-}
-
-function durationText(ms) {
-  if (typeof ms !== 'number' || !Number.isFinite(ms) || ms < 0) {
-    return null
-  }
-  const minutes = Math.round(ms / 60_000)
-  if (minutes < 1) {
-    return `${Math.round(ms / 1000)} s`
-  }
-  return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`
-}
-
-function finding(check, { experiment, target, runs = [], samples = [], text, evidence = [] }) {
-  return {
-    id: `rule:${check}:${target}`,
-    source: 'rule',
-    check,
-    layer: 'integrity',
-    severity: RULE_CHECKS[check],
-    status: 'open',
-    experiment,
-    runs: runs.slice(0, MAX_RUNS),
-    samples: samples.slice(0, MAX_SAMPLES),
-    text: text.length > MAX_TEXT ? `${text.slice(0, MAX_TEXT - 1)}…` : text,
-    evidence: evidence.slice(0, MAX_EVIDENCE),
-    agent: null,
-    statusNote: null,
-    statusAt: null,
-    statusBy: null
-  }
 }
 
 async function readConfig(file) {
@@ -163,161 +82,6 @@ async function loadRun(project, slug, id) {
     metrics,
     state: manifest.execution?.state ?? 'unknown'
   }
-}
-
-function metricLabel(metric) {
-  return `${metric.split ? `${metric.split} ` : ''}${metric.name}`
-}
-
-function hasPrimaryMetric(run, metric) {
-  return run.metrics.series.some(
-    (entry) =>
-      entry.metric === metric.name && (metric.split === null || entry.split === metric.split)
-  )
-}
-
-async function runFindings(project, run, brief) {
-  const { manifest, state, ref } = run
-  const findings = []
-  const add = (check, details) =>
-    findings.push(
-      finding(check, { experiment: run.experiment, target: ref, runs: [ref], ...details })
-    )
-  const failed = INACTIVE_STATES.has(state)
-  const log = await readLogFacts(run.paths.log, { tail: failed }).catch(() => null)
-
-  if (failed) {
-    const exitCode = manifest.execution?.exitCode ?? null
-    const took = durationText(manifest.launch?.durationMs)
-    const after = took ? ` after ${took}` : ''
-    add('run.failed', {
-      text:
-        state === 'cancelled'
-          ? `Cancelled${after}`
-          : exitCode === null
-            ? `Failed${after}`
-            : `Exited with code ${exitCode}${after}`,
-      evidence: [
-        manifestEvidence(run, 'execution.state'),
-        ...(exitCode === null ? [] : [manifestEvidence(run, 'execution.exitCode')]),
-        ...(manifest.launch?.signal ? [manifestEvidence(run, 'launch.signal')] : []),
-        ...(log?.tail ? [{ kind: 'log', run: ref, ...log.tail }] : [])
-      ]
-    })
-  }
-
-  const exited = harnessLiveness(manifest) === 'exited'
-  if (exited) {
-    const pidField = manifest.launch?.harnessPid ? 'launch.harnessPid' : 'launch.pid'
-    add('run.harness-exited', {
-      text: `Marked running, but its run exec process (pid ${pickField(manifest, pidField)}) on this host has exited`,
-      evidence: [
-        manifestEvidence(run, 'execution.state'),
-        manifestEvidence(run, pidField),
-        manifestEvidence(run, 'launch.host')
-      ]
-    })
-  }
-  const observedAt = Date.parse(manifest.execution?.observedAt ?? '')
-  if (state === 'running' && !exited && Date.now() - observedAt > STALE_AFTER_MS) {
-    add('run.stale', {
-      text: `Marked running, but run.json has not been updated for ${durationText(Date.now() - observedAt)}`,
-      evidence: [
-        manifestEvidence(run, 'execution.state'),
-        manifestEvidence(run, 'execution.observedAt')
-      ]
-    })
-  }
-
-  const metricsFile = (await isFile(run.paths.metrics))
-    ? [fileEvidence(project, run.paths.metrics)]
-    : [manifestEvidence(run, 'metrics.path')]
-  const noMetrics = run.metrics.series.length === 0
-  if (state === 'succeeded' && noMetrics) {
-    add('run.no-metrics', {
-      text: run.metrics.error
-        ? `Succeeded, but metrics.jsonl cannot be read: ${run.metrics.error}`
-        : 'Succeeded, but metrics.jsonl has no metric values',
-      evidence: metricsFile
-    })
-  }
-  const primary = brief?.primaryMetric
-  if (state === 'succeeded' && primary && !noMetrics && !hasPrimaryMetric(run, primary)) {
-    const recorded = [
-      ...new Set(
-        run.metrics.series.map((entry) => metricLabel({ name: entry.metric, split: entry.split }))
-      )
-    ]
-    add('run.primary-metric-missing', {
-      text: `Succeeded, but has no ${metricLabel(primary)} values, the brief's primary metric (recorded: ${recorded.slice(0, 8).join(', ')}${recorded.length > 8 ? ', …' : ''})`,
-      evidence: metricsFile
-    })
-  }
-
-  const invalidRows = run.metrics.invalidRows ?? 0
-  if (invalidRows > 0 || log?.nonFinite) {
-    const parts = [
-      invalidRows > 0 ? `metrics.jsonl has ${plural(invalidRows, 'unreadable row')}` : null,
-      log?.nonFinite
-        ? `train.log has ${plural(log.nonFinite.count, 'ASTER_METRIC line')} with NaN or Infinity (first at line ${log.nonFinite.fromLine})`
-        : null
-    ].filter(Boolean)
-    add('run.non-finite', {
-      text: parts.join('; '),
-      evidence: [
-        ...(invalidRows > 0 ? [fileEvidence(project, run.paths.metrics)] : []),
-        ...(log?.nonFinite
-          ? [
-              {
-                kind: 'log',
-                run: ref,
-                fromLine: log.nonFinite.fromLine,
-                toLine: log.nonFinite.toLine,
-                excerpt: log.nonFinite.excerpt
-              }
-            ]
-          : [])
-      ]
-    })
-  }
-
-  const code = manifest.code
-  if (!code?.commit) {
-    add('repro.commit-unknown', {
-      text: 'No git commit is recorded for this Run',
-      evidence: [manifestEvidence(run, 'code.commit')]
-    })
-  }
-  if (code?.dirty === true && (code.patchTruncated === true || !code.patch)) {
-    add('repro.patch-truncated', {
-      text: code.patchTruncated
-        ? 'Launched with uncommitted changes, and code.patch was cut at the 5 MiB limit'
-        : 'Launched with uncommitted changes, but no code.patch was saved',
-      evidence: [
-        manifestEvidence(run, 'code.dirty'),
-        manifestEvidence(run, code.patchTruncated ? 'code.patchTruncated' : 'code.patch')
-      ]
-    })
-  }
-  if (code?.capturePhase !== 'at_launch') {
-    const phase = code?.capturePhase ?? null
-    add('repro.capture-not-at-launch', {
-      text:
-        phase === 'at_attach'
-          ? 'Code was recorded when the Run was attached, not when it launched'
-          : phase === 'imported'
-            ? 'Code was recorded on import, not when the Run launched'
-            : 'It is unknown when the recorded code was captured',
-      evidence: [manifestEvidence(run, 'code.capturePhase')]
-    })
-  }
-  if (!(await isFile(run.paths.config))) {
-    add('repro.config-missing', {
-      text: `No config.json is saved with this Run (expected ${projectRelative(project, run.paths.config)})`,
-      evidence: []
-    })
-  }
-  return findings
 }
 
 function conditionEvidence(runs, items, onlyMissing) {
@@ -475,9 +239,11 @@ async function experimentFindings(project, group, runs) {
   const slug = group.slug
   const brief = await readExperimentBrief(project, slug).catch(() => null)
   const findings = []
+  const context = createRunCheckContext(project, runs)
   for (const run of runs) {
-    findings.push(...(await runFindings(project, run, brief)))
+    findings.push(...(await runFindings(project, run, brief, context)))
   }
+  findings.push(...codeOriginFindings(slug, context))
   if (!brief) {
     return findings
   }

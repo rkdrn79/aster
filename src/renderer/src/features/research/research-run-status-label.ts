@@ -24,6 +24,8 @@ export type ResearchRunStatusFacts = {
   signal?: string | null
   /** Same-host check of the launcher process; `exited` means nobody will record the end. */
   liveness?: ResearchHarnessRunStatus['liveness']
+  /** The host that recorded a Run this host cannot observe; it is never polled as live. */
+  recordedOn?: string | null
 }
 
 export type ResearchRunStatusTone = ResearchRunRecord['execution'] | 'stalled'
@@ -55,6 +57,9 @@ export function researchRunStatusSummary(
   if (state === 'running') {
     if (facts.liveness === 'exited') {
       return { label: 'Running · launcher exited', tone: 'stalled' }
+    }
+    if (facts.recordedOn) {
+      return { label: `Last recorded running on ${facts.recordedOn}`, tone: 'stalled' }
     }
     const started = facts.startedAt ? Date.parse(facts.startedAt) : Number.NaN
     return {
@@ -106,4 +111,13 @@ export function effectiveRunStatusFacts(
   live: ResearchRunStatusFacts | null | undefined
 ): ResearchRunStatusFacts {
   return live && run.reportedBy !== 'user' ? live : { state: run.execution }
+}
+
+/** Adds what this host observed: a Run recorded elsewhere is never shown as live here. */
+export function withRecordedHost(
+  facts: ResearchRunStatusFacts,
+  recordedOn: string | null | undefined
+): ResearchRunStatusFacts {
+  const host = recordedOn ?? (facts.liveness === 'foreign' ? facts.recordedOn : null) ?? null
+  return host ? { ...facts, recordedOn: host } : facts
 }

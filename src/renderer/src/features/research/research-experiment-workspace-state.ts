@@ -40,6 +40,10 @@ import { primaryMetricDecimals } from './research-experiment-workspace-summary-f
 import { runSummaryOf } from './research-experiment-notebook-results'
 import { useDismissedRuns } from './research-experiment-dismissed-runs'
 import {
+  groupResearchRunAttempts,
+  researchRunAttempts
+} from '../../../../shared/research/research-run-attempts'
+import {
   lastExperimentDetailPage,
   toggledExperimentPage,
   useExperimentPage
@@ -131,7 +135,8 @@ export function useExperimentWorkspace(viewPage: 'runs' | 'compare') {
     : null
   const baselineRun = baseline?.run ?? null
   const compared = useMemo(
-    () => experimentComparedRuns(checked, baselineRun),
+    // Why group: reruns of one name read as attempts side by side, not scattered.
+    () => groupResearchRunAttempts(experimentComparedRuns(checked, baselineRun)),
     [checked, baselineRun]
   )
   const compare = useComparedRunEntries(compared, page === 'compare')
@@ -158,10 +163,14 @@ export function useExperimentWorkspace(viewPage: 'runs' | 'compare') {
 
   const experimentName = (id: string): string =>
     document?.experiments.find((entry) => entry.id === id)?.name ?? 'another Experiment'
-  const runLabel = (run: ResearchRunRecord): string =>
-    run.experimentId === experimentId
-      ? run.name
-      : `${run.name} (${experimentName(run.experimentId)})`
+  const attempts = useMemo(() => researchRunAttempts(runs), [runs])
+  const runLabel = (run: ResearchRunRecord): string => {
+    const attempt = attempts.get(run.id)
+    const name = attempt ? `${run.name} #${attempt.attempt}` : run.name
+    return run.experimentId === experimentId
+      ? name
+      : `${name} (${experimentName(run.experimentId)})`
+  }
 
   async function update(change: (current: ResearchDocument) => ResearchDocument): Promise<void> {
     try {

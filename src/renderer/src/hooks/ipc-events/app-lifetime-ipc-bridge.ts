@@ -6,6 +6,7 @@ import { createBackgroundSleepingAgentWakeDispatcher } from '@/lib/wake-sleeping
 import { remoteRuntimeTerminalColorPush } from '@/runtime/remote-runtime-terminal-color-push'
 import { resetAgentHookCompletionNotificationCoordinators } from '../agent-hook-completion-notifications'
 import { useAppStore } from '../../store'
+import { revealWorkspaceInResearchSide } from '@/features/research/research-split-store'
 import { registerAgentStatusIpcBridge } from './agent-status-ipc-bridge'
 import { registerBackgroundWorktreeRemovalBridge } from './background-worktree-removal-bridge'
 import { registerBrowserRequestIpcBridge } from './browser-request-ipc-bridge'
@@ -92,6 +93,10 @@ export function installAppLifetimeIpcEvents(): () => void {
   unsubs.push(
     window.api.ui.onActivateWorktree(
       ({ repoId, worktreeId, setup, startup, defaultTabs, providesInitialSurface }) => {
+        // Why: a project open beside the main one is revealed there; the main column keeps its own.
+        if (revealWorkspaceInResearchSide(worktreeId, useAppStore.getState().activeWorktreeId)) {
+          return
+        }
         void worktreeRuntime
           .activateNotifiedWorktree(
             {

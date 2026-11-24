@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Eye } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,7 +21,14 @@ import {
   type ResearchMetricSourceHealth
 } from './ResearchRunInspector'
 import { selectResearchRun } from '../../../../shared/research/research-selection'
-import { effectiveRunStatusFacts, type ResearchRunStatusFacts } from './research-run-status-label'
+import {
+  effectiveRunStatusFacts,
+  withRecordedHost,
+  type ResearchRunStatusFacts
+} from './research-run-status-label'
+import { useResearchRunHosts } from './research-run-hosts'
+import { ResearchRunHostNote } from './ResearchRunHostBadge'
+import { researchRunAttempts } from '../../../../shared/research/research-run-attempts'
 import { ResearchRunStatusLine } from './ResearchRunStatusLine'
 import { catalogRunReference } from './use-research-harness-experiment'
 import { researchWatchText } from './research-watch-condition-text'
@@ -116,8 +123,10 @@ export function ResearchRunList({
     const reference = catalogRunReference(run)
     return reference ? (findingsByRun.get(reference) ?? []) : []
   }
+  const hostOf = useResearchRunHosts(runs)
+  const attempts = useMemo(() => researchRunAttempts(runs), [runs])
   const statusOf = (run: ResearchRunRecord): ResearchRunStatusFacts =>
-    effectiveRunStatusFacts(run, liveOf(run))
+    withRecordedHost(effectiveRunStatusFacts(run, liveOf(run)), hostOf(run)?.recordedOn)
   const primaryOf = (run: ResearchRunRecord): ResearchRunSummary['primary'] =>
     summaries.get(catalogRunReference(run) ?? '')?.primary ?? null
   const hasPrimary = runs.some((run) => primaryOf(run)?.last)
@@ -182,6 +191,7 @@ export function ResearchRunList({
             const checked = locked || comparison.checkedIds.includes(run.id)
             const attached = markAttached && !catalogRunReference(run)
             const started = status.startedAt ?? run.createdAt
+            const attempt = attempts.get(run.id)
             return (
               <li key={run.id} className="flex items-start gap-2 px-1">
                 <Checkbox
@@ -206,6 +216,14 @@ export function ResearchRunList({
                     }
                   >
                     <span className="truncate">{run.name}</span>
+                    {attempt ? (
+                      <span
+                        className="shrink-0 text-xs text-muted-foreground tabular-nums"
+                        title={`Attempt ${attempt.attempt} of ${attempt.of} with this name`}
+                      >
+                        #{attempt.attempt}
+                      </span>
+                    ) : null}
                     {locked ? <Badge variant="outline">Baseline</Badge> : null}
                     <ResearchRunFindingBadge findings={findingsOf(run)} />
                     {watched ? (
@@ -223,6 +241,9 @@ export function ResearchRunList({
                     <p className="mt-0.5 flex min-w-0 items-center gap-1 px-3 text-xs text-muted-foreground">
                       {status.state !== 'unknown' ? (
                         <ResearchRunStatusLine facts={status} className="shrink-0" />
+                      ) : null}
+                      {status.recordedOn && status.state !== 'running' ? (
+                        <ResearchRunHostNote host={status.recordedOn} />
                       ) : null}
                       {[attached ? 'attached file' : null, summary]
                         .filter((part): part is string => Boolean(part))
@@ -274,6 +295,7 @@ export function ResearchRunList({
             key={selected.id}
             run={selected}
             live={liveOf(selected)}
+            hostFacts={hostOf(selected)}
             watched={watchOf(selected)}
             findings={findingsOf(selected)}
             notes={summaries.get(catalogRunReference(selected) ?? '')?.notes ?? NO_NOTES}

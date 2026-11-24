@@ -54,6 +54,24 @@ function formatValue(value: number): string {
   return String(Number(value.toPrecision(6)))
 }
 
+/** Why no log lines came back; older Aster only knew "empty". */
+function logAbsence(status: ResearchRunAgentStatus): string {
+  switch (status.log.state) {
+    case 'missing':
+      return status.recordedOn
+        ? `not on this host (it stays on ${status.recordedOn})`
+        : status.execution?.state === 'running'
+          ? 'none yet'
+          : 'no log file'
+    case 'unreadable':
+      return `could not be read${status.log.reason ? `: ${status.log.reason}` : ''}`
+    case 'empty':
+    case 'present':
+    case undefined:
+      return 'empty'
+  }
+}
+
 function formatStatus(status: ResearchRunAgentStatus): string {
   const lines = [`Run ${status.run.name} on ${status.run.host}: ${status.run.dir}`]
   lines.push(
@@ -98,7 +116,7 @@ function formatStatus(status: ResearchRunAgentStatus): string {
     lines.push(`Log tail${status.log.truncated ? ' (last lines)' : ''}:`)
     lines.push(...status.log.lines.map((line) => `  ${line}`))
   } else {
-    lines.push('Log: empty')
+    lines.push(`Log: ${logAbsence(status)}`)
   }
   for (const watch of status.watches) {
     lines.push(

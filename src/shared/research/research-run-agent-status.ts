@@ -1,3 +1,4 @@
+import type { ResearchRunLogState } from './research-run-host'
 import type {
   ResearchRunExecutionState,
   ResearchRunJobState,
@@ -62,7 +63,15 @@ export type ResearchRunAgentStatus = {
     last: { step: number | null; split: string | null; metrics: Record<string, number> } | null
     series: ResearchMetricSeriesSummary[]
   }
-  log: { lines: string[]; truncated: boolean }
+  log: {
+    lines: string[]
+    truncated: boolean
+    /** Absent from older Aster: `missing` and `unreadable` say why there are no lines. */
+    state?: ResearchRunLogState
+    reason?: string | null
+  }
+  /** The host that recorded the Run when this host cannot observe it; null when it can. */
+  recordedOn?: string | null
   watches: ResearchRunWatchSummary[]
   warnings: string[]
 }

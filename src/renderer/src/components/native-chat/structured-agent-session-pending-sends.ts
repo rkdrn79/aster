@@ -22,6 +22,8 @@ export type StructuredAgentSessionPendingSend = {
   recordedCursor?: AgentJournalCursor
   /** Its request went out, so it may have reached the host. */
   issued: boolean
+  /** Nothing answered for it, so the sender is asking the host whether it holds it. */
+  confirming?: true
   /** A sender outside the chat keeps its own copy, so nothing goes to the chat's composer. */
   callerKeepsText?: true
   /** Made while the chat read Stopping: drawn after that turn until the host records it. */

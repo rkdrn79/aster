@@ -42,7 +42,8 @@ function rank(item: NeedsYouItem): number {
  * Failed Runs, pending proposals, approved `needsCode` proposals not yet handed off, and open warn
  * and fail findings, in one ordered list. Info findings never appear. A failed Run and its
  * `run.failed` finding are one item; it leaves once that finding is closed, or, without a finding,
- * once the user dismisses it (`dismissedRuns` holds `run:<id>` keys).
+ * once the user dismisses it (`dismissedRuns` holds `run:<id>` keys). A failed attempt a later
+ * same-named Run fixed (`run.superseded`) is explained, so it waits in All findings instead.
  */
 export function experimentNeedsYou(input: {
   runs: readonly ResearchRunRecord[]
@@ -52,11 +53,15 @@ export function experimentNeedsYou(input: {
   dismissedRuns: ReadonlySet<string>
 }): NeedsYouItem[] {
   const failedFindings = new Map<string, ResearchFinding>()
+  const superseded = new Set<string>()
   for (const finding of input.findings) {
     if (finding.check === 'run.failed') {
       for (const reference of finding.runs) {
         failedFindings.set(reference, finding)
       }
+    }
+    if (finding.check === 'run.superseded' && finding.runs[0]) {
+      superseded.add(finding.runs[0])
     }
   }
   const items: NeedsYouItem[] = []
@@ -67,6 +72,9 @@ export function experimentNeedsYou(input: {
       continue
     }
     const reference = catalogRunReference(run)
+    if (reference && superseded.has(reference)) {
+      continue
+    }
     const finding = reference ? (failedFindings.get(reference) ?? null) : null
     if (finding) {
       merged.add(finding.id)

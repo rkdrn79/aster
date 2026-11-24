@@ -8,6 +8,18 @@ export function markResearchWindowSurface(target: ResearchWindowTarget): void {
   surfaceTarget = target
 }
 
+let surfaceSideId: string | null = null
+
+/** Called by the research window entry when it runs as a side inside the main window. */
+export function markResearchWindowSide(sideId: string | null): void {
+  surfaceSideId = sideId
+}
+
+/** The side this page is inside the main window; null in a pop-out window or the main window. */
+export function researchWindowSideId(): string | null {
+  return surfaceSideId
+}
+
 /** The page and workspace this research window shows; null in the main window. */
 export function researchWindowSurfaceTarget(): ResearchWindowTarget | null {
   return surfaceTarget

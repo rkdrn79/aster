@@ -23,7 +23,12 @@ export const researchSlurmRunLinkSchema = z.object({
   manifestState: z.enum(RESEARCH_RUN_JOB_STATES).nullable(),
   manifestMessage: z.string().max(500).nullable(),
   /** Set once the job ended and run.json says so; tracking stops. */
-  closedAt: isoTime.nullable()
+  closedAt: isoTime.nullable(),
+  /**
+   * `run-exec`: found in run.json, where `run exec` recorded the job it ran inside; `submittedAt`
+   * is then when Aster started following it. Absent for jobs Aster submitted.
+   */
+  origin: z.enum(['submit', 'run-exec']).optional()
 })
 export type ResearchSlurmRunLink = z.infer<typeof researchSlurmRunLinkSchema>
 

@@ -70,7 +70,7 @@ function notices(args: {
 
 function texts(map: ReturnType<typeof notices>): Record<string, string> {
   return Object.fromEntries(
-    [...map].map(([id, notice]) => [id, notice.sending ? SENDING : notice.text])
+    [...map].map(([id, notice]) => [id, notice.sending ? SENDING : (notice.text ?? 'queued')])
   )
 }
 

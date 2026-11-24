@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AppWindow, LayoutGrid } from 'lucide-react'
+import { AppWindow, Columns2, LayoutGrid } from 'lucide-react'
 import {
   Command,
   CommandGroup,
@@ -18,15 +18,21 @@ import {
 
 const HOME_VALUE = 'action:home'
 const WINDOW_VALUE = 'action:window'
+const BESIDE_VALUE = 'action:beside'
 
 type Props = {
   rows: readonly ResearchProjectSwitcherRow[]
+  /** 'beside': picking a project opens it to the side of the one shown, not in its place. */
+  mode?: 'switch' | 'beside'
   /** Desktop only: a phone or browser client has one window. */
   canOpenWindows: boolean
+  /** Desktop only, like windows: a side is a page of its own. */
+  canOpenBeside?: boolean
   /** False on Home's project overview, where "All projects" would go nowhere. */
   showHome?: boolean
   onSwitch: (row: ResearchProjectSwitcherRow) => void
   onOpenInNewWindow: (row: ResearchProjectSwitcherRow) => void
+  onOpenBeside?: (row: ResearchProjectSwitcherRow) => void
   onHome: () => void
 }
 
@@ -36,10 +42,13 @@ type Props = {
  */
 export function ResearchProjectSwitcherList({
   rows,
+  mode = 'switch',
   canOpenWindows,
+  canOpenBeside = false,
   showHome = true,
   onSwitch,
   onOpenInNewWindow,
+  onOpenBeside,
   onHome
 }: Props): React.JSX.Element {
   const [query, setQuery] = useState('')
@@ -66,18 +75,25 @@ export function ResearchProjectSwitcherList({
         }
       }}
       onKeyDown={(event) => {
-        if (
-          projectSwitcherKeyIntent(event.nativeEvent, getShortcutPlatform()) ===
-          'open-in-new-window'
-        ) {
+        const intent = projectSwitcherKeyIntent(event.nativeEvent, getShortcutPlatform())
+        if (intent === 'open-in-new-window') {
           event.preventDefault()
           if (canOpenWindows && target) {
             onOpenInNewWindow(target)
           }
+        } else if (intent === 'open-beside') {
+          event.preventDefault()
+          if (canOpenBeside && target) {
+            onOpenBeside?.(target)
+          }
         }
       }}
     >
-      <CommandInput value={query} onValueChange={setQuery} placeholder="Switch to project…" />
+      <CommandInput
+        value={query}
+        onValueChange={setQuery}
+        placeholder={mode === 'beside' ? 'Open beside…' : 'Switch to project…'}
+      />
       {/* Why one list: cmdk only walks items inside it, so the rows scroll on their own. */}
       <CommandList className="max-h-none overflow-visible">
         <div className="scrollbar-sleek max-h-[min(320px,50vh)] overflow-y-auto">
@@ -113,6 +129,21 @@ export function ResearchProjectSwitcherList({
             <CommandItem value={HOME_VALUE} selection="palette" onSelect={onHome}>
               <LayoutGrid className="size-4 text-muted-foreground" aria-hidden />
               <span className="flex-1">All projects</span>
+            </CommandItem>
+          ) : null}
+          {canOpenBeside && mode === 'switch' && target && onOpenBeside ? (
+            <CommandItem
+              value={BESIDE_VALUE}
+              selection="palette"
+              onSelect={() => onOpenBeside(target)}
+            >
+              <Columns2 className="size-4 text-muted-foreground" aria-hidden />
+              <span className="min-w-0 flex-1 truncate">
+                Open <span className="font-medium">{target.name}</span> to the Side
+              </span>
+              <span className="shrink-0 text-muted-foreground" aria-hidden>
+                {isMac ? '⌘\\' : 'Ctrl+\\'}
+              </span>
             </CommandItem>
           ) : null}
           {canOpenWindows && target ? (

@@ -163,7 +163,13 @@ export function applyResearchJobToManifest(
   job: ResearchRunJob,
   execution: ResearchRunExecutionState
 ): { manifest: Record<string, unknown>; executionWritten: boolean } {
-  const next: Record<string, unknown> = { ...manifest, job }
+  // Why merge: `run exec` recorded the node and cluster from inside the same job.
+  const previous =
+    isRecord(manifest.job) && manifest.job.jobId === job.jobId ? manifest.job : undefined
+  const kept = previous
+    ? Object.fromEntries(Object.entries(previous).filter(([key]) => key !== 'recordedBy'))
+    : {}
+  const next: Record<string, unknown> = { ...manifest, job: { ...kept, ...job } }
   if (!schedulerMayReplaceExecution(manifest, execution)) {
     return { manifest: next, executionWritten: false }
   }

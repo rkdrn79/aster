@@ -21,7 +21,10 @@ export const researchHarnessRunStatusSchema = z.object({
   exitCode: nullableNumber,
   startedAt: nullableText,
   durationMs: nullableNumber,
-  liveness: z.enum(['alive', 'exited', 'unknown']).nullable().catch(null)
+  /** `foreign`: another host recorded the Run and its folder is not here, so nothing can observe it. */
+  liveness: z.enum(['alive', 'exited', 'unknown', 'foreign']).nullable().catch(null),
+  /** The host that recorded a Run this host cannot observe; absent from older harnesses. */
+  recordedOn: z.string().nullable().optional().catch(null)
 })
 export type ResearchHarnessRunStatus = z.infer<typeof researchHarnessRunStatusSchema>
 

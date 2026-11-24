@@ -4,8 +4,14 @@ import { buildResearchHomeProjects, findResearchActiveProject } from './research
 import { enterResearchWorkspace, selectResearchInsideProject } from './research-navigation'
 import { previousResearchProject } from './research-project-switcher'
 
-/** Whether the project switcher is open; the sidebar that hosts it reads this. */
-export const useResearchProjectSwitcher = create<{ open: boolean }>(() => ({ open: false }))
+/** What picking a project does: open it here, or open it beside the project shown here. */
+export type ResearchProjectSwitcherMode = 'switch' | 'beside'
+
+/** Whether the project switcher is open, and for what; the sidebar that hosts it reads this. */
+export const useResearchProjectSwitcher = create<{
+  open: boolean
+  mode: ResearchProjectSwitcherMode
+}>(() => ({ open: false, mode: 'switch' }))
 
 // Why: the shortcut shows a hidden sidebar only for as long as the switcher needs it.
 let sidebarShownForSwitcher = false
@@ -32,19 +38,28 @@ export function setResearchProjectSwitcherOpen(open: boolean): void {
   if (useResearchProjectSwitcher.getState().open === open) {
     return
   }
-  useResearchProjectSwitcher.setState({ open })
+  useResearchProjectSwitcher.setState(open ? { open } : { open, mode: 'switch' })
   if (!open && sidebarShownForSwitcher) {
     sidebarShownForSwitcher = false
     useAppStore.getState().setSidebarOpen(false)
   }
 }
 
-/** The shortcut: opens the switcher where it lives, in the sidebar, or closes it again. */
-export function toggleResearchProjectSwitcher(): void {
-  if (useResearchProjectSwitcher.getState().open) {
-    setResearchProjectSwitcherOpen(false)
+/**
+ * The shortcut: opens the switcher where it lives, in the sidebar, or closes it again. Pressing
+ * the other mode's shortcut while it is open turns it into that one instead.
+ */
+export function toggleResearchProjectSwitcher(mode: ResearchProjectSwitcherMode = 'switch'): void {
+  const current = useResearchProjectSwitcher.getState()
+  if (current.open) {
+    if (current.mode === mode) {
+      setResearchProjectSwitcherOpen(false)
+    } else {
+      useResearchProjectSwitcher.setState({ mode })
+    }
     return
   }
+  useResearchProjectSwitcher.setState({ mode })
   const state = useAppStore.getState()
   const focused = document.activeElement
   returnFocus = focused instanceof HTMLElement && focused !== document.body ? focused : null

@@ -33,6 +33,8 @@ import {
   takeResearchProjectSwitcherFocus,
   useResearchProjectSwitcher
 } from './research-project-switcher-store'
+import { canOpenResearchSides, openResearchProjectBeside } from './research-split-open'
+import { researchWindowSideId } from './research-window-surface'
 
 function ShortcutRow({
   label,
@@ -69,6 +71,7 @@ function SwitcherPanel(): React.JSX.Element {
   const workspaceId = useAppStore((state) => state.activeWorktreeId)
   const hostId = useAppStore((state) => state.activeWorkspaceExecutionHostId)
   const { hostOptions } = useSidebarHostScopeOptions()
+  const mode = useResearchProjectSwitcher((state) => state.mode)
   const rows = useMemo(() => {
     const current = insideProject
       ? findResearchActiveProject(projects, workspaceId, hostId).project
@@ -92,9 +95,17 @@ function SwitcherPanel(): React.JSX.Element {
   return (
     <ResearchProjectSwitcherList
       rows={rows}
+      mode={mode}
       canOpenWindows={canOpenResearchPageWindows()}
-      showHome={!onHomeOverview}
-      onSwitch={(row) => switchToResearchProject(row.workspace)}
+      canOpenBeside={canOpenResearchSides()}
+      // Why not in a side: a side always shows a project; Home is the main column's.
+      showHome={!onHomeOverview && mode === 'switch' && researchWindowSideId() === null}
+      onSwitch={(row) =>
+        mode === 'beside'
+          ? openResearchProjectBeside(row.workspace)
+          : switchToResearchProject(row.workspace)
+      }
+      onOpenBeside={(row) => openResearchProjectBeside(row.workspace)}
       onOpenInNewWindow={(row) => {
         setResearchProjectSwitcherOpen(false)
         openResearchProjectInNewWindow(row.workspace)
@@ -119,6 +130,7 @@ export function ResearchProjectSwitcher({
   children: React.ReactElement
 }): React.JSX.Element {
   const open = useResearchProjectSwitcher((state) => state.open)
+  const mode = useResearchProjectSwitcher((state) => state.mode)
   const [hint, setHint] = useState(false)
   // Why: once used, the name keeps its tooltip to itself until the pointer or focus leaves it;
   // a pointer resting there, or focus coming back, is not a request for help.
@@ -131,7 +143,7 @@ export function ResearchProjectSwitcher({
       align="start"
       sideOffset={6}
       className="w-[min(22rem,calc(100vw-1rem))]"
-      aria-label="Switch project"
+      aria-label={mode === 'beside' ? 'Open a project to the side' : 'Switch project'}
       onOpenAutoFocus={(event) => {
         event.preventDefault()
         const root = event.currentTarget instanceof HTMLElement ? event.currentTarget : null

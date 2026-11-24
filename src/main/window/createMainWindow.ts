@@ -189,7 +189,7 @@ export function createMainWindow(
     savedMaximized,
     store
   })
-  installMainWindowWebviewSecurity(mainWindow)
+  installMainWindowWebviewSecurity(mainWindow, { store, getKeybindings: opts?.getKeybindings })
   const focus = installMainWindowFocusLifecycle({
     isWindowClosing: state.isWindowClosing,
     mainWindow,

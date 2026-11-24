@@ -1,5 +1,7 @@
 import { Buffer } from 'node:buffer'
 import { Readable } from 'node:stream'
+import { runProcess } from '@orca/process-host'
+import { LOCAL_EXECUTION_HOST_ID } from '../../shared/execution-host'
 import type { SshTarget } from '../../shared/ssh-types'
 import type { RemoteInstallTransport } from '../managed-server/install/remote-install-transport'
 import {
@@ -15,7 +17,58 @@ import {
 
 type ComputeTransport = Pick<RemoteInstallTransport, 'exec' | 'usesSystemSshTransport'>
 
-export type ResearchComputeVia = 'connection' | 'system-ssh'
+export type ResearchComputeVia = 'connection' | 'system-ssh' | 'local'
+
+const LOCAL_MAX_OUTPUT_BYTES = 8 * 1024 * 1024
+
+/**
+ * True inside orcad, the server that runs on an SSH host: its GPU limits name that host `local`
+ * (pushed from the desktop), and its SLURM commands run right here. Never on the desktop.
+ */
+export function researchComputeRunsHere(targetId: string): boolean {
+  return targetId === LOCAL_EXECUTION_HOST_ID && !process.versions.electron
+}
+
+async function runLocalCommand(
+  command: string,
+  timeoutMs: number,
+  stdin: string | undefined
+): Promise<ResearchComputeCommandResult> {
+  try {
+    const result = await runProcess({
+      program: 'sh',
+      args: ['-c', command],
+      timeoutMs,
+      maxOutputBytes: LOCAL_MAX_OUTPUT_BYTES,
+      ...(stdin === undefined ? {} : { input: stdin })
+    })
+    if (result.timedOut) {
+      return {
+        status: 'error',
+        via: 'local',
+        message: `The command did not finish within ${timeoutMs / 1000}s.`,
+        output: null
+      }
+    }
+    if (result.code !== 0) {
+      const said = result.stderr.trim().split(/\r?\n/).slice(-3).join(' · ').slice(0, 400)
+      return {
+        status: 'error',
+        via: 'local',
+        message: said || `The command exited ${result.code ?? result.signal}.`,
+        output: result.stdout || null
+      }
+    }
+    return { status: 'ok', via: 'local', stdout: result.stdout }
+  } catch (error) {
+    return {
+      status: 'error',
+      via: 'local',
+      message: error instanceof Error ? error.message : String(error),
+      output: null
+    }
+  }
+}
 
 /** One OpenSSH exec per command, reusing Orca's ControlMaster socket between calls. */
 function systemSshTransport(target: SshTarget): ComputeTransport {
@@ -75,6 +128,9 @@ export async function runResearchComputeCommand(
   /** Streamed to the command's stdin, e.g. a file body too large for the command line. */
   stdin?: string
 ): Promise<ResearchComputeCommandResult> {
+  if (researchComputeRunsHere(targetId)) {
+    return runLocalCommand(command, timeoutMs, stdin)
+  }
   const route = computeTransport(targetId, dial)
   if (!route) {
     return { status: 'not-connected' }

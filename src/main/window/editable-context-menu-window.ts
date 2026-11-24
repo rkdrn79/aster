@@ -14,7 +14,20 @@ import {
  * Markdown commands), for another app window that renders the same editors. Detaches on close.
  */
 export function attachEditableContextMenu(window: BrowserWindow): () => void {
-  const contents = window.webContents
+  const detach = attachEditableContextMenuToContents(window.webContents, window)
+  window.once('closed', detach)
+  return detach
+}
+
+/**
+ * The same menu for contents embedded in `window` (a project side). Its points are the guest's
+ * own, so a guest's menu opens at the cursor rather than at a point offset by the side's place.
+ */
+export function attachEditableContextMenuToContents(
+  contents: Electron.WebContents,
+  window: BrowserWindow
+): () => void {
+  const atCursor = contents !== window.webContents
   let pendingTableTarget: RichMarkdownContextMenuTableTarget | null = null
   // Why the sender check: every window's editor reports its table target on the same channel.
   const onTableTarget = (event: Electron.IpcMainEvent, value: unknown): void => {
@@ -29,7 +42,9 @@ export function attachEditableContextMenu(window: BrowserWindow): () => void {
     if (template.length === 0 || window.isDestroyed()) {
       return
     }
-    Menu.buildFromTemplate(template).popup({ window, x: params.x, y: params.y })
+    Menu.buildFromTemplate(template).popup(
+      atCursor ? { window } : { window, x: params.x, y: params.y }
+    )
   }
   ipcMain.on(richMarkdownContextMenuTargetChannel, onTableTarget)
   contents.on('context-menu', onContextMenu)
@@ -44,6 +59,6 @@ export function attachEditableContextMenu(window: BrowserWindow): () => void {
       contents.removeListener('context-menu', onContextMenu)
     }
   }
-  window.once('closed', detach)
+  contents.once('destroyed', detach)
   return detach
 }

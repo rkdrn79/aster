@@ -5,6 +5,8 @@ import type {
 } from '../../../../shared/agent-session-journal-types'
 import { dispatchWasWithdrawn } from '../../../../shared/structured-agent-session-dispatch-rejection'
 import { structuredAgentSessionCommandItemIds } from '../../../../shared/structured-agent-session-message-projection'
+import { agentJournalSubmissionKey } from '../../../../shared/agent-session-journal-item-key'
+import { isQueuedAgentJournalSubmission } from '../../../../shared/agent-session-queued-submission'
 import { structuredAgentSessionDeliveryNotices } from './structured-agent-session-delivery-notices'
 import type { StructuredAgentSessionPendingSend } from './structured-agent-session-pending-sends'
 import { useStructuredAgentSessionStartFailureFacts } from './use-structured-agent-session-start-failure-facts'
@@ -20,8 +22,11 @@ export function useStructuredAgentSessionDeliveryNotices(args: {
   journalItems: readonly AgentJournalRenderItem[]
   agentName: string
   startFailures?: readonly AgentSessionFailureFact[]
+  /** The agent is working, so a message the host holds waits for its current step. */
+  isWorking?: boolean
 }): ReadonlyMap<string, NativeChatDeliveryNotice> {
   const { agentName, pending, submissions } = args
+  const heldItemIds = useHeldItemIds(submissions, args.isWorking === true)
   // Only a chat with a message shown as not sent reads the journal's rows and loaded items, so in a
   // chat with none a streaming turn rebuilds no notice.
   const hasRejected = submissions.some(
@@ -41,9 +46,10 @@ export function useStructuredAgentSessionDeliveryNotices(args: {
         submissions: journalRows,
         agentName,
         startFailures,
-        commandItemIds
+        commandItemIds,
+        heldItemIds
       }),
-    [pending, journalRows, agentName, startFailures, commandItemIds]
+    [pending, journalRows, agentName, startFailures, commandItemIds, heldItemIds]
   )
   // A submission batch rebuilds the map; one that says the same keeps the old, so no row re-renders.
   const previousRef = useRef(notices)
@@ -55,6 +61,21 @@ export function useStructuredAgentSessionDeliveryNotices(args: {
 }
 
 const NO_COMMANDS: ReadonlySet<string> = new Set()
+
+/** The rows the host accepted and has not handed to the agent, while it works; keyed by a string
+ *  so a streaming turn's batches rebuild nothing. */
+function useHeldItemIds(
+  submissions: readonly AgentJournalSubmission[],
+  working: boolean
+): ReadonlySet<string> {
+  const key = working
+    ? submissions
+        .filter(isQueuedAgentJournalSubmission)
+        .map((submission) => agentJournalSubmissionKey(submission.clientMessageId))
+        .join('\n')
+    : ''
+  return useMemo(() => (key ? new Set(key.split('\n')) : NO_COMMANDS), [key])
+}
 
 /** The loaded commands, read only while `enabled`, and held while unchanged so a streaming turn
  *  rebuilds no notice. */
@@ -91,6 +112,9 @@ function sameNoticesKept(
     const same =
       before !== undefined &&
       before.text === notice.text &&
+      before.sending === notice.sending &&
+      before.confirming === notice.confirming &&
+      before.queued === notice.queued &&
       (before.onDismiss === undefined) === (notice.onDismiss === undefined)
     allKept &&= same
     kept.set(id, same ? before : notice)
@@ -108,6 +132,7 @@ export function useStructuredAgentSessionDeliveryFacts(args: {
   agentName: string
   /** A queued message came back to its card. */
   hasReturnedCard: boolean
+  isWorking?: boolean
 }): {
   startFailures: readonly AgentSessionFailureFact[]
   deliveryNotices: ReadonlyMap<string, NativeChatDeliveryNotice>
@@ -126,7 +151,8 @@ export function useStructuredAgentSessionDeliveryFacts(args: {
     submissions: args.submissions,
     journalItems: args.journalItems,
     startFailures,
-    agentName: args.agentName
+    agentName: args.agentName,
+    isWorking: args.isWorking === true
   })
   return { startFailures, deliveryNotices }
 }

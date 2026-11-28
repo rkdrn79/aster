@@ -245,7 +245,7 @@ export async function restoreFigureText(
   if (open) {
     const [{ figureSceneText }, { applyFigureText }] = await Promise.all([
       import('./research-figures-export'),
-      import('./use-figure-file-sync')
+      import('./research-figure-sync-merge')
     ])
     await snapshotFigure(target, {
       kind: 'before-restore',

@@ -228,16 +228,16 @@
     {
       "name": "aster-research-track",
       "sourcePath": "skills/aster-research-track",
-      "packageDigest": "019e2790d374436f117d8781d040c2b2ee46ad18d13413d12574585a5c65002a",
+      "packageDigest": "8f8a16605670c09681f9cae760d9987e104dfe881deee611aa9124574d22df4c",
       "files": [
         {
           "path": "SKILL.md",
-          "size": 147698,
+          "size": 149604,
           "executable": false,
           "classification": "text",
-          "exactSha256": "2b7e935782932417292651fecd37294b3e147ffeedf758c952f84203d514aa04",
-          "textNormalizedSha256": "2b7e935782932417292651fecd37294b3e147ffeedf758c952f84203d514aa04",
-          "identitySha256": "2b7e935782932417292651fecd37294b3e147ffeedf758c952f84203d514aa04"
+          "exactSha256": "862aa919e0308555bce4ce513f8648f78b170119accb2af0d519f0c8674393e5",
+          "textNormalizedSha256": "862aa919e0308555bce4ce513f8648f78b170119accb2af0d519f0c8674393e5",
+          "identitySha256": "862aa919e0308555bce4ce513f8648f78b170119accb2af0d519f0c8674393e5"
         }
       ]
     },

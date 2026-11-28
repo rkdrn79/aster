@@ -5,17 +5,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { hashElementsVersion } from '@excalidraw/excalidraw'
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types'
 import type { AppState, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
-import { repairFigureScene } from '../../../../research-harness/research-figures-model.mjs'
 import type { FigureSwatch } from '../../../../research-harness/research-figures-style.mjs'
 import { parseFigureText } from './research-figure-document'
 import { warnFigureRepairs } from './research-figure-sync-merge'
 import {
-  PAPER_APP_STATE,
   UI_OPTIONS,
   fitFigureInView,
   libraryItems,
   saveLibrary
 } from './research-figure-editor-config'
+import { figureSceneData } from './research-figure-scene-data'
 import { useFigureEditorHandle } from './research-figure-editor-handle'
 import { applyFigureSwatch, type FigureRequestHost } from './research-figure-requests'
 import {
@@ -39,6 +38,7 @@ import { ResearchFigureChangeMarks } from './ResearchFigureChangeMarks'
 import { ResearchFigureFilledAreas } from './ResearchFigureFilledAreas'
 import { ResearchFigureMergeReview } from './ResearchFigureMergeReview'
 import { ResearchFigureTurnBar } from './ResearchFigureTurnBar'
+import { ResearchFigureCoworkBar } from './ResearchFigureCoworkBar'
 import { ResearchFigureVariantStrip } from './ResearchFigureVariantStrip'
 import {
   ResearchFigureConflictBanner,
@@ -107,13 +107,9 @@ export default function ResearchFigureEditor(props: Props): React.JSX.Element {
     if (!parsed || parsed.issues.length || sync.initialText === null) {
       return null
     }
-    // Why JSON.parse's any: Excalidraw restores whatever the file holds when it mounts; the
-    // repair leaves out elements with NaN geometry, which would take the canvas down.
-    const scene = repairFigureScene(JSON.parse(sync.initialText)).scene
+    // Why the shared builder: the background renderer exports from exactly what the editor opens.
     return {
-      elements: scene.elements,
-      files: scene.files ?? {},
-      appState: { ...PAPER_APP_STATE, ...scene.appState },
+      ...figureSceneData(sync.initialText),
       libraryItems: libraryItems(),
       scrollToContent: false
     }
@@ -229,6 +225,7 @@ export default function ResearchFigureEditor(props: Props): React.JSX.Element {
         folder={folder}
       />
       <ResearchFigureTurnBar target={target} />
+      <ResearchFigureCoworkBar target={target} />
       <ResearchFigureVariantStrip target={target} />
       <ResearchFigureConflictBanner
         overlaps={sync.review?.length ?? 0}

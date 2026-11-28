@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, type WebContents } from 'electron'
 import { existsSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, readdir, rename, rm, unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -184,7 +184,39 @@ export async function deleteUserFigurePart(input: unknown): Promise<void> {
   })
 }
 
+const BACKGROUND_TICK_MS = 1000
+const tickTargets = new Map<number, WebContents>()
+let tickTimer: ReturnType<typeof setInterval> | null = null
+
+/**
+ * The figure background renderer's clock. Why from here: a hidden or covered window's own timers
+ * are throttled to about once a minute, and that is exactly when an agent draws in the background.
+ */
+function setBackgroundTicks(contents: WebContents, on: unknown): void {
+  if (on === true && !tickTargets.has(contents.id)) {
+    tickTargets.set(contents.id, contents)
+    contents.once('destroyed', () => setBackgroundTicks(contents, false))
+  } else if (on !== true) {
+    tickTargets.delete(contents.id)
+  }
+  if (tickTargets.size && !tickTimer) {
+    tickTimer = setInterval(() => {
+      for (const target of tickTargets.values()) {
+        if (!target.isDestroyed()) {
+          target.send('researchFigures:backgroundTick')
+        }
+      }
+    }, BACKGROUND_TICK_MS)
+  } else if (!tickTargets.size && tickTimer) {
+    clearInterval(tickTimer)
+    tickTimer = null
+  }
+}
+
 export function registerResearchFiguresIpcHandlers(): void {
+  ipcMain.on('researchFigures:backgroundTicks', (event, on: unknown) =>
+    setBackgroundTicks(event.sender, on)
+  )
   ipcMain.handle('researchFigures:deleteUserPart', (_event, input: unknown) =>
     deleteUserFigurePart(input)
   )

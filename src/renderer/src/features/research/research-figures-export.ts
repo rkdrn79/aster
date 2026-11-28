@@ -1,5 +1,6 @@
 import { FONT_FAMILY, exportToSvg, serializeAsJSON } from '@excalidraw/excalidraw'
-import type { ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
+import type { NonDeletedExcalidrawElement } from '@excalidraw/excalidraw/element/types'
+import type { AppState, BinaryFiles, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import {
   FIGURE_UNITS_PER_INCH,
   figureFilePaths,
@@ -8,6 +9,7 @@ import {
 import { cropPhotosForExport } from './research-figure-crops'
 import { figureFileText, sketchFilePath } from './research-figure-document'
 import { embedPaperFonts, registerPaperFonts } from './research-figure-paper-fonts'
+import { noteFigurePreview } from './research-figure-cowork-store'
 import { writeFigurePreview } from './research-figure-preview'
 import {
   projectAbsolutePath,
@@ -17,6 +19,14 @@ import {
 } from './research-project-files'
 
 export type FigureTarget = { owner: ProjectFileOwner; folder: string; slug: string }
+/** What an export reads: the editor's canvas, or a scene restored off-screen (background). */
+export type FigureExportSource = {
+  getSceneElements: () => readonly NonDeletedExcalidrawElement[]
+  getFiles: () => BinaryFiles
+  getAppState: () => Partial<Omit<AppState, 'offsetTop' | 'offsetLeft'>>
+}
+/** Who drew a preview: the open editor, or Aster's background renderer. */
+export type FigurePreviewRenderer = 'editor' | 'background'
 
 // Why: frames are editing aids; exports show their contents, never their outline or name.
 const EXPORT_FRAME_RENDERING = { enabled: true, clip: true, name: false, outline: false }
@@ -37,7 +47,7 @@ export function figureSceneText(api: ExcalidrawImperativeAPI): string {
   return figureFileText(scene)
 }
 
-export function exportInput(api: ExcalidrawImperativeAPI) {
+export function exportInput(api: FigureExportSource) {
   const scene = api.getSceneElements()
   const page = figurePage(scene)
   const frame = page
@@ -78,9 +88,10 @@ export function exportInput(api: ExcalidrawImperativeAPI) {
  * at 144 units per inch, when the figure has no page frame).
  */
 export async function writeFigureExports(
-  api: ExcalidrawImperativeAPI,
+  api: FigureExportSource,
   target: FigureTarget,
-  sceneText: string
+  sceneText: string,
+  renderer: FigurePreviewRenderer = 'editor'
 ): Promise<void> {
   const render = window.api.researchFigures?.renderExports
   if (!render) {
@@ -105,7 +116,11 @@ export async function writeFigureExports(
   await writeProjectText(target.owner, files.svg, exports.svg)
   const pdf = Uint8Array.from(window.atob(exports.pdf), (char) => char.charCodeAt(0))
   await writeProjectBinary(target.owner, files.pdf, pdf)
-  await writeFigurePreview(target.owner, target, pdf, sceneText, page?.reference ?? null)
+  const sidecar = await writeFigurePreview(target.owner, target, pdf, sceneText, {
+    referencePath: page?.reference ?? null,
+    renderer
+  })
+  noteFigurePreview(target, sidecar)
 }
 
 /** Saves pasted sketch images as files the agent can open; returns their absolute paths. */

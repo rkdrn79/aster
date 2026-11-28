@@ -11,6 +11,9 @@ import { StructuredAgentSessionAttentionBridge } from '../components/native-chat
 import { StructuredAgentSessionStatusBridge } from '../components/native-chat/StructuredAgentSessionStatusBridge'
 
 const DashboardPopoutBridge = lazy(() => import('../components/dashboard/DashboardPopoutBridge'))
+const ResearchFigureBackgroundRenderer = lazy(
+  () => import('../features/research/ResearchFigureBackgroundRenderer')
+)
 
 /**
  * App-level gates that render nothing. Each lives here rather than inside the surface that
@@ -21,6 +24,7 @@ export function AppBackgroundServices(): React.JSX.Element {
   const dashboardPopoutEnabled = useAppStore(
     (s) => s.settings?.experimentalAgentDashboardPopout === true
   )
+  const researchEnabled = useAppStore((s) => s.settings?.researchUiEnabled !== false)
 
   return (
     <>
@@ -37,6 +41,12 @@ export function AppBackgroundServices(): React.JSX.Element {
         </Suspense>
       ) : null}
       <AgentHibernationGate />
+      {/* Why app-wide: agents draw figures while the person is on another page or project. */}
+      {workspaceSessionReady && researchEnabled ? (
+        <Suspense fallback={null}>
+          <ResearchFigureBackgroundRenderer />
+        </Suspense>
+      ) : null}
       <StructuredAgentSessionStatusBridge />
       {/* Why here and not in the chat pane: a backgrounded chat has no mounted pane, and that is
           exactly the completion the user needs the dot for. */}

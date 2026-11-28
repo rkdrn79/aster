@@ -1,7 +1,7 @@
 // A drawing kit for agents: open a figure, add boxes, text, math labels, data glyphs and bound
 // arrows in the figure's style, and save it back keeping every other element and id. Adding an
 // id that exists replaces it (keeping the arrows bound to it), so a script can be rerun; save()
-// returns the layout lint.
+// puts the person's hand edits back and returns the layout lint.
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -77,6 +77,7 @@ import { designMethods, designSave } from './research-figures-kit-design.mjs'
 import { drawnMethods } from './research-figures-kit-drawn.mjs'
 import { drawnSystemMethods } from './research-figures-kit-drawn-systems.mjs'
 import { drawnVoxelMethods } from './research-figures-kit-drawn-voxels.mjs'
+import { keepPersonEditsOnSave } from './research-figures-person-files.mjs'
 
 export {
   TEXT_BASELINE,
@@ -568,9 +569,11 @@ export async function openFigure(file) {
       }
       paperFinish(elements, style)
       designSave(elements, style)
+      // Why after the finish: the person's hand edits win over everything the script drew.
+      const personEdits = await keepPersonEditsOnSave({ project, target, scene })
       files.prune(elements)
       await writeFile(target, `${JSON.stringify(scene, null, 2)}\n`)
-      return lintFigureScene(scene)
+      return personEdits ? { ...lintFigureScene(scene), personEdits } : lintFigureScene(scene)
     }
   }
   Object.assign(

@@ -2,10 +2,13 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { HarnessError } from './research-harness-error.mjs'
-import { projectLayout } from './research-layout.mjs'
 import { elementBounds } from './research-figures-geometry.mjs'
 import { imageSize } from './research-figures-image.mjs'
-import { pngIsBlank } from './research-figures-png.mjs'
+import {
+  PREVIEW_WAIT_SECONDS,
+  previewFigure as previewFigureFile
+} from './research-figures-preview.mjs'
+import { personEditStatus } from './research-figures-person-files.mjs'
 import { manuscriptHeadings, readText } from './research-figures-manuscript.mjs'
 import { lintFigureScene } from './research-figures-lint.mjs'
 import { critiqueScene } from './research-figures-design-report.mjs'
@@ -20,7 +23,6 @@ import {
   figuresFolder,
   folderEntries,
   listFigures,
-  sha256,
   workFiguresFolder
 } from './research-figures-folders.mjs'
 import {
@@ -36,7 +38,6 @@ import {
   figureAreas,
   figureFilePaths,
   figurePage,
-  figurePreviewPaths,
   figureSlug,
   isFigureSlug,
   newFigureScene,
@@ -224,8 +225,53 @@ export async function showFigure(project, slug) {
           unitsPerPixel: pixels ? round((element.width / pixels.width) * 1000) / 1000 : null
         }
       }),
-    issues: checkFigureScene(scene)
+    issues: checkFigureScene(scene),
+    personEdits: (await personEditStatus(project, figure, scene))?.lines ?? []
   }
+}
+
+const HAND_PLACED = 'the person set this by hand, so it stays unless they ask'
+const PLACEMENT = new Set(['x', 'y', 'width', 'height', 'angle', 'path', 'text', 'added'])
+const PAIRED = /align|overlap|gap|spacing|crowd|touch|close/
+
+/**
+ * Findings about what the person placed by hand become notes: the agent cannot fix them (Aster
+ * keeps the person's edit), and an ERROR it cannot clear would send it round in circles.
+ */
+function handPlacedFindings(report, edited) {
+  const placed = Object.keys(edited).filter((id) => edited[id].some((prop) => PLACEMENT.has(prop)))
+  if (!placed.length) {
+    return report
+  }
+  const escape = (id) => id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const mentioned = new RegExp(`(^|[^\\w-])(${placed.map(escape).join('|')})([^\\w-]|$)`)
+  const mentions = (finding) =>
+    placed.includes(finding.id) || (PAIRED.test(finding.code) && mentioned.test(finding.message))
+  const moved = [...report.errors, ...report.warnings].filter(mentions)
+  return {
+    ...report,
+    errors: report.errors.filter((finding) => !mentions(finding)),
+    warnings: report.warnings.filter((finding) => !mentions(finding)),
+    notes: [
+      ...(report.notes ?? []),
+      ...moved.map((finding) => ({ ...finding, message: `${finding.message} (${HAND_PLACED})` }))
+    ]
+  }
+}
+
+/** The person's hand edits as check notes: never failures, always what to build on. */
+function personEditNotes(status) {
+  if (!status) {
+    return []
+  }
+  const note = (code, message) => ({ code, id: null, message })
+  return [
+    ...status.kept.map((line) => note('person-edit', `kept over the script: ${line}`)),
+    ...status.overrode.map((line) => note('person-edit-overrode', line)),
+    ...status.gone.map((line) =>
+      note('person-edit-gone', `the element is gone, so this no longer applies: ${line}`)
+    )
+  ]
 }
 
 export async function checkFigures(project, slug, area) {
@@ -241,6 +287,9 @@ export async function checkFigures(project, slug, area) {
       report.warnings.push(
         ...(await stalePlotFindings(project, path.dirname(path.join(project, figure.scene)), scene))
       )
+      const edits = await personEditStatus(project, figure, scene)
+      report = handPlacedFindings(report, edits?.edited ?? {})
+      report.notes = [...(report.notes ?? []), ...personEditNotes(edits)]
     } catch (error) {
       report = {
         errors: [{ code: 'invalid', id: null, message: error.message }],
@@ -276,106 +325,11 @@ async function readSidecar(target) {
   }
 }
 
-/** How long `figures preview` waits by default: Aster renders in seconds, a minute when busy. */
-export const PREVIEW_WAIT_SECONDS = 90
-
-/**
- * Why no Reload or "open it" advice: in practice a missed preview meant Aster was still busy
- * rendering, so the agent waits longer before telling the person anything.
- */
-function previewTimeout(figure, sidecar, waitSeconds) {
-  const longer = Math.max(180, Math.round(waitSeconds * 2))
-  const again = `run figures preview --figure ${figure.slug} --wait ${longer}`
-  const shown = sidecar
-    ? `The preview of ${figure.slug} from ${sidecar.renderedAt} shows an older version of the file`
-    : `There is no preview of ${figure.slug} yet`
-  return `${shown}, and Aster has not finished rendering the current one after ${waitSeconds} s. It is most likely still rendering (it takes longer while Aster is busy): ${again}. If that times out too, keep working from figures check and say in your reply that the preview did not arrive.`
-}
-
-// Why 216: the renderer draws the PDF at 216 dpi (FIGURE_PREVIEW_DPI), 1.5 px per scene unit.
-const PREVIEW_PX_PER_UNIT = 216 / 144
-
-/**
- * What is wrong with a preview that arrived: a blank page, or a PNG far smaller than the page
- * (an export that dropped the drawing, such as a scene with NaN coordinates).
- */
-async function previewProblem(png, page) {
-  const bytes = await readFile(png).catch(() => null)
-  if (!bytes) {
-    return null
-  }
-  const size = imageSize(bytes)
-  const expected = page
-    ? {
-        width: Math.round(page.width * PREVIEW_PX_PER_UNIT),
-        height: Math.round(page.height * PREVIEW_PX_PER_UNIT)
-      }
-    : null
-  const blank = pngIsBlank(bytes)
-  const small =
-    size && expected && size.width * size.height < expected.width * expected.height * 0.25
-  if (!blank && !small) {
-    return null
-  }
-  const details = [
-    size ? `${size.width} × ${size.height} px` : null,
-    expected ? `the page is about ${expected.width} × ${expected.height}` : null
-  ].filter(Boolean)
-  return `The preview PNG is ${blank ? 'blank' : 'far smaller than the page'} (${details.join('; ')}): Aster could not draw the scene, so do not judge the figure from it. Run figures check and figures show (look for an element with NaN or a huge size), fix the script, run it, and preview again.`
-}
+export { PREVIEW_WAIT_SECONDS }
 
 /** Waits until Aster has rendered the current scene, then returns the PNG preview's path. */
-export async function previewFigure(
-  project,
-  slug,
-  { waitSeconds = PREVIEW_WAIT_SECONDS, pollMs = 500 } = {}
-) {
-  const figure = await resolveFigure(project, slug)
-  const files = figurePreviewPaths(projectLayout(project).root, figure.slug)
-  const deadline = Date.now() + waitSeconds * 1000
-  let sidecar = null
-  for (;;) {
-    const text = await readFile(path.join(project, figure.scene))
-    const hash = sha256(text)
-    sidecar = await readSidecar(path.join(project, files.sidecar))
-    if (sidecar?.sceneSha256 === hash) {
-      const inProject = (relative) =>
-        typeof relative === 'string' ? path.join(project, relative) : null
-      const png = path.join(project, files.png)
-      let page = null
-      try {
-        page = figurePage(JSON.parse(text.toString('utf8')).elements ?? [])
-      } catch {
-        page = null
-      }
-      return {
-        figure: figure.slug,
-        png,
-        ...sidecar,
-        sceneSha256: hash,
-        compare: inProject(sidecar.compare),
-        overlay: inProject(sidecar.overlay),
-        print: inProject(sidecar.print),
-        lint: inProject(sidecar.lint),
-        problem: await previewProblem(png, page)
-      }
-    }
-    if (Date.now() >= deadline) {
-      let issues
-      try {
-        issues = checkFigureScene(JSON.parse(text.toString('utf8')))
-      } catch (error) {
-        issues = [`not valid JSON (${error.message})`]
-      }
-      throw new HarnessError(
-        'preview_timeout',
-        issues.length
-          ? `${figure.scene} does not open, so Aster cannot render it: ${issues[0]}. Run figures check.`
-          : previewTimeout(figure, sidecar, waitSeconds)
-      )
-    }
-    await new Promise((resolve) => setTimeout(resolve, pollMs))
-  }
+export async function previewFigure(project, slug, options = {}) {
+  return previewFigureFile(project, await resolveFigure(project, slug), options)
 }
 
 /** The reference's path and scale, and the colour regions Aster measured, in scene units. */

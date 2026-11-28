@@ -117,7 +117,7 @@ export function figuresFolderFor(manuscriptSource: string): string
 export function figureFilePaths(
   folder: string,
   slug: string
-): { scene: string; svg: string; pdf: string; png: string; script: string }
+): { scene: string; svg: string; pdf: string; png: string; script: string; edits: string }
 export function referenceRegionsPath(referencePath: string): string
 export function figurePreviewPaths(
   recordRoot: string,
@@ -130,7 +130,10 @@ export function figurePreviewPaths(
   overlay: string
   print: string
   lint: string
+  kept: string
+  request: string
 }
+export function figureRendererPath(recordRoot: string): string
 export function listFigureFolder(
   entries: readonly { name: string; isDirectory: boolean }[],
   sources?: readonly { name: string; isDirectory: boolean }[]

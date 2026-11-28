@@ -43,7 +43,8 @@ test('figures live next to the manuscript, with exports named after the scene', 
     svg: 'paper/figures/method.svg',
     pdf: 'paper/figures/method.pdf',
     png: 'paper/figures/method.png',
-    script: 'paper/figures/src/method.figure.mjs'
+    script: 'paper/figures/src/method.figure.mjs',
+    edits: 'paper/figures/src/method.edits.json'
   })
   assert.equal(figureSlug('  Method Overview (v2)!'), 'method-overview-v2')
   assert.equal(figureSlug('그림'), 'figure')

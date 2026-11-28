@@ -252,7 +252,7 @@ export const textOutput = {
       `Figures folder: ${result.folder}`,
       ...result.figures.map(
         (figure) =>
-          `${figure.slug}  ${figure.scene}${figure.pdf ? '' : ' (not exported yet; open it in Aster Figures)'}${paperNote(figure)}`
+          `${figure.slug}  ${figure.scene}${figure.pdf ? '' : ' (not exported yet: Aster writes the exports while it runs)'}${paperNote(figure)}`
       ),
       ...result.plots.map(
         (plot) =>
@@ -268,7 +268,7 @@ export const textOutput = {
       .filter(Boolean)
       .join('\n'),
   'figures new': (result) =>
-    `Created ${result.scene} (${result.page.widthIn} × ${result.page.heightIn} in). Aster writes ${result.slug}.svg and ${result.slug}.pdf when it is open in Figures. Draw it with ${result.script}, starting with ${result.import} (${result.shim}, portable), and run it with figures run --figure ${result.slug}. It stays out of the paper until the person asks for it there (figures publish).`,
+    `Created ${result.scene} (${result.page.widthIn} × ${result.page.heightIn} in). Aster on the person's computer writes ${result.slug}.svg, ${result.slug}.pdf and the preview in the background while it runs, the figure open or not. Draw it with ${result.script}, starting with ${result.import} (${result.shim}, portable), and run it with figures run --figure ${result.slug}. It stays out of the paper until the person asks for it there (figures publish).`,
   'figures run': (result) =>
     [
       `${result.script} exited ${result.exitCode} (kit through ${result.shim})`,
@@ -297,7 +297,8 @@ export const textOutput = {
           (image) =>
             `  image ${image.id}: ${image.pixels.width} × ${image.pixels.height} px${image.crop ? ` cropped at ${image.crop.x}, ${image.crop.y}` : ''}, ${image.unitsPerPixel} units per pixel`
         ),
-      ...result.issues.map((issue) => `ISSUE ${issue}`)
+      ...result.issues.map((issue) => `ISSUE ${issue}`),
+      ...(result.personEdits ?? [])
     ].join('\n'),
   'figures check': (result) =>
     result.figures.length
@@ -337,7 +338,8 @@ export const textOutput = {
             `${result.compare}\n(the reference beside the preview at one scale; open it and compare)`,
             `${result.overlay}\n(the preview over a faded reference: an offset shows as a ghost edge)`
           ]
-        : [])
+        : []),
+      ...(result.personEdits ?? [])
     ].join('\n'),
   'figures measure': (result) => measureText(result),
   'figures reference': (result) =>
@@ -426,8 +428,10 @@ function contextText(result) {
 
 export const usage = `
 Figures live in <record root>/figures (.aster/figures), each <slug>.excalidraw with its <slug>.svg,
-<slug>.pdf and PNG preview, which Aster writes while the figure is open in its Figures page; an older
-figure still beside the manuscript stays there and works the same. --figure may be left out when
+<slug>.pdf and PNG preview, which Aster on the person's computer writes in the background whenever it
+runs and is connected to the project (the figure need not be open); an older figure still beside the
+manuscript stays there and works the same. The person may edit a figure by hand in Aster: their
+edits are kept over every script run (figures edits lists them). --figure may be left out when
 there is one figure. A figure's script imports { openFigure } from './aster-figures-kit.mjs', a
 portable shim beside it that finds H on any computer (figures new writes it; figures run too).
 The paper only receives a figure when the person asks: figures publish copies its vector PDF to
@@ -454,7 +458,8 @@ the manuscript's figures folder; never copy it there by hand.
                                          Waits (default 90 s) for Aster's PNG of the current file,
                                          then prints its path, the print-size PNG, the PNG with lint
                                          findings boxed (when there are any), and for a recreation
-                                         the reference beside it and under it; open them and look
+                                         the reference beside it and under it; open them and look.
+                                         Says so at once when Aster is not connected
   figures publish --figure SLUG [--manuscript PATH] [--replace] [--wait SECONDS]
                                          Copies the figure's PDF to the manuscript's figures folder
                                          (only when the person asks for the figure in the paper).

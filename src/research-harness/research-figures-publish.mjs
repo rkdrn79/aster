@@ -99,7 +99,10 @@ export async function publishFigure(
       : plot.path
   const bytes = await bytesOrNull(path.join(project, from))
   if (!bytes) {
-    throw new HarnessError('not_found', `${from} is not written yet: open the figure in Aster.`)
+    throw new HarnessError(
+      'not_found',
+      `${from} is not written yet: Aster on the person's computer writes it while it runs and is connected to this project.`
+    )
   }
   const pdfSha256 = sha256(bytes)
   const previous = await readPublication(project, slug)

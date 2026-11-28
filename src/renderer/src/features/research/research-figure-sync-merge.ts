@@ -86,6 +86,15 @@ export function applyFigureScene(
   }
 }
 
+/** Puts a file's scene on the canvas; text an agent wrote gets Excalidraw's measured size. */
+export function applyFigureText(
+  api: ExcalidrawImperativeAPI,
+  text: string,
+  capture: FigureCaptureMode = 'immediately'
+): void {
+  applyFigureScene(api, JSON.parse(text), capture)
+}
+
 /**
  * Folds an agent turn into one undo step: the canvas goes back to how it was before the agent's
  * first write without being recorded, then forward to now as a single recorded change.

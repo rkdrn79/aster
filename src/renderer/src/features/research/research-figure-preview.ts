@@ -39,6 +39,8 @@ export type FigurePreviewSidecar = {
   printDpi?: number
   lint?: string
   lintFindings?: number
+  /** The open editor, or Aster's background renderer; absent in previews from before 1.2.3. */
+  renderer?: 'editor' | 'background'
 }
 
 async function renderPage(page: pdfjs.PDFPageProxy, dpi: number) {
@@ -95,7 +97,10 @@ export async function writeFigurePreview(
   target: { folder: string; slug: string },
   pdf: Uint8Array,
   sceneText: string,
-  referencePath: string | null = null
+  {
+    referencePath = null,
+    renderer = 'editor'
+  }: { referencePath?: string | null; renderer?: 'editor' | 'background' } = {}
 ): Promise<FigurePreviewSidecar> {
   const paths = figurePreviewPaths(await projectRecordRoot(owner), target.slug)
   const preview = await renderPdfPreview(pdf)
@@ -122,7 +127,8 @@ export async function writeFigurePreview(
     ...compared,
     print: paths.print,
     printDpi: FIGURE_PRINT_DPI,
-    ...(linted ? { lint: paths.lint, lintFindings: linted.count } : {})
+    ...(linted ? { lint: paths.lint, lintFindings: linted.count } : {}),
+    renderer
   }
   await writeProjectText(owner, paths.sidecar, `${JSON.stringify(sidecar, null, 2)}\n`)
   return sidecar

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 
 type Props = {
-  /** Elements both you and the agent changed, waiting for a review. */
+  /** Elements both you and the agent changed; yours are kept unless a review takes the agent's. */
   overlaps: number
   invalid: string[] | null
   error: string | null
@@ -25,8 +25,8 @@ export function ResearchFigureConflictBanner({
       >
         <span className="font-medium">The agent changed this figure while you edited it</span>
         <span className="text-muted-foreground">
-          The rest is merged; {overlaps === 1 ? '1 element' : `${overlaps} elements`} changed on
-          both sides. Nothing is saved until you choose.
+          The rest is merged; on {overlaps === 1 ? '1 element' : `${overlaps} elements`} you both
+          changed, your version is kept and the agent is told.
         </span>
         <Button size="xs" variant="outline" className="ml-auto" onClick={onReview}>
           Review

@@ -32,6 +32,7 @@ import * as libraryCli from './research-library-cli.mjs'
 import * as figuresRefsCli from './research-figures-refs-cli.mjs'
 import * as figuresCarefulCli from './research-figures-careful-cli.mjs'
 import * as figuresArtCli from './research-figures-art-cli.mjs'
+import * as figuresEditCli from './research-figures-edit-cli.mjs'
 import * as planCli from './research-plan-cli.mjs'
 import * as papersCli from './research-papers-cli.mjs'
 import * as writingCli from './research-writing-cli.mjs'
@@ -419,6 +420,7 @@ const laneClis = [
   figuresRefsCli,
   figuresCarefulCli,
   figuresArtCli,
+  figuresEditCli,
   planCli,
   papersCli,
   writingCli,

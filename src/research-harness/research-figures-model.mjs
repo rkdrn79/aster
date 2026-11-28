@@ -95,8 +95,17 @@ export function figurePreviewPaths(recordRoot, slug) {
     compare: `${directory}/${slug}.compare.png`,
     overlay: `${directory}/${slug}.overlay.png`,
     print: `${directory}/${slug}.print.png`,
-    lint: `${directory}/${slug}.lint.png`
+    lint: `${directory}/${slug}.lint.png`,
+    /** What the last script run kept of the person's hand edits, and what it overrode. */
+    kept: `${directory}/${slug}.kept.json`,
+    /** `figures preview` asks Aster for a render it is waiting on. */
+    request: `${directory}/${slug}.request.json`
   }
+}
+
+/** Aster on the person's computer stamps this while it renders the project's previews. */
+export function figureRendererPath(recordRoot) {
+  return `${cleanRelative(recordRoot)}/cache/figures/.aster-renderer.json`
 }
 
 /** Where Aster writes a reference's measured colour regions: beside it, kept out of Git too. */
@@ -112,7 +121,9 @@ export function figureFilePaths(folder, slug) {
     pdf: `${base}.pdf`,
     png: `${base}.png`,
     /** The agent's drawing script, committed so the figure can be regenerated. */
-    script: `${cleanRelative(folder)}/src/${slug}.figure.mjs`
+    script: `${cleanRelative(folder)}/src/${slug}.figure.mjs`,
+    /** The person's hand edits, kept over every script run (research-figures-person-edits). */
+    edits: `${cleanRelative(folder)}/src/${slug}.edits.json`
   }
 }
 

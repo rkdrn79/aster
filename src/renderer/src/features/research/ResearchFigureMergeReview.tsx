@@ -26,7 +26,8 @@ export function ResearchFigureMergeReview({
   onApply: (choices: Record<string, Choice>) => void
 }): React.JSX.Element {
   const [picked, setPicked] = useState<Record<string, Choice>>({})
-  const choiceFor = (id: string): Choice => picked[id] ?? 'agent'
+  // Why mine first: the person's edit wins a conflict unless they take the agent's here.
+  const choiceFor = (id: string): Choice => picked[id] ?? 'mine'
   const all = (choice: Choice): void =>
     setPicked(Object.fromEntries(conflicts.map((conflict) => [conflict.id, choice])))
   return (

@@ -19,6 +19,8 @@ export type ResearchFiguresApi = {
   }) => Promise<{ svg: string; pdf: string }>
   /** Writes a PDF or image export into a project on this machine. */
   writeFile: (params: { filePath: string; contentBase64: string }) => Promise<void>
+  /** A one-second tick from the main process, unthrottled while the window is hidden. */
+  onBackgroundTick?: (listener: () => void) => () => void
   /** The person's saved figure parts (.excalidrawlib texts) from the app's data folder. */
   listUserParts: () => Promise<{ file: string; text: string }[]>
   /** Saves a figure part for every project; resolves to the file written. */
@@ -57,6 +59,17 @@ export type ResearchFiguresApi = {
 export const researchFiguresApi: ResearchFiguresApi = {
   renderExports: (params) => ipcRenderer.invoke('researchFigures:renderExports', params),
   writeFile: (params) => ipcRenderer.invoke('researchFigures:writeFile', params),
+  onBackgroundTick: (listener) => {
+    const handler = (): void => listener()
+    ipcRenderer.on('researchFigures:backgroundTick', handler)
+    ipcRenderer.send('researchFigures:backgroundTicks', true)
+    return () => {
+      ipcRenderer.removeListener('researchFigures:backgroundTick', handler)
+      if (ipcRenderer.listenerCount('researchFigures:backgroundTick') === 0) {
+        ipcRenderer.send('researchFigures:backgroundTicks', false)
+      }
+    }
+  },
   listUserParts: () => ipcRenderer.invoke('researchFigures:listUserParts'),
   saveUserPart: (params) => ipcRenderer.invoke('researchFigures:saveUserPart', params),
   deleteUserPart: (params) => ipcRenderer.invoke('researchFigures:deleteUserPart', params),

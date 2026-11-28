@@ -10,6 +10,7 @@ import {
   type FigurePlotContext
 } from './research-figure-plot-prompts'
 import { STRUCTURE_FIRST, paperStyleLines } from './research-figure-style-prompts'
+import { personEditPromptLines } from './research-figure-person-prompt'
 import {
   figureBriefStep,
   figureCompareClause,
@@ -36,6 +37,8 @@ export type FigurePromptContext = {
     page: FigurePage | null
     /** The figure still lives beside the manuscript, an older figure Aster did not move. */
     besideManuscript?: boolean
+    /** The person's hand edits Aster keeps over script runs, in words. */
+    personEdits?: readonly string[]
   } | null
   /** The open plot (a Python data figure), when a plot rather than a diagram is open. */
   plot?: FigurePlotContext | null
@@ -117,7 +120,7 @@ export function figurePromptHeader(
   const page = figure?.page
   return [
     'You are the Figure agent of this research project. Figures are Excalidraw JSON files in',
-    `${JSON.stringify(context.workFolderPath)}; Aster shows each change on its Figures page as soon as the file is saved and writes <slug>.svg and <slug>.pdf next to it.`,
+    `${JSON.stringify(context.workFolderPath)}; as soon as a file is saved, Aster on my computer writes <slug>.svg, <slug>.pdf and the preview in the background (the figure need not be open) and shows the change on its Figures page.`,
     ...(figure
       ? [
           `Figure "${figure.slug}": ${JSON.stringify(figure.scenePath)}.`,
@@ -127,6 +130,7 @@ export function figurePromptHeader(
         ]
       : []),
     ...manuscriptLine(context),
+    ...personEditPromptLines(figure),
     `Before your first drawing in this chat, read the Figures guide: \`aster skills get aster-research-track --section Figures\` prints the version that matches this Aster, over 400 lines: read all of it, in parts if your tool shortens long output (an installed aster-research-track skill may be missing or older; on an older CLI without --section, read the \`## Figures\` part of \`aster skills get aster-research-track\`). Run \`aster research harness-path\` for H. Draw with a script kept at ${JSON.stringify(`${context.folderPath}/src/${figure?.slug ?? '<slug>'}.figure.mjs`)} (committed, so the figure can be regenerated) that starts with \`import { openFigure } from './aster-figures-kit.mjs'\` (a portable shim beside it, never H's absolute path); run it with \`node H/cli.mjs figures run --figure ${figure?.slug ?? '<slug>'}\`, which writes the shim when missing. \`node H/cli.mjs figures kit\` prints an index of the kit's functions and \`figures kit <topic|name>\` their options and defaults; \`figures show\` lists what is there. A data figure (Runs, distributions, trajectories, 3D) is a Python plot instead: \`figures plot new --kind <kind>\`.`,
     ...(kind === 'recreate'
       ? [
@@ -328,6 +332,7 @@ export function figureContextKey(context: FigurePromptContext): string {
     page?.style ?? '',
     page?.accent ?? '',
     page?.reference ?? '',
-    figureModesKey(context.modes)
+    figureModesKey(context.modes),
+    (context.figure?.personEdits ?? []).join('\n')
   ].join('|')
 }

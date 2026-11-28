@@ -169,13 +169,35 @@ test('figures preview waits for the render of the current file and explains a mi
     const scene = path.join(project, 'paper/figures/method.excalidraw')
     const text = JSON.stringify(newFigureScene({ widthIn: 3.25, heightIn: 2 }))
     await writeFile(scene, text)
+    // Without Aster's stamp the miss says plainly that Aster is not connected.
+    const away = await harness(project, ['figures', 'preview', '--wait', '0.5'])
+    assert.equal(away.code, 1)
+    assert.equal(away.result.error.code, 'preview_unavailable')
+    assert.match(
+      away.result.error.message,
+      /Aster on the person's computer renders previews, and it is not connected/
+    )
+    assert.doesNotMatch(away.result.error.message, /open the Figures page|open it in/)
+    const cache = path.join(project, '.aster/cache/figures')
+    // Why: the request tells Aster which render the agent waits on.
+    assert.match(await readFile(path.join(cache, 'method.request.json'), 'utf8'), /sceneSha256/)
+    const stamp = (at) =>
+      writeFile(
+        path.join(cache, '.aster-renderer.json'),
+        JSON.stringify({ renderer: 'aster-desktop', at: new Date(at).toISOString() })
+      )
+    await stamp(Date.now() - 3 * 3600_000)
+    const old = await harness(project, ['figures', 'preview', '--wait', '0.5'])
+    assert.match(
+      old.result.error.message,
+      /not connected to this project right now \(it last rendered here 3 hours ago\)/
+    )
+    await stamp(Date.now())
     const missing = await harness(project, ['figures', 'preview', '--wait', '0.5'])
     assert.equal(missing.code, 1)
     assert.match(missing.result.error.message, /most likely still rendering/)
     assert.match(missing.result.error.message, /--wait 180/)
     assert.doesNotMatch(missing.result.error.message, /Reload|open it|not open/)
-    const cache = path.join(project, '.aster/cache/figures')
-    await mkdir(cache, { recursive: true })
     await writeFile(path.join(cache, 'method.png'), 'png')
     const sidecar = (sha) =>
       JSON.stringify({

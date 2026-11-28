@@ -499,9 +499,12 @@ node H/cli.mjs rebuttal translate list --rebuttal <slug> --language ko --todo
 When the user asks for a paper figure (Aster's Figures page and its Figure agent), draw it as an
 Excalidraw scene of editable shapes, never as a flat image. Figures are worked on in the project's
 record folder: `<record root>/figures/<slug>.excalidraw` (`.aster/figures/`, or `research/figures/`
-in an older project); `figures new` puts them there. While the figure is open in Figures, Aster
-reloads every change you save and writes `<slug>.svg`, the vector `<slug>.pdf` and a PNG preview of
-exactly what the PDF shows; never write those yourself. Keep the drawing script at
+in an older project); `figures new` puts them there. Aster on the person's computer writes
+`<slug>.svg`, the vector `<slug>.pdf` and a PNG preview of exactly what the PDF shows in the
+background whenever it runs and is connected to the project, the figure open or not; never write
+those yourself, and never ask the person to open a figure so it renders. When `figures preview`
+says Aster is not connected, keep working from `figures check` and `figures show` and say that
+the preview appears once Aster is running and connected. Keep the drawing script at
 `<figures>/src/<slug>.figure.mjs` and commit it with the figure, so the figure can be regenerated.
 A plot (a data figure) is a Python script instead, `<figures>/src/<slug>.plot.py`: see Data figures
 at the end of this section. An older
@@ -534,6 +537,8 @@ node H/cli.mjs figures new --name "Method overview" [--size single|double|WxH] [
 node H/cli.mjs figures check [--figure <slug>] [--area <frame id>]  # layout lint; ERRORs must go
 node H/cli.mjs figures critique [--figure <slug>]  # the design pass: focus, colours, repeats, sizes; the cuts to make
 node H/cli.mjs figures preview [--figure <slug>] [--wait 90]       # waits for Aster's PNG, prints it
+node H/cli.mjs figures edits --figure <slug> [--release <id>]      # the person's hand edits, kept over your script
+node H/cli.mjs figures edit --figure <slug> --set <id>.<prop>=<value> [--set …]  # a few direct changes, no rerun
 node H/cli.mjs figures publish --figure <slug> [--replace]          # only when the person asks: copies the PDF to the paper
 ```
 
@@ -1086,10 +1091,26 @@ it prints the focus and whether it leads, each colour with its meaning, what is 
 size and spacing spread and the box styles and text sizes, then the cuts; make the cuts (drop the
 repeats, quiet what competes, merge styles) before any polishing. Before you finish, open the print-size PNG
 it also prints (150 dpi, the figure's width on paper) and check every label is still easy to
-read. Fix and repeat, at most three rounds. When `preview` times out, Aster is almost always
-still rendering: run it again with the longer `--wait` it names, and only if that times out too,
-go on from `figures check` and say so in your reply. When it prints a WARNING that the PNG is
+read. Fix and repeat, at most three rounds. When `preview` times out while Aster is connected, it
+is almost always still rendering: run it again with the longer `--wait` it names, and only if that
+times out too, go on from `figures check` and say so in your reply. When it says Aster is not
+connected, do not wait longer: go on from `figures check` and say the preview appears once Aster is
+running and connected. When it prints a WARNING that the PNG is
 blank, the scene has something Aster cannot draw: fix that before judging anything.
+
+**The person edits the same figure.** The person may move, resize, relabel, recolour, lock, delete
+or add things on the Figures page's canvas. Aster keeps those hand edits in
+`<figures>/src/<slug>.edits.json` (beside the script; commit it with the figure) and puts them back
+after every run of your script, so a rerun never undoes them; the person's edit wins where your
+script set something else. `figures run`, `figures check` and `figures preview` list them ("'Encoder'
+(enc): moved 12 right"), what your last run changed that the person had set, and edits whose
+element your script no longer draws. Build on them: keep their ids, lay the rest out around them,
+and do not "fix" what the person placed by hand (`figures check` reports such findings as notes).
+To change something they edited, ask them first; once they agree, `figures edits --figure <slug>
+--release <id>` lets your script set it again. For a few small changes without rerunning the
+whole script, `figures edit --figure <slug> --set enc.dx=8 --set lbl.text=z_t` patches the scene
+(a move carries the label and bound arrow ends along) and refuses what the person set by hand;
+make the same change in the script too, or the next run puts the old value back.
 
 **Draw with the kit.** One Node script, `<figures>/src/<slug>.figure.mjs`, imports the kit through
 the shim beside it (`./aster-figures-kit.mjs`) and draws the whole figure; run it with `figures

@@ -9,6 +9,7 @@ import type { FiguresAgentScope } from './research-figures-agent-session'
 import type { FigureTarget } from './research-figures-export'
 import { projectAbsolutePath } from './research-project-files'
 import { currentFigurePromptModes } from './research-figure-reference-library'
+import { figureCowork } from './research-figure-cowork-store'
 
 export type FigureRequestHost = {
   api: ExcalidrawImperativeAPI | null
@@ -50,7 +51,8 @@ export function figurePromptContext(
               figureFilePaths(target.folder, target.slug).scene
             ),
             page: figurePage(api.getSceneElements()),
-            besideManuscript: target.folder !== host.folder
+            besideManuscript: target.folder !== host.folder,
+            personEdits: figureCowork(target).edits?.lines ?? []
           }
         : null,
     plot:

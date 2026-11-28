@@ -114,7 +114,8 @@ export async function activateInstalledOrcad(
     candidateVersion: fullVersion,
     census: censusForLockedRecord(options, record),
     candidateDaemonProtocol: CURRENT_ORCAD_DAEMON_PROTOCOL,
-    ...(options.force !== undefined ? { force: options.force } : {})
+    ...(options.force !== undefined ? { force: options.force } : {}),
+    ...(options.carryLiveTerminals ? { carryLiveTerminals: true } : {})
   })
   if (plan.action === 'noop') {
     return { outcome: 'already-active', fullVersion }
@@ -207,7 +208,8 @@ export async function activateInstalledOrcad(
           candidateVersion: fullVersion,
           census,
           candidateDaemonProtocol: CURRENT_ORCAD_DAEMON_PROTOCOL,
-          ...(options.force !== undefined ? { force: options.force } : {})
+          ...(options.force !== undefined ? { force: options.force } : {}),
+          ...(options.carryLiveTerminals ? { carryLiveTerminals: true } : {})
         })
         return plan.action === 'defer' ? notActivated(plan.code, plan.reason) : null
       },

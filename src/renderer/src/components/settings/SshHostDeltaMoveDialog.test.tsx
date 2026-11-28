@@ -66,7 +66,11 @@ function api(next: OrcadDeltaMovePreview, result: OrcadDeltaMoveResult): Managed
     previewDeltaMove: vi.fn(async () => next),
     moveDelta: vi.fn(async () => result),
     keepServerVersion: unused,
-    allowMoveLeavingBehind: unused
+    allowMoveLeavingBehind: unused,
+    autoUpdateStatus: unused,
+    autoUpdateNow: unused,
+    onAutoUpdateChanged: () => () => {},
+    setAutoUpdateMode: unused
   }
 }
 

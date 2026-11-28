@@ -58,6 +58,13 @@ export function planOrcadUpdate(input: {
   /** The candidate's daemon protocol and the older ones it can still attach to. */
   candidateDaemonProtocol: OrcadDaemonProtocolFacts
   force?: boolean
+  /**
+   * Restart past counted, running terminals when the new build provably attaches their daemon.
+   * The automatic update's choice: terminals and jobs outlive the restart, and a host that always
+   * has one open (a SLURM login node) would otherwise never update. Unlike force, an uncounted or
+   * unattachable daemon still defers.
+   */
+  carryLiveTerminals?: boolean
 }): OrcadUpdateDecision {
   if (input.record.active === input.candidateVersion) {
     return {
@@ -126,7 +133,8 @@ export function planOrcadUpdate(input: {
       ]
     }
   }
-  if (liveSessions > 0 && !input.force) {
+  const carried = input.carryLiveTerminals === true && crossing === 'attachable'
+  if (liveSessions > 0 && !input.force && !carried) {
     return {
       action: 'defer',
       code: 'orcad_update_terminals_running',
@@ -143,7 +151,7 @@ export function planOrcadUpdate(input: {
       action: 'proceed',
       preservesLiveDaemon: true,
       notes: [
-        `Forced with ${liveSessions} live terminal${liveSessions === 1 ? '' : 's'}. They survive ` +
+        `${input.force ? 'Forced' : 'Carried'} with ${liveSessions} live terminal${liveSessions === 1 ? '' : 's'}. They survive ` +
           'the restart on the existing daemon; the outgoing version directory stays pinned ' +
           'against GC because that daemon was forked from it.'
       ]

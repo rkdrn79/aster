@@ -119,7 +119,11 @@ describe('updating a managed orcad on connect', () => {
 
   it('runs the Managed servers update, never forced past running terminals', async () => {
     mocks.runUpdate.mockResolvedValue({ outcome: 'updated', activeVersion: '0.1.0+new' })
-    await expect(run()).resolves.toEqual({ outcome: 'updated', activeVersion: '0.1.0+new' })
+    await expect(run()).resolves.toEqual({
+      outcome: 'updated',
+      activeVersion: '0.1.0+new',
+      previousVersion: '0.1.0+old'
+    })
     expect(mocks.runUpdate).toHaveBeenCalledWith(
       '/user-data',
       expect.anything(),
@@ -190,6 +194,87 @@ describe('updating a managed orcad on connect', () => {
     await run()
     expect(mocks.materialize).toHaveBeenCalledTimes(1)
     expect(mocks.runUpdate).not.toHaveBeenCalled()
+  })
+
+  it('asks the server-update policy before touching the host, and holds when it says so', async () => {
+    const gate = vi.fn(() => ({ action: 'skip' as const, reason: 'scheduled' as const }))
+    const onUpdating = vi.fn()
+    await expect(
+      autoUpdateManagedOrcadEnvironment('/user-data', {
+        environmentId: 'env-1',
+        appVersion: '1.5.0',
+        failedBefore: () => false,
+        onUpdating,
+        gate
+      })
+    ).resolves.toEqual({ outcome: 'skipped', reason: 'scheduled' })
+    expect(gate).toHaveBeenCalledWith({
+      environmentId: 'env-1',
+      sshTargetId: undefined,
+      activeVersion: '0.1.0+old',
+      candidateVersion: '0.1.0+new'
+    })
+    expect(onUpdating).not.toHaveBeenCalled()
+    expect(mocks.runUpdate).not.toHaveBeenCalled()
+  })
+
+  it('never asks the policy about a host that is already current', async () => {
+    mocks.state.record = record({ active: '0.1.0+new' })
+    const gate = vi.fn()
+    await autoUpdateManagedOrcadEnvironment('/user-data', {
+      environmentId: 'env-1',
+      appVersion: '1.5.0',
+      failedBefore: () => false,
+      onUpdating: vi.fn(),
+      gate
+    })
+    expect(gate).not.toHaveBeenCalled()
+  })
+
+  it("passes the policy's terminal carry and activation hold to the update", async () => {
+    const holdActivation = vi.fn()
+    mocks.runUpdate.mockResolvedValue({ outcome: 'updated', activeVersion: '0.1.0+new' })
+    await autoUpdateManagedOrcadEnvironment('/user-data', {
+      environmentId: 'env-1',
+      appVersion: '1.5.0',
+      failedBefore: () => false,
+      onUpdating: vi.fn(),
+      gate: () => ({ action: 'proceed', carryLiveTerminals: true, holdActivation })
+    })
+    expect(mocks.runUpdate).toHaveBeenCalledWith(
+      '/user-data',
+      expect.anything(),
+      expect.anything(),
+      {
+        admitRecord: expect.any(Function),
+        carryLiveTerminals: true,
+        holdActivation
+      }
+    )
+  })
+
+  it('reports chats found working under the fence as a wait, not a failure', async () => {
+    mocks.runUpdate.mockResolvedValue({
+      outcome: 'deferred',
+      code: 'orcad_update_agents_working',
+      reason: '2 agents working on VIP'
+    })
+    await expect(run()).resolves.toMatchObject({ outcome: 'deferred' })
+  })
+
+  it('lets Update now retry a build this host rolled back from', async () => {
+    mocks.state.record = record({ rolledBackFrom: '0.1.0+new', activeAppVersion: '1.4.0' })
+    mocks.runUpdate.mockResolvedValue({ outcome: 'updated', activeVersion: '0.1.0+new' })
+    await expect(run()).resolves.toEqual({ outcome: 'skipped', reason: 'rolled-back' })
+    await expect(
+      autoUpdateManagedOrcadEnvironment('/user-data', {
+        environmentId: 'env-1',
+        appVersion: '1.5.0',
+        failedBefore: () => true,
+        onUpdating: vi.fn(),
+        intent: 'update'
+      })
+    ).resolves.toMatchObject({ outcome: 'updated' })
   })
 
   it('leaves a server alone while a migration into it is still running', async () => {

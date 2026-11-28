@@ -8,9 +8,11 @@ import type { ManagedOrcadPreloadApi } from '../../../../preload/api/managed-orc
 import type { RemoteServerUpdateEntry } from '@/runtime/remote-server-update-coordinator'
 import type { UpdateCheckOptions } from '../../../../shared/update-status-types'
 import { translate } from '@/i18n/i18n'
+import { useAppStore } from '@/store'
 import { duplicatePairedServerNames } from '@/lib/duplicate-paired-servers'
 import { LoadingSpinner } from '../LoadingSpinner'
 import { Button } from '../ui/button'
+import { ManagedServerAutoUpdateLine } from './ManagedServerAutoUpdateLine'
 import { migrationPhaseLabel } from './managed-server-copy'
 import type { RuntimeHostDetails } from './runtime-environment-host-details'
 import { RuntimeServerRow } from './runtime-server-row'
@@ -29,7 +31,21 @@ function ManagedRuntimeServerRow({
   onChanged: () => void
 }): React.JSX.Element {
   const lifecycle = useManagedServerLifecycle({ api, environment: props.environment, onChanged })
-  return <RuntimeServerRow {...props} managed={lifecycle} onChanged={onChanged} />
+  const autoUpdateStatus = useAppStore(
+    (state) => state.serverAutoUpdateStatuses[props.environment.id]
+  )
+  return (
+    <RuntimeServerRow
+      {...props}
+      managed={lifecycle}
+      autoUpdate={
+        autoUpdateStatus ? (
+          <ManagedServerAutoUpdateLine status={autoUpdateStatus} api={api} />
+        ) : null
+      }
+      onChanged={onChanged}
+    />
+  )
 }
 
 type RuntimeServerListProps = {

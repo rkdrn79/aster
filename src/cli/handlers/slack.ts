@@ -11,6 +11,14 @@ import { runSlackBridge, type SlackBridgeRoute } from '../slack-bridge'
 import { postSlackMessage } from '../slack-api'
 import { readStoredBridgeTokens } from '../slack-service-host'
 import { ensureSlackManagedRuntime } from '../slack-managed-runtime'
+import {
+  managedSlotOfCli,
+  reexecBridge,
+  removeFollowMarker,
+  startBridgeFollow,
+  writeFollowMarker,
+  type BridgeFollowTarget
+} from '../slack-bridge-update-follow'
 
 const routesSchema = z.object({
   version: z.literal(1),
@@ -167,6 +175,34 @@ export const SLACK_HANDLERS: Record<string, CommandHandler> = {
     const stop = (): void => controller.abort()
     process.once('SIGTERM', stop)
     process.once('SIGINT', stop)
+    // Why: a service on an SSH host runs the CLI of the slot it started from. It follows server
+    // updates by restarting itself on the new slot instead of running old code indefinitely.
+    const slot = service ? managedSlotOfCli(process.argv[1]) : null
+    const follow: { target: BridgeFollowTarget | null } = { target: null }
+    let stopFollow = (): void => {}
+    if (slot) {
+      try {
+        writeFollowMarker(slot.root, process.pid, slot.version)
+      } catch (error) {
+        console.error('[slack-bridge] could not record that this bridge follows updates:', error)
+      }
+      stopFollow = startBridgeFollow({
+        root: slot.root,
+        ownVersion: slot.version,
+        serverIsUp: () =>
+          client.call('status.get', undefined, { timeoutMs: 4_000 }).then(
+            () => true,
+            () => false
+          ),
+        onFollow: (target) => {
+          // A stop that arrived first wins; the service manager asked for the process to end.
+          if (!controller.signal.aborted) {
+            follow.target = target
+            controller.abort()
+          }
+        }
+      })
+    }
     try {
       const tokens = service
         ? await readStoredBridgeTokens(client.userDataPath, controller.signal)
@@ -193,8 +229,19 @@ export const SLACK_HANDLERS: Record<string, CommandHandler> = {
         })
       }
     } finally {
+      stopFollow()
+      if (slot) {
+        removeFollowMarker(slot.root, process.pid)
+      }
       process.off('SIGTERM', stop)
       process.off('SIGINT', stop)
+    }
+    if (follow.target) {
+      // The lease is released; the same pid carries on as the new build's bridge.
+      reexecBridge(follow.target, process.argv, process.env)
+      // Only reached if the exec failed; a non-zero exit lets the service manager start it again.
+      console.error('[slack-bridge] could not restart onto the new server build; exiting')
+      process.exit(1)
     }
     // Why exit: replies still being awaited hold timers open; the lease is already released.
     if (controller.signal.aborted) {

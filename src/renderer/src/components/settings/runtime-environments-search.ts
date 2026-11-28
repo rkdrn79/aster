@@ -94,6 +94,18 @@ export const getRuntimeEnvironmentsSearchEntry = createLocalizedCatalog(
         'auto.components.settings.managedServers.search.keywordFormerName',
         'managed servers'
       ),
+      ...translateSearchKeyword(
+        'auto.components.settings.runtime.environments.search.autoUpdateKeyword',
+        'update servers automatically'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.runtime.environments.search.autoUpdateAliasKeyword',
+        'automatic updates'
+      ),
+      ...translateSearchKeyword(
+        'auto.components.settings.runtime.environments.search.serverUpdatesKeyword',
+        'server updates'
+      ),
       // Why: Share this computer mounts the machine name field, so its keywords open this pane.
       ...getMachineNameSearchKeywords()
     ]

@@ -64,6 +64,8 @@ type RuntimeServerRowProps = {
   sshAccessApi?: Pick<ManagedOrcadPreloadApi, 'linkSshAccess' | 'unlinkSshAccess'> | null
   sshTargets?: SshTarget[]
   managed?: ManagedServerLifecycle | null
+  /** The automatic-update line of a managed server, shown first under the row. */
+  autoUpdate?: React.ReactNode
   onOpenUpdate: () => void
   onDisconnect: (environment: PublicKnownRuntimeEnvironment) => void
   onConnect: (environment: PublicKnownRuntimeEnvironment) => void
@@ -93,6 +95,7 @@ export function RuntimeServerRow({
   sshAccessApi = null,
   sshTargets = NO_SSH_TARGETS,
   managed = null,
+  autoUpdate = null,
   onOpenUpdate,
   onDisconnect,
   onConnect,
@@ -250,8 +253,12 @@ export function RuntimeServerRow({
 
   const showSshAccess = sshAccessApi !== null && !deployment && !pendingSshAccess
   const footer =
-    pendingSshAccess || expanded || (managed && managedServerHasConfirmation(managed)) ? (
+    autoUpdate ||
+    pendingSshAccess ||
+    expanded ||
+    (managed && managedServerHasConfirmation(managed)) ? (
       <>
+        {autoUpdate}
         {pendingSshAccess && sshAccessApi ? (
           <RuntimeSshAccessControl
             api={sshAccessApi}

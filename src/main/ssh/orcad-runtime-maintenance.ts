@@ -50,6 +50,7 @@ import { updateTerminalCounts } from './orcad-fenced-stop'
 import { findIncompleteManagedOrcadMigration } from '../managed-server/lifecycle/orcad-managed-migration-status'
 import { latestOrcadMigrationInto } from './orcad-migration-rollback-mark'
 import { tunneledOrcadPairingCode } from './orcad-tunneled-pairing'
+import { withSlotSlackBridgesHeld } from '../managed-server/auto-update/slack-bridge-hold'
 
 type LifecycleArgs = { selector: string; signal?: AbortSignal }
 
@@ -121,12 +122,10 @@ export async function runManagedOrcadUpdate(
   userDataPath: string,
   { environment, deployment }: ReturnType<typeof requireManagedOrcadEnvironment>,
   context: OrcadRemoteContext,
-  args: {
-    force?: boolean
-    signal?: AbortSignal
-    localOrcadDir?: string
-    admitRecord?: OrcadDeployOptions['admitRecord']
-  }
+  args: Pick<
+    OrcadDeployOptions,
+    'force' | 'signal' | 'admitRecord' | 'carryLiveTerminals' | 'holdActivation'
+  > & { localOrcadDir?: string }
 ): Promise<OrcadManagedDeployResult> {
   const { countFirst, ...recount } = updateTerminalCounts((options) =>
     collectManagedTerminalCensus(
@@ -150,6 +149,8 @@ export async function runManagedOrcadUpdate(
     ...recount,
     censusRecord: context.activationRecord,
     force: args.force,
+    carryLiveTerminals: args.carryLiveTerminals,
+    holdActivation: args.holdActivation,
     appVersion: getAppEnvironment().getVersion(),
     ...(args.admitRecord ? { admitRecord: args.admitRecord } : {})
   })
@@ -240,14 +241,17 @@ export function rollbackManagedOrcadEnvironment(
               : 'Close the terminals running on this server before rolling it back.'
         }
       }
-      const result = await rollbackOrcad({
-        ...slot,
-        record,
-        census,
-        ...recount,
-        targetBuildHash,
-        targetDaemonProtocol: CURRENT_ORCAD_DAEMON_PROTOCOL
-      })
+      // Why held: an older Slack bridge would start the version being rolled back from again.
+      const result = await withSlotSlackBridgesHeld(slot, () =>
+        rollbackOrcad({
+          ...slot,
+          record,
+          census,
+          ...recount,
+          targetBuildHash,
+          targetDaemonProtocol: CURRENT_ORCAD_DAEMON_PROTOCOL
+        })
+      )
       if (result.outcome !== 'rolled-back') {
         return result
       }

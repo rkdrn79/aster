@@ -105,7 +105,11 @@ function skipped(
     case 'no-template':
     case 'migrating':
       return { note: { state: reason }, reason: 'connected', recorded: false }
+    // The server-update scheduler reports the policy's holds on its own status line.
     case 'current':
+    case 'policy-off':
+    case 'policy-ask':
+    case 'scheduled':
       return { note: undefined, reason: 'connected', recorded: false }
   }
 }

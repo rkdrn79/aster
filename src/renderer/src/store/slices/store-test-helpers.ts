@@ -48,6 +48,7 @@ import { createNewIssueDraftSlice } from './new-issue-draft'
 import { createFeedbackDraftSlice } from './feedback-draft'
 import { createTaskCreationDraftsSlice } from './task-creation-drafts'
 import { createRemoteServerUpdatesSlice } from './remote-server-updates'
+import { createServerAutoUpdateSlice } from './server-auto-update'
 import { createTerminalQuickCommandHostsSlice } from './terminal-quick-command-hosts'
 import { createStructuredSessionLaunchDirectorySlice } from './structured-session-launch-directories'
 import { createStructuredChatSleptAtSlice } from './structured-chat-slept-at'
@@ -114,6 +115,7 @@ export function createTestStore() {
         ...createFeedbackDraftSlice(...a),
         ...createTaskCreationDraftsSlice(...a),
         ...createRemoteServerUpdatesSlice(...a),
+        ...createServerAutoUpdateSlice(...a),
         ...createTerminalQuickCommandHostsSlice(...a),
         ...createStructuredSessionLaunchDirectorySlice(...a),
         ...createStructuredChatSleptAtSlice(...a),

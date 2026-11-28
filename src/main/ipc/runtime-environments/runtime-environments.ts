@@ -33,6 +33,8 @@ import { registerOrcadRuntimeConversionHandlers } from './orcad-runtime-conversi
 import { registerOrcadDeltaMoveHandlers } from './orcad-delta-move-handlers'
 import { registerOrcadLeaveBehindHandlers } from './orcad-leave-behind-handlers'
 import { registerOrcadRuntimeMaintenanceHandlers } from './orcad-runtime-maintenance-handlers'
+import { installServerAutoUpdate } from './server-auto-update-service'
+import { broadcastToRenderers } from './runtime-environment-renderer-broadcast'
 import { clearPublishedManagedServer } from '../ssh/ssh-renderer-broadcast'
 import { clearManagedServerNotes } from './runtime-environment-managed-tunnel'
 import { reconcileOrphanedRuntimeSessions } from './runtime-environment-session-reconcile'
@@ -181,6 +183,12 @@ export function registerRuntimeEnvironmentHandlers(store: Store): void {
     clearHostServerStatus: clearPublishedManagedServer,
     clearHostServerNotes: clearManagedServerNotes,
     store
+  })
+  installServerAutoUpdate({
+    getUserDataPath,
+    getSettings: () => store.getSettings(),
+    invalidateTransport: invalidateRuntimeEnvironmentTransport,
+    broadcast: broadcastToRenderers
   })
   registerRuntimeEnvironmentSubscriptionHandlers({
     getUserDataPath,

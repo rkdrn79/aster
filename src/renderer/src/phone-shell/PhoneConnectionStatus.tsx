@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { CloudOff, LoaderCircle } from 'lucide-react'
+import { CheckCircle2, CloudOff, LoaderCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { usePhoneServerUpdatedNotice } from './phone-server-updated'
 import { usePhoneHostStatus, type PhoneHostConnection } from './use-phone-host-status'
 
 // Why a delay: a heartbeat re-check is not news; a link down this long is.
@@ -49,11 +50,36 @@ function useShownAfterDelay(show: boolean): boolean {
   return show && shown
 }
 
-/** A band under the header on every screen while the host cannot be reached. */
+/** The few seconds after the host came back on a newer Aster than it had before. */
+function PhoneServerUpdatedBanner({ version }: { version: string }): React.JSX.Element {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      data-phone-connection-banner="updated"
+      className="flex shrink-0 items-center gap-2 border-b border-border bg-muted py-2 pr-[max(env(safe-area-inset-right),1rem)] pl-[max(env(safe-area-inset-left),1rem)] text-[13px] text-foreground"
+    >
+      <CheckCircle2 className="size-4 shrink-0 text-status-success" aria-hidden />
+      <span className="min-w-0 truncate">Server updated to {version}</span>
+    </div>
+  )
+}
+
+/**
+ * A band under the header on every screen while the host cannot be reached, and briefly after
+ * the host came back updated.
+ */
 export function PhoneConnectionBanner(): React.JSX.Element | null {
   const host = usePhoneHostStatus()
   const shown = useShownAfterDelay(host.connection !== 'connected')
-  if (!shown || host.connection === 'connected') {
+  const updatedTo = usePhoneServerUpdatedNotice({
+    connected: host.connection === 'connected',
+    appVersion: host.appVersion
+  })
+  if (host.connection === 'connected') {
+    return updatedTo ? <PhoneServerUpdatedBanner version={updatedTo} /> : null
+  }
+  if (!shown) {
     return null
   }
   const offline = host.connection === 'offline'

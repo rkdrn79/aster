@@ -4,6 +4,7 @@ import { normalizePRBotAuthorOverrides } from '../../../shared/pr-bot-author-ove
 import { normalizeTerminalQuickCommands } from '../../../shared/terminal-quick-commands'
 import { normalizeOpenInApplications } from '../../../shared/open-in-applications'
 import { normalizeTerminalShortcutPolicy } from '../../../shared/keybindings'
+import { normalizeServerAutoUpdateMode } from '../../../shared/server-auto-update'
 import { normalizeAppIconId } from '../../../shared/app-icon'
 import { normalizeAccentColor } from '../../../shared/accent-color-tokens'
 import { normalizeTerminalCustomThemes } from '../../../shared/terminal-custom-themes'
@@ -164,6 +165,7 @@ export function normalizeLoadedGlobalSettings(
     terminalShortcutPolicy: normalizeTerminalShortcutPolicy(
       parsed.settings?.terminalShortcutPolicy
     ),
+    serverAutoUpdate: normalizeServerAutoUpdateMode(parsed.settings?.serverAutoUpdate) ?? 'idle',
     disabledTuiAgents: migratedDisabledTuiAgents,
     ...migratedAgentYoloDefaults,
     claudeAgentTeamsDefaultDisabledMigrated: true,

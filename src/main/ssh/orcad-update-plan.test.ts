@@ -51,6 +51,45 @@ describe('planOrcadUpdate', () => {
     expect(plan.action === 'defer' && plan.reason).toContain('would not kill them')
   })
 
+  it('carries counted terminals across for the automatic update when their daemon attaches', () => {
+    const plan = planOrcadUpdate({
+      candidateDaemonProtocol: PROTOCOL,
+      record: record(),
+      candidateVersion: '0.3.0+cc01',
+      census: { liveSessions: 3, startedSinceActivation: 1, daemonProtocolVersion: 2 },
+      carryLiveTerminals: true
+    })
+    expect(plan).toMatchObject({ action: 'proceed', preservesLiveDaemon: true })
+    expect(plan.action === 'proceed' && plan.notes[0]).toContain('Carried with 3 live terminals')
+  })
+
+  it('still defers a carried update the census or protocol cannot vouch for', () => {
+    const base = {
+      candidateDaemonProtocol: PROTOCOL,
+      record: record(),
+      candidateVersion: '0.3.0+cc01',
+      carryLiveTerminals: true
+    }
+    expect(
+      planOrcadUpdate({
+        ...base,
+        census: { liveSessions: null, startedSinceActivation: null, daemonProtocolVersion: 3 }
+      })
+    ).toMatchObject({ action: 'defer', code: 'orcad_update_terminal_census_unavailable' })
+    expect(
+      planOrcadUpdate({
+        ...base,
+        census: { liveSessions: 2, startedSinceActivation: 0, daemonProtocolVersion: null }
+      })
+    ).toMatchObject({ action: 'defer', code: 'orcad_update_terminals_running' })
+    expect(
+      planOrcadUpdate({
+        ...base,
+        census: { liveSessions: 2, startedSinceActivation: 0, daemonProtocolVersion: 9 }
+      })
+    ).toMatchObject({ action: 'defer', code: 'orcad_update_strands_live_terminals' })
+  })
+
   it('defers when the session count cannot be established', () => {
     const plan = planOrcadUpdate({
       candidateDaemonProtocol: PROTOCOL,

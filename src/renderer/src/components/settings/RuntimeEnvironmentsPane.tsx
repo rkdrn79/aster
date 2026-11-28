@@ -18,6 +18,7 @@ import { RuntimeAddServerDialog } from './runtime-add-server-dialog'
 import { RuntimeDefaultHostRow } from './runtime-default-host-row'
 import { RuntimeInstallServerDialog } from './runtime-install-server-dialog'
 import { RuntimeServerList } from './runtime-server-list'
+import { ServerAutoUpdateSetting } from './ServerAutoUpdateSetting'
 import { useRuntimeServersPage } from './runtime-servers-page-context'
 import { WslHostsSection } from './WslHostsSection'
 import { useManagedServerCatalog } from './use-managed-server-catalog'
@@ -213,6 +214,9 @@ export function RuntimeEnvironmentsPane({
         isBusy={isBusy}
         onValueChange={requestSwitch}
       />
+
+      {/* Why gated on the managed API: only the desktop updates managed SSH servers. */}
+      {managedCatalog.api ? <ServerAutoUpdateSetting /> : null}
 
       <RuntimeServerList
         environments={environments}

@@ -1997,6 +1997,16 @@
             }
           }
         },
+        "serverAutoUpdate": {
+          "chatsContinued_one": "{{count}} chat continued",
+          "chatsContinued_other": "{{count}} chats continued",
+          "confirmBody_one": "{{count}} agent is working on {{host}}. Updating now stops its current reply; Aster continues that chat after the update. Terminals and jobs keep running.",
+          "confirmBody_other": "{{count}} agents are working on {{host}}. Updating now stops their current replies; Aster continues those chats after the update. Terminals and jobs keep running.",
+          "nowResumed_one": "{{count}} chat continued.",
+          "nowResumed_other": "{{count}} chats continued.",
+          "waitingAgents_one": "Update waiting: {{count}} agent working on {{host}}",
+          "waitingAgents_other": "Update waiting: {{count}} agents working on {{host}}"
+        },
         "settingOwnership": {
           "clientDefaultProjectScopes": "Client default + project scopes",
           "terminalQuickCommands": "Commands are saved on this client, then scoped globally or to a project setup so they run from the selected terminal context."

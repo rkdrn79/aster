@@ -47,6 +47,8 @@ export type PhoneHostStatus = {
   endpoint: string | null
   state: RuntimeHostConnectionState
   connection: PhoneHostConnection
+  /** The Aster version the host last answered with; null until it has. */
+  appVersion: string | null
 }
 
 function endpointHost(endpoint: string): string {
@@ -70,6 +72,7 @@ export function usePhoneHostStatus(): PhoneHostStatus {
     name: environment?.name ?? 'Host',
     endpoint: endpoint ? endpointHost(endpoint) : null,
     state,
-    connection: phoneHostConnection(state)
+    connection: phoneHostConnection(state),
+    appVersion: entry?.status?.appVersion?.trim() || entry?.appVersion?.trim() || null
   }
 }

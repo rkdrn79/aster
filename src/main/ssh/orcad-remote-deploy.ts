@@ -75,6 +75,14 @@ export type OrcadDeployOptions = {
    */
   releaseIncumbentAdmission: () => Promise<void>
   force?: boolean
+  /** Restart past running terminals the new build provably reattaches (see `planOrcadUpdate`). */
+  carryLiveTerminals?: boolean
+  /**
+   * Taken under the host fence once the bytes are uploaded, before anything stops; released when
+   * the activation ends either way. A refusal leaves the incumbent serving. The automatic update
+   * re-checks its chats here and pauses a Slack bridge that would restart the old server.
+   */
+  holdActivation?: (options: OrcadDeployOptions) => Promise<OrcadActivationHold>
   /** The Orca app version activating, recorded so an older client never downgrades the host. */
   appVersion?: string
   /**
@@ -89,6 +97,10 @@ export type OrcadDeployOptions = {
   sleep?: (ms: number) => Promise<void>
   signal?: AbortSignal
 }
+
+export type OrcadActivationHold =
+  | { refused: { code: string; reason: string } }
+  | { release: () => Promise<void> }
 
 export type OrcadDeployResult =
   | { outcome: 'installed-and-activated'; fullVersion: string; verdict: OrcadActivationVerdict }
@@ -146,9 +158,30 @@ export async function deployOrcad(
       withOrcadActivationLock(
         options,
         (lock) =>
-          activateInstalledOrcad({ ...options, censusRecord }, fullVersion, remoteDir, lock),
+          withActivationHold(options, fullVersion, () =>
+            activateInstalledOrcad({ ...options, censusRecord }, fullVersion, remoteDir, lock)
+          ),
         held
       ),
     ['installed-and-activated', 'already-active']
   )
+}
+
+async function withActivationHold(
+  options: OrcadDeployOptions,
+  fullVersion: string,
+  activate: () => Promise<OrcadDeployResult>
+): Promise<OrcadDeployResult> {
+  const hold = options.holdActivation ? await options.holdActivation(options) : null
+  if (hold && 'refused' in hold) {
+    return { outcome: 'installed-not-activated', fullVersion, ...hold.refused }
+  }
+  try {
+    return await activate()
+  } finally {
+    // Why never throw from here: the activation's own outcome is what the caller must see.
+    await hold?.release().catch((error: unknown) => {
+      console.warn('[orcad] Could not release the activation hold:', error)
+    })
+  }
 }

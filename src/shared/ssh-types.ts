@@ -1,6 +1,7 @@
 import type { SshPendingPtyKill } from './ssh-pending-pty-kill'
 import type { OrcadSshProvisioningIntent } from './orcad-ssh-provisioning'
 import type { NodeDistMirrorAttempt } from './node-dist-mirror'
+import type { ServerAutoUpdateMode } from './server-auto-update'
 
 // ─── SSH Connection Types ───────────────────────────────────────────
 
@@ -112,6 +113,8 @@ export type SshTarget = {
    * desktop's retained profile instead of refusing the move. Cleared once the host moves.
    */
   managedServerLeaveBehind?: { confirmedAt: string }
+  /** This host's own "Update servers automatically" choice; absent follows the global setting. */
+  serverAutoUpdate?: ServerAutoUpdateMode
   /** Main-owned: updating the managed server to this app version failed; retried once it changes. */
   managedServerUpdateFailure?: { reason: string; appVersion: string }
   orcadFence?: {

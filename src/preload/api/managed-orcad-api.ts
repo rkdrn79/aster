@@ -16,6 +16,12 @@ import type {
 } from '../../shared/orcad-managed-runtime'
 import type { PublicKnownRuntimeEnvironment } from '../../shared/runtime-environments'
 import type {
+  ServerAutoUpdateHostStatus,
+  ServerAutoUpdateMode,
+  ServerAutoUpdateNowResult
+} from '../../shared/server-auto-update'
+import { SERVER_AUTO_UPDATE_CHANGED_CHANNEL } from '../../shared/server-auto-update-channels'
+import type {
   RuntimeSshAccessLinkRequest,
   RuntimeSshAccessUnlinkRequest
 } from '../../shared/runtime-ssh-access'
@@ -51,6 +57,16 @@ export type ManagedOrcadPreloadApi = {
   keepServerVersion: (args: { sshTargetId: string }) => Promise<void>
   /** "Move anyway": the next connect leaves what can't move on this desktop. */
   allowMoveLeavingBehind: (args: { sshTargetId: string }) => Promise<void>
+  /** Each managed server's automatic-update state, as the desktop last saw it. */
+  autoUpdateStatus: () => Promise<ServerAutoUpdateHostStatus[]>
+  /** Updates now even while agents work; the chats an update cuts are continued after it. */
+  autoUpdateNow: (args: { selector: string }) => Promise<ServerAutoUpdateNowResult>
+  onAutoUpdateChanged: (callback: (statuses: ServerAutoUpdateHostStatus[]) => void) => () => void
+  /** This host's own choice; null follows the global "Update servers automatically" setting. */
+  setAutoUpdateMode: (args: {
+    sshTargetId: string
+    mode: ServerAutoUpdateMode | null
+  }) => Promise<void>
 }
 
 export const managedOrcadApi: ManagedOrcadPreloadApi = {
@@ -73,5 +89,17 @@ export const managedOrcadApi: ManagedOrcadPreloadApi = {
   keepServerVersion: (args) =>
     ipcRenderer.invoke('runtimeEnvironments:keepOrcadServerVersion', args),
   allowMoveLeavingBehind: (args) =>
-    ipcRenderer.invoke('runtimeEnvironments:allowOrcadMoveLeavingBehind', args)
+    ipcRenderer.invoke('runtimeEnvironments:allowOrcadMoveLeavingBehind', args),
+  autoUpdateStatus: () => ipcRenderer.invoke('runtimeEnvironments:serverAutoUpdateStatus'),
+  autoUpdateNow: (args) => ipcRenderer.invoke('runtimeEnvironments:serverAutoUpdateNow', args),
+  setAutoUpdateMode: (args) =>
+    ipcRenderer.invoke('runtimeEnvironments:setServerAutoUpdateMode', args),
+  onAutoUpdateChanged: (callback) => {
+    const listener = (
+      _event: Electron.IpcRendererEvent,
+      statuses: ServerAutoUpdateHostStatus[]
+    ): void => callback(statuses)
+    ipcRenderer.on(SERVER_AUTO_UPDATE_CHANGED_CHANNEL, listener)
+    return () => ipcRenderer.removeListener(SERVER_AUTO_UPDATE_CHANGED_CHANNEL, listener)
+  }
 }
